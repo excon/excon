@@ -54,28 +54,16 @@ module Excon
       end
 
       unless params[:method] == 'HEAD' || [204, 304, *(100..199)].include?(response.status)
-        if (error && params[:error_parser]) || params[:parser]
-          if error
-            parser = params[:error_parser]
-          elsif params[:parser]
-            parser = params[:parser]
-          end
-          body = Nokogiri::XML::SAX::PushParser.new(parser)
-        elsif params[:block]
-          body = nil
-        else
+        unless params[:block]
           body = ''
+          params[:block] = lambda { |chunk| body << chunk }
         end
 
         if response.headers['Content-Length']
-          if error || !params[:block]
-            body << connection.read(response.headers['Content-Length'].to_i)
-          else
-            remaining = response.headers['Content-Length'].to_i
-            while remaining > 0
-              params[:block].call(connection.read([CHUNK_SIZE, remaining].min))
-              remaining -= CHUNK_SIZE;
-            end
+          remaining = response.headers['Content-Length'].to_i
+          while remaining > 0
+            params[:block].call(connection.read([CHUNK_SIZE, remaining].min))
+            remaining -= CHUNK_SIZE;
           end
         elsif response.headers['Transfer-Encoding'] == 'chunked'
           while true
@@ -85,24 +73,15 @@ module Excon
             if chunk_size == 0
               break
             else
-              if error || !params[:block]
-                body << chunk
-              else
-                params[:block].call(chunk)
-              end
+              params[:block].call(chunk)
             end
           end
         elsif response.headers['Connection'] == 'close'
-          body << connection.read
+          params[:block].call(connection.read)
           @connection = nil
         end
 
-        if parser
-          body.finish
-          response.body = parser.response
-        else
-          response.body = body
-        end
+        response.body = body
       end
 
       if error
