@@ -43,19 +43,18 @@ module Excon
       response.status = connection.readline[9..11].to_i
       while true
         data = connection.readline.chop!
-        if data == ""
+        unless data.empty?
+          header = data.split(': ')
+          response.headers[header[0]] = header[1]
+        else
           break
         end
-        header = data.split(': ')
-        response.headers[header[0]] = header[1]
       end
 
       unless params[:method] == 'HEAD'
         unless params[:block]
-          body = ''
-          params[:block] = lambda { |chunk| body << chunk }
-        else
-          body = nil
+          response.body = ''
+          params[:block] = lambda { |chunk| response.body << chunk }
         end
 
         if response.headers['Content-Length']
@@ -67,20 +66,17 @@ module Excon
         elsif response.headers['Transfer-Encoding'] == 'chunked'
           while true
             chunk_size = connection.readline.chomp!.to_i(16)
-            # 2 == "/r/n".length
-            chunk = connection.read(chunk_size + 2).chop!
-            if chunk_size == 0
-              break
-            else
+            chunk = connection.read(chunk_size + 2).chop! # 2 == "/r/n".length
+            if chunk_size > 0
               params[:block].call(chunk)
+            else
+              break
             end
           end
         elsif response.headers['Connection'] == 'close'
           params[:block].call(connection.read)
           @connection = nil
         end
-
-        response.body = body
       end
 
       if params[:expects] && ![*params[:expects]].include?(response.status)
