@@ -41,9 +41,6 @@ module Excon
 
       response = Excon::Response.new
       response.status = connection.readline[9..11].to_i
-      if params[:expects] && ![*params[:expects]].include?(response.status)
-        error = true
-      end
       while true
         data = connection.readline.chomp!
         if data == ""
@@ -57,13 +54,15 @@ module Excon
         unless params[:block]
           body = ''
           params[:block] = lambda { |chunk| body << chunk }
+        else
+          body = nil
         end
 
         if response.headers['Content-Length']
           remaining = response.headers['Content-Length'].to_i
           while remaining > 0
             params[:block].call(connection.read([CHUNK_SIZE, remaining].min))
-            remaining -= CHUNK_SIZE;
+            remaining -= CHUNK_SIZE
           end
         elsif response.headers['Transfer-Encoding'] == 'chunked'
           while true
@@ -84,7 +83,7 @@ module Excon
         response.body = body
       end
 
-      if error
+      if params[:expects] && ![*params[:expects]].include?(response.status)
         raise(Excon::Errors.status_error(params[:expects], response.status, response))
       else
         response
