@@ -85,7 +85,7 @@ module Excon
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
       error = @errors[actual]
-      error[0].new("Expected(#{expected.inspect}) <=> Actual(#{actual} #{error[1]]}): #{response.body}")
+      error[0].new("Expected(#{expected.inspect}) <=> Actual(#{actual} #{error[1]}): #{response.body}")
     end
 
   end
