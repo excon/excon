@@ -10,6 +10,7 @@ require 'socket'
 require 'uri'
 
 require 'excon/connection'
+require 'excon/errors'
 require 'excon/response'
 
 module Excon
