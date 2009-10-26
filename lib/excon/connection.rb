@@ -42,7 +42,7 @@ module Excon
       response = Excon::Response.new
       response.status = connection.readline[9..11].to_i
       while true
-        data = connection.readline.chomp!
+        data = connection.readline.chop!
         if data == ""
           break
         end
@@ -68,7 +68,7 @@ module Excon
           while true
             chunk_size = connection.readline.chomp!.to_i(16)
             # 2 == "/r/n".length
-            chunk = connection.read(chunk_size + 2)[0...-2]
+            chunk = connection.read(chunk_size + 2).chop!
             if chunk_size == 0
               break
             else
