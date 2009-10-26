@@ -50,7 +50,7 @@ module Excon
         response.headers[header[0]] = header[1]
       end
 
-      unless params[:method] == 'HEAD' || [204, 304, *(100..199)].include?(response.status)
+      unless params[:method] == 'HEAD'
         unless params[:block]
           body = ''
           params[:block] = lambda { |chunk| body << chunk }
