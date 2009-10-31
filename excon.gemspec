@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{excon}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Wesley Beary"]
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
      "benchmarks/excon_vs.rb",
      "benchmarks/headers_split_vs_match.rb",
      "benchmarks/strip_newline.rb",
+     "excon.gemspec",
      "lib/excon.rb",
      "lib/excon/connection.rb",
      "lib/excon/errors.rb",
