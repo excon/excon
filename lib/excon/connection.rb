@@ -53,7 +53,7 @@ module Excon
         end
 
         unless params[:method] == 'HEAD'
-          unless params[:block]
+          unless params[:block] || ![*params[:expects]].compact.include?(response.status)
             response.body = ''
             params[:block] = lambda { |chunk| response.body << chunk }
           end
