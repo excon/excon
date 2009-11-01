@@ -3,9 +3,10 @@ module Excon
 
     attr_accessor :body, :headers, :status
 
-    def initialize
-      @body = ''
-      @headers = {}
+    def initialize(attributes = {})
+      @body    = attributes[:body] || ''
+      @headers = attributes[:headers] || {}
+      @status  = attributes[:status]
     end
 
   end
