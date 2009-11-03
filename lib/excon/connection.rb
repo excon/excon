@@ -3,10 +3,6 @@ unless Excon.mocking?
   module Excon
     class Connection
 
-      unless defined?(:CHUNK_SIZE)
-        CHUNK_SIZE = 1048576 # 1 megabyte
-      end
-
       def initialize(url)
         @uri = URI.parse(url)
       end

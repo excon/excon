@@ -13,6 +13,8 @@ require 'excon/response'
 
 module Excon
 
+  CHUNK_SIZE = 1048576 # 1 megabyte
+
   def self.reload
     load 'excon/connection.rb'
   end
