@@ -51,7 +51,7 @@ unless Excon.mocking?
           end
 
           unless params[:method] == 'HEAD'
-            unless params[:block] || params[:expects] && ![*params[:expects]].include?(response.status)
+            if !params[:block] || (params[:expects] && ![*params[:expects]].include?(response.status))
               response.body = ''
               params[:block] = lambda { |chunk| response.body << chunk }
             end
