@@ -44,7 +44,7 @@ module Excon
     class GatewayTimeout < Error; end               # 504
 
     # Messages for nicer exceptions, from rfc2616
-    def self.status_error(expected, actual, response)
+    def self.status_error(request, response)
       @errors ||= { 
         100 => [Excon::Errors::Continue, 'Continue'],
         101 => [Excon::Errors::SwitchingProtocols, 'Switching Protocols'],
@@ -86,8 +86,8 @@ module Excon
         503 => [Excon::Errors::ServiceUnavailable, 'Service Unavailable'],
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
-      error = @errors[actual]
-      error[0].new("Expected(#{expected.inspect}) <=> Actual(#{actual} #{error[1]}): #{response.body}")
+      error, message = @errors[response.status]
+      error.new("Expected(#{request[:expects]}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}")
     end
 
   end

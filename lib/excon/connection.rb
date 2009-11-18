@@ -83,7 +83,7 @@ unless Excon.mocking?
         end
 
         if params[:expects] && ![*params[:expects]].include?(response.status)
-          raise(Excon::Errors.status_error(params[:expects], response.status, response))
+          raise(Excon::Errors.status_error(params, response))
         else
           response
         end
