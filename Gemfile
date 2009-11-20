@@ -8,3 +8,7 @@ end
 only :test_server do
   gem 'sinatra', :require_as => 'sinatra/base'
 end
+
+only :benchmarks do
+  gem 'eventmachine'
+end
