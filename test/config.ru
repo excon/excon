@@ -1,4 +1,4 @@
-require 'sinatra/base'
+Bundler.require_env(:test_server)
 
 class App < Sinatra::Base
   get '/id/:id/wait/:wait' do |id, wait|
