@@ -92,19 +92,22 @@ unless Excon.mocking?
       private
 
       def connection
-        if !@connection || @connection.closed?
-          @connection = TCPSocket.open(@uri.host, @uri.port)
-          if @uri.scheme == 'https'
-            @ssl_context = OpenSSL::SSL::SSLContext.new
-            @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-            @connection = OpenSSL::SSL::SSLSocket.new(@connection, @ssl_context)
-            @connection.sync_close = true
-            @connection.connect
-          end
-        end
-        @connection
+        Thread.current[:_excon_connection] ||= establish_connection
       end
 
+      def establish_connection
+        connection = TCPSocket.open(@uri.host, @uri.port)
+
+        if @uri.scheme == 'https'
+          @ssl_context = OpenSSL::SSL::SSLContext.new
+          @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          connection = OpenSSL::SSL::SSLSocket.new(connection, @ssl_context)
+          connection.sync_close = true
+          connection.connect
+        end
+
+        connection
+      end
     end
   end
 
