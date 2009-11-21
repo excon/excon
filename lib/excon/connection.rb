@@ -95,6 +95,7 @@ unless Excon.mocking?
         if !Thread.current[:_excon_connection] || Thread.current[:_excon_connection].closed?
           Thread.current[:_excon_connection] = establish_connection
         end
+        Thread.current[:_excon_connection]
       end
 
       def establish_connection
