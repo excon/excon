@@ -7,16 +7,18 @@ with_rackup do
 
       long_thread = Thread.new {
         response = connection.request(:method => 'GET', :path => '/id/1/wait/2')
-        raise "long request got the short response" unless response.body == '1'
+        Thread.current[:success] = response.body == '1'
       }
 
       short_thread = Thread.new {
         response = connection.request(:method => 'GET', :path => '/id/2/wait/1')
-        raise "short request got the long response" unless response.body == '2'
+        Thread.current[:success] = response.body == '2'
       }
 
       long_thread.join
       short_thread.join
+
+      long_thread[:success] && short_thread[:success]
     end
   end
 end
