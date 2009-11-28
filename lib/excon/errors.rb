@@ -37,6 +37,7 @@ module Excon
     class UnsupportedMediaType < Error; end         # 415
     class RequestedRangeNotSatisfiable < Error; end # 416
     class ExpectationFailed < Error; end            # 417
+    class UnprocessableEntity < Error; end          # 422
     class InternalServerError < Error; end          # 500
     class NotImplemented < Error; end               # 501
     class BadGateway < Error; end                   # 502
@@ -80,13 +81,14 @@ module Excon
         415 => [Excon::Errors::UnsupportedMediaType, 'Unsupported Media Type'],
         416 => [Excon::Errors::RequestedRangeNotSatisfiable, 'Request Range Not Satisfiable'],
         417 => [Excon::Errors::ExpectationFailed, 'Expectation Failed'],
+        422 => [Excon::Errors::UnprocessableEntity, 'Unprocessable Entity'],
         500 => [Excon::Errors::InternalServerError, 'InternalServerError'],
         501 => [Excon::Errors::NotImplemented, 'Not Implemented'],
         502 => [Excon::Errors::BadGateway, 'Bad Gateway'],
         503 => [Excon::Errors::ServiceUnavailable, 'Service Unavailable'],
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
-      error, message = @errors[response.status]
+      error, message = @errors[response.status] || [Excon::Errors::Error, 'Unknown']
       error.new("Expected(#{request[:expects]}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}")
     end
 
