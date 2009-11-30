@@ -87,6 +87,17 @@ unless Excon.mocking?
         else
           response
         end
+
+      rescue => request_error
+        if params[:idempotent]
+          retries_remaining ||= 3
+          retries_remaining -= 1
+          if retries_remaining > 0
+            retry
+          end
+        else
+          raise(request_error)
+        end
       end
 
       private
@@ -139,6 +150,17 @@ else
           raise(Excon::Errors.status_error(params[:expects], response.status, response))
         else
           response
+        end
+
+      rescue => request_error
+        if params[:idempotent]
+          retries_remaining ||= 3
+          retries_remaining -= 1
+          if retries_remaining > 0
+            retry
+          end
+        else
+          raise(request_error)
         end
       end
 
