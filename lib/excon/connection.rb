@@ -89,7 +89,8 @@ unless Excon.mocking?
         end
 
       rescue => request_error
-        if params[:idempotent]
+        if params[:idempotent] &&
+            (!request_error.is_a?(Excon::Errors::Error) || response.status != 404)
           retries_remaining ||= 4
           retries_remaining -= 1
           if retries_remaining > 0
