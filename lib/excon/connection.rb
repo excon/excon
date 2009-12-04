@@ -74,11 +74,11 @@ unless Excon.mocking?
               end
             elsif response.headers['Connection'] == 'close'
               params[:block].call(connection.read)
-              @connection = nil
+              Thread.current[:_excon_connection] = nil
             end
           end
         rescue => connection_error
-          @connection = nil
+          Thread.current[:_excon_connection] = nil
           raise(connection_error)
         end
 
