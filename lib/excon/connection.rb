@@ -43,8 +43,8 @@ unless Excon.mocking?
           while true
             data = connection.readline.chop!
             unless data.empty?
-              header = data.split(': ')
-              response.headers[header[0]] = header[1]
+              key, value = data.split(': ')
+              response.headers[key] = value
             else
               break
             end
@@ -64,7 +64,7 @@ unless Excon.mocking?
               end
             elsif response.headers['Transfer-Encoding'] == 'chunked'
               while true
-                chunk_size = connection.readline.chomp!.to_i(16)
+                chunk_size = connection.readline.chop!.to_i(16)
                 chunk = connection.read(chunk_size + 2).chop! # 2 == "/r/n".length
                 if chunk_size > 0
                   params[:block].call(chunk)
