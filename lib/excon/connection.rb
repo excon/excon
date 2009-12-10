@@ -83,6 +83,7 @@ unless Excon.mocking?
         end
 
         if params[:expects] && ![*params[:expects]].include?(response.status)
+          Thread.current[:_excon_connection] = nil
           raise(Excon::Errors.status_error(params, response))
         else
           response
