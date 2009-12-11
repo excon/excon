@@ -51,15 +51,17 @@ unless Excon.mocking?
           end
 
           unless params[:method] == 'HEAD'
-            if !params[:block] || (params[:expects] && ![*params[:expects]].include?(response.status))
+            block = if !params[:block] || (params[:expects] && ![*params[:expects]].include?(response.status))
               response.body = ''
-              params[:block] = lambda { |chunk| response.body << chunk }
+              lambda { |chunk| response.body << chunk }
+            else
+              params[:block]
             end
 
             if response.headers['Content-Length']
               remaining = response.headers['Content-Length'].to_i
               while remaining > 0
-                params[:block].call(connection.read([CHUNK_SIZE, remaining].min))
+                block.call(connection.read([CHUNK_SIZE, remaining].min))
                 remaining -= CHUNK_SIZE
               end
             elsif response.headers['Transfer-Encoding'] == 'chunked'
@@ -67,13 +69,13 @@ unless Excon.mocking?
                 chunk_size = connection.readline.chop!.to_i(16)
                 chunk = connection.read(chunk_size + 2).chop! # 2 == "/r/n".length
                 if chunk_size > 0
-                  params[:block].call(chunk)
+                  block.call(chunk)
                 else
                   break
                 end
               end
             elsif response.headers['Connection'] == 'close'
-              params[:block].call(connection.read)
+              block.call(connection.read)
               Thread.current[:_excon_connection] = nil
             end
           end
