@@ -5,6 +5,7 @@ unless Excon.mocking?
 
       def initialize(url)
         @uri = URI.parse(url)
+        Thread.current[:_excon_connections] ||= {}
       end
 
       def request(params)
@@ -76,16 +77,16 @@ unless Excon.mocking?
               end
             elsif response.headers['Connection'] == 'close'
               block.call(connection.read)
-              Thread.current[:_excon_connection] = nil
+              Thread.current[:_excon_connections][@uri.to_s] = nil
             end
           end
         rescue => connection_error
-          Thread.current[:_excon_connection] = nil
+          Thread.current[:_excon_connections][@uri.to_s] = nil
           raise(connection_error)
         end
 
         if params[:expects] && ![*params[:expects]].include?(response.status)
-          Thread.current[:_excon_connection] = nil
+          Thread.current[:_excon_connections][@uri.to_s] = nil
           raise(Excon::Errors.status_error(params, response))
         else
           response
@@ -107,10 +108,10 @@ unless Excon.mocking?
       private
 
       def connection
-        if !Thread.current[:_excon_connection] || Thread.current[:_excon_connection].closed?
-          Thread.current[:_excon_connection] = establish_connection
+        if !Thread.current[:_excon_connections][@uri.to_s] || Thread.current[:_excon_connections][@uri.to_s].closed?
+          Thread.current[:_excon_connections][@uri.to_s] = establish_connection
         end
-        Thread.current[:_excon_connection]
+        Thread.current[:_excon_connections][@uri.to_s]
       end
 
       def establish_connection
