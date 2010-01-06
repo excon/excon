@@ -1,4 +1,4 @@
-Bundler.require_env(:benchmarks)
+require 'eventmachine'
 
 require File.join(File.dirname(__FILE__), '..', 'lib/excon')
 
