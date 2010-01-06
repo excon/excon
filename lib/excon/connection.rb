@@ -5,7 +5,6 @@ unless Excon.mocking?
 
       def initialize(url)
         @uri = URI.parse(url)
-        Thread.current[:_excon_connections] ||= {}
       end
 
       def request(params)
@@ -108,6 +107,7 @@ unless Excon.mocking?
       private
 
       def connection
+        Thread.current[:_excon_connections] ||= {}
         if !Thread.current[:_excon_connections][@uri.to_s] || Thread.current[:_excon_connections][@uri.to_s].closed?
           Thread.current[:_excon_connections][@uri.to_s] = establish_connection
         end
