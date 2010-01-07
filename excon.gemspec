@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{excon}
-  s.version = "0.0.14"
+  s.version = "0.0.15"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Wesley Beary"]
-  s.date = %q{2010-01-04}
+  s.date = %q{2010-01-06}
   s.description = %q{speed, persistence, http(s)}
   s.email = %q{wbeary@engineyard.com}
   s.extra_rdoc_files = [
@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
      ".gitignore",
-     "Gemfile",
      "README.rdoc",
      "Rakefile",
      "VERSION",
@@ -31,7 +30,6 @@ Gem::Specification.new do |s|
      "lib/excon/errors.rb",
      "lib/excon/response.rb",
      "tests/config.ru",
-     "tests/mock_tests.rb",
      "tests/test_helper.rb",
      "tests/threaded_tests.rb"
   ]
