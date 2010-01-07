@@ -8,6 +8,7 @@ require 'openssl'
 require 'socket'
 require 'uri'
 
+require 'excon/connection'
 require 'excon/errors'
 require 'excon/response'
 
@@ -15,29 +16,8 @@ module Excon
 
   CHUNK_SIZE = 1048576 # 1 megabyte
 
-  def self.reload
-    load 'excon/connection.rb'
-  end
-
-  def self.mock!
-    @mocking = true
-    @mocks = {}
-
-    def self.mocks
-      @mocks
-    end
-
-    self.reload
-  end
-
-  def self.mocking?
-    !!@mocking
-  end
-
   def self.new(url)
     Excon::Connection.new(url)
   end
 
 end
-
-Excon.reload
