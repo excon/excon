@@ -26,22 +26,22 @@ unless Excon.mocking?
             request << "#{key}: #{value}\r\n"
           end
           request << "\r\n"
-          connection.write(request)
+          socket.write(request)
 
           if params[:body]
             if params[:body].is_a?(String)
-              connection.write(params[:body])
+              socket.write(params[:body])
             else
               while chunk = params[:body].read(CHUNK_SIZE)
-                connection.write(chunk)
+                socket.write(chunk)
               end
             end
           end
 
           response = Excon::Response.new
-          response.status = connection.readline[9..11].to_i
+          response.status = socket.readline[9..11].to_i
           while true
-            data = connection.readline.chop!
+            data = socket.readline.chop!
             unless data.empty?
               key, value = data.split(': ')
               response.headers[key] = value
@@ -61,13 +61,13 @@ unless Excon.mocking?
             if response.headers['Content-Length']
               remaining = response.headers['Content-Length'].to_i
               while remaining > 0
-                block.call(connection.read([CHUNK_SIZE, remaining].min))
+                block.call(socket.read([CHUNK_SIZE, remaining].min))
                 remaining -= CHUNK_SIZE
               end
             elsif response.headers['Transfer-Encoding'] == 'chunked'
               while true
-                chunk_size = connection.readline.chop!.to_i(16)
-                chunk = connection.read(chunk_size + 2).chop! # 2 == "/r/n".length
+                chunk_size = socket.readline.chop!.to_i(16)
+                chunk = socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
                 if chunk_size > 0
                   block.call(chunk)
                 else
@@ -75,17 +75,17 @@ unless Excon.mocking?
                 end
               end
             elsif response.headers['Connection'] == 'close'
-              block.call(connection.read)
-              Thread.current[:_excon_connections][@uri.to_s] = nil
+              block.call(socket.read)
+              reset_socket
             end
           end
-        rescue => connection_error
-          Thread.current[:_excon_connections][@uri.to_s] = nil
-          raise(connection_error)
+        rescue => socket_error
+          reset_socket
+          raise(socket_error)
         end
 
         if params[:expects] && ![*params[:expects]].include?(response.status)
-          Thread.current[:_excon_connections][@uri.to_s] = nil
+          reset_socket
           raise(Excon::Errors.status_error(params, response))
         else
           response
@@ -106,27 +106,28 @@ unless Excon.mocking?
 
       private
 
-      def connection
-        Thread.current[:_excon_connections] ||= {}
-        if !Thread.current[:_excon_connections][@uri.to_s] || Thread.current[:_excon_connections][@uri.to_s].closed?
-          Thread.current[:_excon_connections][@uri.to_s] = establish_connection
-        end
-        Thread.current[:_excon_connections][@uri.to_s]
-      end
-
-      def establish_connection
-        connection = TCPSocket.open(@uri.host, @uri.port)
+      def reset_socket
+        new_socket = TCPSocket.open(@uri.host, @uri.port)
 
         if @uri.scheme == 'https'
           @ssl_context = OpenSSL::SSL::SSLContext.new
           @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          connection = OpenSSL::SSL::SSLSocket.new(connection, @ssl_context)
-          connection.sync_close = true
-          connection.connect
+          new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, @ssl_context)
+          new_socket.sync_close = true
+          new_socket.connect
         end
 
-        connection
+        Thread.current[:_excon_sockets][@uri.to_s] = new_socket
       end
+
+      def socket
+        Thread.current[:_excon_sockets] ||= {}
+        if !Thread.current[:_excon_sockets][@uri.to_s] || Thread.current[:_excon_sockets][@uri.to_s].closed?
+          reset_socket
+        end
+        Thread.current[:_excon_sockets][@uri.to_s]
+      end
+
     end
   end
 

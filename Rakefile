@@ -16,7 +16,7 @@ rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
 
-require File.join(File.dirname(__FILE__), 'lib', 'shindo', 'rake')
+require 'shindo/rake'
 Shindo::Rake.new
 
 task :test => :check_dependencies
