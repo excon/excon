@@ -116,6 +116,7 @@ module Excon
         new_socket.connect
       end
 
+      Thread.current[:_excon_sockets] ||= {}
       Thread.current[:_excon_sockets][@uri.to_s] = new_socket
     end
 
