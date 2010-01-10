@@ -3,6 +3,7 @@ module Excon
 
     def initialize(url)
       @uri = URI.parse(url)
+      reset_socket
     end
 
     def request(params)
