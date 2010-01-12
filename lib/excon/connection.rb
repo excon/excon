@@ -57,7 +57,10 @@ module Excon
             params[:block]
           end
 
-          if response.headers['Content-Length']
+          if response.headers['Connection'] == 'close'
+            block.call(socket.read)
+            reset_socket
+          elsif response.headers['Content-Length']
             remaining = response.headers['Content-Length'].to_i
             while remaining > 0
               block.call(socket.read([CHUNK_SIZE, remaining].min))
@@ -73,9 +76,6 @@ module Excon
                 break
               end
             end
-          elsif response.headers['Connection'] == 'close'
-            block.call(socket.read)
-            reset_socket
           end
         end
       rescue => socket_error
