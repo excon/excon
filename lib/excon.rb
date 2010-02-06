@@ -20,4 +20,12 @@ module Excon
     Excon::Connection.new(url)
   end
 
+  %w{connect delete get head options post put trace}.each do |method|
+    eval <<-DEF
+      def self.#{method}(url, params = {})
+        new(url).request(params.merge!(:method => '#{method.upcase}'))
+      end
+    DEF
+  end
+
 end

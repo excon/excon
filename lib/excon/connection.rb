@@ -8,11 +8,11 @@ module Excon
 
     def request(params)
       begin
-        params[:path] ||= ''
+        params[:path] ||= @uri.path
         unless params[:path][0..0] == '/'
           params[:path] = "/#{params[:path]}"
         end
-        if params[:query] && !params[:query].empty?
+        if (params[:query] && !params[:query].empty?) || @uri.query
           params[:path] << "?#{params[:query]}"
         end
         request = "#{params[:method]} #{params[:path]} HTTP/1.1\r\n"
