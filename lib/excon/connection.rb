@@ -97,6 +97,8 @@ module Excon
         retries_remaining -= 1
         if retries_remaining > 0
           retry
+        else
+          raise(request_error)
         end
       else
         raise(request_error)
