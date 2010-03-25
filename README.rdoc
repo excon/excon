@@ -2,11 +2,40 @@
 
 Http(s) EXtended CONnections
 
+== Getting Started
+
+  sudo gem install excon
+
+Now you are ready to get started, easiest is to use one off requests to start.
+
+  Excon.get('http://geemus.com')
+
+This will return a response object, which has body, headers and status attributes you can check out.
+
+This supports all the major http verbs: [connect, delete, get, head, options, post, put, trace]
+
+You can also create a connection to try and keep open across multiple requests.
+
+  connection = Excon.new('http://geemus.com')
+  connection.request(:method => 'GET')
+
+You can also specify more complicated options to either style of call
+
+  Excon.get('http://geemus.com', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
+  # or
+  connection.request(:method => 'GET', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
+
+If you need to do something special with a response you can also pass a block that will be called with each chunk.
+
+  Excon.get('http://geemus.com', :block => lambda {|chunk| p chunk })
+
+From there you should be able to make just about any request you might need.
+
 == Copyright
 
 (The MIT License)
 
-Copyright (c) 2009 {geemus (Wesley Beary)}[http://github.com/geemus]
+Copyright (c) 2010 {geemus (Wesley Beary)}[http://github.com/geemus]
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
