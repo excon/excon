@@ -18,8 +18,12 @@ module Excon
         request = "#{params[:method]} #{params[:path]} HTTP/1.1\r\n"
         params[:headers] ||= {}
         params[:headers]['Host'] = params[:host] || @uri.host
-        if params[:body] && !params[:headers]['Content-Length']
-          params[:headers]['Content-Length'] = params[:body].length
+        unless params[:headers]['Content-Length']
+          if params[:body]
+            params[:headers]['Content-Length'] = params[:body].length
+          else
+            params[:headers]['Content-Length'] = 0
+          end
         end
         for key, value in params[:headers]
           request << "#{key}: #{value}\r\n"
