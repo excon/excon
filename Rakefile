@@ -10,6 +10,7 @@ begin
     gem.email = "wbeary@engineyard.com"
     gem.homepage = "http://github.com/geemus/excon"
     gem.authors = ["Wesley Beary"]
+    # gem.add_development_dependency "shindo", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
