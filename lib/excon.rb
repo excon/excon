@@ -22,8 +22,8 @@ module Excon
 
   %w{connect delete get head options post put trace}.each do |method|
     eval <<-DEF
-      def self.#{method}(url, params = {})
-        new(url).request(params.merge!(:method => '#{method.upcase}'))
+      def self.#{method}(url, params = {}, &block)
+        new(url).request(params.merge!(:method => '#{method.upcase}'), &block)
       end
     DEF
   end

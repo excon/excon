@@ -6,7 +6,7 @@ module Excon
       reset_socket
     end
 
-    def request(params)
+    def request(params, &block)
       begin
         params[:path] ||= @uri.path
         unless params[:path][0..0] == '/'
@@ -19,11 +19,7 @@ module Excon
         params[:headers] ||= {}
         params[:headers]['Host'] = params[:host] || @uri.host
         unless params[:headers]['Content-Length']
-          if params[:body]
-            params[:headers]['Content-Length'] = params[:body].length
-          else
-            params[:headers]['Content-Length'] = 0
-          end
+          params[:headers]['Content-Length'] = (params[:body] && params[:body].length) || 0
         end
         for key, value in params[:headers]
           request << "#{key}: #{value}\r\n"
@@ -41,47 +37,11 @@ module Excon
           end
         end
 
-        response = Excon::Response.new
-        response.status = socket.readline[9..11].to_i
-        while true
-          data = socket.readline.chop!
-          unless data.empty?
-            key, value = data.split(': ')
-            response.headers[key] = value
-          else
-            break
-          end
+        response = Excon::Response.parse(socket, params, &block)
+        if response.headers['Connection'] == 'close'
+          reset_socket
         end
-
-        unless params[:method] == 'HEAD'
-          block = if !params[:block] || (params[:expects] && ![*params[:expects]].include?(response.status))
-            response.body = ''
-            lambda { |chunk| response.body << chunk }
-          else
-            params[:block]
-          end
-
-          if response.headers['Connection'] == 'close'
-            block.call(socket.read)
-            reset_socket
-          elsif response.headers['Content-Length']
-            remaining = response.headers['Content-Length'].to_i
-            while remaining > 0
-              block.call(socket.read([CHUNK_SIZE, remaining].min))
-              remaining -= CHUNK_SIZE
-            end
-          elsif response.headers['Transfer-Encoding'] == 'chunked'
-            while true
-              chunk_size = socket.readline.chop!.to_i(16)
-              chunk = socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
-              if chunk_size > 0
-                block.call(chunk)
-              else
-                break
-              end
-            end
-          end
-        end
+        response
       rescue => socket_error
         reset_socket
         raise(socket_error)

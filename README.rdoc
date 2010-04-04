@@ -27,7 +27,7 @@ You can also specify more complicated options to either style of call
 
 If you need to do something special with a response you can also pass a block that will be called with each chunk.
 
-  Excon.get('http://geemus.com', :block => lambda {|chunk| p chunk })
+  Excon.get('http://geemus.com') {|chunk| p chunk }
 
 From there you should be able to make just about any request you might need.
 
