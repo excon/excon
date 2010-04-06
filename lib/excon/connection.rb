@@ -1,23 +1,31 @@
 module Excon
   class Connection
 
-    def initialize(url)
-      @uri = URI.parse(url)
+    def initialize(url, params = {})
+      uri = URI.parse(url)
+      @connection = {
+        :headers  => {},
+        :host     => uri.host,
+        :path     => uri.path,
+        :port     => uri.port,
+        :query    => uri.query,
+        :scheme   => uri.scheme
+      }.merge!(params)
       reset_socket
     end
 
     def request(params, &block)
       begin
-        params[:path] ||= @uri.path
+        params[:path] ||= @connection[:path]
         unless params[:path][0..0] == '/'
           params[:path] = "/#{params[:path]}"
         end
-        if (params[:query] && !params[:query].empty?) || @uri.query
+        if (params[:query] && !params[:query].empty?) || @connection[:query]
           params[:path] << "?#{params[:query]}"
         end
         request = "#{params[:method]} #{params[:path]} HTTP/1.1\r\n"
-        params[:headers] ||= {}
-        params[:headers]['Host'] = params[:host] || @uri.host
+        params[:headers] ||= @connection[:headers]
+        params[:headers]['Host'] = params[:host] || @connection[:host]
         unless params[:headers]['Content-Length']
           params[:headers]['Content-Length'] = (params[:body] && params[:body].length) || 0
         end
@@ -27,7 +35,7 @@ module Excon
         request << "\r\n"
         socket.write(request)
 
-        if params[:body]
+        if params[:body] ||= @connection[:body]
           if params[:body].is_a?(String)
             socket.write(params[:body])
           else
@@ -72,9 +80,9 @@ module Excon
     private
 
     def reset_socket
-      new_socket = TCPSocket.open(@uri.host, @uri.port)
+      new_socket = TCPSocket.open(@connection[:host], @connection[:port])
 
-      if @uri.scheme == 'https'
+      if @connection[:scheme] == 'https'
         @ssl_context = OpenSSL::SSL::SSLContext.new
         @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
         new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, @ssl_context)
@@ -83,15 +91,15 @@ module Excon
       end
 
       Thread.current[:_excon_sockets] ||= {}
-      Thread.current[:_excon_sockets][@uri.to_s] = new_socket
+      Thread.current[:_excon_sockets][@connection.inspect] = new_socket
     end
 
     def socket
       Thread.current[:_excon_sockets] ||= {}
-      if !Thread.current[:_excon_sockets][@uri.to_s] || Thread.current[:_excon_sockets][@uri.to_s].closed?
+      if !Thread.current[:_excon_sockets][@connection.inspect] || Thread.current[:_excon_sockets][@connection.inspect].closed?
         reset_socket
       end
-      Thread.current[:_excon_sockets][@uri.to_s]
+      Thread.current[:_excon_sockets][@connection.inspect]
     end
 
   end

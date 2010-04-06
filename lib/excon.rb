@@ -16,8 +16,8 @@ module Excon
 
   CHUNK_SIZE = 1048576 # 1 megabyte
 
-  def self.new(url)
-    Excon::Connection.new(url)
+  def self.new(url, params = {})
+    Excon::Connection.new(url, params)
   end
 
   %w{connect delete get head options post put trace}.each do |method|
