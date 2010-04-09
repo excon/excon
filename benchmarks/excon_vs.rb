@@ -1,5 +1,3 @@
-require 'eventmachine'
-
 require File.join(File.dirname(__FILE__), '..', 'lib/excon')
 
 require 'benchmark'
@@ -37,26 +35,5 @@ Benchmark.bmbm(25) do |bench|
     COUNT.times do
       open('http://www.google.com/').read
     end
-  end
-  bench.report('em') do
-    module DumbHttpClient
-      @@responses = 0
-      def post_init
-        send_data "GET / HTTP/1.1\r\nHost: _\r\n\r\n"
-      end
-
-      def receive_data(*)
-        @@responses += 1
-        if @@responses == COUNT
-          EM.stop
-        end
-      end
-    end
-
-    EM.run{
-      COUNT.times do
-        EM.connect 'www.google.com', 80, DumbHttpClient
-      end
-    }
   end
 end
