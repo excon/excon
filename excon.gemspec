@@ -12,10 +12,10 @@ Gem::Specification.new do |s|
   ## Leave these as is they will be modified for you by the rake gemspec task.
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
-  s.name              = 'NAME'
-  s.version           = '0.0'
-  s.date              = '2010-01-01'
-  s.rubyforge_project = 'NAME'
+  s.name              = 'excon'
+  s.version           = '0.0.19'
+  s.date              = '2010-05-09'
+  s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
   ## as you like.
@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
   ## Specify any RDoc options here. You'll want to add your README and
   ## LICENSE files to the extra_rdoc_files list.
   s.rdoc_options = ["--charset=UTF-8"]
-  s.extra_rdoc_files = %w[README]
+  s.extra_rdoc_files = %w[README.rdoc]
 
   ## List your runtime dependencies here. Runtime dependencies are those
   ## that are needed for an end user to actually USE your code.
@@ -58,7 +58,21 @@ Gem::Specification.new do |s|
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
   ## THE MANIFEST COMMENTS, they are used as delimiters by the task.
   # = MANIFEST =
-  s.files = %w[]
+  s.files = %w[
+    README.rdoc
+    Rakefile
+    benchmarks/excon_vs.rb
+    benchmarks/headers_split_vs_match.rb
+    benchmarks/strip_newline.rb
+    excon.gemspec
+    lib/excon.rb
+    lib/excon/connection.rb
+    lib/excon/errors.rb
+    lib/excon/response.rb
+    tests/config.ru
+    tests/test_helper.rb
+    tests/threaded_tests.rb
+  ]
   # = MANIFEST =
 
   ## Test files will be grabbed from the file list. Make sure the path glob
