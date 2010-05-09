@@ -20,12 +20,13 @@ module Excon
         unless params[:path][0..0] == '/'
           params[:path] = "/#{params[:path]}"
         end
+        request = "#{params[:method]} #{params[:path]}"
         if (params[:query] && !params[:query].empty?) || @connection[:query]
-          params[:path] << "?#{params[:query]}"
+          request << "?#{params[:query]}"
         end
-        request = "#{params[:method]} #{params[:path]} HTTP/1.1\r\n"
+        request << " HTTP/1.1\r\n"
         params[:headers] ||= @connection[:headers]
-        params[:headers]['Host'] = params[:host] || @connection[:host]
+        params[:headers]['Host'] ||= params[:host] || @connection[:host]
         unless params[:headers]['Content-Length']
           params[:headers]['Content-Length'] = (params[:body] && params[:body].length) || 0
         end
