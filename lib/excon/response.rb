@@ -23,7 +23,7 @@ module Excon
       unless params[:method] == 'HEAD'
         if !block || (params[:expects] && ![*params[:expects]].include?(response.status))
           response.body = ''
-          lambda { |chunk| response.body << chunk }
+          block = lambda { |chunk| response.body << chunk }
         end
 
         if response.headers['Connection'] == 'close'
