@@ -3,10 +3,8 @@ module Excon
 
     def self.parse(socket, params = {}, &block)
       if params[:block]
-        p "params[:block] is deprecated, please pass the block to the method"
-      end
-      if block_given?
-        params[:block] = block
+        print "  \e[33m[WARN] params[:block] is deprecated, please pass the block to the request\e[0m"
+        block = params[:block]
       end
 
       response = new
@@ -23,11 +21,9 @@ module Excon
       end
 
       unless params[:method] == 'HEAD'
-        block = if !params[:block] || (params[:expects] && ![*params[:expects]].include?(response.status))
+        if !block || (params[:expects] && ![*params[:expects]].include?(response.status))
           response.body = ''
           lambda { |chunk| response.body << chunk }
-        else
-          params[:block]
         end
 
         if response.headers['Connection'] == 'close'
