@@ -20,10 +20,11 @@ module Excon
         unless params[:path][0..0] == '/'
           params[:path] = "/#{params[:path]}"
         end
-        request = "#{params[:method]} #{params[:path]}"
-        if (params[:query] && !params[:query].empty?) || @connection[:query]
-          request << "?#{params[:query]}"
+        request = "#{params[:method]} #{params[:path]}?"
+        for key, value in (params[:query] || @connection[:query] || {})
+          request << "#{key}#{value && "=#{CGI.escape(value.to_s)}"}&"
         end
+        request.chop!
         request << " HTTP/1.1\r\n"
         params[:headers] ||= @connection[:headers]
         params[:headers]['Host'] ||= params[:host] || @connection[:host]
