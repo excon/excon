@@ -93,16 +93,19 @@ module Excon
       end
 
       Thread.current[:_excon_sockets] ||= {}
-      Thread.current[:_excon_sockets][@connection.inspect] = new_socket
+      Thread.current[:_excon_sockets][socket_key] = new_socket
     end
 
     def socket
       Thread.current[:_excon_sockets] ||= {}
-      if !Thread.current[:_excon_sockets][@connection.inspect] || Thread.current[:_excon_sockets][@connection.inspect].closed?
+      if !Thread.current[:_excon_sockets][socket_key] || Thread.current[:_excon_sockets][socket_key].closed?
         reset_socket
       end
-      Thread.current[:_excon_sockets][@connection.inspect]
+      Thread.current[:_excon_sockets][socket_key]
     end
 
+    def socket_key
+      "#{@connection[:host]}:#{@connection[:port]}"
+    end
   end
 end
