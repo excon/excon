@@ -11,7 +11,6 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
-      reset_socket
     end
 
     def request(params, &block)
@@ -82,6 +81,11 @@ module Excon
     private
 
     def reset_socket
+      socket && socket.close
+      sockets.delete(socket_key)
+    end
+
+    def connect
       new_socket = TCPSocket.open(@connection[:host], @connection[:port])
 
       if @connection[:scheme] == 'https'
@@ -92,16 +96,22 @@ module Excon
         new_socket.connect
       end
 
-      Thread.current[:_excon_sockets] ||= {}
-      Thread.current[:_excon_sockets][socket_key] = new_socket
+      new_socket
+    end
+
+    def closed?
+      sockets[socket_key] && sockets[socket_key].closed?
     end
 
     def socket
-      Thread.current[:_excon_sockets] ||= {}
-      if !Thread.current[:_excon_sockets][socket_key] || Thread.current[:_excon_sockets][socket_key].closed?
+      if closed?
         reset_socket
       end
-      Thread.current[:_excon_sockets][socket_key]
+      sockets[socket_key] ||= connect
+    end
+
+    def sockets
+      Thread.current[:_excon_sockets] ||= {}
     end
 
     def socket_key
