@@ -48,16 +48,16 @@ module Excon
 
         response = Excon::Response.parse(socket, params, &block)
         if response.headers['Connection'] == 'close'
-          reset_socket
+          reset
         end
         response
       rescue => socket_error
-        reset_socket
+        reset
         raise(socket_error)
       end
 
       if params[:expects] && ![*params[:expects]].include?(response.status)
-        reset_socket
+        reset
         raise(Excon::Errors.status_error(params, response))
       else
         response
@@ -78,12 +78,11 @@ module Excon
       end
     end
 
-    private
-
-    def reset_socket
-      socket && socket.close
-      sockets.delete(socket_key)
+    def reset
+      (old_socket = sockets.delete(socket_key)) && old_socket.close
     end
+
+    private
 
     def connect
       new_socket = TCPSocket.open(@connection[:host], @connection[:port])
@@ -105,7 +104,7 @@ module Excon
 
     def socket
       if closed?
-        reset_socket
+        reset
       end
       sockets[socket_key] ||= connect
     end
