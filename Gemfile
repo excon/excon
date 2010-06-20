@@ -7,4 +7,5 @@ group :test do
   gem "sinatra"
   gem "rake"
   gem "mongrel"
+  gem "open4"
 end
