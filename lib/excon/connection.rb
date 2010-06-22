@@ -27,16 +27,15 @@ module Excon
         request << " HTTP/1.1\r\n"
         params[:headers] ||= @connection[:headers]
         params[:headers]['Host'] ||= params[:host] || @connection[:host]
-        unless params[:headers]['Content-Length']
-          params[:headers]['Content-Length'] = (params[:body] && params[:body].length) || 0
-        end
+        params[:body] ||= @connection[:body]
+        params[:headers]['Content-Length'] = (params[:body] && params[:body].length) || 0
         for key, value in params[:headers]
           request << "#{key}: #{value}\r\n"
         end
         request << "\r\n"
         socket.write(request)
 
-        if params[:body] ||= @connection[:body]
+        if params[:body]
           if params[:body].is_a?(String)
             socket.write(params[:body])
           else
