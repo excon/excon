@@ -28,7 +28,14 @@ module Excon
         params[:headers] ||= @connection[:headers]
         params[:headers]['Host'] ||= params[:host] || @connection[:host]
         params[:body] ||= @connection[:body]
-        params[:headers]['Content-Length'] = (params[:body] && params[:body].size) || 0
+        params[:headers]['Content-Length'] = case params[:body]
+        when File
+          File.size(params[:body].path)
+        when String
+          params[:body].length
+        else
+          0
+        end
         for key, value in params[:headers]
           request << "#{key}: #{value}\r\n"
         end
