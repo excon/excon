@@ -16,7 +16,7 @@ require 'excon/response'
 module Excon
 
   unless const_defined?(:VERSION)
-    VERSION = '0.1.3'
+    VERSION = '0.1.4'
   end
 
   CHUNK_SIZE = 1048576 # 1 megabyte
