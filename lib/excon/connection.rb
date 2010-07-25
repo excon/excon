@@ -20,8 +20,10 @@ module Excon
           params[:path] = "/#{params[:path]}"
         end
         request = "#{params[:method]} #{params[:path]}?"
-        for key, value in (params[:query] || @connection[:query] || {})
-          request << "#{key}#{value && "=#{CGI.escape(value.to_s)}"}&"
+        for key, values in (params[:query] || @connection[:query] || {})
+          for value in [*values]
+            request << "#{key}#{value && "=#{CGI.escape(value.to_s)}"}&"
+          end
         end
         request.chop!
         request << " HTTP/1.1\r\n"
