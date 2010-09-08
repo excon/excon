@@ -26,15 +26,7 @@ module Excon
           block = lambda { |chunk| response.body << chunk }
         end
 
-        if response.headers['Connection'] == 'close'
-          block.call(socket.read)
-        elsif response.headers['Content-Length']
-          remaining = response.headers['Content-Length'].to_i
-          while remaining > 0
-            block.call(socket.read([CHUNK_SIZE, remaining].min))
-            remaining -= CHUNK_SIZE
-          end
-        elsif response.headers['Transfer-Encoding'] == 'chunked'
+        if response.headers['Transfer-Encoding'] == 'chunked'
           while true
             chunk_size = socket.readline.chop!.to_i(16)
             chunk = socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
@@ -43,6 +35,14 @@ module Excon
             else
               break
             end
+          end
+        elsif response.headers['Connection'] == 'close'
+          block.call(socket.read)
+        elsif response.headers['Content-Length']
+          remaining = response.headers['Content-Length'].to_i
+          while remaining > 0
+            block.call(socket.read([CHUNK_SIZE, remaining].min))
+            remaining -= CHUNK_SIZE
           end
         end
       end
