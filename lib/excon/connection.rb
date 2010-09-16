@@ -19,7 +19,7 @@ module Excon
         unless params[:path][0..0] == '/'
           params[:path] = "/#{params[:path]}"
         end
-        request = "#{params[:method]} #{params[:path]}?"
+        request = "#{params[:method].upcase} #{params[:path]}?"
         for key, values in (params[:query] || @connection[:query] || {})
           for value in [*values]
             request << "#{key}#{value && "=#{CGI.escape(value.to_s)}"}&"
