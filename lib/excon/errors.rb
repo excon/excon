@@ -1,7 +1,15 @@
 module Excon
 
   module Errors
-    class Error < StandardError; end
+    class Error < StandardError
+      attr_reader :request, :response
+
+      def initialize(msg, request = nil, response = nil)
+        super(msg)
+        @request = request
+        @response = response
+      end
+    end
 
     class Continue < Error; end                     # 100
     class SwitchingProtocols < Error; end           # 101
@@ -89,7 +97,7 @@ module Excon
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
       error, message = @errors[response.status] || [Excon::Errors::Error, 'Unknown']
-      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}")
+      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
     end
 
   end
