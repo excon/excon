@@ -17,12 +17,13 @@ module Excon
       begin
         params[:path] ||= @connection[:path]
         unless params[:path][0..0] == '/'
-          params[:path] = "/#{params[:path]}"
+          params[:path] = '/' << params[:path]
         end
-        request = "#{params[:method].upcase} #{params[:path]}?"
+        request = params[:method].to_s.upcase << ' ' << params[:path] << '?'
         for key, values in (params[:query] || @connection[:query] || {})
           for value in [*values]
-            request << "#{key}#{value && "=#{CGI.escape(value.to_s)}"}&"
+            value_string = value && ('=' << CGI.escape(value.to_s))
+            request << key << value_string << '&'
           end
         end
         request.chop!
@@ -43,7 +44,7 @@ module Excon
           0
         end
         for key, value in params[:headers]
-          request << "#{key}: #{value}\r\n"
+          request << key << ': ' << value << "\r\n"
         end
         request << "\r\n"
         socket.write(request)

@@ -14,7 +14,7 @@ This will return a response object, which has body, headers and status attribute
 
 This supports all the major http verbs: [connect, delete, get, head, options, post, put, trace]
 
-You can also create a connection to try and keep open across multiple requests.
+You can also create a connection to try and keep open across multiple requests (more performant!).
 
   connection = Excon.new('http://geemus.com')
   connection.request(:method => 'GET')
