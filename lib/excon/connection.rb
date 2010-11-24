@@ -1,6 +1,16 @@
 module Excon
   class Connection
 
+    # Initializes a new Connection instance
+    #   @param [String] url The destination URL
+    #   @param [Hash] params One or more optional params
+    #   @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #   @option params [Fixnum] :port The port on which to connect, to the destination host
+    #   @option params [Hash]   :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
+    #   @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
+    #   @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
+    #   @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #   @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
@@ -17,8 +27,9 @@ module Excon
       begin
         params[:path] ||= @connection[:path]
         unless params[:path][0..0] == '/'
-          params[:path] = '/' << params[:path]
+          params[:path].insert(0, '/')
         end
+
         request = params[:method].to_s.upcase << ' ' << params[:path] << '?'
         query = (params[:query] || @connection[:query] || '')
         case query
