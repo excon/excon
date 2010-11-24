@@ -1,11 +1,11 @@
 source "http://rubygems.org"
 
-group :test do
-  gem "shindo"
-  gem "tach"
+gemspec
 
-  gem "sinatra"
-  gem "rake"
-  gem "mongrel"
-  gem "open4"
+group :benchmark do
+  gem 'em-http-request'
+  gem 'httparty'
+  gem 'rest-client'
+  gem 'tach', '0.0.5'
+  gem 'typhoeus'
 end
