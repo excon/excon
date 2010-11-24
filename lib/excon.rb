@@ -1,8 +1,5 @@
-__DIR__ = File.dirname(__FILE__)
-
-$LOAD_PATH.unshift __DIR__ unless
-  $LOAD_PATH.include?(__DIR__) ||
-  $LOAD_PATH.include?(File.expand_path(__DIR__))
+$:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
 require 'cgi'
 require 'openssl'
@@ -21,6 +18,12 @@ module Excon
 
   CHUNK_SIZE = 1048576 # 1 megabyte
 
+  # @see Connection#initialize
+  #  Initializes a new keep-alive session for a given remote host
+  #
+  #   @param [String] url The destination URL
+  #   @param [Hash] params One or more option params to set on the Connection instance
+  #   @return [Connection] A new Excon::Connection instance
   def self.new(url, params = {})
     Excon::Connection.new(url, params)
   end
