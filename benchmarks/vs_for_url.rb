@@ -11,13 +11,13 @@ require 'uri'
 
 url   = ARGV[0] || "http://localhost:8080/" # nginx default
 uri   = URI.parse(url)
-iters = (ARGV[1] || 1000).to_i
+iters = (ARGV[1] || 100).to_i
 
 Benchmark.bmbm do |x|
   x.report('em-http-request') do
     iters.times do
       EventMachine.run {
-        http = EventMachine::HttpRequest.new(url).get
+        out = http = EventMachine::HttpRequest.new(url).get
 
         http.callback {
           http.response
@@ -29,60 +29,60 @@ Benchmark.bmbm do |x|
 
   x.report('Excon') do
     iters.times do
-      Excon.get(url).body
+      out = Excon.get(url).body
     end
   end
 
   excon = Excon.new(url)
   x.report('Excon (persistent)') do
     iters.times do
-      excon.request(:method => 'get').body
+      out = excon.request(:method => 'get').body
     end
   end
 
   x.report('HTTParty') do
     iters.times do
-      HTTParty.get(url).body
+      out = HTTParty.get(url).body
     end
   end
 
   x.report('Net::HTTP') do
     # Net::HTTP.get('localhost', '/data/1000', 9292)
     iters.times do
-      Net::HTTP.start(uri.host, uri.port) {|http| http.get('/data/1000').body }
+      out = Net::HTTP.start(uri.host, uri.port) {|http| http.get('/data/1000').body }
     end
   end
 
   Net::HTTP.start(uri.host, uri.port) do |http|
     x.report('Net::HTTP (persistent)') do
       iters.times do
-        http.get('/data/1000').body
+        out = http.get('/data/1000').body
       end
     end
   end
 
   x.report('open-uri') do
     iters.times do
-      open(url).read
+      out = open(url).read
     end
   end
 
   x.report('RestClient') do
     iters.times do
-      RestClient.get(url)
+      out = RestClient.get(url)
     end
   end
 
   x.report('Typhoeus') do
     iters.times do
-      Typhoeus::Request.get(url).body
+      out = Typhoeus::Request.get(url).body
     end
   end
   
   x.report('StreamlyFFI (Persistent)') do
     conn = StreamlyFFI::Connection.new
     iters.times do
-      conn.get(url)
+      out = conn.get(url)
     end
   end
 end
