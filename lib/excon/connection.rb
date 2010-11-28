@@ -1,16 +1,21 @@
 module Excon
   class Connection
 
+    attr_reader :connection
+
+    CR_NL     = "\r\n"
+    HTTP_1_1  = " HTTP/1.1\r\n"
+
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
-    #   @param [Hash] params One or more optional params
-    #   @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
-    #   @option params [Fixnum] :port The port on which to connect, to the destination host
-    #   @option params [Hash]   :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
-    #   @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
-    #   @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
-    #   @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
-    #   @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
+    #   @param [Hash<Symbol, >] params One or more optional params
+    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #     @option params [Fixnum] :port The port on which to connect, to the destination host
+    #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
+    #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
+    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
+    #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
@@ -21,8 +26,20 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
+
+      self.set_socket_key
     end
 
+    # Sends the supplied request to the destination host.
+    #   @yield [chunk] @see Response#self.parse
+    #   @param [Hash<Symbol, >] params One or more optional params
+    #     @option params [String] :host Will be set in the request headers, if no 'Host' value is set in :headers param. If neither are specified, the :host found in @connection will be used.
+    #     @option params [String] :path The custom URL path, for this request; appears after 'scheme://host:port/'. Will override what was supplied during initialization, if any.
+    #     @option params [Hash<Symbol, String>] :headers The custom headers to supply in this request. Will override what was supplied during initialization, if any.
+    #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
+    #     @option params [] :
+    #     @option params [] :
+    #     @option params [] :
     def request(params, &block)
       begin
         params[:path] ||= @connection[:path]
@@ -44,7 +61,7 @@ module Excon
           end
         end
         request.chop!
-        request << " HTTP/1.1\r\n"
+        request << HTTP_1_1
         params[:headers] ||= @connection[:headers]
         params[:headers]['Host'] ||= params[:host] || @connection[:host]
         params[:body] ||= @connection[:body]
@@ -61,9 +78,9 @@ module Excon
           0
         end
         for key, value in params[:headers]
-          request << key << ': ' << value << "\r\n"
+          request << key << ': ' << value << CR_NL
         end
-        request << "\r\n"
+        request << CR_NL
         socket.write(request)
 
         if params[:body]
@@ -144,7 +161,11 @@ module Excon
     end
 
     def socket_key
-      "#{@connection[:host]}:#{@connection[:port]}"
+      @connection[:socket_key]
+    end
+
+    def set_socket_key
+      @connection[:socket_key] = "#{@connection[:host]}:#{@connection[:port]}"
     end
   end
 end

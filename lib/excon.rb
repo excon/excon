@@ -22,7 +22,7 @@ module Excon
   #  Initializes a new keep-alive session for a given remote host
   #
   #   @param [String] url The destination URL
-  #   @param [Hash] params One or more option params to set on the Connection instance
+  #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
   #   @return [Connection] A new Excon::Connection instance
   def self.new(url, params = {})
     Excon::Connection.new(url, params)
