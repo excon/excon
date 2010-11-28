@@ -5,3 +5,5 @@ rdoc
 pkg
 Gemfile.lock
 .bundle
+.yardoc
+doc
