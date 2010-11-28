@@ -1,6 +1,7 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib/excon'))
+require 'rubygems' if RUBY_VERSION < '1.9'
+require 'bundler'
 
-require 'open4'
+Bundler.require(:default, :development)
 
 def local_file(*parts)
   File.expand_path(File.join(File.dirname(__FILE__), *parts))
