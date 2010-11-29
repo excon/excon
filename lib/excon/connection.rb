@@ -20,10 +20,16 @@ module Excon
           params[:path] = '/' << params[:path]
         end
         request = params[:method].to_s.upcase << ' ' << params[:path] << '?'
-        for key, values in (params[:query] || @connection[:query] || {})
-          for value in [*values]
-            value_string = value && ('=' << CGI.escape(value.to_s))
-            request << key << value_string << '&'
+        query = (params[:query] || @connection[:query] || {})
+        case query
+        when String
+          request << query
+        else
+          for key, values in query
+            for value in [*values]
+              value_string = value && ('=' << CGI.escape(value.to_s))
+              request << key << value_string << '&'
+            end
           end
         end
         request.chop!
