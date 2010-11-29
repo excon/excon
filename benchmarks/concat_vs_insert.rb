@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'tach'
 
-Tach.meter(1_000) do
+Tach.meter(1_000_000) do
   tach('concat') do
     path = 'path'
     path = '/' << path
@@ -15,7 +15,7 @@ end
 # +--------+----------+
 # | tach   | total    |
 # +--------+----------+
-# | concat | 0.000797 |
+# | insert | 0.974036 |
 # +--------+----------+
-# | insert | 0.000871 |
+# | concat | 0.998904 |
 # +--------+----------+
