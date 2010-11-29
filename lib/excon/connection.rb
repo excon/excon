@@ -20,7 +20,7 @@ module Excon
           params[:path] = '/' << params[:path]
         end
         request = params[:method].to_s.upcase << ' ' << params[:path] << '?'
-        query = (params[:query] || @connection[:query] || {})
+        query = (params[:query] || @connection[:query] || '')
         case query
         when String
           request << query
