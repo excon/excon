@@ -16,7 +16,9 @@ module Excon
     VERSION = '0.2.4'
   end
 
-  CHUNK_SIZE = 1048576 # 1 megabyte
+  unless const_defined?(:CHUNK_SIZE)
+    CHUNK_SIZE = 1048576 # 1 megabyte
+  end
 
   # @see Connection#initialize
   #  Initializes a new keep-alive session for a given remote host

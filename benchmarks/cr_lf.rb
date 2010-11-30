@@ -1,11 +1,11 @@
 require 'rubygems'
 require 'tach'
 
-CRLF = "\r\n"
+CR_LF = "\r\n"
 
 Tach.meter(1_000_000) do
   tach('constant') do
-    '' << CRLF
+    '' << CR_LF
   end
   tach('string') do
     '' << "\r\n"
@@ -15,7 +15,7 @@ end
 # +----------+----------+
 # | tach     | total    |
 # +----------+----------+
-# | constant | 0.813338 |
+# | constant | 0.819885 |
 # +----------+----------+
-# | string   | 0.900186 |
+# | string   | 0.893602 |
 # +----------+----------+

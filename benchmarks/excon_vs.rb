@@ -1,4 +1,9 @@
-require 'rubygems'
+require 'rubygems' if RUBY_VERSION < '1.9'
+require 'bundler'
+
+Bundler.require(:default)
+Bundler.require(:benchmark)
+
 require 'sinatra/base'
 
 require File.join(File.dirname(__FILE__), '..', 'lib', 'excon')
@@ -49,17 +54,6 @@ require 'typhoeus'
 
 url = 'http://localhost:9292/data/1000'
 
-# with_server do
-#   EventMachine.run {
-#     http = EventMachine::HttpRequest.new(url).get
-#
-#     http.callback {
-#       p http.response
-#       EventMachine.stop
-#     }
-#   }
-# end
-
 with_server do
 
   Tach.meter(1000) do
@@ -107,6 +101,11 @@ with_server do
       RestClient.get(url)
     end
 
+    streamly = StreamlyFFI::Connection.new
+    tach('StreamlyFFI (persistent)') do
+      streamly.get(url)
+    end
+
     tach('Typhoeus') do
       Typhoeus::Request.get(url).body
     end
@@ -114,24 +113,26 @@ with_server do
   end
 end
 
-# +------------------------+----------+
-# | tach                   | total    |
-# +------------------------+----------+
-# | em-http-request        | 3.828347 |
-# +------------------------+----------+
-# | Excon                  | 1.541997 |
-# +------------------------+----------+
-# | Excon (persistent)     | 1.454728 |
-# +------------------------+----------+
-# | HTTParty               | 2.551734 |
-# +------------------------+----------+
-# | Net::HTTP              | 2.342450 |
-# +------------------------+----------+
-# | Net::HTTP (persistent) | 2.434209 |
-# +------------------------+----------+
-# | open-uri               | 2.898245 |
-# +------------------------+----------+
-# | RestClient             | 2.834506 |
-# +------------------------+----------+
-# | Typhoeus               | 1.828265 |
-# +------------------------+----------+
+# +--------------------------+----------+
+# | tach                     | total    |
+# +--------------------------+----------+
+# | Excon (persistent)       | 1.521565 |
+# +--------------------------+----------+
+# | Excon                    | 1.624180 |
+# +--------------------------+----------+
+# | Typhoeus                 | 1.918563 |
+# +--------------------------+----------+
+# | StreamlyFFI (persistent) | 1.933218 |
+# +--------------------------+----------+
+# | Net::HTTP (persistent)   | 2.418454 |
+# +--------------------------+----------+
+# | Net::HTTP                | 2.439801 |
+# +--------------------------+----------+
+# | HTTParty                 | 2.609180 |
+# +--------------------------+----------+
+# | RestClient               | 2.905853 |
+# +--------------------------+----------+
+# | open-uri                 | 2.936382 |
+# +--------------------------+----------+
+# | em-http-request          | 3.933757 |
+# +--------------------------+----------+

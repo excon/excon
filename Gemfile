@@ -8,5 +8,6 @@ group :benchmark do
   gem 'rest-client'
   gem 'tach', '0.0.5'
   gem 'typhoeus'
+  gem 'sinatra'
   gem 'streamly_ffi'
 end

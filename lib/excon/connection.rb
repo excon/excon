@@ -9,13 +9,13 @@ module Excon
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
     #   @param [Hash<Symbol, >] params One or more optional params
-    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
-    #     @option params [Fixnum] :port The port on which to connect, to the destination host
-    #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
-    #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
-    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
+    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
+    #     @option params [Fixnum] :port The port on which to connect, to the destination host
+    #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
+    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
@@ -27,19 +27,19 @@ module Excon
         :scheme   => uri.scheme
       }.merge!(params)
 
-      self.set_socket_key
+      set_socket_key
     end
 
     # Sends the supplied request to the destination host.
     #   @yield [chunk] @see Response#self.parse
-    #   @param [Hash<Symbol, >] params One or more optional params
-    #     @option params [String] :host Will be set in the request headers, if no 'Host' value is set in :headers param. If neither are specified, the :host found in @connection will be used.
-    #     @option params [String] :path The custom URL path, for this request; appears after 'scheme://host:port/'. Will override what was supplied during initialization, if any.
-    #     @option params [Hash<Symbol, String>] :headers The custom headers to supply in this request. Will override what was supplied during initialization, if any.
-    #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
-    #     @option params [] :
-    #     @option params [] :
-    #     @option params [] :
+    #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
+    #     @option params [String] :body text to be sent over a socket
+    #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
+    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #     @option params [String] :path appears after 'scheme://host:port/'
+    #     @option params [Fixnum] :port The port on which to connect, to the destination host
+    #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
+    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
       begin
         params[:path] ||= @connection[:path]
