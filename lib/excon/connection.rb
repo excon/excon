@@ -47,20 +47,22 @@ module Excon
           params[:path].insert(0, '/')
         end
 
-        request = params[:method].to_s.upcase << ' ' << params[:path] << '?'
-        query = (params[:query] || @connection[:query] || '')
-        case query
-        when String
-          request << query
-        else
-          for key, values in query
-            for value in [*values]
-              value_string = value && ('=' << CGI.escape(value.to_s))
-              request << key.to_s << value_string << '&'
+        request = params[:method].to_s.upcase << ' ' << params[:path]
+        if query = (params[:query] || @connection[:query])
+          request << '?'
+          case query
+          when String
+            request << query
+          else
+            for key, values in query
+              for value in [*values]
+                value_string = value && ('=' << CGI.escape(value.to_s))
+                request << key.to_s << value_string << '&'
+              end
             end
+            request.chop! # remove trailing '&'
           end
         end
-        request.chop!
         request << HTTP_1_1
         params[:headers] ||= @connection[:headers]
         params[:headers]['Host'] ||= params[:host] || @connection[:host]
