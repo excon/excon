@@ -102,7 +102,7 @@ module Excon
         response
       rescue => socket_error
         reset
-        raise(socket_error)
+        raise(Excon::Errors::SocketError.new(socket_error))
       end
 
       if params[:expects] && ![*params[:expects]].include?(response.status)
@@ -114,7 +114,8 @@ module Excon
 
     rescue => request_error
       if params[:idempotent] &&
-          (!request_error.is_a?(Excon::Errors::Error) || response.status != 404)
+          (request_error.is_a?(Excon::Errors::SocketError) ||
+          (request_error.is_a?(Excon::Errors::HTTPStatusError) && response.status != 404))
         retries_remaining ||= 4
         retries_remaining -= 1
         if retries_remaining > 0

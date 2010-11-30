@@ -1,7 +1,18 @@
 module Excon
-
   module Errors
-    class Error < StandardError
+
+    class Error < StandardError; end
+
+    class SocketError < Error
+      attr_reader :socket_error
+
+      def initialize(socket_error=nil)
+        super(socket_error.message)
+        @socket_error = socket_error
+      end
+    end
+
+    class HTTPStatusError < Error
       attr_reader :request, :response
 
       def initialize(msg, request = nil, response = nil)
@@ -11,46 +22,46 @@ module Excon
       end
     end
 
-    class Continue < Error; end                     # 100
-    class SwitchingProtocols < Error; end           # 101
-    class OK < Error; end                           # 200
-    class Created < Error; end                      # 201
-    class Accepted < Error; end                     # 202
-    class NonAuthoritativeInformation < Error; end  # 203
-    class NoContent < Error; end                    # 204
-    class ResetContent < Error; end                 # 205
-    class PartialContent < Error; end               # 206
-    class MultipleChoices < Error; end              # 300
-    class MovedPermanently < Error; end             # 301
-    class Found < Error; end                        # 302
-    class SeeOther < Error; end                     # 303
-    class NotModified < Error; end                  # 304
-    class UseProxy < Error; end                     # 305
-    class TemporaryRedirect < Error; end            # 307
-    class BadRequest < Error; end                   # 400
-    class Unauthorized < Error; end                 # 401
-    class PaymentRequired < Error; end              # 402
-    class Forbidden < Error; end                    # 403
-    class NotFound < Error; end                     # 404
-    class MethodNotAllowed < Error; end             # 405
-    class NotAcceptable < Error; end                # 406
-    class ProxyAuthenticationRequired < Error; end  # 407
-    class RequestTimeout < Error; end               # 408
-    class Conflict < Error; end                     # 409
-    class Gone < Error; end                         # 410
-    class LengthRequired < Error; end               # 411
-    class PreconditionFailed < Error; end           # 412
-    class RequestEntityTooLarge < Error; end        # 412
-    class RequestURITooLong < Error; end            # 414
-    class UnsupportedMediaType < Error; end         # 415
-    class RequestedRangeNotSatisfiable < Error; end # 416
-    class ExpectationFailed < Error; end            # 417
-    class UnprocessableEntity < Error; end          # 422
-    class InternalServerError < Error; end          # 500
-    class NotImplemented < Error; end               # 501
-    class BadGateway < Error; end                   # 502
-    class ServiceUnavailable < Error; end           # 503
-    class GatewayTimeout < Error; end               # 504
+    class Continue < HTTPStatusError; end                     # 100
+    class SwitchingProtocols < HTTPStatusError; end           # 101
+    class OK < HTTPStatusError; end                           # 200
+    class Created < HTTPStatusError; end                      # 201
+    class Accepted < HTTPStatusError; end                     # 202
+    class NonAuthoritativeInformation < HTTPStatusError; end  # 203
+    class NoContent < HTTPStatusError; end                    # 204
+    class ResetContent < HTTPStatusError; end                 # 205
+    class PartialContent < HTTPStatusError; end               # 206
+    class MultipleChoices < HTTPStatusError; end              # 300
+    class MovedPermanently < HTTPStatusError; end             # 301
+    class Found < HTTPStatusError; end                        # 302
+    class SeeOther < HTTPStatusError; end                     # 303
+    class NotModified < HTTPStatusError; end                  # 304
+    class UseProxy < HTTPStatusError; end                     # 305
+    class TemporaryRedirect < HTTPStatusError; end            # 307
+    class BadRequest < HTTPStatusError; end                   # 400
+    class Unauthorized < HTTPStatusError; end                 # 401
+    class PaymentRequired < HTTPStatusError; end              # 402
+    class Forbidden < HTTPStatusError; end                    # 403
+    class NotFound < HTTPStatusError; end                     # 404
+    class MethodNotAllowed < HTTPStatusError; end             # 405
+    class NotAcceptable < HTTPStatusError; end                # 406
+    class ProxyAuthenticationRequired < HTTPStatusError; end  # 407
+    class RequestTimeout < HTTPStatusError; end               # 408
+    class Conflict < HTTPStatusError; end                     # 409
+    class Gone < HTTPStatusError; end                         # 410
+    class LengthRequired < HTTPStatusError; end               # 411
+    class PreconditionFailed < HTTPStatusError; end           # 412
+    class RequestEntityTooLarge < HTTPStatusError; end        # 412
+    class RequestURITooLong < HTTPStatusError; end            # 414
+    class UnsupportedMediaType < HTTPStatusError; end         # 415
+    class RequestedRangeNotSatisfiable < HTTPStatusError; end # 416
+    class ExpectationFailed < HTTPStatusError; end            # 417
+    class UnprocessableEntity < HTTPStatusError; end          # 422
+    class InternalServerError < HTTPStatusError; end          # 500
+    class NotImplemented < HTTPStatusError; end               # 501
+    class BadGateway < HTTPStatusError; end                   # 502
+    class ServiceUnavailable < HTTPStatusError; end           # 503
+    class GatewayTimeout < HTTPStatusError; end               # 504
 
     # Messages for nicer exceptions, from rfc2616
     def self.status_error(request, response)
@@ -96,7 +107,7 @@ module Excon
         503 => [Excon::Errors::ServiceUnavailable, 'Service Unavailable'],
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
-      error, message = @errors[response.status] || [Excon::Errors::Error, 'Unknown']
+      error, message = @errors[response.status] || [Excon::Errors::HTTPStatusError, 'Unknown']
       error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
     end
 
