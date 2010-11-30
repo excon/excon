@@ -57,7 +57,7 @@ module Excon
             for key, values in query
               for value in [*values]
                 value_string = value && ('=' << CGI.escape(value.to_s))
-                request << key.to_s << value_string << '&'
+                request << key.to_s << value_string.to_s << '&'
               end
             end
             request.chop! # remove trailing '&'

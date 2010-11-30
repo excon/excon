@@ -8,6 +8,7 @@ module Excon
 
       def initialize(socket_error=nil)
         super(socket_error.message)
+        set_backtrace(socket_error.backtrace)
         @socket_error = socket_error
       end
     end
