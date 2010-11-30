@@ -56,7 +56,7 @@ module Excon
           for key, values in query
             for value in [*values]
               value_string = value && ('=' << CGI.escape(value.to_s))
-              request << key << value_string << '&'
+              request << key.to_s << value_string << '&'
             end
           end
         end
@@ -78,7 +78,7 @@ module Excon
           0
         end
         for key, value in params[:headers]
-          request << key << ': ' << value << CR_NL
+          request << key.to_s << ': ' << value.to_s << CR_NL
         end
         request << CR_NL
         socket.write(request)
