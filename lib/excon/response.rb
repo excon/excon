@@ -20,7 +20,7 @@ module Excon
         end
       end
 
-      unless params[:method] == 'HEAD'
+      unless params[:method].to_s.upcase == 'HEAD'
         if !block || (params[:expects] && ![*params[:expects]].include?(response.status))
           response.body = ''
           block = lambda { |chunk| response.body << chunk }
