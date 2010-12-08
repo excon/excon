@@ -6,7 +6,7 @@ Bundler.require(:benchmark)
 
 require 'sinatra/base'
 
-require File.join(File.dirname(__FILE__), '..', 'lib', 'excon')
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'excon')
 
 module Excon
   class Server < Sinatra::Base
@@ -58,14 +58,35 @@ with_server do
 
   Tach.meter(1000) do
 
-    tach('em-http-request') do
-      EventMachine.run {
-        http = EventMachine::HttpRequest.new(url).get
+    tach('curb (persistent)') do |n|
+      curb = Curl::Easy.new
 
-        http.callback {
-          http.response
-          EventMachine.stop
-        }
+      n.times do
+        curb.url = url
+        curb.http_get
+        curb.body_str
+      end
+    end
+
+    tach('em-http-request') do |n|
+      EventMachine.run {
+        count = 0
+
+        n.times do
+          http = EventMachine::HttpRequest.new(url).get
+
+          http.callback {
+            http.response
+            count += 1
+            EM.stop if count == n
+          }
+
+          http.errback {
+            http.response
+            count += 1
+            EM.stop if count == n
+          }
+        end
       }
     end
 
