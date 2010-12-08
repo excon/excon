@@ -19,7 +19,7 @@ module Excon
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
-        :headers  => {},
+        :headers  => { 'Host' => uri.host },
         :host     => uri.host,
         :path     => uri.path,
         :port     => uri.port,
@@ -42,13 +42,17 @@ module Excon
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
       begin
-        params[:path] ||= @connection[:path]
+        # connection has defaults, merge in new params to override
+        params = @connection.merge(params)
+        params[:headers] = @connection[:headers].merge(params[:headers])
+
+        # if path is empty or doesn't start with '/', insert one
         unless params[:path][0..0] == '/'
           params[:path].insert(0, '/')
         end
 
         request = params[:method].to_s.upcase << ' ' << params[:path]
-        if query = (params[:query] || @connection[:query])
+        if query = (params[:query])
           request << '?'
           case query
           when String
@@ -64,9 +68,7 @@ module Excon
           end
         end
         request << HTTP_1_1
-        params[:headers] ||= @connection[:headers]
-        params[:headers]['Host'] ||= params[:host] || @connection[:host]
-        params[:body] ||= @connection[:body]
+        params[:headers]['Host'] ||= params[:host]
         params[:headers]['Content-Length'] = case params[:body]
         when File
           params[:body].binmode
