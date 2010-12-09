@@ -44,7 +44,7 @@ module Excon
       begin
         # connection has defaults, merge in new params to override
         params = @connection.merge(params)
-        params[:headers] = @connection[:headers].merge(params[:headers])
+        params[:headers] = @connection[:headers].merge(params[:headers] || {})
 
         # if path is empty or doesn't start with '/', insert one
         unless params[:path][0..0] == '/'
