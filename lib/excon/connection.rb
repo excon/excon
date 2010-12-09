@@ -51,24 +51,28 @@ module Excon
           params[:path].insert(0, '/')
         end
 
+        # start with "METHOD /path"
         request = params[:method].to_s.upcase << ' ' << params[:path]
-        if query = (params[:query])
+
+        # add query to path, if there is one
+        case params[:query]
+        when String
+          request << '?' << params[:query]
+        when Hash
           request << '?'
-          case query
-          when String
-            request << query
-          else
-            for key, values in query
-              for value in [*values]
-                value_string = value && ('=' << CGI.escape(value.to_s))
-                request << key.to_s << value_string.to_s << '&'
-              end
+          for key, values in params[:query]
+            for value in [*values]
+              value_string = value && ('=' << CGI.escape(value.to_s))
+              request << key.to_s << value_string.to_s << '&'
             end
-            request.chop! # remove trailing '&'
           end
+          request.chop! # remove trailing '&'
         end
+
+        # finish first line with "HTTP/1.1\r\n"
         request << HTTP_1_1
-        params[:headers]['Host'] ||= params[:host]
+
+        # calculate content length and set to handle non-ascii
         params[:headers]['Content-Length'] = case params[:body]
         when File
           params[:body].binmode
@@ -81,12 +85,19 @@ module Excon
         else
           0
         end
+
+        # add headers to request
         for key, value in params[:headers]
           request << key.to_s << ': ' << value.to_s << CR_NL
         end
+
+        # add additional "\r\n" to indicate end of headers
         request << CR_NL
+
+        # write out the request, sans body
         socket.write(request)
 
+        # write out the body
         if params[:body]
           if params[:body].is_a?(String)
             socket.write(params[:body])
@@ -97,6 +108,7 @@ module Excon
           end
         end
 
+        # read the response
         response = Excon::Response.parse(socket, params, &block)
         if response.headers['Connection'] == 'close'
           reset
