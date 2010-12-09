@@ -26,8 +26,8 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
-
       set_socket_key
+      reset
     end
 
     # Sends the supplied request to the destination host.
