@@ -152,11 +152,23 @@ module Excon
       new_socket = TCPSocket.open(@connection[:host], @connection[:port])
 
       if @connection[:scheme] == 'https'
-        @ssl_context = OpenSSL::SSL::SSLContext.new
-        @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, @ssl_context)
+        # create ssl context
+        ssl_context = OpenSSL::SSL::SSLContext.new
+        # turn verification on
+        ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+        # use default cert store
+        store = OpenSSL::X509::Store.new
+        store.set_default_paths
+        ssl_context.cert_store = store
+
+        # open ssl socket
+        new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, ssl_context)
         new_socket.sync_close = true
         new_socket.connect
+
+        # verify connection
+        new_socket.post_connection_check(@connection[:host])
       end
 
       new_socket
