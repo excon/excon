@@ -90,8 +90,10 @@ module Excon
         end
 
         # add headers to request
-        for key, value in params[:headers]
-          request << key.to_s << ': ' << value.to_s << CR_NL
+        for key, values in params[:headers]
+          for value in [*values]
+            request << key.to_s << ': ' << value.to_s << CR_NL
+          end
         end
 
         # add additional "\r\n" to indicate end of headers
