@@ -26,7 +26,7 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
-      set_socket_key
+      @socket_key = "#{@connection[:host]}:#{@connection[:port]}"
       reset
     end
 
@@ -146,7 +146,7 @@ module Excon
     end
 
     def reset
-      (old_socket = sockets.delete(socket_key)) && old_socket.close
+      (old_socket = sockets.delete(@socket_key)) && old_socket.close
     end
 
     private
@@ -178,26 +178,19 @@ module Excon
     end
 
     def closed?
-      sockets[socket_key] && sockets[socket_key].closed?
+      sockets[@socket_key] && sockets[@socket_key].closed?
     end
 
     def socket
       if closed?
         reset
       end
-      sockets[socket_key] ||= connect
+      sockets[@socket_key] ||= connect
     end
 
     def sockets
       Thread.current[:_excon_sockets] ||= {}
     end
 
-    def socket_key
-      @connection[:socket_key]
-    end
-
-    def set_socket_key
-      @connection[:socket_key] = "#{@connection[:host]}:#{@connection[:port]}"
-    end
   end
 end
