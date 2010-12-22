@@ -19,7 +19,7 @@ module Excon
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
-        :headers  => { 'Host' => uri.host },
+        :headers  => { 'Host' => "#{uri.host}:#{uri.port}" },
         :host     => uri.host,
         :path     => uri.path,
         :port     => uri.port,
