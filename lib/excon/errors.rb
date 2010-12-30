@@ -52,7 +52,7 @@ module Excon
     class Gone < HTTPStatusError; end                         # 410
     class LengthRequired < HTTPStatusError; end               # 411
     class PreconditionFailed < HTTPStatusError; end           # 412
-    class RequestEntityTooLarge < HTTPStatusError; end        # 412
+    class RequestEntityTooLarge < HTTPStatusError; end        # 413
     class RequestURITooLong < HTTPStatusError; end            # 414
     class UnsupportedMediaType < HTTPStatusError; end         # 415
     class RequestedRangeNotSatisfiable < HTTPStatusError; end # 416
