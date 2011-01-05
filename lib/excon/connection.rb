@@ -157,13 +157,19 @@ module Excon
       if @connection[:scheme] == 'https'
         # create ssl context
         ssl_context = OpenSSL::SSL::SSLContext.new
-        # turn verification on
-        ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        # use default cert store
-        store = OpenSSL::X509::Store.new
-        store.set_default_paths
-        ssl_context.cert_store = store
+        if Excon.ssl_verify_peer
+          # turn verification on
+          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+          # use default cert store
+          store = OpenSSL::X509::Store.new
+          store.set_default_paths
+          ssl_context.cert_store = store
+        else
+          # turn verification off
+          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
 
         # open ssl socket
         new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, ssl_context)

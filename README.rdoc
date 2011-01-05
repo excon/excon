@@ -6,8 +6,10 @@ Http(s) EXtended CONnections
 
   sudo gem install excon
 
-Now you are ready to get started, easiest is to use one off requests to start.
+Now you are ready to get started, easiest is to use one off requests to start. Windows users see the addendum at the end.
 
+  require 'rubygems'
+  require 'excon'
   Excon.get('http://geemus.com')
 
 This will return a response object, which has body, headers and status attributes you can check out.
@@ -30,6 +32,16 @@ If you need to do something special with a response you can also pass a block th
   Excon.get('http://geemus.com') {|chunk| p chunk }
 
 From there you should be able to make just about any request you might need.
+
+== Windows
+
+On windows the default ssl peer certificate verification won't work out for you.  You can opt after requiring excon like this:
+
+  require 'rubygems'
+  require 'excon'
+  Excon.ssl_verify_peer = false
+
+I'll provide a better solution when I can (and you should know that in the mean time this is succeptible to man in the middle attacks).
 
 == Copyright
 

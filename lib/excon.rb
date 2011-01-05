@@ -20,6 +20,17 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
+  # Status of ssl peer verification
+  @ssl_verify_peer = true
+  def self.ssl_verify_peer
+    @ssl_verify_peer
+  end
+
+  # change the status of ssl peer verification
+  def self.ssl_verify_peer=(new_ssl_verify_peer)
+    @ssl_verify_peer = new_ssl_verify_peer
+  end
+
   # @see Connection#initialize
   #  Initializes a new keep-alive session for a given remote host
   #
