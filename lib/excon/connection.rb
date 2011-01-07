@@ -62,9 +62,15 @@ module Excon
         when Hash
           request << '?'
           for key, values in params[:query]
-            for value in [*values]
-              value_string = value && ('=' << CGI.escape(value.to_s))
-              request << key.to_s << value_string.to_s << '&'
+            case values
+            when nil
+              request << "#{key}&"
+            when String
+              request << "#{key}=#{CGI.escape(values)}&"
+            when Array
+              for value in values
+                request << "#{key}=#{CGI.escape(value)}&"
+              end
             end
           end
           request.chop! # remove trailing '&'
