@@ -65,12 +65,12 @@ module Excon
             case values
             when nil
               request << "#{key}&"
-            when String
-              request << "#{key}=#{CGI.escape(values)}&"
             when Array
               for value in values
-                request << "#{key}=#{CGI.escape(value)}&"
+                request << "#{key}=#{CGI.escape(value.to_s)}&"
               end
+            else
+              request << "#{key}=#{CGI.escape(values.to_s)}&"
             end
           end
           request.chop! # remove trailing '&'
