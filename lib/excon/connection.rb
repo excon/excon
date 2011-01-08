@@ -64,13 +64,13 @@ module Excon
           for key, values in params[:query]
             case values
             when nil
-              request << "#{key}&"
+              request << key.to_s << '&'
             when Array
               for value in values
-                request << "#{key}=#{CGI.escape(value.to_s)}&"
+                request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
               end
             else
-              request << "#{key}=#{CGI.escape(values.to_s)}&"
+              request << key.to_s << '=' << CGI.escape(values.to_s) << '&'
             end
           end
           request.chop! # remove trailing '&'
