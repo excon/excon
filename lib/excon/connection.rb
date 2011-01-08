@@ -26,7 +26,7 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
-      @socket_key = "#{@connection[:host]}:#{@connection[:port]}"
+      @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
       reset
     end
 
