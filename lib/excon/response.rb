@@ -23,7 +23,7 @@ module Excon
       unless params[:method].to_s.upcase == 'HEAD'
         if !block || (params[:expects] && ![*params[:expects]].include?(response.status))
           response.body = ''
-          block = lambda { |chunk| response.body << chunk }
+          block = Concatenator.new(response.body)
         end
 
         if response.headers['Transfer-Encoding'] && response.headers['Transfer-Encoding'].downcase == 'chunked'
@@ -58,5 +58,15 @@ module Excon
       @status  = attributes[:status]
     end
 
+  end
+
+  class Concatenator
+    def initialize(string)
+      @string = string
+    end
+
+    def call(data)
+      @string << data
+    end
   end
 end
