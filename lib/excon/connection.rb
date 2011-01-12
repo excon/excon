@@ -83,7 +83,7 @@ module Excon
         request << HTTP_1_1
 
         # calculate content length and set to handle non-ascii
-        params[:headers]['Content-Length'] = case params[:body]
+        params[:headers]['Content-Length'] ||= case params[:body]
         when File
           params[:body].binmode
           File.size(params[:body])
