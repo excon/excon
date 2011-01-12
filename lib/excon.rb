@@ -3,6 +3,7 @@ $:.unshift(File.dirname(__FILE__)) unless
 
 require 'cgi'
 require 'openssl'
+require 'rbconfig'
 require 'socket'
 require 'uri'
 
@@ -20,8 +21,15 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
+  # setup ssl defaults based on platform
+  case Config::CONFIG['host_os']
+  when /mswin|win32|dos|cygwin|mingw/i
+    @ssl_verify_peer = false
+  else
+    @ssl_verify_peer = true
+  end
+
   # Status of ssl peer verification
-  @ssl_verify_peer = true
   def self.ssl_verify_peer
     @ssl_verify_peer
   end
