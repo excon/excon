@@ -21,6 +21,14 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
+  def self.ssl_ca_path
+    @ssl_ca_path
+  end
+
+  def self.ssl_ca_path=(new_ssl_ca_path)
+    @ssl_ca_path = new_ssl_ca_path
+  end
+
   # setup ssl defaults based on platform
   case Config::CONFIG['host_os']
   when /mswin|win32|dos|cygwin|mingw/i

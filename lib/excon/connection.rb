@@ -168,10 +168,14 @@ module Excon
           # turn verification on
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-          # use default cert store
-          store = OpenSSL::X509::Store.new
-          store.set_default_paths
-          ssl_context.cert_store = store
+          if Excon.ssl_ca_path
+            ssl_context.ca_path = Excon.ssl_ca_path
+          else
+            # use default cert store
+            store = OpenSSL::X509::Store.new
+            store.set_default_paths
+            ssl_context.cert_store = store
+          end
         else
           # turn verification off
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
