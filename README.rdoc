@@ -6,7 +6,7 @@ Http(s) EXtended CONnections
 
   sudo gem install excon
 
-Now you are ready to get started, easiest is to use one off requests to start. Windows users see the addendum at the end.
+Now you are ready to get started, easiest is to use one off requests to start.
 
   require 'rubygems'
   require 'excon'
@@ -33,15 +33,19 @@ If you need to do something special with a response you can also pass a block th
 
 From there you should be able to make just about any request you might need.
 
-== Windows
+== HTTPS/SSL Issues
 
-On windows the default ssl peer certificate verification won't work out for you.  You can opt after requiring excon like this:
+On some systems the default ssl peer certificate verification won't work.  You can either set a different path to certificates:
+
+  require 'rubygems'
+  require 'excon'
+  Excon.ssl_ca_path = '/path/to/certs'
+
+or, simply turn peer verification off (less secure):
 
   require 'rubygems'
   require 'excon'
   Excon.ssl_verify_peer = false
-
-I'll provide a better solution when I can (and you should know that in the mean time this is succeptible to man in the middle attacks).
 
 == Copyright
 
