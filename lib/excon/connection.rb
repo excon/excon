@@ -224,6 +224,9 @@ module Excon
     def setup_proxy(proxy)
       proxy = 'http://' << proxy unless proxy.index('://')
       uri = URI.parse(proxy)
+      unless uri.host and uri.port and uri.scheme
+        raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+      end
       @proxy = {
         :host     => uri.host,
         :port     => uri.port,
