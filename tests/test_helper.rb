@@ -9,7 +9,7 @@ end
 
 def with_rackup(configru = local_file('config.ru'))
   pid, w, r, e = Open4.popen4("rackup #{configru}")
-  while `lsof -p #{pid} -P -i | grep ruby | grep TCP`.chomp.empty?; end
+  until e.gets =~ /HTTPServer#start:/; end
   yield
 ensure
   Process.kill(9, pid)
