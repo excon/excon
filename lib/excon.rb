@@ -12,7 +12,6 @@ require 'excon/errors'
 require 'excon/response'
 
 module Excon
-
   unless const_defined?(:VERSION)
     VERSION = '0.4.0'
   end
@@ -21,35 +20,8 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
-  def self.ssl_ca_path
-    @ssl_ca_path
-  end
-
-  def self.ssl_ca_path=(new_ssl_ca_path)
-    @ssl_ca_path = new_ssl_ca_path
-  end
-
-  # setup ssl defaults based on platform
-  case Config::CONFIG['host_os']
-  when /mswin|win32|dos|cygwin|mingw/i
-    @ssl_verify_peer = false
-  else
-    @ssl_verify_peer = true
-  end
-
-  # Status of ssl peer verification
-  def self.ssl_verify_peer
-    @ssl_verify_peer
-  end
-
-  # change the status of ssl peer verification
-  def self.ssl_verify_peer=(new_ssl_verify_peer)
-    @ssl_verify_peer = new_ssl_verify_peer
-  end
-
   # @see Connection#initialize
-  #  Initializes a new keep-alive session for a given remote host
-  #
+  # Initializes a new keep-alive session for a given remote host
   #   @param [String] url The destination URL
   #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
   #   @return [Connection] A new Excon::Connection instance
@@ -57,12 +29,29 @@ module Excon
     Excon::Connection.new(url, params)
   end
 
-  %w{connect delete get head options post put trace}.each do |method|
-    eval <<-DEF
-      def self.#{method}(url, params = {}, &block)
-        new(url).request(params.merge!(:method => :#{method}), &block)
-      end
-    DEF
+  # Class-level instance variables and generic HTTP methods
+  class << self
+    # @return [String] The filesystem path to the SSL Certificate Authority
+    attr_accessor :ssl_ca_path
+
+    # @return [true, false] Whether or not to verify the peer's SSL certificate / chain
+    attr_reader :ssl_verify_peer
+
+    # setup ssl defaults based on platform
+    @ssl_verify_peer = Config::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
+
+    %w{connect delete get head options post put trace}.each do |method|
+      eval <<-DEF
+        def #{method}(url, params = {}, &block)
+          new(url).request(params.merge!(:method => :#{method}), &block)
+        end
+      DEF
+    end
   end
 
+  # Change the status of ssl peer verification
+  # @see Excon#ssl_verify_peer (attr_reader)
+  def self.ssl_verify_peer=(new_ssl_verify_peer)
+    @ssl_verify_peer = new_ssl_verify_peer && true || false
+  end
 end
