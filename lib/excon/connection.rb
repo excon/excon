@@ -1,10 +1,10 @@
 module Excon
   class Connection
-
     attr_reader :connection
 
     CR_NL     = "\r\n"
     HTTP_1_1  = " HTTP/1.1\r\n"
+    FORCE_ENC = String.respond_to?(:force_encoding)
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -26,6 +26,7 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
+
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
       reset
     end
@@ -45,10 +46,10 @@ module Excon
         # connection has defaults, merge in new params to override
         params = @connection.merge(params)
         params[:headers] = @connection[:headers].merge(params[:headers] || {})
-        params[:headers]['Host'] ||= "#{params[:host]}:#{params[:port]}"
+        params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port].to_s
 
         # if path is empty or doesn't start with '/', insert one
-        unless params[:path][0..0] == '/'
+        unless params[:path][0, 1] == '/'
           params[:path].insert(0, '/')
         end
 
@@ -83,11 +84,9 @@ module Excon
         params[:headers]['Content-Length'] = case params[:body]
         when File
           params[:body].binmode
-          File.size(params[:body].path)
+          File.size(params[:body])
         when String
-          if params[:body].respond_to?(:force_encoding)
-            params[:body].force_encoding('BINARY')
-          end
+          params[:body].force_encoding('BINARY') if FORCE_ENC
           params[:body].length
         else
           0
@@ -107,7 +106,7 @@ module Excon
         socket.write(request)
 
         # write out the body
-        if params[:body]
+        if params.has_key?(:body)
           if params[:body].is_a?(String)
             socket.write(params[:body])
           else
@@ -119,16 +118,18 @@ module Excon
 
         # read the response
         response = Excon::Response.parse(socket, params, &block)
+
         if response.headers['Connection'] == 'close'
           reset
         end
+
         response
       rescue => socket_error
         reset
         raise(Excon::Errors::SocketError.new(socket_error))
       end
 
-      if params[:expects] && ![*params[:expects]].include?(response.status)
+      if params.has_key?(:expects) && ![*params[:expects]].include?(response.status)
         reset
         raise(Excon::Errors.status_error(params, response))
       else
@@ -136,7 +137,7 @@ module Excon
       end
 
     rescue => request_error
-      if params[:idempotent] &&
+      if params.has_key?(:idempotent) &&
           (request_error.is_a?(Excon::Errors::SocketError) ||
           (request_error.is_a?(Excon::Errors::HTTPStatusError) && response.status != 404))
         retries_remaining ||= 4
@@ -155,8 +156,7 @@ module Excon
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
     end
 
-    private
-
+  private
     def connect
       new_socket = TCPSocket.open(@connection[:host], @connection[:port])
 
@@ -194,7 +194,7 @@ module Excon
     end
 
     def closed?
-      sockets[@socket_key] && sockets[@socket_key].closed?
+      sockets.has_key?(@socket_key) && sockets[@socket_key].closed?
     end
 
     def socket

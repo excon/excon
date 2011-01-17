@@ -1,17 +1,19 @@
 module Excon
   class Response
+    attr_accessor :body, :headers, :status
 
-    def self.parse(socket, params = {}, &block)
-      if params[:block]
-        print "  \e[33m[WARN] params[:block] is deprecated, please pass the block to the request\e[0m"
-        block = params[:block]
-      end
+    def initialize(attrs={})
+      @body    = attrs[:body]    || ''
+      @headers = attrs[:headers] || {}
+      @status  = attrs[:status]
+    end
 
-      response = new
+    def self.parse(socket, params={})
+      response = new(:status => socket.readline[9, 11].to_i)
 
-      response.status = socket.readline[9..11].to_i
       while true
-        data = socket.readline.chop!
+        (data = socket.readline).chop!
+
         unless data.empty?
           key, value = data.split(': ')
           response.headers[key] = value
@@ -20,53 +22,51 @@ module Excon
         end
       end
 
-      unless params[:method].to_s.upcase == 'HEAD'
-        if !block || (params[:expects] && ![*params[:expects]].include?(response.status))
-          response.body = ''
-          block = Concatenator.new(response.body)
-        end
+      unless params[:method].to_s.casecmp('HEAD') == 0
 
-        if response.headers['Transfer-Encoding'] && response.headers['Transfer-Encoding'].downcase == 'chunked'
+        if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
           while true
             chunk_size = socket.readline.chop!.to_i(16)
-            chunk = socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
-            if chunk_size > 0
-              block.call(chunk)
+
+            break if chunk_size < 1
+                                          # 2 == "/r/n".length
+            (chunk = socket.read(chunk_size+2)).chop!
+
+            if block_given?
+              yield chunk
             else
-              break
+              response.body << chunk
             end
           end
-        elsif response.headers['Connection'] && response.headers['Connection'].downcase == 'close'
-          block.call(socket.read)
-        elsif response.headers['Content-Length']
+
+        elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+          chunk = socket.read
+
+          if block_given?
+            yield chunk
+          else
+            response.body << chunk
+          end
+
+        elsif response.headers.has_key?('Content-Length')
           remaining = response.headers['Content-Length'].to_i
+
           while remaining > 0
-            block.call(socket.read([CHUNK_SIZE, remaining].min))
+            chunk = socket.read([CHUNK_SIZE, remaining].min)
+
+            if block_given?
+              yield chunk
+            else
+              response.body << chunk
+            end
+
             remaining -= CHUNK_SIZE
           end
         end
       end
 
-      response
+      return response
     end
 
-    attr_accessor :body, :headers, :status
-
-    def initialize(attributes = {})
-      @body    = attributes[:body] || ''
-      @headers = attributes[:headers] || {}
-      @status  = attributes[:status]
-    end
-
-  end
-
-  class Concatenator
-    def initialize(string)
-      @string = string
-    end
-
-    def call(data)
-      @string << data
-    end
-  end
-end
+  end # class Response
+end # module Excon
