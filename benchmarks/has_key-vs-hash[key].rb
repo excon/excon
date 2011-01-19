@@ -4,7 +4,8 @@ require 'benchmark'
 
 iters = 1000000
 hash  = {
-  'some_key' => 'some_val'
+  'some_key' => 'some_val',
+  'nil_key' => nil
 }
 
 puts 'Hash#has_key vs. Hash#[]'
@@ -22,7 +23,7 @@ Benchmark.bmbm do |x|
       end
     end
   end
-
+  
   x.report('Hash#has_key (non-existant)') do
     iters.times.each do
       hash.has_key? 'other_key'
@@ -46,6 +47,31 @@ Benchmark.bmbm do |x|
   x.report('Hash#[] (non-existant)') do
     iters.times.each do
       hash['other_key']
+    end
+  end
+  
+  x.report('Hash#has_key (if statement) explicit nil check') do
+    iters.times.each do
+      if hash.has_key?('nil_key') && !hash['nil_key'].nil?
+        "hooray!"
+      end
+    end
+  end
+  
+  
+  x.report('Hash#has_key (if statement) implicit nil check') do
+    iters.times.each do
+      if hash.has_key?('nil_key') && hash['nil_key']
+        "hooray!"
+      end
+    end
+  end
+  
+  x.report('Hash#[] (if statement with nil)') do
+    iters.times.each do
+      if hash['nil_key']
+        "hooray!"
+      end
     end
   end
 end
