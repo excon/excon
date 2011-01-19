@@ -106,7 +106,7 @@ module Excon
         socket.write(request)
 
         # write out the body
-        if params.has_key?(:body)
+        if params[:body]
           if params[:body].is_a?(String)
             socket.write(params[:body])
           else
