@@ -16,7 +16,7 @@ module Excon
 
         unless data.empty?
           key, value = data.split(': ')
-          response.headers[key] = value
+          response.headers[key.downcase] = value
         else
           break
         end
@@ -24,7 +24,7 @@ module Excon
 
       unless params[:method].to_s.casecmp('HEAD') == 0
 
-        if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
+        if response.headers.has_key?('transfer-encoding') && response.headers['transfer-encoding'].casecmp('chunked') == 0
           while true
             chunk_size = socket.readline.chop!.to_i(16)
 
@@ -39,7 +39,7 @@ module Excon
             end
           end
 
-        elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+        elsif response.headers.has_key?('connection') && response.headers['connection'].casecmp('close') == 0
           chunk = socket.read
 
           if block_given?
@@ -48,8 +48,8 @@ module Excon
             response.body << chunk
           end
 
-        elsif response.headers.has_key?('Content-Length')
-          remaining = response.headers['Content-Length'].to_i
+        elsif response.headers.has_key?('content-length')
+          remaining = response.headers['content-length'].to_i
 
           while remaining > 0
             chunk = socket.read([CHUNK_SIZE, remaining].min)

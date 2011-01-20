@@ -119,7 +119,7 @@ module Excon
         # read the response
         response = Excon::Response.parse(socket, params, &block)
 
-        if response.headers['Connection'] == 'close'
+        if response.headers['connection'] == 'close'
           reset
         end
 
