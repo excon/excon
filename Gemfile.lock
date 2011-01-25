@@ -1,0 +1,55 @@
+PATH
+  remote: .
+  specs:
+    excon (0.4.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.2.2)
+    crack (0.1.8)
+    curb (0.7.8)
+    curl_ffi (0.0.8)
+      ffi
+    em-http-request (0.2.15)
+      addressable (>= 2.0.0)
+      eventmachine (>= 0.12.9)
+    eventmachine (0.12.10)
+    ffi (0.6.3)
+      rake (>= 0.8.7)
+    formatador (0.0.16)
+    httparty (0.6.1)
+      crack (= 0.1.8)
+    mime-types (1.16)
+    open4 (1.0.1)
+    rack (1.2.1)
+    rake (0.8.7)
+    rest-client (1.6.1)
+      mime-types (>= 1.16)
+    shindo (0.2.0)
+      formatador (>= 0.0.16)
+    sinatra (1.1.0)
+      rack (~> 1.1)
+      tilt (~> 1.1)
+    streamly_ffi (0.2.6)
+      curl_ffi
+    tach (0.0.8)
+      formatador (>= 0.0.16)
+    tilt (1.1)
+    typhoeus (0.2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  curb
+  em-http-request
+  excon!
+  httparty
+  open4
+  rest-client
+  shindo (= 0.2.0)
+  sinatra
+  streamly_ffi
+  tach (= 0.0.8)
+  typhoeus
