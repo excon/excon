@@ -6,46 +6,44 @@ Http(s) EXtended CONnections
 
   sudo gem install excon
 
-Now you are ready to get started, easiest is to use one off requests to start.
+Now you are ready to get started using one off requests.
 
   require 'rubygems'
   require 'excon'
   Excon.get('http://geemus.com')
 
-This will return a response object, which has body, headers and status attributes you can check out.
+The returned response object has #body, #headers and #status attributes. Supported one off requests are #connect, #delete, #get, #head, #options, #post, #put, and #trace
 
-This supports all the major http verbs: [connect, delete, get, head, options, post, put, trace]
-
-You can also create a connection to try and keep open across multiple requests (more performant!).
+You can also create a connection to reuse across multiple requests (more performant!).
 
   connection = Excon.new('http://geemus.com')
   connection.request(:method => 'GET')
 
-You can also specify more complicated options to either style of call
+Both one off and persistent connections also support many other options, for example:
 
   Excon.get('http://geemus.com', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
   # or
   connection.request(:method => 'GET', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
 
-If you need to do something special with a response you can also pass a block that will be called with each chunk.
+You can also stream responses by passing a block that will receive each chunk.
 
   Excon.get('http://geemus.com') {|chunk| p chunk }
 
-From there you should be able to make just about any request you might need.
+These options can be combined to make pretty much any request you might need.
 
 == HTTPS/SSL Issues
 
-On some systems the default ssl peer certificate verification won't work.  You can either set a different path to certificates:
+By default excon will try to verify peer certificates when using ssl for https, unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like "Excon::Errors::SocketError: SSL_connect returned=1 ..."
 
-  require 'rubygems'
-  require 'excon'
+If you have the misfortune of running into this problem you have a couple options. First, if you have certificates in a location that defaults fail to locate you can set a different path to certificates:
+
   Excon.ssl_ca_path = '/path/to/certs'
 
-or, simply turn peer verification off (less secure):
+or failing that, you can turn off peer verification (less secure):
 
-  require 'rubygems'
-  require 'excon'
   Excon.ssl_verify_peer = false
+
+Either of these should allow you to work around the socket error and continue with getting your work done.
 
 == Copyright
 
