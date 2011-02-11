@@ -20,16 +20,6 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
-  # @see Connection#initialize
-  # Initializes a new keep-alive session for a given remote host
-  #   @param [String] url The destination URL
-  #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
-  #   @return [Connection] A new Excon::Connection instance
-  def self.new(url, params = {})
-    Excon::Connection.new(url, params)
-  end
-
-  # Class-level instance variables and generic HTTP methods
   class << self
     # @return [String] The filesystem path to the SSL Certificate Authority
     attr_accessor :ssl_ca_path
@@ -40,6 +30,22 @@ module Excon
     # setup ssl defaults based on platform
     @ssl_verify_peer = Config::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
 
+    # @see Connection#initialize
+    # Initializes a new keep-alive session for a given remote host
+    #   @param [String] url The destination URL
+    #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
+    #   @return [Connection] A new Excon::Connection instance
+    def new(url, params = {})
+      Excon::Connection.new(url, params)
+    end
+
+    # Change the status of ssl peer verification
+    # @see Excon#ssl_verify_peer (attr_reader)
+    def ssl_verify_peer=(new_ssl_verify_peer)
+      @ssl_verify_peer = new_ssl_verify_peer && true || false
+    end
+
+    # Generic non-persistent HTTP methods
     %w{connect delete get head options post put trace}.each do |method|
       eval <<-DEF
         def #{method}(url, params = {}, &block)
@@ -47,11 +53,5 @@ module Excon
         end
       DEF
     end
-  end
-
-  # Change the status of ssl peer verification
-  # @see Excon#ssl_verify_peer (attr_reader)
-  def self.ssl_verify_peer=(new_ssl_verify_peer)
-    @ssl_verify_peer = new_ssl_verify_peer && true || false
   end
 end
