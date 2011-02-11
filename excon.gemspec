@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.4.0'
-  s.date              = '2011-01-12'
+  s.version           = '0.5.0'
+  s.date              = '2011-02-11'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -63,15 +63,20 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.files = %w[
     Gemfile
+    Gemfile.lock
     README.rdoc
     Rakefile
     benchmarks/class_vs_lambda.rb
     benchmarks/concat_vs_insert.rb
     benchmarks/concat_vs_interpolate.rb
     benchmarks/cr_lf.rb
+    benchmarks/downcase-eq-eq_vs_casecmp.rb
     benchmarks/excon_vs.rb
+    benchmarks/has_key-vs-hash[key].rb
     benchmarks/headers_split_vs_match.rb
+    benchmarks/implicit_block-vs-explicit_block.rb
     benchmarks/merging.rb
+    benchmarks/string_ranged_index.rb
     benchmarks/strip_newline.rb
     benchmarks/vs_stdlib.rb
     excon.gemspec
@@ -79,9 +84,11 @@ Gem::Specification.new do |s|
     lib/excon/connection.rb
     lib/excon/errors.rb
     lib/excon/response.rb
-    tests/config.ru
+    tests/basic_tests.rb
+    tests/rackups/basic.ru
+    tests/rackups/thread_safety.ru
     tests/test_helper.rb
-    tests/threaded_tests.rb
+    tests/thread_safety_tests.rb
   ]
   # = MANIFEST =
 
