@@ -7,7 +7,11 @@ module Excon
       attr_reader :socket_error
 
       def initialize(socket_error=nil)
-        super(socket_error.message)
+        if socket_error.message =~ /certificate verify failed/
+          super('Unable to verify certificate, please set Excon.ssl_ca_path = path_to_certs or Excon.ssl_verify_peer = false (less secure).')
+        else
+          super(socket_error.message)
+        end
         set_backtrace(socket_error.backtrace)
         @socket_error = socket_error
       end
