@@ -10,6 +10,7 @@ module Excon
 
     def self.parse(socket, params={})
       response = new(:status => socket.readline[9, 11].to_i)
+      block_given = block_given?
 
       while true
         (data = socket.readline).chop!
@@ -24,43 +25,41 @@ module Excon
 
       unless params[:method].to_s.casecmp('HEAD') == 0
 
-        if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
-          while true
-            chunk_size = socket.readline.chop!.to_i(16)
+        if params[:expects] && ![*params[:expects]].include?(response.status)
+          block_given = false
+        end
 
-            break if chunk_size < 1
-                                          # 2 == "/r/n".length
-            (chunk = socket.read(chunk_size+2)).chop!
-
-            if block_given?
-              yield chunk
-            else
-              response.body << chunk
+        if block_given
+          if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
+            while true
+              chunk_size = socket.readline.chop!.to_i(16)
+              break if chunk_size < 1
+              yield socket.read(chunk_size+2).chop! # 2 == "/r/n".length
+            end
+          elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+            yield socket.read
+          elsif response.headers.has_key?('Content-Length')
+            remaining = response.headers['Content-Length'].to_i
+            while remaining > 0
+              yield socket.read([CHUNK_SIZE, remaining].min)
+              remaining -= CHUNK_SIZE
             end
           end
-
-        elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
-          chunk = socket.read
-
-          if block_given?
-            yield chunk
-          else
-            response.body << chunk
-          end
-
-        elsif response.headers.has_key?('Content-Length')
-          remaining = response.headers['Content-Length'].to_i
-
-          while remaining > 0
-            chunk = socket.read([CHUNK_SIZE, remaining].min)
-
-            if block_given?
-              yield chunk
-            else
-              response.body << chunk
+        else
+          if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
+            while true
+              chunk_size = socket.readline.chop!.to_i(16)
+              break if chunk_size < 1
+              response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
-
-            remaining -= CHUNK_SIZE
+          elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+            response.body << socket.read
+          elsif response.headers.has_key?('Content-Length')
+            remaining = response.headers['Content-Length'].to_i
+            while remaining > 0
+              response.body << socket.read([CHUNK_SIZE, remaining].min)
+              remaining -= CHUNK_SIZE
+            end
           end
         end
       end
