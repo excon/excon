@@ -25,6 +25,7 @@ module Excon
 
       unless params[:method].to_s.casecmp('HEAD') == 0
 
+        # don't pass stuff into a block if there was an error
         if params[:expects] && ![*params[:expects]].include?(response.status)
           block_given = false
         end
@@ -64,7 +65,7 @@ module Excon
         end
       end
 
-      return response
+      response
     end
 
   end # class Response
