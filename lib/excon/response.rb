@@ -12,15 +12,9 @@ module Excon
       response = new(:status => socket.readline[9, 11].to_i)
       block_given = block_given?
 
-      while true
-        (data = socket.readline).chop!
-
-        unless data.empty?
-          key, value = data.split(': ')
-          response.headers[key] = value
-        else
-          break
-        end
+      while !((data = socket.readline).chop!).empty?
+        key, value = data.split(': ')
+        response.headers[key] = value
       end
 
       unless params[:method].to_s.casecmp('HEAD') == 0
