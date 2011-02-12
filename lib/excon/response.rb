@@ -35,6 +35,7 @@ module Excon
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               yield socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
+            socket.read(2) # 2 == "/r/n".length
           elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
             yield socket.read
           elsif response.headers.has_key?('Content-Length')
@@ -49,6 +50,7 @@ module Excon
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
+            socket.read(2) # 2 == "/r/n".length
           elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
             response.body << socket.read
           elsif response.headers.has_key?('Content-Length')
