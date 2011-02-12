@@ -32,10 +32,8 @@ module Excon
 
         if block_given
           if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
-            while true
-              chunk_size = socket.readline.chop!.to_i(16)
-              break if chunk_size < 1
-              yield socket.read(chunk_size+2).chop! # 2 == "/r/n".length
+            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
+              yield socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
           elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
             yield socket.read
@@ -48,9 +46,7 @@ module Excon
           end
         else
           if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
-            while true
-              chunk_size = socket.readline.chop!.to_i(16)
-              break if chunk_size < 1
+            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
           elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
