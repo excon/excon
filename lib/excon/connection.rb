@@ -137,7 +137,7 @@ module Excon
       end
 
     rescue => request_error
-      if params.has_key?(:idempotent) &&
+      if params[:idempotent] &&
           (request_error.is_a?(Excon::Errors::SocketError) ||
           (request_error.is_a?(Excon::Errors::HTTPStatusError) && response.status != 404))
         retries_remaining ||= 4
