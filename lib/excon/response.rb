@@ -15,6 +15,13 @@ module Excon
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(': ')
         response.headers[key] = value
+        if key.casecmp('Content-Length') == 0
+          @content_length = value.to_i
+        elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
+          @transfer_encoding_chunked = true
+        elsif (key.casecmp('Connection') == 0) && (value.casecmp('close') == 0)
+          @connection_close = true
+        end
       end
 
       unless params[:method].to_s.casecmp('HEAD') == 0
@@ -25,30 +32,30 @@ module Excon
         end
 
         if block_given
-          if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
+          if @transfer_encoding_chunked
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               yield socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
             socket.read(2) # 2 == "/r/n".length
-          elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+          elsif @connection_close
             yield socket.read
-          elsif response.headers.has_key?('Content-Length')
-            remaining = response.headers['Content-Length'].to_i
+          else
+            remaining = @content_length
             while remaining > 0
               yield socket.read([CHUNK_SIZE, remaining].min)
               remaining -= CHUNK_SIZE
             end
           end
         else
-          if response.headers.has_key?('Transfer-Encoding') && response.headers['Transfer-Encoding'].casecmp('chunked') == 0
+          if @transfer_encoding_chunked
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
             socket.read(2) # 2 == "/r/n".length
-          elsif response.headers.has_key?('Connection') && response.headers['Connection'].casecmp('close') == 0
+          elsif @connection_close
             response.body << socket.read
-          elsif response.headers.has_key?('Content-Length')
-            remaining = response.headers['Content-Length'].to_i
+          else
+            remaining = @content_length
             while remaining > 0
               response.body << socket.read([CHUNK_SIZE, remaining].min)
               remaining -= CHUNK_SIZE
