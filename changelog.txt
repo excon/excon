@@ -1,0 +1,6 @@
+0.5.3 02/17/11
+==============
+
+* header comparison for responses is now case insensitive
+* change to allow :idempotent => false to operate correctly
+* misc cleanup
