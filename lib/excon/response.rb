@@ -24,7 +24,7 @@ module Excon
         end
       end
 
-      unless params[:method].to_s.casecmp('HEAD') == 0
+      unless (params[:method].to_s.casecmp('HEAD') == 0) || response.status == 204
 
         # don't pass stuff into a block if there was an error
         if params[:expects] && ![*params[:expects]].include?(response.status)
