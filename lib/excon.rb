@@ -13,7 +13,7 @@ require 'excon/response'
 
 module Excon
   unless const_defined?(:VERSION)
-    VERSION = '0.5.3'
+    VERSION = '0.5.4'
   end
 
   unless const_defined?(:CHUNK_SIZE)
