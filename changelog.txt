@@ -1,3 +1,8 @@
+0.5.5 02/18/11
+==============
+
+* use local variables in response parsing, prevents keeping state across requests
+
 0.5.4 02/18/11
 ==============
 
