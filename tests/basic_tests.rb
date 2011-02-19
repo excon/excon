@@ -31,6 +31,10 @@ with_rackup('basic.ru') do
         !!(response.headers['Server'] =~ /^WEBrick/)
       end
 
+      test("response.headers['Custom']").returns("Foo: bar") do
+        response.headers['Custom']
+      end
+
       tests("response.body").returns('x' * 100) do
         response.body
       end
