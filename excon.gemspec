@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.5.5'
-  s.date              = '2011-02-18'
+  s.version           = '0.5.6'
+  s.date              = '2011-02-19'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -73,6 +73,8 @@ Gem::Specification.new do |s|
     benchmarks/cr_lf.rb
     benchmarks/downcase-eq-eq_vs_casecmp.rb
     benchmarks/excon_vs.rb
+    benchmarks/for_vs_array_each.rb
+    benchmarks/for_vs_hash_each.rb
     benchmarks/has_key-vs-hash[key].rb
     benchmarks/headers_case_sensitivity.rb
     benchmarks/headers_split_vs_match.rb

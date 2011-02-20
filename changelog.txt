@@ -1,3 +1,11 @@
+0.5.6 02/19/11
+==============
+
+* only split headers by first ':' to allow for values with ':'. Thanks mtodd!
+* check a string instance for force_encoding, not class. Thanks seancribbs!
+* add benchmarks related to for vs each for enumerable. Thanks caius!
+* fix default rake task to run tests
+
 0.5.5 02/18/11
 ==============
 
