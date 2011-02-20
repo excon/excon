@@ -62,12 +62,12 @@ module Excon
           request << '?' << params[:query]
         when Hash
           request << '?'
-          params[:query].each do |key, values|
+          for key, values in params[:query]
             case values
             when nil
               request << key.to_s << '&'
             when Array
-              for value in values
+              values.each do |value|
                 request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
               end
             else
@@ -93,8 +93,8 @@ module Excon
         end
 
         # add headers to request
-        params[:headers].each do |key, values|
-          [*values].each do |value|
+        for key, values in params[:headers]
+          for value in [*values]
             request << key.to_s << ': ' << value.to_s << CR_NL
           end
         end
