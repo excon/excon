@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
   ## those that are only needed during development
   # s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
   s.add_development_dependency('open4')
+  s.add_development_dependency('rake')
   s.add_development_dependency('shindo', '0.2.0')
   s.add_development_dependency('sinatra')
 

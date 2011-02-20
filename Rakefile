@@ -43,14 +43,10 @@ end
 #
 #############################################################################
 
-task :default => :test
+require 'shindo/rake'
+Shindo::Rake.new
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'tests'
-  test.pattern = 'tests/**/test_*.rb'
-  test.verbose = true
-end
+task :default => :tests
 
 desc "Generate RCov test coverage and open in your browser"
 task :coverage do
