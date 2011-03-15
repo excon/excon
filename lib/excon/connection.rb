@@ -54,7 +54,9 @@ module Excon
 
         unless stubs.empty?
           for stub, response in stubs
-            if stub.keys.all? {|key| stub[key] == params[key] }
+            # all specified non-headers params match and no headers were specified or all specified headers match
+            if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
+              (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
               return Excon::Response.new(response)
             end
           end
