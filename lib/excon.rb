@@ -45,16 +45,6 @@ module Excon
       @ssl_verify_peer = new_ssl_verify_peer && true || false
     end
 
-    def stub(request_params, response_params)
-      stub = [request_params, response_params]
-      stubs << stub
-      stub
-    end
-
-    def stubs
-      @stubs ||= []
-    end
-
     # Generic non-persistent HTTP methods
     %w{connect delete get head options post put trace}.each do |method|
       eval <<-DEF

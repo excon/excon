@@ -52,8 +52,8 @@ module Excon
           params[:path].insert(0, '/')
         end
 
-        unless Excon.stubs.empty?
-          for stub, response in Excon.stubs
+        unless stubs.empty?
+          for stub, response in stubs
             if stub.keys.all? {|key| stub[key] == params[key] }
               return Excon::Response.new(response)
             end
@@ -154,6 +154,16 @@ module Excon
 
     def reset
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
+    end
+
+    def stub(request_params, response_params)
+      stub = [request_params, response_params]
+      stubs << stub
+      stub
+    end
+
+    def stubs
+      @stubs ||= []
     end
 
   private
