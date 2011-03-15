@@ -185,14 +185,7 @@ module Excon
       new_socket
     end
 
-    def closed?
-      sockets.has_key?(@socket_key) && sockets[@socket_key].closed?
-    end
-
     def socket
-      if closed?
-        reset
-      end
       sockets[@socket_key] ||= connect
     end
 
