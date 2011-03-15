@@ -5,7 +5,7 @@ with_rackup('basic.ru') do
     tests('GET /content-length/100') do
 
       connection = Excon.new('http://127.0.0.1:9292')
-      response = connection.request(:method => 'GET', :path => '/content-length/100')
+      response = connection.request(:method => :get, :path => '/content-length/100')
 
       tests('response.status').returns(200) do
         response.status

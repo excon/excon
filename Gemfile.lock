@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    excon (0.5.2)
+    excon (0.5.6)
 
 GEM
   remote: http://rubygems.org/
@@ -47,6 +47,7 @@ DEPENDENCIES
   excon!
   httparty
   open4
+  rake
   rest-client
   shindo (= 0.2.0)
   sinatra

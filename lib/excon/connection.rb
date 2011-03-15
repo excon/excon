@@ -52,6 +52,20 @@ module Excon
           params[:path].insert(0, '/')
         end
 
+        unless Excon.stubs.empty?
+          for stub, response in Excon.stubs
+            match = true
+            for key in stub.keys
+              unless match &&= (stub[key] == params[key])
+                break
+              end
+            end
+            if match
+              return Excon::Response.new(response)
+            end
+          end
+        end
+
         # start with "METHOD /path"
         request = params[:method].to_s.upcase << ' ' << params[:path]
 
