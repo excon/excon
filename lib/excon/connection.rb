@@ -79,7 +79,9 @@ module Excon
           params[:body].binmode
           File.size(params[:body])
         when String
-          params[:body].force_encoding('BINARY') if FORCE_ENC
+          if FORCE_ENC
+            params[:body].force_encoding('BINARY')
+          end
           params[:body].length
         else
           0
