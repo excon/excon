@@ -54,13 +54,7 @@ module Excon
 
         unless Excon.stubs.empty?
           for stub, response in Excon.stubs
-            match = true
-            for key in stub.keys
-              unless match &&= (stub[key] == params[key])
-                break
-              end
-            end
-            if match
+            if stub.keys.all? {|key| stub[key] == params[key] }
               return Excon::Response.new(response)
             end
           end
