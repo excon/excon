@@ -193,6 +193,11 @@ module Excon
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
 
+        if @connection.has_key?(:client_cert) && @connection.has_key?(:client_key)
+          ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@connection[:client_cert]))
+          ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@connection[:client_key]))
+        end
+
         # open ssl socket
         new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, ssl_context)
         new_socket.sync_close = true
