@@ -52,11 +52,15 @@ require 'rest_client'
 require 'tach'
 require 'typhoeus'
 
-url = 'http://localhost:9292/data/1000'
+size = 10_000
+path = '/data/' << size.to_s
+url = 'http://localhost:9292' << path
+
+times = 1_000
 
 with_server do
 
-  Tach.meter(1000) do
+  Tach.meter(times) do
 
     tach('curb (persistent)') do |n|
       curb = Curl::Easy.new
@@ -104,13 +108,13 @@ with_server do
     end
 
     tach('Net::HTTP') do
-      # Net::HTTP.get('localhost', '/data/1000', 9292)
-      Net::HTTP.start('localhost', 9292) {|http| http.get('/data/1000').body }
+      # Net::HTTP.get('localhost', path, 9292)
+      Net::HTTP.start('localhost', 9292) {|http| http.get(path).body }
     end
 
     Net::HTTP.start('localhost', 9292) do |http|
       tach('Net::HTTP (persistent)') do
-        http.get('/data/1000').body
+        http.get(path).body
       end
     end
 

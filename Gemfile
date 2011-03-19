@@ -6,7 +6,7 @@ group :benchmark do
   gem 'em-http-request'
   gem 'httparty'
   gem 'rest-client'
-  gem 'tach', '0.0.8'
+  gem 'tach', :path => '~/geemus/tach'
   gem 'typhoeus'
   gem 'sinatra'
   gem 'streamly_ffi'
