@@ -1,8 +1,9 @@
 *.sw?
+.bundle
 .DS_Store
+.yardoc
 coverage
+doc
+Gemfile.lock
 rdoc
 pkg
-.bundle
-.yardoc
-doc
