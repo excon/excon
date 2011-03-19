@@ -1,5 +1,7 @@
 module Excon
   class Response
+    NO_ENTITY = [204, 205, 304].freeze
+
     attr_accessor :body, :headers, :status
 
     def initialize(attrs={})
@@ -24,7 +26,7 @@ module Excon
         end
       end
 
-      unless (params[:method].to_s.casecmp('HEAD') == 0) || response.status == 204
+      unless (params[:method].to_s.casecmp('HEAD') == 0) || NO_ENTITY.include?(response.status)
 
         # don't pass stuff into a block if there was an error
         if params[:expects] && ![*params[:expects]].include?(response.status)
