@@ -1,3 +1,13 @@
+0.5.7 03/21/11
+==============
+
+* lazily connect, rather than connecting at #initialize
+* add rough first pass at stubbing
+* minor optimizations
+* ssl client certification support. thanks thommay
+* skip figuring out/setting Content-Length if one is supplied. Thanks pweldon
+* do not try to parse body for 205 and 304. Thanks seancribbs
+
 0.5.6 02/19/11
 ==============
 

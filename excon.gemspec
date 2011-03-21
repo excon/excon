@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.5.6'
-  s.date              = '2011-02-19'
+  s.version           = '0.5.7'
+  s.date              = '2011-03-21'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -64,7 +64,6 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.files = %w[
     Gemfile
-    Gemfile.lock
     README.rdoc
     Rakefile
     benchmarks/class_vs_lambda.rb
@@ -92,6 +91,7 @@ Gem::Specification.new do |s|
     tests/basic_tests.rb
     tests/rackups/basic.ru
     tests/rackups/thread_safety.ru
+    tests/stub_tests.rb
     tests/test_helper.rb
     tests/thread_safety_tests.rb
   ]
