@@ -23,11 +23,11 @@ with_rackup('basic.ru') do
         response.headers['Content-Type']
       end
 
-      tests("Time.parse(response.headers['Date']).is_a?(Time)") do
+      test("Time.parse(response.headers['Date']).is_a?(Time)") do
         Time.parse(response.headers['Date']).is_a?(Time)
       end
 
-      tests("!!(response.headers['Server'] =~ /^WEBrick/)") do
+      test("!!(response.headers['Server'] =~ /^WEBrick/)") do
         !!(response.headers['Server'] =~ /^WEBrick/)
       end
 
