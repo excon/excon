@@ -83,17 +83,19 @@ module Excon
         request << HTTP_1_1
 
         # calculate content length and set to handle non-ascii
-        params[:headers]['Content-Length'] ||= case params[:body]
-        when File
-          params[:body].binmode
-          File.size(params[:body])
-        when String
-          if FORCE_ENC
-            params[:body].force_encoding('BINARY')
+        unless params[:headers].has_key?('Content-Length')
+          params[:headers]['Content-Length'] = case params[:body]
+          when File
+            params[:body].binmode
+            File.size(params[:body])
+          when String
+            if FORCE_ENC
+              params[:body].force_encoding('BINARY')
+            end
+            params[:body].length
+          else
+            0
           end
-          params[:body].length
-        else
-          0
         end
 
         # add headers to request
