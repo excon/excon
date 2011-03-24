@@ -1,3 +1,10 @@
+0.5.8 03/24/11
+==============
+
+* fix regression where nil values in queries were ignored in 1.9. thanks mattsa
+* fix regression causing EOFError when making many connections in one thread
+* added tests to prevent both of the former from recurring
+
 0.5.7 03/21/11
 ==============
 
