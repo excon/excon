@@ -48,16 +48,21 @@ Shindo.tests('Excon proxy support') do
 
   with_rackup('proxy.ru') do
     
-    tests('http proxy connection') do
-      connection = Excon.new('http://foo.com', :proxy => 'localhost:9292')
-    
-      http_thread = Thread.new {
-        response = connection.request(:method => :get, :path => '/bar')
-      }
-      response = http_thread.value
+    tests('http proxying: http://foo.com:8080') do
+      connection = Excon.new('http://foo.com:8080', :proxy => 'localhost:9292')
+      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
     
       tests('response.status').returns(200) do
         response.status
+      end
+      
+      # must be absolute form for proxy requests
+      tests('sent Request URI').returns('http://foo.com:8080/bar?alpha=kappa') do
+        response.headers['Sent-Request-Uri']
+      end
+      
+      tests('sent Host header').returns('foo.com:8080') do
+        response.headers['Sent-Host']
       end
     
       tests('sent Proxy-Connection header').returns('Keep-Alive') do
