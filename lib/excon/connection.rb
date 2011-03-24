@@ -28,6 +28,7 @@ module Excon
       }.merge!(params)
 
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
+      reset
     end
 
     # Sends the supplied request to the destination host.
