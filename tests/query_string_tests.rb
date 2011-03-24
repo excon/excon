@@ -6,11 +6,8 @@ with_rackup('query_string.ru') do
     
     tests(":query => {:foo => 'bar'}") do
 
-      foobar_thread = Thread.new {
-        response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar'})
-        response.body[7..-1] # query string sent
-      }
-      query_string = foobar_thread.value
+      response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar'})
+      query_string = response.body[7..-1] # query string sent
       
       tests("query string sent").returns('foo=bar') do
         query_string
@@ -20,11 +17,8 @@ with_rackup('query_string.ru') do
     
     tests(":query => {:foo => nil}") do
 
-      foobar_thread = Thread.new {
-        response = connection.request(:method => :get, :path => '/query', :query => {:foo => nil})
-        response.body[7..-1] # query string sent
-      }
-      query_string = foobar_thread.value
+      response = connection.request(:method => :get, :path => '/query', :query => {:foo => nil})
+      query_string = response.body[7..-1] # query string sent
       
       tests("query string sent").returns('foo') do
         query_string
@@ -34,11 +28,8 @@ with_rackup('query_string.ru') do
     
     tests(":query => {:foo => 'bar', :me => nil}") do
 
-      foobar_thread = Thread.new {
-        response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => nil})
-        response.body[7..-1] # query string sent
-      }
-      query_string = foobar_thread.value
+      response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => nil})
+      query_string = response.body[7..-1] # query string sent
       
       tests("query string sent includes 'foo=bar'").returns(true) do
         query_string.split('&').include?('foo=bar')
@@ -52,11 +43,8 @@ with_rackup('query_string.ru') do
     
     tests(":query => {:foo => 'bar', :me => 'too'}") do
 
-      foobar_thread = Thread.new {
-        response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => 'too'})
-        response.body[7..-1] # query string sent
-      }
-      query_string = foobar_thread.value
+      response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => 'too'})
+      query_string = response.body[7..-1] # query string sent
       
       tests("query string sent includes 'foo=bar'").returns(true) do
         query_string.split('&').include?('foo=bar')
