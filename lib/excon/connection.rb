@@ -1,6 +1,6 @@
 module Excon
   class Connection
-    attr_reader :connection
+    attr_reader :connection, :proxy
 
     CR_NL     = "\r\n"
     HTTP_1_1  = " HTTP/1.1\r\n"
