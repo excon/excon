@@ -31,11 +31,11 @@ with_rackup('query_string.ru') do
       response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => nil})
       query_string = response.body[7..-1] # query string sent
       
-      tests("query string sent includes 'foo=bar'").returns(true) do
+      test("query string sent includes 'foo=bar'") do
         query_string.split('&').include?('foo=bar')
       end
       
-      tests("query string sent includes 'me'").returns(true) do
+      test("query string sent includes 'me'") do
         query_string.split('&').include?('me')
       end
       
@@ -46,11 +46,11 @@ with_rackup('query_string.ru') do
       response = connection.request(:method => :get, :path => '/query', :query => {:foo => 'bar', :me => 'too'})
       query_string = response.body[7..-1] # query string sent
       
-      tests("query string sent includes 'foo=bar'").returns(true) do
+      test("query string sent includes 'foo=bar'") do
         query_string.split('&').include?('foo=bar')
       end
       
-      tests("query string sent includes 'me=too'").returns(true) do
+      test("query string sent includes 'me=too'") do
         query_string.split('&').include?('me=too')
       end
       
