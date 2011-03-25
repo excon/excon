@@ -28,28 +28,12 @@ Shindo.tests('Excon proxy support') do
       end
     end
     
-    tests('with host-only proxy: myproxy:8888') do
-      connection = Excon.new('http://foo.com', :proxy => 'myproxy.net:8888')
-      
-      tests('connection.proxy.host').returns('myproxy.net') do
-        connection.proxy[:host]
-      end
-      
-      tests('connection.proxy.port').returns(8888) do
-        connection.proxy[:port]
-      end
-      
-      tests('connection.proxy.scheme').returns('http') do
-        connection.proxy[:scheme]
-      end
-    end
-    
   end
 
   with_rackup('proxy.ru') do
     
     tests('http proxying: http://foo.com:8080') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'localhost:9292')
+      connection = Excon.new('http://foo.com:8080', :proxy => 'http://localhost:9292')
       response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
     
       tests('response.status').returns(200) do
