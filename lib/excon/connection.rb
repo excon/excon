@@ -27,7 +27,7 @@ module Excon
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
-      
+
       if params[:proxy]
         setup_proxy(params[:proxy]) 
       end
@@ -71,6 +71,7 @@ module Excon
         request = params[:method].to_s.upcase << ' '
         if @proxy
           request << sanitized_uri(params).to_s
+          params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         else
           request << params[:path]
         end
@@ -113,10 +114,6 @@ module Excon
           else
             0
           end
-        end
-        
-        if @proxy
-          params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         end
 
         # add headers to request
