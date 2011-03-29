@@ -42,9 +42,15 @@ module Excon
           elsif connection_close
             yield socket.read
           else
+            yield_content_length = Proc.new.arity != 1
             remaining = content_length
             while remaining > 0
-              yield socket.read([CHUNK_SIZE, remaining].min)
+              chunk = socket.read([CHUNK_SIZE, remaining].min)
+              if yield_content_length
+                yield chunk, content_length
+              else
+                yield chunk
+              end
               remaining -= CHUNK_SIZE
             end
           end
