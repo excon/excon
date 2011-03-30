@@ -29,7 +29,7 @@ module Excon
       }.merge!(params)
 
       if params[:proxy]
-        params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+        @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         setup_proxy(params[:proxy]) 
       end
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
