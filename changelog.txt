@@ -1,3 +1,10 @@
+0.6.0 03/30/11
+==============
+
+* basic support for using proxies. thanks mattsa
+* yield remaining/total bytes to streaming block. thanks nate
+* minor optimizations/cleanup
+
 0.5.8 03/24/11
 ==============
 
