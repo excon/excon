@@ -44,7 +44,7 @@ module Excon
           else
             remaining = content_length
             while remaining > 0
-              yield socket.read([CHUNK_SIZE, remaining].min)
+              yield socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length
               remaining -= CHUNK_SIZE
             end
           end

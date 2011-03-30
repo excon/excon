@@ -27,7 +27,10 @@ Both one off and persistent connections also support many other options, for exa
 
 You can also stream responses by passing a block that will receive each chunk.
 
-  Excon.get('http://geemus.com') {|chunk| p chunk }
+  Excon.get('http://geemus.com') do |chunk, remaining_bytes, total_bytes|
+    puts chunk
+    puts "Remaining: #{remaining_bytes.to_f / total_bytes}%"
+  end
 
 These options can be combined to make pretty much any request you might need.
 
