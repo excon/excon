@@ -28,7 +28,10 @@ module Excon
         :scheme   => uri.scheme
       }.merge!(params)
 
-      if params[:proxy]
+      # use proxy from the environment if present
+      if ENV['http_proxy']
+        setup_proxy(ENV['http_proxy']) 
+      elsif params[:proxy]
         setup_proxy(params[:proxy]) 
       end
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s

@@ -57,6 +57,34 @@ Shindo.tests('Excon proxy support') do
         response.body
       end
     end
+
+    tests('http proxy from the environment') do
+      ENV['http_proxy'] = 'http://localhost:9292'
+      connection = Excon.new('http://foo.com:8080')
+      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+
+      tests('response.status').returns(200) do
+        response.status
+      end
+
+      tests('response.body (proxied content)').returns('proxied content') do
+        response.body
+      end
+    end
+
+    tests('http proxy from the environment overrides config') do
+      ENV['http_proxy'] = 'http://localhost:9292'
+      connection = Excon.new('http://foo.com:8080', :proxy => 'http://localhost:6666')
+      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+
+      tests('response.status').returns(200) do
+        response.status
+      end
+
+      tests('response.body (proxied content)').returns('proxied content') do
+        response.body
+      end
+    end
     
   end
 
