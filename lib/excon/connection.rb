@@ -23,16 +23,16 @@ module Excon
         :headers  => {},
         :host     => uri.host,
         :path     => uri.path,
-        :port     => uri.port,
+        :port     => uri.port.to_s,
         :query    => uri.query,
         :scheme   => uri.scheme
       }.merge!(params)
 
-      if params[:proxy]
+      if params.has_key?(:proxy)
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         setup_proxy(params[:proxy]) 
       end
-      @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
+      @socket_key = '' << @connection[:host] << ':' << @connection[:port]
       reset
     end
 
@@ -51,7 +51,7 @@ module Excon
         # connection has defaults, merge in new params to override
         params = @connection.merge(params)
         params[:headers] = @connection[:headers].merge(params[:headers] || {})
-        params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port].to_s
+        params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
 
         # if path is empty or doesn't start with '/', insert one
         unless params[:path][0, 1] == '/'
@@ -71,7 +71,7 @@ module Excon
         # start with "METHOD /path"
         request = params[:method].to_s.upcase << ' '
         if @proxy
-          request << params[:scheme] << '://' << params[:host] << ':' << params[:port].to_s << params[:path]
+          request << params[:scheme] << '://' << params[:host] << ':' << params[:port] << params[:path]
         else
           request << params[:path]
         end
