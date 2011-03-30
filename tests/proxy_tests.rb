@@ -26,6 +26,42 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
+    tests('with proxy config from the environment') do
+      ENV['http_proxy'] = 'http://myproxy:8080'
+      ENV['https_proxy'] = 'http://mysecureproxy:8081'
+
+      tests('an http connection') do
+        connection = Excon.new('http://foo.com')
+
+        tests('connection.proxy.host').returns('myproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8080) do
+          connection.proxy[:port]
+        end
+
+        tests('connection.proxy.scheme').returns('http') do
+          connection.proxy[:scheme]
+        end
+      end
+
+      tests('http proxy from the environment overrides config') do
+        connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
+
+        tests('connection.proxy.host').returns('myproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8080) do
+          connection.proxy[:port]
+        end
+      end
+
+      ENV.delete('http_proxy')
+      ENV.delete('https_proxy')
+    end
+
   end
 
   with_rackup('proxy.ru') do

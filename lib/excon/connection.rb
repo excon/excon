@@ -29,7 +29,10 @@ module Excon
         :scheme   => uri.scheme
       }.merge!(params)
 
-      if params.has_key?(:proxy)
+      # use proxy from the environment if present
+      if ENV.has_key?('http_proxy')
+        setup_proxy(ENV['http_proxy'])
+      elsif params.has_key?(:proxy)
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         setup_proxy(params[:proxy])
       end
