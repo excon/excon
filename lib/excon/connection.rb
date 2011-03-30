@@ -260,7 +260,7 @@ module Excon
     end
     
     def sanitized_uri(params)
-      params[:scheme] + '://' + params[:host] + ':' + params[:port].to_s + params[:path]
+      '' << params[:scheme] << '://' << params[:host] << ':' << params[:port].to_s << params[:path]
     end
 
   end
