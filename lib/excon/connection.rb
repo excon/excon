@@ -29,6 +29,7 @@ module Excon
       }.merge!(params)
 
       if params[:proxy]
+        params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         setup_proxy(params[:proxy]) 
       end
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
@@ -70,8 +71,7 @@ module Excon
         # start with "METHOD /path"
         request = params[:method].to_s.upcase << ' '
         if @proxy
-          request << sanitized_uri(params).to_s
-          params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+          request << params[:scheme] << '://' << params[:host] << ':' << params[:port].to_s << params[:path]
         else
           request << params[:path]
         end
@@ -257,10 +257,6 @@ module Excon
         :port     => uri.port,
         :scheme   => uri.scheme
       }
-    end
-    
-    def sanitized_uri(params)
-      '' << params[:scheme] << '://' << params[:host] << ':' << params[:port].to_s << params[:path]
     end
 
   end
