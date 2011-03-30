@@ -214,15 +214,30 @@ module Excon
           ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@connection[:client_key]))
         end
 
-        # open ssl socket
-        new_socket = OpenSSL::SSL::SSLSocket.new(new_socket, ssl_context)
-        new_socket.sync_close = true
-        new_socket.connect
-
-        # verify connection
-        new_socket.post_connection_check(@connection[:host])
+        new_socket = open_ssl_socket(new_socket, ssl_context)
       end
 
+      new_socket
+    end
+
+    def open_ssl_socket(socket, ssl_context)
+
+      new_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
+      new_socket.sync_close = true
+
+      if @proxy
+        new_socket << "CONNECT " << @connection[:host] << ":" << @connection[:port] << HTTP_1_1
+        new_socket << "Host: " << @connection[:host] << ":" << @connection[:port] << CR_NL << CR_NL
+
+        # eat the proxy's connection response
+        while line = new_socket.readline.strip
+          break if line.empty?
+        end
+      end
+
+      new_socket.connect
+      # verify connection
+      new_socket.post_connection_check(@connection[:host])
       new_socket
     end
     
