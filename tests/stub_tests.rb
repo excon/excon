@@ -1,8 +1,10 @@
 Shindo.tests('Excon stubs') do
   tests("stub({:method => :get}, {:body => 'body', :status => 200})") do
 
+    Excon.mock = true
+    Excon.stub({:method => :get}, {:body => 'body', :status => 200})
+
     connection = Excon.new('http://127.0.0.1:9292')
-    connection.stub({:method => :get}, {:body => 'body', :status => 200})
     response = connection.request(:method => :get, :path => '/content-length/100')
 
     tests('response.body').returns('body') do
@@ -16,6 +18,8 @@ Shindo.tests('Excon stubs') do
     tests('response.status').returns(200) do
       response.status
     end
+
+    Excon.mock = false
 
   end
 end

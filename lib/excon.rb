@@ -30,6 +30,21 @@ module Excon
     # setup ssl defaults based on platform
     @ssl_verify_peer = Config::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
 
+    # default mocking to off
+    @mock = false
+
+    # Status of mocking
+    def mock
+      @mock
+    end
+
+    # Change the status of mocking
+    # false is the default and works as expected
+    # true returns a value from stubs or raises
+    def mock=(new_mock)
+      @mock = new_mock
+    end
+
     # @see Connection#initialize
     # Initializes a new keep-alive session for a given remote host
     #   @param [String] url The destination URL
@@ -43,6 +58,20 @@ module Excon
     # @see Excon#ssl_verify_peer (attr_reader)
     def ssl_verify_peer=(new_ssl_verify_peer)
       @ssl_verify_peer = new_ssl_verify_peer && true || false
+    end
+
+    # push an additional stub onto the list to check for mock requests
+    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
+    #   @param [Hash<Symbol, >] response params to return from matched request
+    def stub(request_params, response_params)
+      stub = [request_params, response_params]
+      stubs << stub
+      stub
+    end
+
+    # get a list of defined stubs
+    def stubs
+      @stubs ||= []
     end
 
     # Generic non-persistent HTTP methods

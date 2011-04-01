@@ -22,6 +22,7 @@ module Excon
       @connection = {
         :headers  => {},
         :host     => uri.host,
+        :mock     => Excon.mock,
         :path     => uri.path,
         :port     => uri.port.to_s,
         :query    => uri.query,
@@ -58,8 +59,8 @@ module Excon
           params[:path].insert(0, '/')
         end
 
-        unless stubs.empty?
-          for stub, response in stubs
+        if params[:mock]
+          for stub, response in Excon.stubs
             # all specified non-headers params match and no headers were specified or all specified headers match
             if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
@@ -172,16 +173,6 @@ module Excon
 
     def reset
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
-    end
-
-    def stub(request_params, response_params)
-      stub = [request_params, response_params]
-      stubs << stub
-      stub
-    end
-
-    def stubs
-      @stubs ||= []
     end
 
   private
