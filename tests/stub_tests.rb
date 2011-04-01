@@ -61,4 +61,11 @@ Shindo.tests('Excon stubs') do
   end
 
   Excon.mock = false
+
+  tests('mock = false') do
+    with_rackup('basic.ru') do
+      basic_tests
+    end
+  end
+
 end
