@@ -62,9 +62,19 @@ module Excon
 
     # push an additional stub onto the list to check for mock requests
     #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @param [Hash<Symbol, >] response params to return from matched request
-    def stub(request_params, response_params)
-      stub = [request_params, response_params]
+    #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
+    def stub(request_params, response_params = nil)
+      if block_given?
+        if response_params
+          raise(ArgumentError.new("stub requires either response_params OR a block"))
+        else
+          stub = [request_params, Proc.new]
+        end
+      elsif response_params
+        stub = [request_params, response_params]
+      else
+        raise(ArgumentError.new("stub requires either response_params OR a block"))
+      end
       stubs << stub
       stub
     end

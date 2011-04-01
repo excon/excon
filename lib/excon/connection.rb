@@ -31,7 +31,7 @@ module Excon
 
       if params.has_key?(:proxy)
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-        setup_proxy(params[:proxy]) 
+        setup_proxy(params[:proxy])
       end
       @socket_key = '' << @connection[:host] << ':' << @connection[:port]
       reset
@@ -64,9 +64,16 @@ module Excon
             # all specified non-headers params match and no headers were specified or all specified headers match
             if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
-              return Excon::Response.new(response)
+              case response
+              when Proc
+                return Excon::Response.new(response.call(params))
+              else
+                return Excon::Response.new(response)
+              end
             end
           end
+          # if we reach here no stubs matched
+          raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
         end
 
         # start with "METHOD /path"
@@ -145,6 +152,8 @@ module Excon
         end
 
         response
+      rescue Excon::Errors::StubNotFound => stub_not_found
+        raise(stub_not_found)
       rescue => socket_error
         reset
         raise(Excon::Errors::SocketError.new(socket_error))
