@@ -26,6 +26,42 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
+    tests('with proxy config from the environment') do
+      ENV['http_proxy'] = 'http://myproxy:8080'
+      ENV['https_proxy'] = 'http://mysecureproxy:8081'
+
+      tests('an http connection') do
+        connection = Excon.new('http://foo.com')
+
+        tests('connection.proxy.host').returns('myproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8080) do
+          connection.proxy[:port]
+        end
+
+        tests('connection.proxy.scheme').returns('http') do
+          connection.proxy[:scheme]
+        end
+      end
+
+      tests('http proxy from the environment overrides config') do
+        connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
+
+        tests('connection.proxy.host').returns('myproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8080) do
+          connection.proxy[:port]
+        end
+      end
+
+      ENV.delete('http_proxy')
+      ENV.delete('https_proxy')
+    end
+
   end
 
   with_rackup('proxy.ru') do
@@ -49,34 +85,6 @@ Shindo.tests('Excon proxy support') do
 
       tests('sent Proxy-Connection header').returns('Keep-Alive') do
         response.headers['Sent-Proxy-Connection']
-      end
-
-      tests('response.body (proxied content)').returns('proxied content') do
-        response.body
-      end
-    end
-
-    tests('http proxy from the environment') do
-      ENV['http_proxy'] = 'http://localhost:9292'
-      connection = Excon.new('http://foo.com:8080')
-      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
-
-      tests('response.status').returns(200) do
-        response.status
-      end
-
-      tests('response.body (proxied content)').returns('proxied content') do
-        response.body
-      end
-    end
-
-    tests('http proxy from the environment overrides config') do
-      ENV['http_proxy'] = 'http://localhost:9292'
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://localhost:6666')
-      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
-
-      tests('response.status').returns(200) do
-        response.status
       end
 
       tests('response.body (proxied content)').returns('proxied content') do
