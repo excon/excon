@@ -34,6 +34,15 @@ You can also stream responses by passing a block that will receive each chunk.
 
 These options can be combined to make pretty much any request you might need.
 
+== Proxy Support
+
+You can specify a proxy URL that Excon will use with both HTTP and HTTPS connections:
+
+  connection = Excon.new('http://geemus.com', :proxy => 'http://my.proxy:3128')
+  connection.request(:method => 'GET')
+
+The proxy URL must be fully specified, including scheme (e.g. "http://") and port. 
+
 == HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using ssl for https, unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like "Excon::Errors::SocketError: SSL_connect returned=1 ..."
