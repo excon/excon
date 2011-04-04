@@ -191,7 +191,7 @@ module Excon
     def connect
       new_socket = open_socket
 
-      if @connection[:scheme] == 'https'
+      if https?
         # create ssl context
         ssl_context = OpenSSL::SSL::SSLContext.new
 
@@ -260,7 +260,11 @@ module Excon
     def sockets
       Thread.current[:_excon_sockets] ||= {}
     end
-    
+
+    def https?
+      @connection[:scheme] == 'https'
+    end
+
     def setup_proxy(proxy)
       uri = URI.parse(proxy)
       unless uri.host and uri.port and uri.scheme
