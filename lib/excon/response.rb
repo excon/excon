@@ -4,6 +4,14 @@ module Excon
 
     attr_accessor :body, :headers, :status
 
+    def attributes
+      {
+        :body     => body,
+        :headers  => headers,
+        :status   => status
+      }
+    end
+
     def initialize(attrs={})
       @body    = attrs[:body]    || ''
       @headers = attrs[:headers] || {}
