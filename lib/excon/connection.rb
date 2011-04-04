@@ -31,11 +31,22 @@ module Excon
 
       # use proxy from the environment if present
       if ENV.has_key?('http_proxy')
-        setup_proxy(ENV['http_proxy'])
+        @proxy = setup_proxy(ENV['http_proxy'])
       elsif params.has_key?(:proxy)
-        @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-        setup_proxy(params[:proxy])
+        @proxy = setup_proxy(params[:proxy])
       end
+
+      if https?
+        # use https_proxy if that has been specified
+        if ENV.has_key?('https_proxy')
+          @proxy = setup_proxy(ENV['https_proxy'])
+        end
+      end
+
+      if @proxy
+        @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+      end
+
       @socket_key = '' << @connection[:host] << ':' << @connection[:port]
       reset
     end
@@ -270,11 +281,7 @@ module Excon
       unless uri.host and uri.port and uri.scheme
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
-      @proxy = {
-        :host     => uri.host,
-        :port     => uri.port,
-        :scheme   => uri.scheme
-      }
+      {:host => uri.host, :port => uri.port, :scheme => uri.scheme}
     end
 
   end
