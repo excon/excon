@@ -19,6 +19,8 @@ module Excon
 
     class ProxyParseError < Error; end
 
+    class StubNotFound < Error; end
+
     class HTTPStatusError < Error
       attr_reader :request, :response
 

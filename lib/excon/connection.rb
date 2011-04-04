@@ -22,6 +22,7 @@ module Excon
       @connection = {
         :headers  => {},
         :host     => uri.host,
+        :mock     => Excon.mock,
         :path     => uri.path,
         :port     => uri.port.to_s,
         :query    => uri.query,
@@ -30,7 +31,7 @@ module Excon
 
       if params.has_key?(:proxy)
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-        setup_proxy(params[:proxy]) 
+        setup_proxy(params[:proxy])
       end
       @socket_key = '' << @connection[:host] << ':' << @connection[:port]
       reset
@@ -58,14 +59,21 @@ module Excon
           params[:path].insert(0, '/')
         end
 
-        unless stubs.empty?
-          for stub, response in stubs
+        if params[:mock]
+          for stub, response in Excon.stubs
             # all specified non-headers params match and no headers were specified or all specified headers match
             if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
-              return Excon::Response.new(response)
+              case response
+              when Proc
+                return Excon::Response.new(response.call(params))
+              else
+                return Excon::Response.new(response)
+              end
             end
           end
+          # if we reach here no stubs matched
+          raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
         end
 
         # start with "METHOD /path"
@@ -144,6 +152,8 @@ module Excon
         end
 
         response
+      rescue Excon::Errors::StubNotFound => stub_not_found
+        raise(stub_not_found)
       rescue => socket_error
         reset
         raise(Excon::Errors::SocketError.new(socket_error))
@@ -172,16 +182,6 @@ module Excon
 
     def reset
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
-    end
-
-    def stub(request_params, response_params)
-      stub = [request_params, response_params]
-      stubs << stub
-      stub
-    end
-
-    def stubs
-      @stubs ||= []
     end
 
   private

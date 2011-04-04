@@ -1,5 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'test_helper'))
-
 with_rackup('thread_safety.ru') do
   Shindo.tests('Excon thread safety') do
     connection = Excon.new('http://127.0.0.1:9292')
