@@ -1,3 +1,10 @@
+0.6.1 04/05/11
+==============
+
+* add support for HTTPS proxies. thanks mrowe
+* add support for http_proxy and https_proxy ENV variables. thanks mrowe
+* fix progress for requests with blocks that are chunked or connection close
+
 0.6.0 03/30/11
 ==============
 
