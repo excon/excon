@@ -24,7 +24,7 @@ module Excon
 
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(': ', 2)
-        response.headers[key] = value
+        response.headers[key] = ([*response.headers[key]] << value).compact.join(', ')
         if key.casecmp('Content-Length') == 0
           content_length = value.to_i
         elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
