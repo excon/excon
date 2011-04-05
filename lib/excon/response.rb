@@ -43,16 +43,17 @@ module Excon
 
         if block_given
           if transfer_encoding_chunked
+            # 2 == "/r/n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              yield socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
+              yield(socket.read(chunk_size + 2).chop!, nil, content_length)
             end
-            socket.read(2) # 2 == "/r/n".length
+            socket.read(2)
           elsif connection_close
-            yield socket.read
+            yield(socket.read, remaining, content_length)
           else
             remaining = content_length
             while remaining > 0
-              yield socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length
+              yield(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
             end
           end
