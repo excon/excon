@@ -49,7 +49,8 @@ module Excon
             end
             socket.read(2)
           elsif connection_close
-            yield(socket.read, remaining, content_length)
+            remaining = socket.read
+            yield(remaining, remaining.length, content_length)
           else
             remaining = content_length
             while remaining > 0
