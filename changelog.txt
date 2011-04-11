@@ -1,3 +1,8 @@
+0.6.2 04/11/11
+==============
+
+* fix block arguments for connection close. thanks ggoodale
+
 0.6.1 04/05/11
 ==============
 
