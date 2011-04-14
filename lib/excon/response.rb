@@ -78,6 +78,16 @@ module Excon
 
       response
     end
+    
+    def header(name)
+      name.downcase!
+      headers.each do |key,value|
+        if key.downcase == name 
+          return value 
+        end
+      end
+      nil
+    end
 
   end # class Response
 end # module Excon
