@@ -23,7 +23,7 @@ module Excon
       block_given = block_given?
 
       until ((data = socket.readline).chop!).empty?
-        key, value = data.split(': ', 2)
+        key, value = data.split(/:\s*/, 2)
         response.headers[key] = ([*response.headers[key]] << value).compact.join(', ')
         if key.casecmp('Content-Length') == 0
           content_length = value.to_i
