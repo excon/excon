@@ -79,10 +79,11 @@ module Excon
       response
     end
     
-    def header(name)
-      name.downcase!
+    # Retrieve a specific header value. Header names are treated case-insensitively.
+    #   @param [String] name Header name
+    def get_header(name)
       headers.each do |key,value|
-        if key.downcase == name 
+        if key.casecmp(name) == 0 
           return value 
         end
       end
