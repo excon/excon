@@ -146,6 +146,7 @@ module Excon
 
         # write out the request, sans body
         socket.write(request)
+        socket.flush
 
         # write out the body
         if params[:body]
@@ -254,7 +255,7 @@ module Excon
       new_socket.post_connection_check(@connection[:host])
       new_socket
     end
-    
+
     def open_socket
       if @proxy
         socket = TCPSocket.open(@proxy[:host], @proxy[:port])
