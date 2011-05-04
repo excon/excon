@@ -2,10 +2,9 @@ module Excon
   class Connection
     attr_reader :connection, :proxy
 
-    CR_NL          = "\r\n"
-    HTTP_1_1       = " HTTP/1.1\r\n"
-    FORCE_ENC      = CR_NL.respond_to?(:force_encoding)
-    MOCK_CHUNK_LEN = 1000
+    CR_NL     = "\r\n"
+    HTTP_1_1  = " HTTP/1.1\r\n"
+    FORCE_ENC = CR_NL.respond_to?(:force_encoding)
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -83,8 +82,8 @@ module Excon
                 body = response.delete(:body)
                 i = 0
                 while i < body.length
-                  yield body[i, MOCK_CHUNK_LEN]
-                  i += MOCK_CHUNK_LEN
+                  yield body[i, CHUNK_SIZE]
+                  i += CHUNK_SIZE
                 end
               end
               case response

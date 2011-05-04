@@ -60,16 +60,16 @@ Shindo.tests('Excon stubs') do
 
   end
 
-  tests("stub({}, {:body => 'x' * 1500})") do
+  tests("stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})") do
     connection = Excon.new('http://127.0.0.1:9292')
-    Excon.stub({}, {:body => 'x' * 1500})
+    Excon.stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})
 
     test("with block") do
       chunks = []
       response = connection.request(:method => :get, :path => '/content-length/100') do |chunk|
         chunks << chunk
       end
-      chunks == ['x' * 1000, 'x' * 500]
+      chunks == ['x' * Excon::CHUNK_SIZE, 'x']
     end
   end
 
