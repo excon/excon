@@ -17,7 +17,7 @@ module Excon
   end
 
   unless const_defined?(:CHUNK_SIZE)
-    CHUNK_SIZE = 1000 # 1 megabyte
+    CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
   class << self
