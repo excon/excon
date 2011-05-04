@@ -60,6 +60,19 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("stub({}, {:body => 'x' * 1500})") do
+    connection = Excon.new('http://127.0.0.1:9292')
+    Excon.stub({}, {:body => 'x' * 1500})
+
+    test("with block") do
+      chunks = []
+      response = connection.request(:method => :get, :path => '/content-length/100') do |chunk|
+        chunks << chunk
+      end
+      chunks == ['x' * 1000, 'x' * 500]
+    end
+  end
+
   Excon.mock = false
 
   tests('mock = false') do
