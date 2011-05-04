@@ -78,6 +78,14 @@ module Excon
             # all specified non-headers params match and no headers were specified or all specified headers match
             if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
+              if block_given?
+                body = response.delete(:body)
+                i = 0
+                while i < body.length
+                  yield body[i, CHUNK_SIZE]
+                  i += CHUNK_SIZE
+                end
+              end
               case response
               when Proc
                 return Excon::Response.new(response.call(params))
