@@ -263,7 +263,9 @@ module Excon
 
       new_socket.connect
       # verify connection
-      new_socket.post_connection_check(@connection[:host])
+      if ssl_context.verify_mode != OpenSSL::SSL::VERIFY_NONE
+        new_socket.post_connection_check(@connection[:host])
+      end
       new_socket
     end
 
