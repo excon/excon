@@ -76,7 +76,7 @@ module Excon
         if params[:mock]
           for stub, response in Excon.stubs
             # all specified non-headers params match and no headers were specified or all specified headers match
-            if [stub.keys - [:headers]].all? {|key| stub[key] == params[key] } &&
+            if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
               if block_given?
                 body = response.delete(:body)
