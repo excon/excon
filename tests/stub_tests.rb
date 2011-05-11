@@ -60,6 +60,11 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("mismatched stub").raises(Excon::Errors::StubNotFound) do
+    Excon.stub({:method => :post}, {:body => 'body'})
+    Excon.get('http://127.0.0.1:9292/')
+  end
+
   tests("stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})") do
     connection = Excon.new('http://127.0.0.1:9292')
     Excon.stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})
