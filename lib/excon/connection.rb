@@ -263,7 +263,9 @@ module Excon
 
       new_socket.connect
       # verify connection
-      new_socket.post_connection_check(@connection[:host])
+      if Excon.ssl_verify_peer
+        new_socket.post_connection_check(@connection[:host])
+      end
       new_socket
     end
 
