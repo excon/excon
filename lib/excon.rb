@@ -28,7 +28,7 @@ module Excon
     attr_reader :ssl_verify_peer
 
     # setup ssl defaults based on platform
-    @ssl_verify_peer = Config::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
+    @ssl_verify_peer = RbConfig::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
 
     # default mocking to off
     @mock = false
