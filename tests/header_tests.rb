@@ -8,15 +8,15 @@ Shindo.tests('Excon response header support') do
 
       tests('with variable header capitalization') do
         
-        tests('response.get_header("content-type")').returns('text/html') do
-          response.get_header("content-type")
+        tests('response.get_header("mixedcase-header")').returns('MixedCase') do
+          response.get_header("mixedcase-header")
         end
         
-        tests('response.get_header("custom-header")').returns('foo') do
-          response.get_header("custom-header")
+        tests('response.get_header("uppercase-header")').returns('UPPERCASE') do
+          response.get_header("uppercase-header")
         end
         
-        tests('response.get_header("lowercase-header")').returns('bar') do
+        tests('response.get_header("lowercase-header")').returns('lowercase') do
           response.get_header("lowercase-header")
         end
         
@@ -24,12 +24,12 @@ Shindo.tests('Excon response header support') do
       
       tests('when provided key capitalization varies') do
         
-        tests('response.get_header("CONTENT-TYPE")').returns('text/html') do
-          response.get_header("CONTENT-TYPE")
+        tests('response.get_header("MIXEDCASE-HEADER")').returns('MixedCase') do
+          response.get_header("MIXEDCASE-HEADER")
         end
         
-        tests('response.get_header("CoNtEnT-TyPe")').returns('text/html') do
-          response.get_header("CoNtEnT-TyPe")
+        tests('response.get_header("MiXeDcAsE-hEaDeR")').returns('MixedCase') do
+          response.get_header("MiXeDcAsE-hEaDeR")
         end
         
       end
