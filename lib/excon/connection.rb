@@ -190,7 +190,7 @@ module Excon
       end
 
     rescue => request_error
-      if params[:idempotent] && [Excon::Errors::SocketError, Excon::Errors::HTTPStatusError].include?(request_error)
+      if params[:idempotent] && [Excon::Errors::SocketError, Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
         retries_remaining ||= 4
         retries_remaining -= 1
         if retries_remaining > 0
