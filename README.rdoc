@@ -4,35 +4,56 @@ Http(s) EXtended CONnections
 
 == Getting Started
 
-  sudo gem install excon
+Install the gem.
 
-Now you are ready to get started using one off requests.
+  $ sudo gem install excon
+
+Require with rubygems.
 
   require 'rubygems'
   require 'excon'
-  Excon.get('http://geemus.com')
 
-The returned response object has #body, #headers and #status attributes. Supported one off requests are #connect, #delete, #get, #head, #options, #post, #put, and #trace
+The simplest way to use excon is with one-off requests:
 
-You can also create a connection to reuse across multiple requests (more performant!).
+  response = Excon.get('http://geemus.com')
+
+Supported one off requests are #connect, #delete, #get, #head, #options, #post, #put, and #trace. 
+
+The returned response object has #body, #headers and #status attributes. 
+
+Alternately you can create a connection object which is reusable across multiple requests (more performant!).
 
   connection = Excon.new('http://geemus.com')
-  connection.request(:method => 'GET')
+  response_one = connection.request(:method => 'GET')
+  response_two = connection.request(:method => 'POST', :path => '/foo')
+  response_three = connection.request(:method => 'DELETE', :path => '/bar')
 
-Both one off and persistent connections also support many other options, for example:
+Both one-off and persistent connections support many other options. Here are a few common examples:
 
+  # Custom headers
   Excon.get('http://geemus.com', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
-  # or
   connection.request(:method => 'GET', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
+  
+  # Changing query strings
+  connection = Excon.new('http://geemus.com/')
+  connection.request(:method => 'GET', :query => {:foo => 'bar'})
+  
+  # POST body
+  Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
+  
+  # Symbols can also be used for HTTP methods
+  connection.request(:method => :get)
 
-You can also stream responses by passing a block that will receive each chunk.
+These options can be combined to make pretty much any request you might need.
+
+== Streaming Responses
+
+You can stream responses by passing a block that will receive each chunk.
 
   Excon.get('http://geemus.com') do |chunk, remaining_bytes, total_bytes|
     puts chunk
     puts "Remaining: #{remaining_bytes.to_f / total_bytes}%"
   end
-
-These options can be combined to make pretty much any request you might need.
 
 == Proxy Support
 
@@ -45,7 +66,7 @@ The proxy URL must be fully specified, including scheme (e.g. "http://") and por
 
 Excon will also use the environment variables "http_proxy" and "https_proxy" if they are present. "http_proxy" will be used for HTTPS connections if "https_proxy" is not set.
 
-Environment variables will take precedence over a :proxy option that has been specified in code.
+NOTE: Environment variables will take precedence over a :proxy option that has been specified in code.
 
 == HTTPS/SSL Issues
 
