@@ -33,6 +33,12 @@ Shindo.tests('Excon stubs') do
       response.status
     end
 
+    tests('request body with block given').returns('body') do
+      body = ''
+      connection.request(:method => :get, :path => '/content-length/100') {|data| body << data}
+      body
+    end
+
     Excon.stubs.pop
 
   end
@@ -54,6 +60,12 @@ Shindo.tests('Excon stubs') do
 
     tests('response.status').returns(200) do
       response.status
+    end
+
+    tests('request body with block given').returns('body') do
+      body = ''
+      connection.request(:body => 'body', :method => :get, :path => '/content-length/100') {|data| body << data}
+      body
     end
 
     Excon.stubs.pop

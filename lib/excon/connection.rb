@@ -78,20 +78,21 @@ module Excon
             # all specified non-headers params match and no headers were specified or all specified headers match
             if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&
               (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
-              if block_given?
-                body = response.delete(:body)
+              response_attributes = case response
+              when Proc
+                response.call(params)
+              else
+                response
+              end
+              if block_given? && response_attributes.has_key?(:body)
+                body = response_attributes.delete(:body)
                 i = 0
                 while i < body.length
                   yield body[i, CHUNK_SIZE]
                   i += CHUNK_SIZE
                 end
               end
-              case response
-              when Proc
-                return Excon::Response.new(response.call(params))
-              else
-                return Excon::Response.new(response)
-              end
+              return Excon::Response.new(response_attributes)
             end
           end
           # if we reach here no stubs matched
