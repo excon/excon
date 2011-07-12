@@ -86,9 +86,11 @@ module Excon
               end
               if block_given? && response_attributes.has_key?(:body)
                 body = response_attributes.delete(:body)
+                content_length = remaining = body.bytesize
                 i = 0
                 while i < body.length
-                  yield body[i, CHUNK_SIZE]
+                  yield(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
+                  remaining -= CHUNK_SIZE
                   i += CHUNK_SIZE
                 end
               end

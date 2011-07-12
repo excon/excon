@@ -40,6 +40,14 @@ def basic_tests
     tests("response.body").returns('x' * 100) do
       response.body
     end
+
+    tests("block usage").returns(['x' * 100, 0, 100]) do
+      data = []
+      connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_length, total_length|
+        data = [chunk, remaining_length, total_length]
+      end
+      data
+    end
   end
 end
 

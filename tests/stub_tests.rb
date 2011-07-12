@@ -35,7 +35,9 @@ Shindo.tests('Excon stubs') do
 
     tests('request body with block given').returns('body') do
       body = ''
-      connection.request(:method => :get, :path => '/content-length/100') {|data| body << data}
+      connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+        body << chunk
+      end
       body
     end
 
@@ -64,7 +66,9 @@ Shindo.tests('Excon stubs') do
 
     tests('request body with block given').returns('body') do
       body = ''
-      connection.request(:body => 'body', :method => :get, :path => '/content-length/100') {|data| body << data}
+      connection.request(:body => 'body', :method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+        body << chunk
+      end
       body
     end
 
@@ -83,7 +87,7 @@ Shindo.tests('Excon stubs') do
 
     test("with block") do
       chunks = []
-      response = connection.request(:method => :get, :path => '/content-length/100') do |chunk|
+      response = connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
         chunks << chunk
       end
       chunks == ['x' * Excon::CHUNK_SIZE, 'x']
