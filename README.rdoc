@@ -72,6 +72,19 @@ If "https_proxy" is not set, the value of "http_proxy" will be used for both HTT
 
 NOTE: Environment variables will take precedence over a :proxy option that has been specified in code.
 
+== Stubs
+
+You can stub out requests for testing purposes by enabling mock mode on a connection.
+
+  Excon.mock = true
+
+Then you can add stubs, for instance:
+
+  # Excon.stub(request_attributes, response_attributes)
+  Excon.stub({:method => :get}, {:body => 'body', :status => 200})
+
+Omitted attributes are assumed to match, so this stub will match any get request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an error to let you know.
+
 == HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like "Excon::Errors::SocketError: SSL_connect returned=1 ..."
