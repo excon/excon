@@ -19,6 +19,10 @@ module Excon
   unless const_defined?(:CHUNK_SIZE)
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
+  
+  unless const_defined?(:HTTP_VERBS)
+    HTTP_VERBS = %w{connect delete get head options post put trace}
+  end
 
   class << self
     # @return [String] The filesystem path to the SSL Certificate Authority
@@ -85,7 +89,7 @@ module Excon
     end
 
     # Generic non-persistent HTTP methods
-    %w{connect delete get head options post put trace}.each do |method|
+    HTTP_VERBS.each do |method|
       eval <<-DEF
         def #{method}(url, params = {}, &block)
           new(url).request(params.merge!(:method => :#{method}), &block)
