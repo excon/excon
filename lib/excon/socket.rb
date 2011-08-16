@@ -9,11 +9,12 @@ module Excon
 
     def initialize(connection_params = {}, proxy = {})
       @connection_params, @proxy = connection_params, proxy
-      @socket = connect
-    end
 
-    def connect
-      new_socket = open_socket
+      @socket = if @proxy
+        TCPSocket.open(@proxy[:host], @proxy[:port])
+      else
+        TCPSocket.open(@connection_params[:host], @connection_params[:port])
+      end
 
       if @connection_params[:scheme] == 'https'
         # create ssl context
@@ -41,41 +42,27 @@ module Excon
           ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@connection_params[:client_key]))
         end
 
-        new_socket = open_ssl_socket(new_socket, ssl_context)
-      end
+        @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
+        @socket.sync_close = true
 
-      new_socket
-    end
+        if @proxy
+          @socket << "CONNECT " << @connection_params[:host] << ":" << @connection_params[:port] << HTTP_1_1
+          @socket << "Host: " << @connection_params[:host] << ":" << @connection_params[:port] << CR_NL << CR_NL
 
-    def open_ssl_socket(socket, ssl_context)
-      new_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
-      new_socket.sync_close = true
+          # eat the proxy's connection response
+          while line = @socket.readline.strip
+            break if line.empty?
+          end
+        end
 
-      if @proxy
-        new_socket << "CONNECT " << @connection_params[:host] << ":" << @connection_params[:port] << HTTP_1_1
-        new_socket << "Host: " << @connection_params[:host] << ":" << @connection_params[:port] << CR_NL << CR_NL
-
-        # eat the proxy's connection response
-        while line = new_socket.readline.strip
-          break if line.empty?
+        @socket.connect
+        # verify connection
+        if Excon.ssl_verify_peer
+          @socket.post_connection_check(@connection_params[:host])
         end
       end
 
-      new_socket.connect
-      # verify connection
-      if Excon.ssl_verify_peer
-        new_socket.post_connection_check(@connection_params[:host])
-      end
-      new_socket
-    end
-
-    def open_socket
-      if @proxy
-        socket = TCPSocket.open(@proxy[:host], @proxy[:port])
-      else
-        socket = TCPSocket.open(@connection_params[:host], @connection_params[:port])
-      end
-      socket
+      @socket
     end
 
     def write(data)
