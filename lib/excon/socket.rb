@@ -4,7 +4,6 @@ module Excon
     extend Forwardable
 
     def_delegators(:@socket, :close,    :close)
-    def_delegators(:@socket, :read,     :read)
     def_delegators(:@socket, :readline, :readline)
 
     def initialize(connection_params = {}, proxy = {})
@@ -76,6 +75,15 @@ module Excon
       end
 
       @socket
+    end
+
+    def read(max_length)
+      begin
+        @socket.read_nonblock(max_length)
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+        IO.select([@socket], nil, nil, @connection.params[:read_timeout])
+        retry
+      end
     end
 
     def write(data)

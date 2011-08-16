@@ -27,6 +27,7 @@ module Excon
         :path             => uri.path,
         :port             => uri.port.to_s,
         :query            => uri.query,
+        :read_timeout     => 60,
         :scheme           => uri.scheme,
         :write_timeout    => 60
       }.merge!(params)
