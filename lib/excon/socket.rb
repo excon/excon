@@ -8,6 +8,7 @@ module Excon
 
     def initialize(connection_params = {}, proxy = {})
       @connection_params, @proxy = connection_params, proxy
+      @out_buffer = ''
 
       @socket = ::Socket.new(::Socket::Constants::AF_INET, ::Socket::Constants::SOCK_STREAM, 0)
 
@@ -87,11 +88,12 @@ module Excon
     end
 
     def write(data)
-      remaining = data.length
-      until remaining == 0
+      @out_buffer << data
+      until @out_buffer.empty?
         begin
-          remaining -= @socket.write_nonblock(data)
-        rescue Errno::EAGAIN, IO::WaitWritable
+          amount = [@out_buffer.length, Excon::CHUNK_SIZE].min
+          @socket.write_nonblock(@out_buffer.slice!(0, amount))
+        rescue Errno::EAGAIN, Errno::EWOULDBLOCK
           IO.select(nil [@socket], nil, @connection_params[:write_timeout])
           retry
         end
