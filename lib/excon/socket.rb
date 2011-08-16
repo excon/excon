@@ -10,11 +10,7 @@ module Excon
     def initialize(connection_params = {}, proxy = {})
       @connection_params, @proxy = connection_params, proxy
 
-      @socket = if @proxy
-        TCPSocket.open(@proxy[:host], @proxy[:port])
-      else
-        TCPSocket.open(@connection_params[:host], @connection_params[:port])
-      end
+      @socket = ::Socket.new(::Socket::Constants::AF_INET, ::Socket::Constants::SOCK_STREAM, 0)
 
       if @connection_params[:scheme] == 'https'
         # create ssl context
@@ -54,8 +50,25 @@ module Excon
             break if line.empty?
           end
         end
+      end
 
-        @socket.connect
+      # nonblocking connect
+      if @proxy
+        sockaddr = ::Socket.sockaddr_in(@proxy[:port], @proxy[:host])
+      else
+        sockaddr = ::Socket.sockaddr_in(@connection_params[:port], @connection_params[:host])
+      end
+      begin
+        @socket.connect_nonblock(sockaddr)
+      rescue Errno::EINPROGRESS
+        IO.select(nil, [@socket], nil, @connection_params[:connect_timeout])
+        begin
+          @socket.connect_nonblock(sockaddr)
+        rescue Errno::EISCONN
+        end
+      end
+
+      if @connection_params[:scheme] == 'https'
         # verify connection
         if Excon.ssl_verify_peer
           @socket.post_connection_check(@connection_params[:host])

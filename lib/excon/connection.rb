@@ -20,13 +20,14 @@ module Excon
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
-        :headers  => {},
-        :host     => uri.host,
-        :mock     => Excon.mock,
-        :path     => uri.path,
-        :port     => uri.port.to_s,
-        :query    => uri.query,
-        :scheme   => uri.scheme
+        :connect_timeout  => 60,
+        :headers          => {},
+        :host             => uri.host,
+        :mock             => Excon.mock,
+        :path             => uri.path,
+        :port             => uri.port.to_s,
+        :query            => uri.query,
+        :scheme           => uri.scheme
       }.merge!(params)
 
       # use proxy from the environment if present
