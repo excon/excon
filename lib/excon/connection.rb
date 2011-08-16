@@ -27,7 +27,8 @@ module Excon
         :path             => uri.path,
         :port             => uri.port.to_s,
         :query            => uri.query,
-        :scheme           => uri.scheme
+        :scheme           => uri.scheme,
+        :write_timeout    => 60
       }.merge!(params)
 
       # use proxy from the environment if present

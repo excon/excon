@@ -79,8 +79,15 @@ module Excon
     end
 
     def write(data)
-      @socket.write(data)
-      @socket.flush
+      remaining = data.length
+      until remaining == 0
+        begin
+          remaining -= @socket.write_nonblock(data)
+        rescue Errno::EAGAIN, IO::WaitWritable
+          IO.select(nil [@socket], nil, @connection_params[:write_timeout])
+          retry
+        end
+      end
     end
 
   end
