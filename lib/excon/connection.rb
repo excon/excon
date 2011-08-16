@@ -36,7 +36,7 @@ module Excon
         @proxy = setup_proxy(params[:proxy])
       end
 
-      if https?
+      if @connection[:scheme] == 'https'
         # use https_proxy if that has been specified
         if ENV.has_key?('https_proxy')
           @proxy = setup_proxy(ENV['https_proxy'])
@@ -157,7 +157,6 @@ module Excon
 
         # write out the request, sans body
         socket.write(request)
-        socket.flush
 
         # write out the body
         if params[:body]
@@ -223,83 +222,13 @@ module Excon
     end
 
   private
-    def connect
-      new_socket = open_socket
-
-      if https?
-        # create ssl context
-        ssl_context = OpenSSL::SSL::SSLContext.new
-
-        if Excon.ssl_verify_peer
-          # turn verification on
-          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
-
-          if Excon.ssl_ca_path
-            ssl_context.ca_path = Excon.ssl_ca_path
-          else
-            # use default cert store
-            store = OpenSSL::X509::Store.new
-            store.set_default_paths
-            ssl_context.cert_store = store
-          end
-        else
-          # turn verification off
-          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        end
-
-        if @connection.has_key?(:client_cert) && @connection.has_key?(:client_key)
-          ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@connection[:client_cert]))
-          ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@connection[:client_key]))
-        end
-
-        new_socket = open_ssl_socket(new_socket, ssl_context)
-      end
-
-      new_socket
-    end
-
-    def open_ssl_socket(socket, ssl_context)
-
-      new_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
-      new_socket.sync_close = true
-
-      if @proxy
-        new_socket << "CONNECT " << @connection[:host] << ":" << @connection[:port] << HTTP_1_1
-        new_socket << "Host: " << @connection[:host] << ":" << @connection[:port] << CR_NL << CR_NL
-
-        # eat the proxy's connection response
-        while line = new_socket.readline.strip
-          break if line.empty?
-        end
-      end
-
-      new_socket.connect
-      # verify connection
-      if Excon.ssl_verify_peer
-        new_socket.post_connection_check(@connection[:host])
-      end
-      new_socket
-    end
-
-    def open_socket
-      if @proxy
-        socket = TCPSocket.open(@proxy[:host], @proxy[:port])
-      else
-        socket = TCPSocket.open(@connection[:host], @connection[:port])
-      end
-      socket
-    end
 
     def socket
-      sockets[@socket_key] ||= connect
+      sockets[@socket_key] ||= Excon::Socket.new(@connection, @proxy)
     end
 
     def sockets
       Thread.current[:_excon_sockets] ||= {}
-    end
-
-    def https?
-      @connection[:scheme] == 'https'
     end
 
     def setup_proxy(proxy)
