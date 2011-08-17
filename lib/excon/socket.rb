@@ -84,7 +84,7 @@ module Excon
           @read_buffer << @socket.read_nonblock(max_length)
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK
-        IO.select([@socket], nil, nil, @connection.params[:read_timeout])
+        IO.select([@socket], nil, nil, @connection_params[:read_timeout])
         retry
       end
       @read_buffer.slice!(0, max_length)
