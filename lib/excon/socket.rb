@@ -12,6 +12,23 @@ module Excon
 
       @socket = ::Socket.new(::Socket::Constants::AF_INET, ::Socket::Constants::SOCK_STREAM, 0)
 
+      # nonblocking connect
+      if @proxy
+        sockaddr = ::Socket.sockaddr_in(@proxy[:port], @proxy[:host])
+      else
+        sockaddr = ::Socket.sockaddr_in(@connection_params[:port], @connection_params[:host])
+      end
+      begin
+        @socket.connect_nonblock(sockaddr)
+      rescue Errno::EINPROGRESS
+        IO.select(nil, [@socket], nil, @connection_params[:connect_timeout])
+        begin
+          @socket.connect_nonblock(sockaddr)
+        rescue Errno::EISCONN
+        end
+      end
+
+      # ssl setup
       if @connection_params[:scheme] == 'https'
         # create ssl context
         ssl_context = OpenSSL::SSL::SSLContext.new
@@ -49,22 +66,6 @@ module Excon
           while line = @socket.readline.strip
             break if line.empty?
           end
-        end
-      end
-
-      # nonblocking connect
-      if @proxy
-        sockaddr = ::Socket.sockaddr_in(@proxy[:port], @proxy[:host])
-      else
-        sockaddr = ::Socket.sockaddr_in(@connection_params[:port], @connection_params[:host])
-      end
-      begin
-        @socket.connect_nonblock(sockaddr)
-      rescue Errno::EINPROGRESS
-        IO.select(nil, [@socket], nil, @connection_params[:connect_timeout])
-        begin
-          @socket.connect_nonblock(sockaddr)
-        rescue Errno::EISCONN
         end
       end
 
