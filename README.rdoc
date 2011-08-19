@@ -45,8 +45,9 @@ Both one-off and persistent connections support many other options. Here are a f
   # POST body
   Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
   
-  # Strings or symbols can also be used for HTTP methods
+  # Either Strings or symbols can be used for HTTP methods
   connection.request(:method => 'GET')
+  connection.request(:method => :get)
 
 These options can be combined to make pretty much any request you might need.
 
