@@ -213,7 +213,7 @@ module Excon
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
     end
     
-    # Generic non-persistent HTTP methods
+    # Generate HTTP request verb methods
     Excon::HTTP_VERBS.each do |method|
       eval <<-DEF
         def #{method}(params={}, &block)
