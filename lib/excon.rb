@@ -7,19 +7,12 @@ require 'rbconfig'
 require 'socket'
 require 'uri'
 
+require 'excon/constants'
 require 'excon/connection'
 require 'excon/errors'
 require 'excon/response'
 
 module Excon
-  unless const_defined?(:VERSION)
-    VERSION = '0.6.5'
-  end
-
-  unless const_defined?(:CHUNK_SIZE)
-    CHUNK_SIZE = 1048576 # 1 megabyte
-  end
-
   class << self
     # @return [String] The filesystem path to the SSL Certificate Authority
     attr_accessor :ssl_ca_path
@@ -85,7 +78,7 @@ module Excon
     end
 
     # Generic non-persistent HTTP methods
-    %w{connect delete get head options post put trace}.each do |method|
+    HTTP_VERBS.each do |method|
       eval <<-DEF
         def #{method}(url, params = {}, &block)
           new(url).request(params.merge!(:method => :#{method}), &block)
