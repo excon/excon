@@ -29,8 +29,6 @@ module Excon
           content_length = value.to_i
         elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
           transfer_encoding_chunked = true
-        elsif (key.casecmp('Connection') == 0) && (value.casecmp('close') == 0)
-          connection_close = true
         end
       end
 
@@ -48,15 +46,15 @@ module Excon
               yield(socket.read(chunk_size + 2).chop!, nil, content_length)
             end
             socket.read(2)
-          elsif connection_close
-            remaining = socket.read
-            yield(remaining, remaining.length, content_length)
-          else
+          elsif remaining = content_length
             remaining = content_length
             while remaining > 0
               yield(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
             end
+          else
+            remaining = socket.read
+            yield(remaining, remaining.length, content_length)
           end
         else
           if transfer_encoding_chunked
@@ -64,14 +62,13 @@ module Excon
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
             socket.read(2) # 2 == "/r/n".length
-          elsif connection_close
-            response.body << socket.read
-          else
-            remaining = content_length
+          elsif remaining = content_length
             while remaining > 0
               response.body << socket.read([CHUNK_SIZE, remaining].min)
               remaining -= CHUNK_SIZE
             end
+          else
+            response.body << socket.read
           end
         end
       end
