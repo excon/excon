@@ -49,8 +49,9 @@ module Excon
             end
             socket.read(2)
           elsif connection_close
-            remaining = socket.read
-            yield(remaining, remaining.length, content_length)
+            while remaining = socket.read(CHUNK_SIZE)
+              yield(remaining, remaining.length, content_length)
+            end
           else
             remaining = content_length
             while remaining > 0
