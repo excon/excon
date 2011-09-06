@@ -29,8 +29,6 @@ module Excon
           content_length = value.to_i
         elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
           transfer_encoding_chunked = true
-        elsif (key.casecmp('Connection') == 0) && (value.casecmp('close') == 0)
-          connection_close = true
         end
       end
 
@@ -48,15 +46,15 @@ module Excon
               yield(socket.read(chunk_size + 2).chop!, nil, content_length)
             end
             socket.read(2)
-          elsif connection_close
-            while remaining = socket.read(CHUNK_SIZE)
-              yield(remaining, remaining.length, content_length)
-            end
-          else
+          elsif remaining = content_length
             remaining = content_length
             while remaining > 0
               yield(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
+            end
+          else
+            while remaining = socket.read(CHUNK_SIZE)
+              yield(remaining, remaining.length, content_length)
             end
           end
         else
@@ -65,27 +63,26 @@ module Excon
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
             socket.read(2) # 2 == "/r/n".length
-          elsif connection_close
-            response.body << socket.read
-          else
-            remaining = content_length
+          elsif remaining = content_length
             while remaining > 0
               response.body << socket.read([CHUNK_SIZE, remaining].min)
               remaining -= CHUNK_SIZE
             end
+          else
+            response.body << socket.read
           end
         end
       end
 
       response
     end
-    
+
     # Retrieve a specific header value. Header names are treated case-insensitively.
     #   @param [String] name Header name
     def get_header(name)
       headers.each do |key,value|
-        if key.casecmp(name) == 0 
-          return value 
+        if key.casecmp(name) == 0
+          return value
         end
       end
       nil
