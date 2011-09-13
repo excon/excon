@@ -227,7 +227,11 @@ module Excon
   private
 
     def socket
-      sockets[@socket_key] ||= Excon::Socket.new(@connection, @proxy)
+      sockets[@socket_key] ||= if @connection[:scheme] == 'https'
+        Excon::SSLSocket.new(@connection, @proxy)
+      else
+        Excon::Socket.new(@connection, @proxy)
+      end
     end
 
     def sockets

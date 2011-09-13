@@ -13,6 +13,7 @@ require 'excon/connection'
 require 'excon/errors'
 require 'excon/response'
 require 'excon/socket'
+require 'excon/ssl_socket'
 
 module Excon
   class << self
