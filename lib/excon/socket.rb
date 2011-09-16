@@ -8,7 +8,6 @@ module Excon
 
     def initialize(connection_params = {}, proxy = {})
       @connection_params, @proxy = connection_params, proxy
-      @read_buffer, @write_buffer = '', ''
 
       @read_would_block_exceptions = [
         Errno::EAGAIN, Errno::EWOULDBLOCK,
@@ -49,9 +48,10 @@ module Excon
     end
 
     def read(max_length)
+      buffer = ""
       begin
-        until @read_buffer.length >= max_length
-          @read_buffer << @socket.read_nonblock(max_length)
+        until buffer.length == max_length
+          buffer << @socket.read_nonblock(max_length - buffer.length)
         end
       rescue *@read_would_block_exceptions
         if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
@@ -60,15 +60,15 @@ module Excon
           raise(Timeout::Error)
         end
       end
-      @read_buffer.slice!(0, max_length)
+      buffer
     end
 
     def write(data)
-      @write_buffer << data
-      until @write_buffer.empty?
+      buffer = data.dup
+      until buffer.empty?
         begin
-          max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
-          @socket.write_nonblock(@write_buffer.slice!(0, max_length))
+          max_length = [buffer.length, Excon::CHUNK_SIZE].min
+          @socket.write_nonblock(buffer.slice!(0, max_length))
         rescue *@write_would_block_exceptions
           if IO.select(nil [@socket], nil, @connection_params[:write_timeout])
             retry
