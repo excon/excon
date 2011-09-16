@@ -10,6 +10,18 @@ module Excon
       @connection_params, @proxy = connection_params, proxy
       @read_buffer, @write_buffer = '', ''
 
+      @read_would_block_exceptions = [
+        Errno::EAGAIN, Errno::EWOULDBLOCK,
+        # used by 1.9 and openssl-nonblock
+        defined?(IO::WaitReadable) ? IO::WaitReadable : nil
+      ].compact
+
+      @write_would_block_exceptions = [
+        Errno::EAGAIN, Errno::EWOULDBLOCK,
+        # used by 1.9 and openssl-nonblock
+        defined?(IO::WaitWritable) ? IO::WaitWritable : nil
+      ].compact
+
       @sockaddr = if @proxy
         ::Socket.sockaddr_in(@proxy[:port], @proxy[:host])
       else
@@ -41,7 +53,7 @@ module Excon
         until @read_buffer.length >= max_length
           @read_buffer << @socket.read_nonblock(max_length)
         end
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+      rescue *@read_would_block_exceptions
         if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
           retry
         else
@@ -57,7 +69,7 @@ module Excon
         begin
           max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
           @socket.write_nonblock(@write_buffer.slice!(0, max_length))
-        rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+        rescue *@write_would_block_exceptions
           if IO.select(nil [@socket], nil, @connection_params[:write_timeout])
             retry
           else
