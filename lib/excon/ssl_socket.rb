@@ -1,24 +1,27 @@
 module Excon
   class SSLSocket < Socket
 
-    # backwards compatability for 1.8.x SSLSocket (which lack nonblock)
-    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock)
+    def self.fixup_for_ssl_connect_nonblock
+      # backwards compatability for 1.8.x SSLSocket (which lack nonblock)
+      unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock)
 
-      undef_method :connect
-      def connect
-        @socket.connect(@sockaddr)
+        undef_method :connect
+        def connect
+          @socket.connect(@sockaddr)
+        end
+
+        undef_method :read
+        def_delegators(:@socket, :read, :read)
+
+        undef_method :write
+        def_delegators(:@socket, :write, :write)
       end
-
-      undef_method :read
-      def_delegators(:@socket, :read, :read)
-
-      undef_method :write
-      def_delegators(:@socket, :write, :write)
-
     end
 
     def initialize(connection_params = {}, proxy = {})
       super
+
+      self.class.fixup_for_ssl_connect_nonblock
 
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
