@@ -48,6 +48,17 @@ def basic_tests(url = 'http://127.0.0.1:9292')
       end
       data
     end
+
+  end
+
+  tests('POST /body-sink') do
+
+    connection = Excon.new(url)
+    response = connection.request(:method => :post, :path => '/body-sink', :body => 'x' * 5_000_000)
+
+    tests('response.body').returns("5000000") do
+      response.body
+    end
   end
 end
 
