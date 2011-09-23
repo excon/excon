@@ -214,7 +214,7 @@ module Excon
     def reset
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
     end
-    
+
     # Generate HTTP request verb methods
     Excon::HTTP_VERBS.each do |method|
       eval <<-DEF
