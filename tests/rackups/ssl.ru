@@ -8,6 +8,10 @@ class App < Sinatra::Base
     headers("Custom" => "Foo: bar")
     'x' * value.to_i
   end
+
+  post('/body-sink') do
+    request.body.read.size.to_s
+  end
 end
 
 Rack::Handler::WEBrick.run(App, {

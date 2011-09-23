@@ -56,9 +56,10 @@ module Excon
       until @write_buffer.empty?
         begin
           max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
-          @socket.write_nonblock(@write_buffer.slice!(0, max_length))
+          written = @socket.write_nonblock(@write_buffer.slice(0, max_length))
+          @write_buffer.slice!(0, written)
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK
-          if IO.select(nil [@socket], nil, @connection_params[:write_timeout])
+          if IO.select(nil, [@socket], nil, @connection_params[:write_timeout])
             retry
           else
             raise(Timeout::Error)
