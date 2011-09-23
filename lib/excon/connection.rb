@@ -182,7 +182,7 @@ module Excon
         response
       rescue Excon::Errors::StubNotFound => stub_not_found
         raise(stub_not_found)
-      rescue => socket_error
+      rescue StandardError, Timeout::Error => socket_error
         reset
         raise(Excon::Errors::SocketError.new(socket_error))
       end
@@ -214,7 +214,7 @@ module Excon
     def reset
       (old_socket = sockets.delete(@socket_key)) && old_socket.close
     end
-    
+
     # Generate HTTP request verb methods
     Excon::HTTP_VERBS.each do |method|
       eval <<-DEF
