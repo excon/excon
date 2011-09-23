@@ -17,6 +17,8 @@ module Excon
       end
     end
 
+    class Timeout < Error; end
+
     class ProxyParseError < Error; end
 
     class StubNotFound < Error; end

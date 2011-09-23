@@ -6,7 +6,6 @@ require 'forwardable'
 require 'openssl'
 require 'rbconfig'
 require 'socket'
-require 'timeout'
 require 'uri'
 
 require 'excon/constants'

@@ -45,7 +45,7 @@ module Excon
         if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
           retry
         else
-          raise(Timeout::Error)
+          raise(Excon::Errors::Timeout.new("read timeout reached"))
         end
       end
       @read_buffer.slice!(0, max_length)
@@ -61,7 +61,7 @@ module Excon
           if IO.select(nil [@socket], nil, @connection_params[:write_timeout])
             retry
           else
-            raise(Timeout::Error)
+            raise(Excon::Errors::Timeout.new("write timeout reached"))
           end
         end
       end
