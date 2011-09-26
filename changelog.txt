@@ -1,3 +1,50 @@
+0.7.2 09/24/11
+==============
+
+* fix buffer drain for socket#write. thanks dpiddy
+* rescue/retry timeout errors for idempotent requests. thanks dpiddy
+* timeouts should raise an excon specific error
+
+0.7.1 09/13/11
+==============
+
+* use nonblocking only when available (skip for 1.8.x SSL)
+
+0.7.0 09/12/11
+==============
+
+* change connects and most read/writes to use nonblocking methods
+* provide connect/read/write timeouts
+
+0.6.6 09/06/11
+==============
+
+* cleanup/refactoring. thanks nextmat
+* default to connection close as request delimiter
+
+0.6.5 07/13/11
+==============
+
+* properly stream responses with proc
+* fix mock with block to match real requests
+
+0.6.4 07/05/11
+==============
+
+* add block support to mocks. thanks dmeiz
+* fixes for stub matching. thanks dmeiz
+* don't do post_connection_check if verify mode is off
+* check excon state for verify mode instead of checking OpenSSL constants
+* use RbConfig to find OS. thanks trym
+* fixes for idempotent/retry. thanks lstoll
+
+0.6.3 05/02/11
+==============
+
+* fixes for header parsing to allow whitespace after :. thanks myronmarston
+* get_header optimization. thanks nextmat
+* rewind body on retry. thanks pweldon
+
 0.6.2 04/11/11
 ==============
 
