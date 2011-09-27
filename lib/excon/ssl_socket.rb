@@ -49,8 +49,8 @@ module Excon
       @socket.sync_close = true
 
       if @proxy
-        @socket << "CONNECT " << @connection_params[:host] << ":" << @connection_params[:port] << HTTP_1_1
-        @socket << "Host: " << @connection_params[:host] << ":" << @connection_params[:port] << CR_NL << CR_NL
+        @socket << "CONNECT " << @connection_params[:host] << ":" << @connection_params[:port] << Excon::Connection::HTTP_1_1
+        @socket << "Host: " << @connection_params[:host] << ":" << @connection_params[:port] << Excon::Connection::CR_NL << Excon::Connection::CR_NL
 
         # eat the proxy's connection response
         while line = @socket.readline.strip
