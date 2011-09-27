@@ -39,7 +39,7 @@ module Excon
     def read(max_length)
       begin
         until @read_buffer.length >= max_length
-          @read_buffer << @socket.read_nonblock(max_length)
+          @read_buffer << @socket.read_nonblock([max_length, max_length - @read_buffer.length].min)
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK
         if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
