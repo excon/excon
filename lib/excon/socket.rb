@@ -41,6 +41,14 @@ module Excon
         until @read_buffer.length >= max_length
           @read_buffer << @socket.read_nonblock([max_length, max_length - @read_buffer.length].min)
         end
+      rescue OpenSSL::SSL::SSLError => error
+        if error.message == 'read would block'
+          if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
+            retry
+          else
+            raise(Excon::Errors::Timeout.new("read timeout reached"))
+          end
+        end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK
         if IO.select([@socket], nil, nil, @connection_params[:read_timeout])
           retry
