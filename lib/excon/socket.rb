@@ -66,6 +66,14 @@ module Excon
           max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
           written = @socket.write_nonblock(@write_buffer.slice(0, max_length))
           @write_buffer.slice!(0, written)
+        rescue OpenSSL::SSL::SSLError => error
+          if error.message == 'write would block'
+            if IO.select(nil, [@socket], nil, @connection_params[:write_timeout])
+              retry
+            else
+              raise(Excon::Errors::Timeout.new("write timeout reached"))
+            end
+          end
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK
           if IO.select(nil, [@socket], nil, @connection_params[:write_timeout])
             retry
