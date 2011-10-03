@@ -1,3 +1,8 @@
+0.7.5 10/03/11
+==============
+
+* convert port to integer in sockaddr_in (jruby won't convert for you)
+
 0.7.4 09/30/11
 ==============
 
