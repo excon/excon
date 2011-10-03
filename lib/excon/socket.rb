@@ -11,9 +11,9 @@ module Excon
       @read_buffer, @write_buffer = '', ''
 
       @sockaddr = if @proxy
-        ::Socket.sockaddr_in(@proxy[:port], @proxy[:host])
+        ::Socket.sockaddr_in(@proxy[:port].to_i, @proxy[:host])
       else
-        ::Socket.sockaddr_in(@connection_params[:port], @connection_params[:host])
+        ::Socket.sockaddr_in(@connection_params[:port].to_i, @connection_params[:host])
       end
 
       @socket = ::Socket.new(::Socket::Constants::AF_INET, ::Socket::Constants::SOCK_STREAM, 0)
