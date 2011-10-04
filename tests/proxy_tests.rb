@@ -106,7 +106,7 @@ Shindo.tests('Excon proxy support') do
   with_rackup('proxy.ru') do
 
     tests('http proxying: http://foo.com:8080') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://localhost:9292')
+      connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
       response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
 
       tests('response.status').returns(200) do
