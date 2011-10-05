@@ -2,6 +2,8 @@
 
 Http(s) EXtended CONnections
 
+{<img src="https://secure.travis-ci.org/geemus/excon.png" />}[http://travis-ci.org/geemus/excon]
+
 == Getting Started
 
 Install the gem.
