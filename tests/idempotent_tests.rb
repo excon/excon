@@ -1,7 +1,13 @@
 Shindo.tests('Excon request idempotencey') do
   Excon.mock = true
 
+  after do
+    # flush any existing stubs after each test
+    Excon.stubs.clear
+  end
+
   tests("Non-idempotent call with an erroring socket").raises(Excon::Errors::SocketError) do
+    run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count < 4 # First 3 calls fail.
@@ -14,8 +20,6 @@ Shindo.tests('Excon request idempotencey') do
     connection = Excon.new('http://127.0.0.1:9292')
     response = connection.request(:method => :get, :path => '/some-path')
   end
-
-  Excon.stubs.pop
 
   tests("Idempotent request with socket erroring first 3 times").returns(200) do
     run_count = 0
@@ -33,8 +37,6 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  Excon.stubs.pop
-
   tests("Idempotent request with socket erroring first 5 times").raises(Excon::Errors::SocketError) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
@@ -51,6 +53,5 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  Excon.stubs.pop
   Excon.mock = false
 end
