@@ -3,7 +3,7 @@ rvm:
   - 1.9.2
   - ree
   - 1.9.3
-  #- rbx
+  - rbx
 script: "bundle exec shindont"
 
 # whitelist branches to run on
