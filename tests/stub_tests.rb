@@ -94,6 +94,7 @@ Shindo.tests('Excon stubs') do
     end
   end
 
+  Excon.stubs.clear
   Excon.mock = false
 
   tests('mock = false') do

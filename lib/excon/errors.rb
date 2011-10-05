@@ -76,7 +76,7 @@ module Excon
 
     # Messages for nicer exceptions, from rfc2616
     def self.status_error(request, response)
-      @errors ||= { 
+      @errors ||= {
         100 => [Excon::Errors::Continue, 'Continue'],
         101 => [Excon::Errors::SwitchingProtocols, 'Switching Protocols'],
         200 => [Excon::Errors::OK, 'OK'],
