@@ -68,7 +68,10 @@ end
 
 def with_rackup(name)
   pid, w, r, e = Open4.popen4("rackup #{rackup_path(name)}")
-  until e.gets =~ /HTTPServer#start:/; end
+  until (data = e.gets) =~ /HTTPServer#start:/;
+    p data
+  end
+  p data
   yield
 ensure
   Process.kill(9, pid)
