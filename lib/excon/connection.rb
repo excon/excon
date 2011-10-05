@@ -76,7 +76,9 @@ module Excon
           params[:path].insert(0, '/')
         end
 
-        if params[:mock]
+        unless params[:mock]
+          socket.params = params
+        else
           for stub, response in Excon.stubs
             # all specified non-headers params match and no headers were specified or all specified headers match
             if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&

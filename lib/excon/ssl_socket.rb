@@ -17,7 +17,7 @@ module Excon
 
     end
 
-    def initialize(connection_params = {}, proxy = {})
+    def initialize(params = {}, proxy = {})
       super
 
       # create ssl context
@@ -40,17 +40,17 @@ module Excon
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
-      if @connection_params.has_key?(:client_cert) && @connection_params.has_key?(:client_key)
-        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@connection_params[:client_cert]))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@connection_params[:client_key]))
+      if @params.has_key?(:client_cert) && @params.has_key?(:client_key)
+        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@params[:client_cert]))
+        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@params[:client_key]))
       end
 
       @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
       @socket.sync_close = true
 
       if @proxy
-        @socket << "CONNECT " << @connection_params[:host] << ":" << @connection_params[:port] << Excon::Connection::HTTP_1_1
-        @socket << "Host: " << @connection_params[:host] << ":" << @connection_params[:port] << Excon::Connection::CR_NL << Excon::Connection::CR_NL
+        @socket << "CONNECT " << @params[:host] << ":" << @params[:port] << Excon::Connection::HTTP_1_1
+        @socket << "Host: " << @params[:host] << ":" << @params[:port] << Excon::Connection::CR_NL << Excon::Connection::CR_NL
 
         # eat the proxy's connection response
         while line = @socket.readline.strip
@@ -63,7 +63,7 @@ module Excon
 
       # verify connection
       if Excon.ssl_verify_peer
-        @socket.post_connection_check(@connection_params[:host])
+        @socket.post_connection_check(@params[:host])
       end
 
       @socket
