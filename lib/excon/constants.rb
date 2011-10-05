@@ -10,4 +10,17 @@ module Excon
   unless const_defined?(:HTTP_VERBS)
     HTTP_VERBS = %w{connect delete get head options post put trace}
   end
+
+  unless ::IO.const_defined?(:WaitReadable)
+    class ::IO
+      module WaitReadable; end
+    end
+  end
+
+  unless ::IO.const_defined?(:WaitWritable)
+    class ::IO
+      module WaitWritable; end
+    end
+  end
+
 end

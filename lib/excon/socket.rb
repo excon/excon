@@ -45,12 +45,8 @@ module Excon
             @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
           end
         else
-          # no length specified, so read until EOFError
-          begin
-            while true
-              @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
-            end
-          rescue EOFError
+          while true
+            @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
           end
         end
       rescue OpenSSL::SSL::SSLError => error
@@ -61,12 +57,13 @@ module Excon
             raise(Excon::Errors::Timeout.new("read timeout reached"))
           end
         end
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if IO.select([@socket], nil, nil, @params[:read_timeout])
           retry
         else
           raise(Excon::Errors::Timeout.new("read timeout reached"))
         end
+      rescue EOFError
       end
       if max_length
         @read_buffer.slice!(0, max_length)
@@ -91,7 +88,7 @@ module Excon
               raise(Excon::Errors::Timeout.new("write timeout reached"))
             end
           end
-        rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+        rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
           if IO.select(nil, [@socket], nil, @params[:write_timeout])
             retry
           else
