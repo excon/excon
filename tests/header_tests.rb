@@ -3,7 +3,7 @@ Shindo.tests('Excon response header support') do
   with_rackup('response_header.ru') do
 
     tests('Response#get_header') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://localhost:9292')
+      connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
       response = connection.request(:method => :get, :path => '/foo')
 
       tests('with variable header capitalization') do
