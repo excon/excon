@@ -36,10 +36,20 @@ module Excon
       end
     end
 
-    def read(max_length)
+    def read(max_length=nil)
       begin
-        until @read_buffer.length >= max_length
-          @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+        if max_length
+          until @read_buffer.length >= max_length
+            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+          end
+        else
+          # no length specified, so read until EOFError
+          begin
+            while true
+              @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
+            end
+          rescue EOFError
+          end
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
@@ -56,7 +66,12 @@ module Excon
           raise(Excon::Errors::Timeout.new("read timeout reached"))
         end
       end
-      @read_buffer.slice!(0, max_length)
+      if max_length
+        @read_buffer.slice!(0, max_length)
+      else
+        # read until EOFError, so return everything
+        @read_buffer.slice!(0, @read_buffer.length)
+      end
     end
 
     def write(data)
