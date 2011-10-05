@@ -1,3 +1,11 @@
+0.7.6 10/04/11
+==============
+
+* fixes to provide for using openssl-nonblock for 1.8.x
+* correctly pass per-request settings to socket
+* fix for nonblocking stuff when waiting for socket close
+* use 127.0.0.1 instead of localhost in tests (fixes some errors)
+
 0.7.5 10/03/11
 ==============
 
