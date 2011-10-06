@@ -2,6 +2,8 @@
 
 Http(s) EXtended CONnections
 
+{<img src="https://secure.travis-ci.org/geemus/excon.png" />}[http://travis-ci.org/geemus/excon]
+
 == Getting Started
 
 Install the gem.
@@ -17,9 +19,9 @@ The simplest way to use excon is with one-off requests:
 
   response = Excon.get('http://geemus.com')
 
-Supported one-off request methods are #connect, #delete, #get, #head, #options, #post, #put, and #trace. 
+Supported one-off request methods are #connect, #delete, #get, #head, #options, #post, #put, and #trace.
 
-The returned response object has #body, #headers and #status attributes. 
+The returned response object has #body, #headers and #status attributes.
 
 Alternately you can create a connection object which is reusable across multiple requests (more performant!).
 
@@ -27,7 +29,7 @@ Alternately you can create a connection object which is reusable across multiple
   response_one = connection.get
   response_two = connection.post(:path => '/foo')
   response_three = connection.delete(:path => '/bar')
-  
+
 Sometimes it is more convenient to specify the request type as an argument:
 
   response_four = connection.request(:method => :get, :path => '/more')
@@ -37,14 +39,14 @@ Both one-off and persistent connections support many other options. Here are a f
   # Custom headers
   Excon.get('http://geemus.com', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
   connection.get(:headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
-  
+
   # Changing query strings
   connection = Excon.new('http://geemus.com/')
   connection.get(:query => {:foo => 'bar'})
-  
+
   # POST body
   Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
-  
+
   # request accepts either symbols or strings
   connection.request(:method => :get)
   connection.request(:method => 'GET')
@@ -59,7 +61,7 @@ You can stream responses by passing a block that will receive each chunk.
     puts chunk
     puts "Remaining: #{remaining_bytes.to_f / total_bytes}%"
   end
-  
+
 Iterating over each chunk will allow you to do work on the response incrementally without buffering the entire response first. For very large responses this can lead to significant memory savings.
 
 == Proxy Support
@@ -71,7 +73,7 @@ You can specify a proxy URL that Excon will use with both HTTP and HTTPS connect
 
 The proxy URL must be fully specified, including scheme (e.g. "http://") and port.
 
-Excon will also use the environment variables "http_proxy" and "https_proxy" if they are present. 
+Excon will also use the environment variables "http_proxy" and "https_proxy" if they are present.
 
 If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
