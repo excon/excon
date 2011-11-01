@@ -11,6 +11,7 @@ module Excon
     def initialize(params = {}, proxy = {})
       @params, @proxy = params, proxy
       @read_buffer, @write_buffer = '', ''
+      @eof = false
 
       @sockaddr = if @proxy
         ::Socket.sockaddr_in(@proxy[:port].to_i, @proxy[:host])
@@ -39,6 +40,8 @@ module Excon
     end
 
     def read(max_length=nil)
+      return nil if @eof
+
       begin
         if max_length
           until @read_buffer.length >= max_length
@@ -64,6 +67,7 @@ module Excon
           raise(Excon::Errors::Timeout.new("read timeout reached"))
         end
       rescue EOFError
+        @eof = true
       end
       if max_length
         @read_buffer.slice!(0, max_length)
