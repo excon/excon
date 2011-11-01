@@ -73,3 +73,15 @@ def with_rackup(name)
 ensure
   Process.kill(9, pid)
 end
+
+def server_path(*parts)
+  File.expand_path(File.join(File.dirname(__FILE__), 'servers', *parts))
+end
+
+def with_server(name)
+  pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
+  until e.gets =~ /ready/; end
+  yield
+ensure
+  Process.kill(9, pid)
+end
