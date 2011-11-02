@@ -79,9 +79,11 @@ def server_path(*parts)
 end
 
 def with_server(name)
+  GC.disable
   pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
   until e.gets =~ /ready/; end
   yield
 ensure
+  GC.enable
   Process.kill(9, pid)
 end
