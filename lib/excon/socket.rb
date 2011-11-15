@@ -8,18 +8,22 @@ module Excon
     def_delegators(:@socket, :close,    :close)
     def_delegators(:@socket, :readline, :readline)
 
-    def initialize(params = {}, proxy = {})
+    def initialize(params = {}, proxy = nil)
       @params, @proxy = params, proxy
       @read_buffer, @write_buffer = '', ''
       @eof = false
 
-      @sockaddr = if @proxy
-        ::Socket.sockaddr_in(@proxy[:port].to_i, @proxy[:host])
+      addrinfo = if @proxy
+        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port].to_i, nil, ::Socket::Constants::SOCK_STREAM)
       else
-        ::Socket.sockaddr_in(@params[:port].to_i, @params[:host])
-      end
+        ::Socket.getaddrinfo(@params[:host], @params[:port].to_i, nil, ::Socket::Constants::SOCK_STREAM)
+      end.first
 
-      @socket = ::Socket.new(::Socket::Constants::AF_INET, ::Socket::Constants::SOCK_STREAM, 0)
+      _, port, _, ip, a_family, s_type = addrinfo
+
+      @sockaddr = ::Socket.sockaddr_in(port, ip)
+
+      @socket = ::Socket.new(a_family, s_type, 0)
 
       connect
 
