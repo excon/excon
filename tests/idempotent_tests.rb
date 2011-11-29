@@ -10,7 +10,7 @@ Shindo.tests('Excon request idempotencey') do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
-      if run_count < 4 # First 3 calls fail.
+      if run_count <= 3 # First 3 calls fail.
         raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
@@ -49,6 +49,94 @@ Shindo.tests('Excon request idempotencey') do
     }
 
     connection = Excon.new('http://127.0.0.1:9292')
+    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response.status
+  end
+
+  tests("Lowered retry limit with socket erroring first time").returns(200) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 1 # First call fails.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    connection = Excon.new('http://127.0.0.1:9292')
+    connection.retry_limit = 2
+    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response.status
+  end
+
+  tests("Lowered retry limit with socket erroring first 3 times").raises(Excon::Errors::SocketError) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 3 # First 3 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    connection = Excon.new('http://127.0.0.1:9292')
+    connection.retry_limit = 2
+    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response.status
+  end
+
+  tests("Raised retry limit with socket erroring first 5 times").returns(200) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 5 # First 5 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    connection = Excon.new('http://127.0.0.1:9292')
+    connection.retry_limit = 8
+    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response.status
+  end
+
+  tests("Raised retry limit with socket erroring first 9 times").raises(Excon::Errors::SocketError) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 9 # First 9 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    connection = Excon.new('http://127.0.0.1:9292')
+    connection.retry_limit = 8
+    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response.status
+  end
+
+  tests("Retry limit in constructor with socket erroring first 5 times").returns(200) do
+    run_count = 0
+
+    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 6)
+    tests("setter sets").returns(6) do
+      connection.retry_limit
+    end
+
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 5 # First 5 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
     response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
     response.status
   end
