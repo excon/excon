@@ -11,6 +11,10 @@ module Excon
     HTTP_VERBS = %w{connect delete get head options post put trace}
   end
 
+  unless const_defined?(:DEFAULT_RETRY_LIMIT)
+    DEFAULT_RETRY_LIMIT = 4
+  end
+
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
       module WaitReadable; end
@@ -22,5 +26,4 @@ module Excon
       module WaitWritable; end
     end
   end
-
 end
