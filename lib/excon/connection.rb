@@ -5,6 +5,7 @@ module Excon
     CR_NL     = "\r\n"
     HTTP_1_1  = " HTTP/1.1\r\n"
     FORCE_ENC = CR_NL.respond_to?(:force_encoding)
+    DEFAULT_RETRY_LIMIT = 4
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -198,7 +199,7 @@ module Excon
 
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::SocketError, Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        retries_remaining ||= 4
+        retries_remaining ||= retry_limit
         retries_remaining -= 1
         if retries_remaining > 0
           if params[:body].respond_to?(:pos=)
@@ -224,6 +225,12 @@ module Excon
           request(params.merge!(:method => :#{method}), &block)
         end
       DEF
+    end
+
+    attr_writer :retry_limit
+
+    def retry_limit
+      @retry_limit ||= DEFAULT_RETRY_LIMIT
     end
 
   private
