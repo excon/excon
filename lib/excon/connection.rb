@@ -17,6 +17,7 @@ module Excon
     #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     #     @option params [String] :proxy Proxy server; e.g. 'http://myproxy.com:8888'
+    #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
@@ -38,6 +39,8 @@ module Excon
       elsif params.has_key?(:proxy)
         @proxy = setup_proxy(params[:proxy])
       end
+
+      self.retry_limit = params[:retry_limit] || DEFAULT_RETRY_LIMIT
 
       if @connection[:scheme] == 'https'
         # use https_proxy if that has been specified
@@ -198,7 +201,7 @@ module Excon
 
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::SocketError, Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        retries_remaining ||= 4
+        retries_remaining ||= retry_limit
         retries_remaining -= 1
         if retries_remaining > 0
           if params[:body].respond_to?(:pos=)
@@ -224,6 +227,12 @@ module Excon
           request(params.merge!(:method => :#{method}), &block)
         end
       DEF
+    end
+
+    attr_writer :retry_limit
+
+    def retry_limit
+      @retry_limit ||= DEFAULT_RETRY_LIMIT
     end
 
   private
