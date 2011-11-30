@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   ## List the primary authors. If there are a bunch of authors, it's probably
   ## better to set the email to an email list or something. If you don't have
   ## a custom homepage, consider using your GitHub URL or the like.
-  s.authors  = ["geemus (Wesley Beary)"]
+  s.authors  = ["dpiddy (Dan Peterson)", "geemus (Wesley Beary)", "nextmat (Matt Sanders)"]
   s.email    = 'geemus@gmail.com'
   s.homepage = 'https://github.com/geemus/excon'
 
