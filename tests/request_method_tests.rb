@@ -5,18 +5,18 @@ Shindo.tests('Excon request methods') do
     tests 'one-offs' do
 
       tests('Excon.get').returns('GET') do
-        Excon.get('http://127.0.0.1:9292').body
+        Excon.get('http://localhost:9292').body
       end
 
       tests('Excon.post').returns('POST') do
-        Excon.post('http://127.0.0.1:9292').body
+        Excon.post('http://localhost:9292').body
       end
 
     end
 
     tests 'with a connection object' do
 
-      connection = Excon.new('http://127.0.0.1:9292')
+      connection = Excon.new('http://localhost:9292')
 
       tests('connection.get').returns('GET') do
         connection.get.body
