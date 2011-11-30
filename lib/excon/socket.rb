@@ -13,33 +13,53 @@ module Excon
       @read_buffer, @write_buffer = '', ''
       @eof = false
 
+      connect
+    end
+
+    def connect
+      @socket = nil
+      exception = nil
+
       addrinfo = if @proxy
         ::Socket.getaddrinfo(@proxy[:host], @proxy[:port].to_i, nil, ::Socket::Constants::SOCK_STREAM)
       else
         ::Socket.getaddrinfo(@params[:host], @params[:port].to_i, nil, ::Socket::Constants::SOCK_STREAM)
-      end.first
+      end
 
-      _, port, _, ip, a_family, s_type = addrinfo
-
-      @sockaddr = ::Socket.sockaddr_in(port, ip)
-
-      @socket = ::Socket.new(a_family, s_type, 0)
-
-      connect
-
-      @socket
-    end
-
-    def connect
-      # nonblocking connect
-      begin
-        @socket.connect_nonblock(@sockaddr)
-      rescue Errno::EINPROGRESS
-        IO.select(nil, [@socket], nil, @params[:connect_timeout])
+      addrinfo.each do |_, port, _, ip, a_family, s_type|
+        # nonblocking connect
         begin
-          @socket.connect_nonblock(@sockaddr)
-        rescue Errno::EISCONN
+          sockaddr = ::Socket.sockaddr_in(port, ip)
+
+          socket = ::Socket.new(a_family, s_type, 0)
+
+          socket.connect_nonblock(sockaddr)
+
+          @socket = socket
+          break
+        rescue Errno::EINPROGRESS
+          IO.select(nil, [socket], nil, @params[:connect_timeout])
+          begin
+            socket.connect_nonblock(sockaddr)
+
+            @socket = socket
+            break
+          rescue Errno::EISCONN
+            @socket = socket
+            break
+          rescue SystemCallError => exception
+            socket.close
+            next
+          end
+        rescue SystemCallError => exception
+          socket.close
+          next
         end
+      end
+
+      unless @socket
+        # this will be our last encountered exception
+        raise exception
       end
     end
 

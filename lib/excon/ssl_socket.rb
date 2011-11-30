@@ -6,7 +6,7 @@ module Excon
 
       undef_method :connect
       def connect
-        @socket.connect(@sockaddr)
+        @socket = TCPSocket.new(@params[:host], @params[:port])
       end
 
       undef_method :read
