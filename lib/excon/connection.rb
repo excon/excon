@@ -214,6 +214,10 @@ module Excon
       else
         raise(request_error)
       end
+    ensure
+      if params[:body] && params[:body].respond_to?(:close)
+        params[:body].close
+      end
     end
 
     def reset
