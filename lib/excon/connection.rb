@@ -18,19 +18,23 @@ module Excon
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     #     @option params [String] :proxy Proxy server; e.g. 'http://myproxy.com:8888'
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
+    #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
+    #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = {
-        :connect_timeout  => 60,
-        :headers          => {},
-        :host             => uri.host,
-        :mock             => Excon.mock,
-        :path             => uri.path,
-        :port             => uri.port.to_s,
-        :query            => uri.query,
-        :read_timeout     => 60,
-        :scheme           => uri.scheme,
-        :write_timeout    => 60
+        :connect_timeout   => 60,
+        :headers           => {},
+        :host              => uri.host,
+        :mock              => Excon.mock,
+        :path              => uri.path,
+        :port              => uri.port.to_s,
+        :query             => uri.query,
+        :read_timeout      => 60,
+        :scheme            => uri.scheme,
+        :write_timeout     => 60,
+        :instrumentor      => nil,
+        :instrumentor_name => 'excon'
       }.merge!(params)
 
       # use proxy from the environment if present
@@ -41,6 +45,8 @@ module Excon
       end
 
       self.retry_limit = params[:retry_limit] || DEFAULT_RETRY_LIMIT
+      @instrumentor = @connection[:instrumentor]
+      @instrumentor_name = @connection[:instrumentor_name]
 
       if @connection[:scheme] == 'https'
         # use https_proxy if that has been specified
@@ -68,6 +74,42 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
+      if @instrumentor
+        if params[:idempotent] && is_retry ||= false
+          event_name = "#{@instrumentor_name}.retry"
+        else
+          event_name = "#{@instrumentor_name}.request"
+        end
+        @instrumentor.instrument(event_name, @connection) do
+          _request(params, &block)
+        end
+      else
+        _request(params, &block)
+      end
+    rescue => request_error
+      if params[:idempotent] && [Excon::Errors::SocketError,
+          Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
+        retries_remaining ||= retry_limit
+        retries_remaining -= 1
+        if retries_remaining > 0
+          if params[:body].respond_to?(:pos=)
+            params[:body].pos = 0
+          end
+          is_retry = true
+          retry
+        else
+          @instrumentor.instrument("#{@instrumentor_name}.error",
+              :error => request_error) if @instrumentor
+          raise(request_error)
+        end
+      else
+        @instrumentor.instrument('excon.error',
+            :error => request_error) if @instrumentor
+        raise(request_error)
+      end
+    end
+
+    def _request(params, &block)
       begin
         # connection has defaults, merge in new params to override
         params = @connection.merge(params)
@@ -175,24 +217,8 @@ module Excon
       else
         response
       end
-
-    rescue => request_error
-      if params[:idempotent] && [Excon::Errors::SocketError, Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        retries_remaining ||= retry_limit
-        retries_remaining -= 1
-        if retries_remaining > 0
-          if params[:body].respond_to?(:pos=)
-            params[:body].pos = 0
-          end
-          retry
-        else
-          raise(request_error)
-        end
-      else
-        raise(request_error)
-      end
     end
-    
+
     def invoke_stub(params)
       for stub, response in Excon.stubs
         # all specified non-headers params match and no headers were specified or all specified headers match
