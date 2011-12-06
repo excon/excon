@@ -71,13 +71,11 @@ You can specify a proxy URL that Excon will use with both HTTP and HTTPS connect
   connection = Excon.new('http://geemus.com', :proxy => 'http://my.proxy:3128')
   connection.request(:method => 'GET')
 
-The proxy URL must be fully specified, including scheme (e.g. "http://") and port.
+The proxy URL must be fully specified, including scheme (e.g. "http://") and port. 
 
-Excon will also use the environment variables "http_proxy" and "https_proxy" if they are present.
+Proxy support must be set when establishing a connection object and cannot be overridden in individual requests. Because of this it is unavailable in one-off requests (Excon.get, etc.)
 
-If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
-
-NOTE: Environment variables will take precedence over a :proxy option that has been specified in code.
+NOTE: Excon will use the environment variables "http_proxy" and "https_proxy" if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
 == Stubs
 
