@@ -82,31 +82,8 @@ module Excon
         unless params[:mock]
           socket.params = params
         else
-          for stub, response in Excon.stubs
-            # all specified non-headers params match and no headers were specified or all specified headers match
-            if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&
-              (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
-              response_attributes = case response
-              when Proc
-                response.call(params)
-              else
-                response
-              end
-              if block_given? && response_attributes.has_key?(:body)
-                body = response_attributes.delete(:body)
-                content_length = remaining = body.bytesize
-                i = 0
-                while i < body.length
-                  yield(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
-                  remaining -= CHUNK_SIZE
-                  i += CHUNK_SIZE
-                end
-              end
-              return Excon::Response.new(response_attributes)
-            end
-          end
-          # if we reach here no stubs matched
-          raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
+          mocked_response = invoke_stub(params, &block)
+          return mocked_response unless mocked_response.nil?
         end
 
         # start with "METHOD /path"
@@ -214,6 +191,34 @@ module Excon
       else
         raise(request_error)
       end
+    end
+    
+    def invoke_stub(params)
+      for stub, response in Excon.stubs
+        # all specified non-headers params match and no headers were specified or all specified headers match
+        if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&
+          (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
+          response_attributes = case response
+          when Proc
+            response.call(params)
+          else
+            response
+          end
+          if block_given? && response_attributes.has_key?(:body)
+            body = response_attributes.delete(:body)
+            content_length = remaining = body.bytesize
+            i = 0
+            while i < body.length
+              yield(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
+              remaining -= CHUNK_SIZE
+              i += CHUNK_SIZE
+            end
+          end
+          return Excon::Response.new(response_attributes)
+        end
+      end
+      # if we reach here no stubs matched
+      raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
     end
 
     def reset
