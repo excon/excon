@@ -104,7 +104,7 @@ module Excon
           raise(request_error)
         end
       else
-        @instrumentor.instrument('excon.error',
+        @instrumentor.instrument("#{@instrumentor_name}.error",
             :error => request_error) if @instrumentor
         raise(request_error)
       end

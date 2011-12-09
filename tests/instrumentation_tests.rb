@@ -22,6 +22,7 @@ Shindo.tests('Instrumentation of connections') do
     ActiveSupport::Notifications.unsubscribe("excon.request")
     ActiveSupport::Notifications.unsubscribe("excon.retry")
     ActiveSupport::Notifications.unsubscribe("excon.error")
+    ActiveSupport::Notifications.unsubscribe("gug")
     Excon.stubs.clear
     Excon.mock = false
   end
@@ -162,6 +163,18 @@ Shindo.tests('Instrumentation of connections') do
         :instrumentor => ActiveSupport::Notifications, :instrumentor_name => 'gug')
     raises(Excon::Errors::SocketError) do
       connection.get(:idempotent => true)
+    end
+    @events.map(&:name)
+  end
+
+  tests('allows setting the prefix when not idempotent', 'foo').returns(
+    ['gug.request', 'gug.error']) do
+    subscribe(/gug/)
+    stub_failure
+    connection = Excon.new('http://127.0.0.1:9292',
+        :instrumentor => ActiveSupport::Notifications, :instrumentor_name => 'gug')
+    raises(Excon::Errors::SocketError) do
+      connection.get()
     end
     @events.map(&:name)
   end
