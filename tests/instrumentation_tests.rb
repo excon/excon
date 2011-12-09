@@ -33,14 +33,13 @@ Shindo.tests('Instrumentation of connections') do
     end
   end
 
-  def make_request(idempotent = false)
+  def make_request(idempotent = false, params = {})
     connection = Excon.new('http://127.0.0.1:9292',
         :instrumentor => ActiveSupport::Notifications)
     if idempotent
-      connection.get(:idempotent => true)
-    else
-      connection.get()
+      params[:idempotent] = :true
     end
+    connection.get(params)
   end
 
   REQUEST_DELAY_SECONDS = 30
@@ -81,6 +80,13 @@ Shindo.tests('Instrumentation of connections') do
     stub_success
     make_request
     [:host, :path, :port, :scheme].select {|k| @events.first.payload.has_key? k}
+  end
+
+  tests('params in request overwrite those in construcor').returns('cheezburger') do
+    subscribe(/excon/)
+    stub_success
+    make_request(false, :host => 'cheezburger')
+    @events.first.payload[:host]
   end
 
   tests('notify on retry').returns(3) do

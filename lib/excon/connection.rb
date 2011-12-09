@@ -74,13 +74,14 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
+      params = merge_request_params(params)
       if @instrumentor
         if params[:idempotent] && is_retry ||= false
           event_name = "#{@instrumentor_name}.retry"
         else
           event_name = "#{@instrumentor_name}.request"
         end
-        @instrumentor.instrument(event_name, @connection) do
+        @instrumentor.instrument(event_name, params) do
           _request(params, &block)
         end
       else
@@ -108,26 +109,29 @@ module Excon
         raise(request_error)
       end
     end
+    
+    def merge_request_params(params)
+      # connection has defaults, merge in new params to override
+      params = @connection.merge(params)
+      params[:headers] = @connection[:headers].merge(params[:headers] || {})
+      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
+
+      # if path is empty or doesn't start with '/', insert one
+      unless params[:path][0, 1] == '/'
+        params[:path].insert(0, '/')
+      end
+
+      params
+    end
 
     def _request(params, &block)
       begin
-        # connection has defaults, merge in new params to override
-        params = @connection.merge(params)
-        params[:headers] = @connection[:headers].merge(params[:headers] || {})
-        params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
-
-        # if path is empty or doesn't start with '/', insert one
-        unless params[:path][0, 1] == '/'
-          params[:path].insert(0, '/')
-        end
-
-        unless params[:mock]
-          socket.params = params
-        else
+        if params[:mock]
           mocked_response = invoke_stub(params, &block)
           return mocked_response unless mocked_response.nil?
         end
 
+        socket.params = params
         # start with "METHOD /path"
         request = params[:method].to_s.upcase << ' '
         if @proxy
