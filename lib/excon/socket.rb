@@ -116,6 +116,10 @@ module Excon
               raise(Excon::Errors::Timeout.new("write timeout reached"))
             end
           end
+
+          # If there is an unknown OpenSSL error, don't just swallow
+          # it, raise it out.
+          raise Excon::Errors::SocketError.new(error)
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
           if IO.select(nil, [@socket], nil, @params[:write_timeout])
             retry
