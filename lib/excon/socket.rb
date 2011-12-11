@@ -104,10 +104,11 @@ module Excon
     def write(data)
       @write_buffer << data
       until @write_buffer.empty?
+        max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
+        chunk = @write_buffer.slice(0, max_length)
+
         begin
-          max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
-          written = @socket.write_nonblock(@write_buffer.slice(0, max_length))
-          @write_buffer.slice!(0, written)
+          written = @socket.write_nonblock(chunk)
         rescue OpenSSL::SSL::SSLError => error
           if error.message == 'write would block'
             if IO.select(nil, [@socket], nil, @params[:write_timeout])
@@ -126,6 +127,8 @@ module Excon
           else
             raise(Excon::Errors::Timeout.new("write timeout reached"))
           end
+        else
+          @write_buffer.slice!(0, written)
         end
       end
     end
