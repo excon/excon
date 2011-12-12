@@ -10,7 +10,7 @@ module Excon
 
     def initialize(params = {}, proxy = nil)
       @params, @proxy = params, proxy
-      @read_buffer, @write_buffer = '', ''
+      @read_buffer = ''
       @eof = false
 
       connect
@@ -102,13 +102,11 @@ module Excon
     end
 
     def write(data)
-      @write_buffer << data
-      until @write_buffer.empty?
-        max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
-        chunk = @write_buffer.slice(0, max_length)
-
+      while true
         begin
-          written = @socket.write_nonblock(chunk)
+          # I wish that this API accepted a start position, then we wouldn't
+          # have to slice data when there is a short write.
+          written = @socket.write_nonblock(data)
         rescue OpenSSL::SSL::SSLError => error
           if error.message == 'write would block'
             if IO.select(nil, [@socket], nil, @params[:write_timeout])
@@ -128,7 +126,14 @@ module Excon
             raise(Excon::Errors::Timeout.new("write timeout reached"))
           end
         else
-          @write_buffer.slice!(0, written)
+          # Fast, common case.
+          return if written == data.size
+
+          # This takes advantage of the fact that most ruby implementations
+          # have Copy-On-Write strings. Thusly why requesting a subrange
+          # of data, we actually don't copy data because the new string
+          # simply references a subrange of the original.
+          data = data[written, data.size]
         end
       end
     end
