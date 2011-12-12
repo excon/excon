@@ -102,8 +102,6 @@ module Excon
     end
 
     def write(data)
-      dupped = false
-
       while true
         begin
           # I wish that this API accepted a start position, then we wouldn't
@@ -131,16 +129,11 @@ module Excon
           # Fast, common case.
           return if written == data.size
 
-          # Lazily dup the data since we're going to slice bytes off the front
-          unless dupped
-            data = data.dup
-            dupped = true
-          end
-
-          # I'd love the ability to remove bytes from the front of a string
-          # without returning those bytes as another String. But
-          # it appears that so such API exists.
-          data.slice!(0, written)
+          # This takes advantage of the fact that most ruby implementations
+          # have Copy-On-Write strings. Thusly why requesting a subrange
+          # of data, we actually don't copy data because the new string
+          # simply references a subrange of the original.
+          data = data[written, data.size]
         end
       end
     end
