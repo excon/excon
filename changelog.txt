@@ -1,3 +1,37 @@
+0.7.12 12/04/11
+===============
+
+* revert: explicitly close files after writing
+
+0.7.11 12/24/11
+==============
+
+* rebuild gem broken gemspec with 1.8.x
+
+0.7.10 12/04/11
+===============
+
+* explicitly close files after writing
+
+0.7.9 11/30/11
+==============
+
+* add ability to modify retry limit
+* use addrinfo to avoid localhost and other IPv6 issues
+* update gemspec authors to add Dan Peterson and Matt Sanders
+
+0.7.8 11/24/11
+==============
+
+* rebuild gem broken gemspec with 1.8.x
+
+0.7.7 11/24/11
+==============
+
+* setup for travis ci automated testing
+* fix EOFError
+* use Socket.getaddrinfo to fix IPv6 issues
+
 0.7.6 10/04/11
 ==============
 
