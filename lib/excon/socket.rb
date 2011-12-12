@@ -10,7 +10,7 @@ module Excon
 
     def initialize(params = {}, proxy = nil)
       @params, @proxy = params, proxy
-      @read_buffer, @write_buffer = '', ''
+      @read_buffer = ''
       @eof = false
 
       connect
@@ -102,13 +102,13 @@ module Excon
     end
 
     def write(data)
-      @write_buffer << data
-      until @write_buffer.empty?
-        max_length = [@write_buffer.length, Excon::CHUNK_SIZE].min
-        chunk = @write_buffer.slice(0, max_length)
+      dupped = false
 
+      while true
         begin
-          written = @socket.write_nonblock(chunk)
+          # I wish that this API accepted a start position, then we wouldn't
+          # have to slice data when there is a short write.
+          written = @socket.write_nonblock(data)
         rescue OpenSSL::SSL::SSLError => error
           if error.message == 'write would block'
             if IO.select(nil, [@socket], nil, @params[:write_timeout])
@@ -128,7 +128,19 @@ module Excon
             raise(Excon::Errors::Timeout.new("write timeout reached"))
           end
         else
-          @write_buffer.slice!(0, written)
+          # Fast, common case.
+          return if written == data.size
+
+          # Lazily dup the data since we're going to slice bytes off the front
+          unless dupped
+            data = data.dup
+            dupped = true
+          end
+
+          # I'd love the ability to remove bytes from the front of a string
+          # without returning those bytes as another String. But
+          # it appears that so such API exists.
+          data.slice!(0, written)
         end
       end
     end
