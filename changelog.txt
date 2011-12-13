@@ -1,3 +1,10 @@
+0.8.0 12/12/11
+==============
+
+* move mock handler to its own method
+* better handling around openssl errors
+* simplify writing by removing buffer
+
 0.7.12 12/04/11
 ===============
 
