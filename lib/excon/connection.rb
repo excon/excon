@@ -26,15 +26,15 @@ module Excon
         :connect_timeout   => 60,
         :headers           => {},
         :host              => uri.host,
+        :instrumentor      => nil,
+        :instrumentor_name => 'excon',
         :mock              => Excon.mock,
         :path              => uri.path,
         :port              => uri.port.to_s,
         :query             => uri.query,
         :read_timeout      => 60,
         :scheme            => uri.scheme,
-        :write_timeout     => 60,
-        :instrumentor      => nil,
-        :instrumentor_name => 'excon'
+        :write_timeout     => 60
       }.merge!(params)
 
       # use proxy from the environment if present
