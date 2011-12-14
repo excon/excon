@@ -2,11 +2,6 @@ module Excon
   class Connection
     attr_reader :connection, :proxy
 
-    CR_NL     = "\r\n"
-    HTTP_1_1  = " HTTP/1.1\r\n"
-    HTTPS     = 'https'
-    FORCE_ENC = CR_NL.respond_to?(:force_encoding)
-
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
     #   @param [Hash<Symbol, >] params One or more optional params

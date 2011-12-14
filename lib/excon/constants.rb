@@ -7,12 +7,28 @@ module Excon
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
-  unless const_defined?(:HTTP_VERBS)
-    HTTP_VERBS = %w{connect delete get head options post put trace}
+  unless const_defined?(:CR_NL)
+    CR_NL = "\r\n"
   end
 
   unless const_defined?(:DEFAULT_RETRY_LIMIT)
     DEFAULT_RETRY_LIMIT = 4
+  end
+
+  unless const_defined?(:FORCE_ENC)
+    FORCE_ENC = CR_NL.respond_to?(:force_encoding)
+  end
+
+  unless const_defined?(:HTTP_1_1)
+    HTTP_1_1 = " HTTP/1.1\r\n"
+  end
+
+  unless const_defined?(:HTTP_VERBS)
+    HTTP_VERBS = %w{connect delete get head options post put trace}
+  end
+
+  unless const_defined?(:HTTPS)
+    HTTPS = 'https'
   end
 
   unless ::IO.const_defined?(:WaitReadable)
