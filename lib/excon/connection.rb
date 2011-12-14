@@ -91,10 +91,10 @@ module Excon
           event_name = "#{@instrumentor_name}.request"
         end
         @instrumentor.instrument(event_name, params) do
-          _request(params, &block)
+          request_kernel(params, &block)
         end
       else
-        _request(params, &block)
+        request_kernel(params, &block)
       end
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::SocketError,
@@ -120,7 +120,7 @@ module Excon
       end
     end
 
-    def _request(params, &block)
+    def request_kernel(params, &block)
       begin
         if params[:mock]
           return invoke_stub(params, &block)
