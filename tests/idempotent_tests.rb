@@ -1,5 +1,8 @@
 Shindo.tests('Excon request idempotencey') do
-  Excon.mock = true
+
+  before do
+    @connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+  end
 
   after do
     # flush any existing stubs after each test
@@ -17,8 +20,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292')
-    response = connection.request(:method => :get, :path => '/some-path')
+    response = @connection.request(:method => :get, :path => '/some-path')
   end
 
   tests("Idempotent request with socket erroring first 3 times").returns(200) do
@@ -32,8 +34,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292')
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path')
     response.status
   end
 
@@ -48,8 +49,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292')
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path')
     response.status
   end
 
@@ -64,8 +64,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 2)
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 2)
     response.status
   end
 
@@ -80,8 +79,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 2)
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 2)
     response.status
   end
 
@@ -96,8 +94,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 8)
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 8)
     response.status
   end
 
@@ -112,16 +109,12 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 8)
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 8)
     response.status
   end
 
   tests("Retry limit in constructor with socket erroring first 5 times").returns(200) do
     run_count = 0
-
-    connection = Excon.new('http://127.0.0.1:9292', :retry_limit => 6)
-
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 5 # First 5 calls fail.
@@ -130,9 +123,9 @@ Shindo.tests('Excon request idempotencey') do
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
     }
-    response = connection.request(:method => :get, :idempotent => true, :path => '/some-path')
+
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 6)
     response.status
   end
 
-  Excon.mock = false
 end

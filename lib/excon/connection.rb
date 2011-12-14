@@ -23,7 +23,7 @@ module Excon
         :headers           => {},
         :host              => uri.host,
         :instrumentor_name => 'excon',
-        :mock              => Excon.mock,
+        :mock              => Excon.instance_variable_get(:@mock),
         :path              => uri.path,
         :port              => uri.port.to_s,
         :query             => uri.query,

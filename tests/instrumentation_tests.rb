@@ -13,9 +13,6 @@ class SimpleInstrumentor
 end
 
 Shindo.tests('Excon instrumentation') do
-  before do
-    Excon.mock = true
-  end
 
   after do
     ActiveSupport::Notifications.unsubscribe("excon")
@@ -25,7 +22,6 @@ Shindo.tests('Excon instrumentation') do
     ActiveSupport::Notifications.unsubscribe("gug")
     Delorean.back_to_the_present
     Excon.stubs.clear
-    Excon.mock = false
   end
 
   def subscribe(match)
@@ -36,8 +32,11 @@ Shindo.tests('Excon instrumentation') do
   end
 
   def make_request(idempotent = false, params = {})
-    connection = Excon.new('http://127.0.0.1:9292',
-        :instrumentor => ActiveSupport::Notifications)
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      :instrumentor => ActiveSupport::Notifications,
+      :mock         => true
+    )
     if idempotent
       params[:idempotent] = :true
     end
@@ -139,8 +138,11 @@ Shindo.tests('Excon instrumentation') do
   tests('use our own instrumentor').returns(
       ['excon.request', 'excon.retry', 'excon.retry', 'excon.retry', 'excon.error']) do
     stub_failure
-    connection = Excon.new('http://127.0.0.1:9292',
-        :instrumentor => SimpleInstrumentor)
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      :instrumentor => SimpleInstrumentor,
+      :mock         => true
+    )
     raises(Excon::Errors::SocketError) do
       connection.get(:idempotent => true)
     end
@@ -151,7 +153,7 @@ Shindo.tests('Excon instrumentation') do
   tests('does not generate events when not provided').returns(0) do
     subscribe(/excon/)
     stub_success
-    connection = Excon.new('http://127.0.0.1:9292')
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     connection.get(:idempotent => true)
     @events.count
   end
@@ -160,8 +162,12 @@ Shindo.tests('Excon instrumentation') do
       ['gug.request', 'gug.retry', 'gug.retry','gug.retry', 'gug.error']) do
     subscribe(/gug/)
     stub_failure
-    connection = Excon.new('http://127.0.0.1:9292',
-        :instrumentor => ActiveSupport::Notifications, :instrumentor_name => 'gug')
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      :instrumentor       => ActiveSupport::Notifications,
+      :instrumentor_name  => 'gug',
+      :mock               => true
+    )
     raises(Excon::Errors::SocketError) do
       connection.get(:idempotent => true)
     end
@@ -172,8 +178,12 @@ Shindo.tests('Excon instrumentation') do
     ['gug.request', 'gug.error']) do
     subscribe(/gug/)
     stub_failure
-    connection = Excon.new('http://127.0.0.1:9292',
-        :instrumentor => ActiveSupport::Notifications, :instrumentor_name => 'gug')
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      :instrumentor       => ActiveSupport::Notifications,
+      :instrumentor_name  => 'gug',
+      :mock               => true
+    )
     raises(Excon::Errors::SocketError) do
       connection.get()
     end
@@ -182,9 +192,8 @@ Shindo.tests('Excon instrumentation') do
 
   with_rackup('basic.ru') do
     tests('works unmocked').returns('excon.request') do
-      Excon.mock = false
       subscribe(/excon/)
-      make_request
+      make_request(false, :mock => false)
       @events.first.name
     end
   end

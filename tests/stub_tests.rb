@@ -1,8 +1,7 @@
 Shindo.tests('Excon stubs') do
-  Excon.mock = true
 
   tests("missing stub").raises(Excon::Errors::StubNotFound) do
-    connection = Excon.new('http://127.0.0.1:9292')
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     response = connection.request(:method => :get, :path => '/content-length/100')
   end
 
@@ -18,7 +17,7 @@ Shindo.tests('Excon stubs') do
 
     Excon.stub({:method => :get}, {:body => 'body', :status => 200})
 
-    connection = Excon.new('http://127.0.0.1:9292')
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     response = connection.request(:method => :get, :path => '/content-length/100')
 
     tests('response.body').returns('body') do
@@ -41,7 +40,7 @@ Shindo.tests('Excon stubs') do
       body
     end
 
-    Excon.stubs.pop
+    Excon.stubs.clear
 
   end
 
@@ -49,7 +48,7 @@ Shindo.tests('Excon stubs') do
 
     Excon.stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}
 
-    connection = Excon.new('http://127.0.0.1:9292')
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     response = connection.request(:body => 'body', :method => :get, :path => '/content-length/100')
 
     tests('response.body').returns('body') do
@@ -72,17 +71,19 @@ Shindo.tests('Excon stubs') do
       body
     end
 
-    Excon.stubs.pop
+    Excon.stubs.clear
 
   end
 
   tests("mismatched stub").raises(Excon::Errors::StubNotFound) do
     Excon.stub({:method => :post}, {:body => 'body'})
-    Excon.get('http://127.0.0.1:9292/')
+    Excon.get('http://127.0.0.1:9292/', :mock => true)
   end
 
+  Excon.stubs.clear
+
   tests("stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})") do
-    connection = Excon.new('http://127.0.0.1:9292')
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})
 
     test("with block") do
@@ -95,7 +96,6 @@ Shindo.tests('Excon stubs') do
   end
 
   Excon.stubs.clear
-  Excon.mock = false
 
   tests('mock = false') do
     with_rackup('basic.ru') do

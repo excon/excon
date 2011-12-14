@@ -26,9 +26,6 @@ module Excon
     # setup ssl defaults based on platform
     @ssl_verify_peer = RbConfig::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i
 
-    # default mocking to off
-    @mock = false
-
     # Status of mocking
     def mock
       puts("Excon#mock is deprecated, pass :mock to the initializer (#{caller.first})")
