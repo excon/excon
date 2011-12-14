@@ -90,6 +90,13 @@ Then you can add stubs, for instance:
 
 Omitted attributes are assumed to match, so this stub will match any get request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an error to let you know.
 
+Alternatively you can pass a block instead of response_attributes and it will be called with the request params.  For example, you could create a stub that echoes the body given to it like this:
+
+  # Excon.stub(request_attributes, &response_block)
+  Excon.stub({:method => :put}) do |params|
+    {:body => params[:body], :status => 200}
+  end
+
 == HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like "Excon::Errors::SocketError: SSL_connect returned=1 ..."
