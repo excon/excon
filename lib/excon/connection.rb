@@ -74,7 +74,16 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
-      params = merge_request_params(params)
+      # connection has defaults, merge in new params to override
+      params = @connection.merge(params)
+      params[:headers] = @connection[:headers].merge(params[:headers] || {})
+      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
+
+      # if path is empty or doesn't start with '/', insert one
+      unless params[:path][0, 1] == '/'
+        params[:path].insert(0, '/')
+      end
+
       if @instrumentor
         if params[:idempotent] && is_retry ||= false
           event_name = "#{@instrumentor_name}.retry"
@@ -108,20 +117,6 @@ module Excon
             :error => request_error) if @instrumentor
         raise(request_error)
       end
-    end
-    
-    def merge_request_params(params)
-      # connection has defaults, merge in new params to override
-      params = @connection.merge(params)
-      params[:headers] = @connection[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
-
-      # if path is empty or doesn't start with '/', insert one
-      unless params[:path][0, 1] == '/'
-        params[:path].insert(0, '/')
-      end
-
-      params
     end
 
     def _request(params, &block)
