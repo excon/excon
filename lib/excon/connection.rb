@@ -123,8 +123,7 @@ module Excon
     def _request(params, &block)
       begin
         if params[:mock]
-          mocked_response = invoke_stub(params, &block)
-          return mocked_response unless mocked_response.nil?
+          return invoke_stub(params, &block)
         end
 
         socket.params = params
