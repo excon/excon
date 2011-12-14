@@ -108,13 +108,15 @@ module Excon
           is_retry = true
           retry
         else
-          @instrumentor.instrument("#{@instrumentor_name}.error",
-              :error => request_error) if @instrumentor
+          if @instrumentor
+            @instrumentor.instrument("#{@instrumentor_name}.error", :error => request_error)
+          end
           raise(request_error)
         end
       else
-        @instrumentor.instrument("#{@instrumentor_name}.error",
-            :error => request_error) if @instrumentor
+        if @instrumentor
+          @instrumentor.instrument("#{@instrumentor_name}.error", :error => request_error)
+        end
         raise(request_error)
       end
     end
