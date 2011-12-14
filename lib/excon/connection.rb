@@ -4,6 +4,7 @@ module Excon
 
     CR_NL     = "\r\n"
     HTTP_1_1  = " HTTP/1.1\r\n"
+    HTTPS     = 'https'
     FORCE_ENC = CR_NL.respond_to?(:force_encoding)
 
     # Initializes a new Connection instance
@@ -44,7 +45,7 @@ module Excon
         @proxy = setup_proxy(params[:proxy])
       end
 
-      if @connection[:scheme] == 'https'
+      if @connection[:scheme] == HTTPS
         # use https_proxy if that has been specified
         if ENV.has_key?('https_proxy')
           @proxy = setup_proxy(ENV['https_proxy'])
@@ -268,7 +269,7 @@ module Excon
     end
 
     def socket
-      sockets[@socket_key] ||= if @connection[:scheme] == 'https'
+      sockets[@socket_key] ||= if @connection[:scheme] == HTTPS
         Excon::SSLSocket.new(@connection, @proxy)
       else
         Excon::Socket.new(@connection, @proxy)
