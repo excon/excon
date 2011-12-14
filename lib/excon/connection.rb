@@ -33,6 +33,7 @@ module Excon
         :port              => uri.port.to_s,
         :query             => uri.query,
         :read_timeout      => 60,
+        :retry_limit       => DEFAULT_RETRY_LIMIT,
         :scheme            => uri.scheme,
         :write_timeout     => 60
       }.merge!(params)
@@ -43,8 +44,6 @@ module Excon
       elsif params.has_key?(:proxy)
         @proxy = setup_proxy(params[:proxy])
       end
-
-      self.retry_limit = params[:retry_limit] || DEFAULT_RETRY_LIMIT
       @instrumentor = @connection[:instrumentor]
       @instrumentor_name = @connection[:instrumentor_name]
 
@@ -85,7 +84,7 @@ module Excon
       end
 
       if @instrumentor
-        if (retries_remaining ||= retry_limit) < retry_limit
+        if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
           event_name = "#{@instrumentor_name}.retry"
         else
           event_name = "#{@instrumentor_name}.request"
@@ -99,7 +98,7 @@ module Excon
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        retries_remaining ||= retry_limit
+        retries_remaining ||= params[:retry_limit]
         retries_remaining -= 1
         if retries_remaining > 0
           if params[:body].respond_to?(:pos=)
@@ -133,10 +132,14 @@ module Excon
       DEF
     end
 
-    attr_writer :retry_limit
+    def retry_limit=(new_retry_limit)
+      puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      @connection[:retry_limit] = new_retry_limit
+    end
 
     def retry_limit
-      @retry_limit ||= DEFAULT_RETRY_LIMIT
+      puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      @connection[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
   private
