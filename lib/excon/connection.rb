@@ -120,6 +120,27 @@ module Excon
       end
     end
 
+    def reset
+      (old_socket = sockets.delete(@socket_key)) && old_socket.close
+    end
+
+    # Generate HTTP request verb methods
+    Excon::HTTP_VERBS.each do |method|
+      eval <<-DEF
+        def #{method}(params={}, &block)
+          request(params.merge!(:method => :#{method}), &block)
+        end
+      DEF
+    end
+
+    attr_writer :retry_limit
+
+    def retry_limit
+      @retry_limit ||= DEFAULT_RETRY_LIMIT
+    end
+
+  private
+
     def request_kernel(params, &block)
       begin
         if params[:mock]
@@ -245,27 +266,6 @@ module Excon
       # if we reach here no stubs matched
       raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
     end
-
-    def reset
-      (old_socket = sockets.delete(@socket_key)) && old_socket.close
-    end
-
-    # Generate HTTP request verb methods
-    Excon::HTTP_VERBS.each do |method|
-      eval <<-DEF
-        def #{method}(params={}, &block)
-          request(params.merge!(:method => :#{method}), &block)
-        end
-      DEF
-    end
-
-    attr_writer :retry_limit
-
-    def retry_limit
-      @retry_limit ||= DEFAULT_RETRY_LIMIT
-    end
-
-  private
 
     def socket
       sockets[@socket_key] ||= if @connection[:scheme] == 'https'
