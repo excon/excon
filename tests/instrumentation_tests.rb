@@ -12,7 +12,7 @@ class SimpleInstrumentor
   end
 end
 
-Shindo.tests('Instrumentation of connections') do
+Shindo.tests('Excon instrumentation') do
   before do
     Excon.mock = true
   end
@@ -23,6 +23,7 @@ Shindo.tests('Instrumentation of connections') do
     ActiveSupport::Notifications.unsubscribe("excon.retry")
     ActiveSupport::Notifications.unsubscribe("excon.error")
     ActiveSupport::Notifications.unsubscribe("gug")
+    Delorean.back_to_the_present
     Excon.stubs.clear
     Excon.mock = false
   end
