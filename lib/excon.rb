@@ -31,6 +31,7 @@ module Excon
 
     # Status of mocking
     def mock
+      puts("Excon#mock is deprecated, pass :mock to the initializer (#{caller.first})")
       @mock
     end
 
@@ -38,6 +39,7 @@ module Excon
     # false is the default and works as expected
     # true returns a value from stubs or raises
     def mock=(new_mock)
+      puts("Excon#mock= is deprecated, pass :mock to the initializer (#{caller.first})")
       @mock = new_mock
     end
 

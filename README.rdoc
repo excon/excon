@@ -81,7 +81,11 @@ NOTE: Excon will use the environment variables "http_proxy" and "https_proxy" if
 
 You can stub out requests for testing purposes by enabling mock mode on a connection.
 
-  Excon.mock = true
+  connection = Excon.new('http://example.com', :mock => true)
+
+Or by enabling mock mode for a request.
+
+  connection.request(:method => :get, :path => 'example', :mock => true)
 
 Then you can add stubs, for instance:
 
