@@ -44,8 +44,6 @@ module Excon
       elsif params.has_key?(:proxy)
         @proxy = setup_proxy(params[:proxy])
       end
-      @instrumentor = @connection[:instrumentor]
-      @instrumentor_name = @connection[:instrumentor_name]
 
       if @connection[:scheme] == 'https'
         # use https_proxy if that has been specified
@@ -83,13 +81,13 @@ module Excon
         params[:path].insert(0, '/')
       end
 
-      if @instrumentor
+      if params[:instrumentor]
         if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
-          event_name = "#{@instrumentor_name}.retry"
+          event_name = "#{params[:instrumentor_name]}.retry"
         else
-          event_name = "#{@instrumentor_name}.request"
+          event_name = "#{params[:instrumentor_name]}.request"
         end
-        @instrumentor.instrument(event_name, params) do
+        params[:instrumentor].instrument(event_name, params) do
           request_kernel(params, &block)
         end
       else
@@ -106,14 +104,14 @@ module Excon
           end
           retry
         else
-          if @instrumentor
-            @instrumentor.instrument("#{@instrumentor_name}.error", :error => request_error)
+          if params[:instrumentor]
+            params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
           end
           raise(request_error)
         end
       else
-        if @instrumentor
-          @instrumentor.instrument("#{@instrumentor_name}.error", :error => request_error)
+        if params[:instrumentor]
+          params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
         end
         raise(request_error)
       end
