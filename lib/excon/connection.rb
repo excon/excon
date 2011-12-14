@@ -26,7 +26,6 @@ module Excon
         :connect_timeout   => 60,
         :headers           => {},
         :host              => uri.host,
-        :instrumentor      => nil,
         :instrumentor_name => 'excon',
         :mock              => Excon.mock,
         :path              => uri.path,
@@ -81,7 +80,7 @@ module Excon
         params[:path].insert(0, '/')
       end
 
-      if params[:instrumentor]
+      if params.has_key?(:instrumentor)
         if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
           event_name = "#{params[:instrumentor_name]}.retry"
         else
@@ -104,13 +103,13 @@ module Excon
           end
           retry
         else
-          if params[:instrumentor]
+          if params.has_key?(:instrumentor)
             params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
           end
           raise(request_error)
         end
       else
-        if params[:instrumentor]
+        if params.has_key?(:instrumentor)
           params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
         end
         raise(request_error)
