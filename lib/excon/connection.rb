@@ -85,7 +85,7 @@ module Excon
       end
 
       if @instrumentor
-        if params[:idempotent] && is_retry ||= false
+        if (retries_remaining ||= retry_limit) < retry_limit
           event_name = "#{@instrumentor_name}.retry"
         else
           event_name = "#{@instrumentor_name}.request"
@@ -105,7 +105,6 @@ module Excon
           if params[:body].respond_to?(:pos=)
             params[:body].pos = 0
           end
-          is_retry = true
           retry
         else
           if @instrumentor
