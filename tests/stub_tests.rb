@@ -125,6 +125,19 @@ Shindo.tests('Excon stubs') do
 
   Excon.stubs.clear
 
+  tests("stub({}, {:status => 404}") do
+
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    Excon.stub({}, {:status => 404})
+
+    tests("request(:expects => 200, :method => :get, :path => '/')").raises(Excon::Errors::NotFound) do
+      connection.request(:expects => 200, :method => :get, :path => '/')
+    end
+
+    Excon.stubs.clear
+
+  end
+
   tests('mock = false') do
     with_rackup('basic.ru') do
       basic_tests
