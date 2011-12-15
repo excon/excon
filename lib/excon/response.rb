@@ -1,6 +1,5 @@
 module Excon
   class Response
-    NO_ENTITY = [204, 205, 304].freeze
 
     attr_accessor :body, :headers, :status
 

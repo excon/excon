@@ -31,6 +31,10 @@ module Excon
     HTTPS = 'https'
   end
 
+  unless const_defined?(:NO_ENTITY)
+    NO_ENTITY = [204, 205, 304].freeze
+  end
+
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
       module WaitReadable; end
