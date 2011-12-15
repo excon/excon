@@ -44,6 +44,34 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("stub({:path => /tests\/(\S+)/}, {:body => $1, :status => 200})") do
+
+    Excon.stub({:path => /tests\/(\S+)/}) do |params|
+      {
+        :body => /tests\/(\S+)/.match(params[:path]).captures.first,
+        :status => 200
+      }
+    end
+
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    response = connection.request(:method => :get, :path => '/tests/test')
+
+    tests('response.body').returns('test') do
+      response.body
+    end
+
+    tests('response.headers').returns({}) do
+      response.headers
+    end
+
+    tests('response.status').returns(200) do
+      response.status
+    end
+
+    Excon.stubs.clear
+
+  end
+
   tests("stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}") do
 
     Excon.stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}

@@ -237,9 +237,23 @@ module Excon
 
     def invoke_stub(params)
       for stub, response in Excon.stubs
-        # all specified non-headers params match and no headers were specified or all specified headers match
-        if (stub.keys - [:headers]).all? {|key| stub[key] == params[key] } &&
-          (!stub.has_key?(:headers) || stub[:headers].keys.all? {|key| stub[:headers][key] == params[:headers][key]})
+        headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
+          case value = stub[:headers][key]
+          when Regexp
+            value =~ params[:headers][key]
+          else
+            value =~ params[:headers][key]
+          end
+        end
+        non_headers_match = (stub.keys - [:headers]).all? do |key|
+          case value = stub[key]
+          when Regexp
+            value =~ params[key]
+          else
+            value == params[key]
+          end
+        end
+        if headers_match && non_headers_match
           response_attributes = case response
           when Proc
             response.call(params)
