@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.9.0'
-  s.date              = '2011-12-14'
+  s.version           = '0.9.1'
+  s.date              = '2011-12-15'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -53,12 +53,13 @@ Gem::Specification.new do |s|
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
   # s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
-  s.add_development_dependency('open4')
-  s.add_development_dependency('rake')
-  s.add_development_dependency('shindo', '0.2.0')
-  s.add_development_dependency('sinatra')
   s.add_development_dependency('activesupport', '~>3.1.3')
   s.add_development_dependency('delorean')
+  s.add_development_dependency('open4')
+  s.add_development_dependency('rake')
+  s.add_development_dependency('rdoc')
+  s.add_development_dependency('shindo', '0.2.0')
+  s.add_development_dependency('sinatra')
 
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
