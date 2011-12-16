@@ -102,7 +102,11 @@ module Excon
     end
 
     def write(data)
-      while true
+      # We normally return from the return in the else block below, but
+      # we guard that data is still something in case we get weird
+      # values and String#[] returns nil. (This behavior has been observed
+      # in the wild, so this is a simple defensive mechanism)
+      while data
         begin
           # I wish that this API accepted a start position, then we wouldn't
           # have to slice data when there is a short write.
@@ -127,7 +131,13 @@ module Excon
           end
         else
           # Fast, common case.
-          return if written == data.size
+          # The >= seems weird, why would it have written MORE than we
+          # requested. But we're getting some weird behavior when @socket
+          # is an OpenSSL socket, where it seems like it's saying it wrote
+          # more (perhaps due to SSL packet overhead?).
+          #
+          # Pretty weird, but this is a simple defensive mechanism.
+          return if written >= data.size
 
           # This takes advantage of the fact that most ruby implementations
           # have Copy-On-Write strings. Thusly why requesting a subrange
