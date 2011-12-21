@@ -236,11 +236,14 @@ module Excon
     end
 
     def invoke_stub(params)
+      params[:captures] = {:headers => {}} # setup data to hold captures
       for stub, response in Excon.stubs
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
-            value =~ params[:headers][key]
+            value.match(params[:headers][key]) do |match|
+              params[:captures][:headers][key] = match.captures
+            end
           else
             value == params[:headers][key]
           end
@@ -248,7 +251,9 @@ module Excon
         non_headers_match = (stub.keys - [:headers]).all? do |key|
           case value = stub[key]
           when Regexp
-            value =~ params[key]
+            value.match(params[key]) do |match|
+              params[:captures][key] = match.captures
+            end
           else
             value == params[key]
           end

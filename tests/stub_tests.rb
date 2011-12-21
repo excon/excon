@@ -48,7 +48,7 @@ Shindo.tests('Excon stubs') do
 
     Excon.stub({:path => %r{/tests/(\S+)}}) do |params|
       {
-        :body => /tests\/(\S+)/.match(params[:path]).captures.first,
+        :body => params[:captures][:path].first,
         :status => 200
       }
     end
