@@ -242,7 +242,7 @@ module Excon
           when Regexp
             value =~ params[:headers][key]
           else
-            value =~ params[:headers][key]
+            value == params[:headers][key]
           end
         end
         non_headers_match = (stub.keys - [:headers]).all? do |key|
