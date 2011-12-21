@@ -17,7 +17,7 @@ module Excon
 
     end
 
-    def initialize(params = {}, proxy = {})
+    def initialize(params = {}, proxy = nil)
       super
 
       # create ssl context
