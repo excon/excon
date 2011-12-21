@@ -241,9 +241,10 @@ module Excon
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
-            value.match(params[:headers][key]) do |match|
+            if match = value.match(params[:headers][key])
               params[:captures][:headers][key] = match.captures
             end
+            match
           else
             value == params[:headers][key]
           end
@@ -251,9 +252,10 @@ module Excon
         non_headers_match = (stub.keys - [:headers]).all? do |key|
           case value = stub[key]
           when Regexp
-            value.match(params[key]) do |match|
+            if match = value.match(params[key])
               params[:captures][key] = match.captures
             end
+            match
           else
             value == params[key]
           end
