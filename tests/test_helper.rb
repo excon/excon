@@ -54,7 +54,7 @@ def basic_tests(url = 'http://127.0.0.1:9292')
   tests('POST /body-sink') do
 
     connection = Excon.new(url)
-    response = connection.request(:method => :post, :path => '/body-sink', :body => 'x' * 5_000_000)
+    response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 5_000_000)
 
     tests('response.body').returns("5000000") do
       response.body
