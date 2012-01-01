@@ -68,12 +68,13 @@ end
 
 def with_rackup(name)
   GC.disable
-  pid, w, r, e = Open4.popen4("rackup #{rackup_path(name)}")
-  until e.gets =~ /HTTPServer#start:/; end
+  pid, w, r, e = Open4.popen4("rackup", rackup_path(name))
+  until e.gets.tap {|x| puts x if x } =~ /HTTPServer#start:/; end
   yield
 ensure
   GC.enable
   Process.kill(9, pid)
+  Process.wait(pid)
 end
 
 def server_path(*parts)
@@ -83,9 +84,10 @@ end
 def with_server(name)
   GC.disable
   pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
-  until e.gets =~ /ready/; end
+  until e.gets.tap {|x| puts x if x } =~ /ready/; end
   yield
 ensure
   GC.enable
   Process.kill(9, pid)
+  Process.wait(pid)
 end
