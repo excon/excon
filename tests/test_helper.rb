@@ -67,14 +67,20 @@ def rackup_path(*parts)
 end
 
 def with_rackup(name)
-  GC.disable
-  pid, w, r, e = Open4.popen4("rackup", rackup_path(name))
+  unless RUBY_ENGINE == 'jruby'
+    GC.disable
+    pid, w, r, e = Open4.popen4("rackup", rackup_path(name))
+  else
+    pid, w, r, e = IO.popen4("rackup", rackup_path(name))
+  end
   until e.gets =~ /HTTPServer#start:/; end
   yield
 ensure
-  GC.enable
   Process.kill(9, pid)
-  Process.wait(pid)
+  unless RUBY_ENGINE == 'jruby'
+    GC.enable
+    Process.wait(pid)
+  end
 end
 
 def server_path(*parts)
@@ -82,12 +88,18 @@ def server_path(*parts)
 end
 
 def with_server(name)
-  GC.disable
-  pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
+  unless RUBY_ENGINE == 'jruby'
+    GC.disable
+    pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
+  else
+    pid, w, r, e = IO.popen4(server_path("#{name}.rb"))
+  end
   until e.gets =~ /ready/; end
   yield
 ensure
-  GC.enable
   Process.kill(9, pid)
-  Process.wait(pid)
+  unless RUBY_ENGINE == 'jruby'
+    GC.enable
+    Process.wait(pid)
+  end
 end
