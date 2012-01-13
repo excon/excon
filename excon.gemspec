@@ -61,6 +61,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency('shindo', '0.2.0')
   s.add_development_dependency('sinatra')
 
+  if s.platform.to_s == 'java'
+    s.add_development_dependency('jruby-openssl')
+  end
+
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
   ## THE MANIFEST COMMENTS, they are used as delimiters by the task.
