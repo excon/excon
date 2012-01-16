@@ -58,7 +58,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('open4')
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
-  s.add_development_dependency('shindo', '0.2.0')
+  s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
 
   ## Leave this section as-is. It will be automatically generated from the
