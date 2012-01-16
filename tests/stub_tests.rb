@@ -125,13 +125,24 @@ Shindo.tests('Excon stubs') do
 
   Excon.stubs.clear
 
-  tests("stub({}, {:status => 404}") do
+  tests("stub({}, {:status => 404, :body => 'Not Found'}") do
 
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {:status => 404})
+    Excon.stub({}, {:status => 404, :body => 'Not Found'})
 
     tests("request(:expects => 200, :method => :get, :path => '/')").raises(Excon::Errors::NotFound) do
       connection.request(:expects => 200, :method => :get, :path => '/')
+    end
+
+    test("request(:expects => 200, :method => :get, :path => '/') with block does not invoke the block since it raises an error") do
+      block_called = false
+      begin
+        connection.request(:expects => 200, :method => :get, :path => '/') do |_, _, _|
+          block_called = true
+        end
+      rescue Excon::Errors::NotFound
+      end
+      !block_called
     end
 
     Excon.stubs.clear
