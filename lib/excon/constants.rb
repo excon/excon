@@ -1,6 +1,6 @@
 module Excon
   unless const_defined?(:VERSION)
-    VERSION = '0.9.4'
+    VERSION = '0.9.5'
   end
 
   unless const_defined?(:CHUNK_SIZE)

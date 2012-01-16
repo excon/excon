@@ -1,3 +1,10 @@
+0.9.5 01/16/12
+==============
+
+* fix getaddrinfo usage for rbx
+* fix mock handling when a block in passed
+* add jruby to ci
+
 0.9.4 12/21/11
 ==============
 
