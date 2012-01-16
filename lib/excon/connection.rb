@@ -236,6 +236,7 @@ module Excon
     end
 
     def invoke_stub(params)
+      block_given = block_given?
       params[:captures] = {:headers => {}} # setup data to hold captures
       for stub, response in Excon.stubs
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
@@ -267,7 +268,13 @@ module Excon
           else
             response
           end
-          if block_given? && response_attributes.has_key?(:body)
+
+          # don't pass stuff into a block if there was an error
+          if params[:expects] && ![*params[:expects]].include?(response_attributes[:status])
+            block_given = false
+          end
+
+          if block_given && response_attributes.has_key?(:body)
             body = response_attributes.delete(:body)
             content_length = remaining = body.bytesize
             i = 0
