@@ -201,7 +201,7 @@ module Excon
           socket.write(request)
 
           # write out the body
-          if params[:body]
+          if params[:headers]['Content-Length'] != 0
             if params[:body].is_a?(String)
               socket.write(params[:body])
             else
