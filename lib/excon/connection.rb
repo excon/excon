@@ -69,7 +69,17 @@ module Excon
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
+
+      host_scheme = params[:scheme]
+      host_port = params[:port]
+
+      host_header = params[:host]
+
+      unless (host_scheme == "http" and host_port == "80") or (host_scheme == "https" and host_port == "443")
+        host_header = host_header << ':' << host_port
+      end
+
+      params[:headers]['Host'] ||= host_header
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
