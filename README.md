@@ -76,7 +76,7 @@ You can specify a proxy URL that Excon will use with both HTTP and HTTPS connect
     connection = Excon.new('http://geemus.com', :proxy => 'http://my.proxy:3128')
     connection.request(:method => 'GET')
 
-The proxy URL must be fully specified, including scheme (e.g. "http://") and port. 
+The proxy URL must be fully specified, including scheme (e.g. "http://") and port.
 
 Proxy support must be set when establishing a connection object and cannot be overridden in individual requests. Because of this it is unavailable in one-off requests (Excon.get, etc.)
 
@@ -121,6 +121,44 @@ Failing that, you can turn off peer verification (less secure):
     Excon.ssl_verify_peer = false
 
 Either of these should allow you to work around the socket error and continue with your work.
+
+Instrumentation
+---------------
+
+Excon calls can be timed using the [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) API.
+
+    connection = Excon.new('http://geemus.com',
+        :instrumentor => ActiveSupport::Notifications)
+
+Excon will then instrument each request, retry, and error.  The corresponding events are named excon.request, excon.retry, and excon.error respectively.
+
+    ActiveSupport::Notifications.subscribe(/excon/) do |*args|
+      puts "Excon did stuff!"
+    end
+
+If you prefer to label each event with something other than "excon," you may specify
+an alternate name in the constructor:
+
+    connection = Excon.new('http://geemus.com',
+        :instrumentor => ActiveSupport::Notifications,
+        :instrumentor_name => 'my_app')
+
+If you don't want to add activesupport to your application, simply define a class which implements the same #instrument method like so:
+
+    class SimpleInstrumentor
+      class << self
+        attr_accessor :events
+
+        def instrument(name, params = {}, &block)
+          puts "#{name} just happened."
+          yield if block_given?
+        end
+      end
+    end
+
+The #instrument method will be called for each HTTP request, retry, and error.
+
+See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's instrumentation_test.rb for more examples of instrumenting excon.
 
 Copyright
 ---------
