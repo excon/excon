@@ -20,7 +20,7 @@ Shindo.tests('Excon request idempotencey') do
       end
     }
 
-    response = @connection.request(:method => :get, :path => '/some-path')
+    @connection.request(:method => :get, :path => '/some-path')
   end
 
   tests("Idempotent request with socket erroring first 3 times").returns(200) do
