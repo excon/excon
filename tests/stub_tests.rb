@@ -2,7 +2,7 @@ Shindo.tests('Excon stubs') do
 
   tests("missing stub").raises(Excon::Errors::StubNotFound) do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    response = connection.request(:method => :get, :path => '/content-length/100')
+    connection.request(:method => :get, :path => '/content-length/100')
   end
 
   tests("stub({})").raises(ArgumentError) do
@@ -116,7 +116,7 @@ Shindo.tests('Excon stubs') do
 
     test("with block") do
       chunks = []
-      response = connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+      connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
         chunks << chunk
       end
       chunks == ['x' * Excon::CHUNK_SIZE, 'x']

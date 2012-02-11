@@ -23,7 +23,7 @@ module Excon
         :headers           => {},
         :host              => uri.host,
         :instrumentor_name => 'excon',
-        :mock              => Excon.instance_variable_get(:@mock),
+        :mock              => Excon.instance_variable_defined?(:@mock) && Excon.instance_variable_get(:@mock),
         :path              => uri.path,
         :port              => uri.port.to_s,
         :query             => uri.query,
@@ -32,6 +32,8 @@ module Excon
         :scheme            => uri.scheme,
         :write_timeout     => 60
       }.merge!(params)
+
+      @proxy = nil
 
       # use proxy from the environment if present
       if ENV.has_key?('http_proxy')
