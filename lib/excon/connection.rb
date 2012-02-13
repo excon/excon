@@ -18,20 +18,15 @@ module Excon
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
       uri = URI.parse(url)
-      @connection = {
-        :connect_timeout   => 60,
-        :headers           => {},
+      @connection = Excon.defaults.merge({
         :host              => uri.host,
-        :instrumentor_name => 'excon',
-        :mock              => Excon.instance_variable_defined?(:@mock) && Excon.instance_variable_get(:@mock),
         :path              => uri.path,
         :port              => uri.port.to_s,
         :query             => uri.query,
-        :read_timeout      => 60,
-        :retry_limit       => DEFAULT_RETRY_LIMIT,
         :scheme            => uri.scheme,
-        :write_timeout     => 60
-      }.merge!(params)
+      }).merge!(params)
+      # merge does not deep-dup, so make sure headers is not the original
+      @connection[:headers] = @connection[:headers].dup
 
       @proxy = nil
 
