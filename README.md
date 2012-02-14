@@ -56,6 +56,12 @@ Both one-off and persistent connections support many other options. Here are a f
 
 These options can be combined to make pretty much any request you might need.
 
+Excon can also expect one or more HTTP status code in response, raising an exception if the response does not meet the criteria.
+
+If you need to accept as response one or more HTTP status codes you can declare them in an array:
+
+    connection.request(expects: [200, 201], :method => :get, :path => path, :query => {})
+
 Streaming Responses
 -------------------
 
@@ -105,6 +111,16 @@ Alternatively you can pass a block instead of `response_attributes` and it will 
     # Excon.stub(request_attributes, &response_block)
     Excon.stub({:method => :put}) do |params|
       {:body => params[:body], :status => 200}
+    end
+
+In order to clear previously defined stubs you can use:
+
+    Excon.stubs.clear
+
+For example, if using RSpec for your test suite you can clear stubs after running each example:
+
+    config.after(:each) do
+        Excon.stubs.clear
     end
 
 HTTPS/SSL Issues
