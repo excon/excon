@@ -35,13 +35,13 @@ module Excon
     # Change defaults for Excon connections
     # @return [Hash] defaults for Excon connections
     def defaults=(new_defaults)
-      @defaults = new_defaults
+      self.defaults = new_defaults
     end
 
     # Status of mocking
     def mock
       puts("Excon#mock is deprecated, pass Excon.defaults[:mock] instead (#{caller.first})")
-      @defaults[:mock]
+      self.defaults[:mock]
     end
 
     # Change the status of mocking
@@ -49,33 +49,33 @@ module Excon
     # true returns a value from stubs or raises
     def mock=(new_mock)
       puts("Excon#mock is deprecated, pass Excon.defaults[:mock]= instead (#{caller.first})")
-      @defaults[:mock] = new_mock
+      self.defaults[:mock] = new_mock
     end
 
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path
       puts("Excon#ssl_ca_path is deprecated, use Excon.defaults[:ssl_ca_path] instead (#{caller.first})")
-      @defaults[:ssl_ca_path]
+      self.defaults[:ssl_ca_path]
     end
 
     # Change path to the SSL Certificate Authority
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path=(new_ssl_ca_path)
       puts("Excon#ssl_ca_path= is deprecated, use Excon.defaults[:ssl_ca_path]= instead (#{caller.first})")
-      @defaults[:ssl_ca_path] = new_ssl_ca_path
+      self.defaults[:ssl_ca_path] = new_ssl_ca_path
     end
 
     # @return [true, false] Whether or not to verify the peer's SSL certificate / chain
     def ssl_verify_peer
       puts("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
-      @defaults[:ssl_verify_peer]
+      self.defaults[:ssl_verify_peer]
     end
 
     # Change the status of ssl peer verification
     # @see Excon#ssl_verify_peer (attr_reader)
     def ssl_verify_peer=(new_ssl_verify_peer)
       puts("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
-      @defaults[:ssl_verify_peer] = new_ssl_verify_peer
+      self.defaults[:ssl_verify_peer] = new_ssl_verify_peer
     end
 
     # @see Connection#initialize
