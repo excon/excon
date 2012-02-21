@@ -29,6 +29,8 @@ module Excon
 
         if Excon.defaults[:ssl_ca_path]
           ssl_context.ca_path = Excon.defaults[:ssl_ca_path]
+        elsif Excon.defaults[:ssl_ca_file]
+          ssl_context.ca_file = Excon.defaults[:ssl_ca_file]
         else
           # use default cert store
           store = OpenSSL::X509::Store.new

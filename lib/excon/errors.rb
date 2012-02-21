@@ -8,7 +8,7 @@ module Excon
 
       def initialize(socket_error=nil)
         if socket_error.message =~ /certificate verify failed/
-          super('Unable to verify certificate, please set `Excon.defaults[:ssl_ca_path] = path_to_certs` or `Excon.defaults[:ssl_verify_peer] = false` (less secure).')
+          super('Unable to verify certificate, please set `Excon.defaults[:ssl_ca_path] = path_to_certs`, `Excon.defaults[:ssl_ca_file] = path_to_file`, or `Excon.defaults[:ssl_verify_peer] = false` (less secure).')
         else
           super(socket_error.message)
         end
