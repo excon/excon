@@ -1,3 +1,13 @@
+0.9.6 02/22/12
+==============
+
+* add support for setting ca_file. Thanks mattmatt!
+* add docs for Excon.stubs.clear and expects. Thanks masterkain!
+* add class level defaults
+* fix ruby warnings. Thanks foca!
+* improve instrumentation docs. Thanks mkb!
+* fix for empty body and SSL sockets. Thanks pweldon!
+
 0.9.5 01/16/12
 ==============
 
