@@ -48,6 +48,12 @@ module Excon
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
       end
 
+      # Use Basic Auth if url contains a login
+      if uri.user && uri.password
+        auth = ["#{uri.user}:#{uri.password}"].pack('m').delete("\r\n")
+        @connection[:headers]['Authorization'] ||= "Basic #{auth}"
+      end
+
       @socket_key = '' << @connection[:host] << ':' << @connection[:port]
       reset
     end
