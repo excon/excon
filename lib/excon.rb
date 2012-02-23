@@ -35,7 +35,7 @@ module Excon
     # Change defaults for Excon connections
     # @return [Hash] defaults for Excon connections
     def defaults=(new_defaults)
-      self.defaults = new_defaults
+      @defaults = new_defaults
     end
 
     # Status of mocking
