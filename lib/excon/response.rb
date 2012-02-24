@@ -42,7 +42,7 @@ module Excon
           if transfer_encoding_chunked
             # 2 == "/r/n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              yield(socket.read(chunk_size + 2).chop!, nil, content_length)
+              yield(socket.read(chunk_size + 2).chop!, nil, nil)
             end
             socket.read(2)
           elsif remaining = content_length
