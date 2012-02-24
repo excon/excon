@@ -36,7 +36,11 @@ module Excon
       elsif params.has_key?(:proxy)
         @proxy = setup_proxy(params[:proxy])
       end
-
+      
+      if ENV['EXCON_DEBUG_REQUESTS']
+        @debug = true
+      end
+      
       if @connection[:scheme] == HTTPS
         # use https_proxy if that has been specified
         if ENV.has_key?('https_proxy')
@@ -196,14 +200,18 @@ module Excon
 
           # write out the request, sans body
           socket.write(request)
+          
+          $stderr.puts(request) if @debug
 
           # write out the body
           if params[:headers]['Content-Length'] != 0
             if params[:body].is_a?(String)
               socket.write(params[:body])
+              $stderr.puts(params[:body]) if @debug
             else
               while chunk = params[:body].read(CHUNK_SIZE)
                 socket.write(chunk)
+                $stderr.puts(chunk) if @debug
               end
             end
           end
