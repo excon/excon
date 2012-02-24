@@ -48,14 +48,6 @@ Shindo::Rake.new
 
 task :default => :tests
 
-desc "Generate RCov test coverage and open in your browser"
-task :coverage do
-  require 'rcov'
-  sh "rm -fr coverage"
-  sh "rcov tests/test_*.rb"
-  sh "open coverage/index.html"
-end
-
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
