@@ -49,7 +49,7 @@ module Excon
       end
 
       # Use Basic Auth if url contains a login
-      if uri.user && uri.password
+      if uri.user || uri.password
         auth = ["#{uri.user}:#{uri.password}"].pack('m').delete("\r\n")
         @connection[:headers]['Authorization'] ||= "Basic #{auth}"
       end
