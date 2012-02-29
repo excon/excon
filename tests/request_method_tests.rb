@@ -31,7 +31,7 @@ Shindo.tests('Excon request methods') do
       end
 
       tests('connetion.delete').returns('DELETE') do
-        Excon.delete('http://localhost:9292').body
+        connection.delete.body
       end
 
     end
