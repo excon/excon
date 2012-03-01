@@ -1,3 +1,11 @@
+0.10.0 03/01/12
+===============
+
+* avoid setting/passing Content-Length headers for GET requests with no body
+* remove rcov from tasks/bundle in development
+* automatically parse and use basic auth when passed as part of a uri
+* fix for erroneous recursion in Excon.defaults=
+
 0.9.6 02/22/12
 ==============
 
