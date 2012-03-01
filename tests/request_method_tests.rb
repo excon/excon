@@ -12,6 +12,10 @@ Shindo.tests('Excon request methods') do
         Excon.post('http://localhost:9292').body
       end
 
+      tests('Excon.delete').returns('DELETE') do
+        Excon.delete('http://localhost:9292').body
+      end
+
     end
 
     tests 'with a connection object' do
@@ -24,6 +28,10 @@ Shindo.tests('Excon request methods') do
 
       tests('connection.post').returns('POST') do
         connection.post.body
+      end
+
+      tests('connection.delete').returns('DELETE') do
+        connection.delete.body
       end
 
     end
