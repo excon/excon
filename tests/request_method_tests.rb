@@ -30,7 +30,7 @@ Shindo.tests('Excon request methods') do
         connection.post.body
       end
 
-      tests('connetion.delete').returns('DELETE') do
+      tests('connection.delete').returns('DELETE') do
         connection.delete.body
       end
 

@@ -176,8 +176,9 @@ module Excon
 
           # calculate content length and set to handle non-ascii
           unless params[:headers].has_key?('Content-Length')
-            # GET requests don't usually send bodies
-            unless params[:method].to_s.upcase == "GET" && params[:body].to_s.empty?
+            # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
+            # if they don't, sending Content-Length:0 can cause issues.
+            unless (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
               params[:headers]['Content-Length'] = case params[:body]
               when File
                 params[:body].binmode
@@ -207,7 +208,7 @@ module Excon
           socket.write(request)
 
           # write out the body
-          if params[:headers]['Content-Length'] && params[:headers]['Content-Length'] != 0
+          unless params[:body].nil?
             if params[:body].is_a?(String)
               socket.write(params[:body])
             else
