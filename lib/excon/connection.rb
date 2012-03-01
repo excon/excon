@@ -208,7 +208,7 @@ module Excon
           socket.write(request)
 
           # write out the body
-          unless params[:body].nil?
+          unless params[:body].nil? || params[:body].empty?
             if params[:body].is_a?(String)
               socket.write(params[:body])
             else
