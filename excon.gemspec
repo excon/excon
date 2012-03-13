@@ -53,7 +53,7 @@ Gem::Specification.new do |s|
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
   # s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
-  s.add_development_dependency('activesupport', '~>3.1.3')
+  s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
   s.add_development_dependency('open4')
   s.add_development_dependency('rake')
