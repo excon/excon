@@ -208,9 +208,11 @@ module Excon
           socket.write(request)
 
           # write out the body
-          unless params[:body].nil? || params[:body].empty?
+          unless params[:body].nil?
             if params[:body].is_a?(String)
-              socket.write(params[:body])
+              unless params[:body].empty?
+                socket.write(params[:body])
+              end
             else
               while chunk = params[:body].read(CHUNK_SIZE)
                 socket.write(chunk)
