@@ -32,11 +32,12 @@ Shindo.tests('Excon stubs') do
       response.status
     end
 
-    tests('request body with block given').returns('body') do
+    tests('request body with response_block given').returns('body') do
       body = ''
-      connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+      response_block = lambda do |chunk, remaining_bytes, total_bytes|
         body << chunk
       end
+      connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
       body
     end
 
@@ -91,11 +92,12 @@ Shindo.tests('Excon stubs') do
       response.status
     end
 
-    tests('request body with block given').returns('body') do
+    tests('request body with response block given').returns('body') do
       body = ''
-      connection.request(:body => 'body', :method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+      response_block = lambda do |chunk, remaining_bytes, total_bytes|
         body << chunk
       end
+      connection.request(:body => 'body', :method => :get, :path => '/content-length/100', :response_block => response_block)
       body
     end
 
@@ -114,11 +116,12 @@ Shindo.tests('Excon stubs') do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})
 
-    test("with block") do
+    test("with response_block") do
       chunks = []
-      connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_bytes, total_bytes|
+      response_block = lambda do |chunk, remaining_bytes, total_bytes|
         chunks << chunk
       end
+      connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
       chunks == ['x' * Excon::CHUNK_SIZE, 'x']
     end
   end
@@ -137,9 +140,10 @@ Shindo.tests('Excon stubs') do
     test("request(:expects => 200, :method => :get, :path => '/') with block does not invoke the block since it raises an error") do
       block_called = false
       begin
-        connection.request(:expects => 200, :method => :get, :path => '/') do |_, _, _|
+        response_block = lambda do |_,_,_|
           block_called = true
         end
+        connection.request(:expects => 200, :method => :get, :path => '/', :response_block => response_block)
       rescue Excon::Errors::NotFound
       end
       !block_called

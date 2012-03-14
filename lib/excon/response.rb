@@ -19,7 +19,6 @@ module Excon
 
     def self.parse(socket, params={})
       response = new(:status => socket.readline[9, 11].to_i)
-      block_given = block_given?
 
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(/:\s*/, 2)
@@ -33,30 +32,29 @@ module Excon
 
       unless (params[:method].to_s.casecmp('HEAD') == 0) || NO_ENTITY.include?(response.status)
 
-        # don't pass stuff into a block if there was an error
-        if params[:expects] && ![*params[:expects]].include?(response.status)
-          block_given = false
-        end
+        # check to see if expects was set and matched
+        expected_status = !params.has_key?(:expects) || [*params[:expects]].include?(response.status)
 
-        if block_given
+        # if expects matched and there is a block, use it
+        if expected_status && params.has_key?(:response_block)
           if transfer_encoding_chunked
             # 2 == "/r/n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              yield(socket.read(chunk_size + 2).chop!, nil, nil)
+              params[:response_block].call(socket.read(chunk_size + 2).chop!, nil, nil)
             end
             socket.read(2)
           elsif remaining = content_length
             remaining = content_length
             while remaining > 0
-              yield(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
+              params[:response_block].call(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
             end
           else
             while remaining = socket.read(CHUNK_SIZE)
-              yield(remaining, remaining.length, content_length)
+              params[:response_block].call(remaining, remaining.length, content_length)
             end
           end
-        else
+        else # no block or unexpected status
           if transfer_encoding_chunked
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length

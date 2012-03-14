@@ -42,11 +42,20 @@ def basic_tests(url = 'http://127.0.0.1:9292')
       response.body
     end
 
-    tests("block usage").returns(['x' * 100, 0, 100]) do
+    tests("deprecated block usage").returns(['x' * 100, 0, 100]) do
       data = []
       connection.request(:method => :get, :path => '/content-length/100') do |chunk, remaining_length, total_length|
         data = [chunk, remaining_length, total_length]
       end
+      data
+    end
+
+    tests("response_block usage").returns(['x' * 100, 0, 100]) do
+      data = []
+      response_block = lambda do |chunk, remaining_length, total_length|
+        data = [chunk, remaining_length, total_length]
+      end
+      connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
       data
     end
 

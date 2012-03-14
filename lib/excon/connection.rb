@@ -79,6 +79,11 @@ module Excon
         params[:path].insert(0, '/')
       end
 
+      if block_given?
+        puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        params[:response_block] = Proc.new
+      end
+
       if params.has_key?(:instrumentor)
         if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
           event_name = "#{params[:instrumentor_name]}.retry"
@@ -86,10 +91,10 @@ module Excon
           event_name = "#{params[:instrumentor_name]}.request"
         end
         params[:instrumentor].instrument(event_name, params) do
-          request_kernel(params, &block)
+          request_kernel(params)
         end
       else
-        request_kernel(params, &block)
+        request_kernel(params)
       end
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::SocketError,
@@ -140,10 +145,10 @@ module Excon
 
   private
 
-    def request_kernel(params, &block)
+    def request_kernel(params)
       begin
         response = if params[:mock]
-          invoke_stub(params, &block)
+          invoke_stub(params)
         else
           socket.params = params
           # start with "METHOD /path"
@@ -221,7 +226,7 @@ module Excon
           end
 
           # read the response
-          response = Excon::Response.parse(socket, params, &block)
+          response = Excon::Response.parse(socket, params)
 
           if response.headers['Connection'] == 'close'
             reset
@@ -245,7 +250,6 @@ module Excon
     end
 
     def invoke_stub(params)
-      block_given = block_given?
       params[:captures] = {:headers => {}} # setup data to hold captures
       for stub, response in Excon.stubs
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
@@ -278,17 +282,14 @@ module Excon
             response
           end
 
-          # don't pass stuff into a block if there was an error
           if params[:expects] && ![*params[:expects]].include?(response_attributes[:status])
-            block_given = false
-          end
-
-          if block_given && response_attributes.has_key?(:body)
+            # don't pass stuff into a block if there was an error
+          elsif params.has_key?(:response_block) && response_attributes.has_key?(:body)
             body = response_attributes.delete(:body)
             content_length = remaining = body.bytesize
             i = 0
             while i < body.length
-              yield(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
+              params[:response_block].call(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
               i += CHUNK_SIZE
             end

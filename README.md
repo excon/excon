@@ -67,10 +67,12 @@ Streaming Responses
 
 You can stream responses by passing a block that will receive each chunk.
 
-    Excon.get('http://geemus.com') do |chunk, remaining_bytes, total_bytes|
+    streamer = lambda do |chunk, remaining_bytes, total_bytes|
       puts chunk
       puts "Remaining: #{remaining_bytes.to_f / total_bytes}%"
     end
+
+    Excon.get('http://geemus.com', :response_block => streamer)
 
 Iterating over each chunk will allow you to do work on the response incrementally without buffering the entire response first. For very large responses this can lead to significant memory savings.
 

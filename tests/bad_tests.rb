@@ -18,9 +18,9 @@ Shindo.tests('Excon bad server interaction') do
             connection = Excon.new('http://127.0.0.1:9292')
 
             body = ""
-            block = lambda {|chunk, remaining, total| body << chunk }
+            response_block = lambda {|chunk, remaining, total| body << chunk }
 
-            connection.request(:method => :get, :path => '/eof/no_content_length_and_no_chunking', &block)
+            connection.request(:method => :get, :path => '/eof/no_content_length_and_no_chunking', :response_block => response_block)
 
             body
           end
