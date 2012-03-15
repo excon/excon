@@ -74,7 +74,24 @@ def basic_tests(url = 'http://127.0.0.1:9292')
       response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => '')
       response.body
     end
+
   end
+
+  tests('POST /echo') do
+
+    connection = Excon.new(url)
+
+    tests('request_block usage').returns('x' * 100) do
+      data = ['x'] * 100
+      request_block = lambda do
+        data.shift.to_s
+      end
+      response = connection.request(:method => :post, :path => '/echo', :request_block => request_block)
+      response.body
+    end
+
+  end
+
 end
 
 def rackup_path(*parts)

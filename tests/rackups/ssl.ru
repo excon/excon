@@ -1,20 +1,10 @@
 require 'openssl'
-require 'sinatra'
 require 'webrick'
 require 'webrick/https'
 
-class App < Sinatra::Base
-  get('/content-length/:value') do |value|
-    headers("Custom" => "Foo: bar")
-    'x' * value.to_i
-  end
+require File.join(File.dirname(__FILE__), 'basic')
 
-  post('/body-sink') do
-    request.body.read.size.to_s
-  end
-end
-
-Rack::Handler::WEBrick.run(App, {
+Rack::Handler::WEBrick.run(Basic, {
   :Port             => 9443,
   :SSLCertName      => [["CN", WEBrick::Utils::getservername]],
   :SSLEnable        => true,

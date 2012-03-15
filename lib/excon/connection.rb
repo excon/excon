@@ -179,23 +179,22 @@ module Excon
           # finish first line with "HTTP/1.1\r\n"
           request << HTTP_1_1
 
-          # calculate content length and set to handle non-ascii
-          unless params[:headers].has_key?('Content-Length')
+          if params.has_key?(:request_block)
+            params[:headers]['Transfer-Encoding'] = 'chunked'
+          elsif ! (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            unless (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
-              params[:headers]['Content-Length'] = case params[:body]
-              when File
-                params[:body].binmode
-                File.size(params[:body])
-              when String
-                if FORCE_ENC
-                  params[:body].force_encoding('BINARY')
-                end
-                params[:body].length
-              else
-                0
+            params[:headers]['Content-Length'] = case params[:body]
+            when File
+              params[:body].binmode
+              File.size(params[:body])
+            when String
+              if FORCE_ENC
+                params[:body].force_encoding('BINARY')
               end
+              params[:body].length
+            else
+              0
             end
           end
 
@@ -213,7 +212,20 @@ module Excon
           socket.write(request)
 
           # write out the body
-          unless params[:body].nil?
+          if params.has_key?(:request_block)
+            while true
+              chunk = params[:request_block].call
+              if FORCE_ENC
+                chunk.force_encoding('BINARY')
+              end
+              if chunk.length > 0
+                socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
+              else
+                socket.write('0' << CR_NL << CR_NL)
+                break
+              end
+            end
+          elsif !params[:body].nil?
             if params[:body].is_a?(String)
               unless params[:body].empty?
                 socket.write(params[:body])

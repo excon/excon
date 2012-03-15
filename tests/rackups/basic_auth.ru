@@ -1,6 +1,6 @@
-require 'sinatra'
+require File.join(File.dirname(__FILE__), 'basic')
 
-class App < Sinatra::Base
+class BasicAuth < Basic
   before do
     auth ||= Rack::Auth::Basic::Request.new(request.env)
     user, pass = auth.provided? && auth.basic? && auth.credentials
@@ -9,15 +9,6 @@ class App < Sinatra::Base
       throw(:halt, [401, "Not authorized\n"])
     end
   end
-
-  get('/content-length/:value') do |value|
-    headers("Custom" => "Foo: bar")
-    'x' * value.to_i
-  end
-
-  post('/body-sink') do
-    request.body.read.size.to_s
-  end
 end
 
-run App
+run BasicAuth

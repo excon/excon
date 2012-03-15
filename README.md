@@ -62,6 +62,25 @@ If you need to accept as response one or more HTTP status codes you can declare 
 
     connection.request(expects => [200, 201], :method => :get, :path => path, :query => {})
 
+Chunked Requests
+----------------
+
+You can make `Transfer-Encoding: chunked` requests by passing a block that will deliver chunks, delivering an empty chunk to signal completion.
+
+    file = File.open('data')
+
+    chunker = lambda do
+      # Excon::CHUNK_SIZE defaults to 1048576, ie 1MB
+      # to_s will convert the nil receieved after everything is read to the final empty chunk
+      file.read(Excon::CHUNK_SIZE).to_s
+    end
+
+    Excon.post('http://geemus.com', :request_block => chunker)
+
+    file.close
+
+Iterating in this way allows you to have more granular control over writes and to write things where you can not calculate the overall length up front.
+
 Streaming Responses
 -------------------
 
