@@ -11,6 +11,10 @@ module Excon
     CR_NL = "\r\n"
   end
 
+  unless const_defined?(:DEFAULT_CA_FILE)
+    DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
+  end
+
   unless const_defined?(:DEFAULT_RETRY_LIMIT)
     DEFAULT_RETRY_LIMIT = 4
   end
