@@ -11,6 +11,17 @@ class Basic < Sinatra::Base
   end
 
   post('/echo') do
+    echo
+  end
+
+  put('/echo') do
+    echo
+  end
+
+  private
+
+  def echo
     request.body.read
   end
+
 end

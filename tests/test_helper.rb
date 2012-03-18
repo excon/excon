@@ -4,10 +4,11 @@ require 'bundler'
 Bundler.require(:default, :development)
 
 def basic_tests(url = 'http://127.0.0.1:9292')
-  tests('GET /content-length/100') do
 
-    Excon.defaults[:ssl_verify_peer] = false
-    connection = Excon.new(url)
+  Excon.defaults[:ssl_verify_peer] = false
+  connection = Excon.new(url)
+
+  tests('GET /content-length/100') do
     response = connection.request(:method => :get, :path => '/content-length/100')
 
     tests('response.status').returns(200) do
@@ -63,8 +64,6 @@ def basic_tests(url = 'http://127.0.0.1:9292')
 
   tests('POST /body-sink') do
 
-    connection = Excon.new(url)
-
     tests('response.body').returns("5000000") do
       response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 5_000_000)
       response.body
@@ -79,9 +78,12 @@ def basic_tests(url = 'http://127.0.0.1:9292')
 
   tests('POST /echo') do
 
-    connection = Excon.new(url)
+    tests('without request_block').returns('x' * 100) do
+      response = connection.request(:method => :post, :path => '/echo', :body => 'x' * 100)
+      response.body
+    end
 
-    tests('request_block usage').returns('x' * 100) do
+    tests('with request_block').returns('x' * 100) do
       data = ['x'] * 100
       request_block = lambda do
         data.shift.to_s
@@ -92,6 +94,23 @@ def basic_tests(url = 'http://127.0.0.1:9292')
 
   end
 
+  tests('PUT /echo') do
+
+    tests('without request_block').returns('x' * 100) do
+      response = connection.request(:method => :put, :path => '/echo', :body => 'x' * 100)
+      response.body
+    end
+
+    tests('request_block usage').returns('x' * 100) do
+      data = ['x'] * 100
+      request_block = lambda do
+        data.shift.to_s
+      end
+      response = connection.request(:method => :put, :path => '/echo', :request_block => request_block)
+      response.body
+    end
+
+  end
 end
 
 def rackup_path(*parts)
