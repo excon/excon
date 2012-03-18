@@ -5,8 +5,7 @@ Bundler.require(:default, :development)
 
 def basic_tests(url = 'http://127.0.0.1:9292')
 
-  Excon.defaults[:ssl_verify_peer] = false
-  connection = Excon.new(url)
+  connection = Excon.new(url, :ssl_verify_peer => false)
 
   tests('GET /content-length/100') do
     response = connection.request(:method => :get, :path => '/content-length/100')

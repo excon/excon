@@ -23,14 +23,14 @@ module Excon
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
 
-      if Excon.defaults[:ssl_verify_peer]
+      if params[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if Excon.defaults[:ssl_ca_path]
-          ssl_context.ca_path = Excon.defaults[:ssl_ca_path]
-        elsif Excon.defaults[:ssl_ca_file]
-          ssl_context.ca_file = Excon.defaults[:ssl_ca_file]
+        if params[:ssl_ca_path]
+          ssl_context.ca_path = params[:ssl_ca_path]
+        elsif params[:ssl_ca_file]
+          ssl_context.ca_file = params[:ssl_ca_file]
         else
           # use default cert store
           store = OpenSSL::X509::Store.new
@@ -64,7 +64,7 @@ module Excon
       @socket.connect
 
       # verify connection
-      if Excon.defaults[:ssl_verify_peer]
+      if params[:ssl_verify_peer]
         @socket.post_connection_check(@params[:host])
       end
 
