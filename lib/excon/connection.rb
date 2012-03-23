@@ -185,7 +185,7 @@ module Excon
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
             params[:headers]['Content-Length'] = case params[:body]
-            when File
+            when File, Tempfile
               params[:body].binmode
               File.size(params[:body])
             when String
