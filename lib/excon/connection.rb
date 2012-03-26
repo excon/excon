@@ -145,6 +145,20 @@ module Excon
 
   private
 
+    def detect_content_length(body)
+      if body.respond_to?(:binmode)
+        body.binmode
+        File.size(body)
+      elsif body.is_a?(String)
+        if FORCE_ENC
+          body.force_encoding('BINARY')
+        end
+        body.length
+      else
+        0
+      end
+    end
+
     def request_kernel(params)
       begin
         response = if params[:mock]
@@ -184,18 +198,7 @@ module Excon
           elsif ! (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            params[:headers]['Content-Length'] = case params[:body]
-            when File, Tempfile
-              params[:body].binmode
-              File.size(params[:body])
-            when String
-              if FORCE_ENC
-                params[:body].force_encoding('BINARY')
-              end
-              params[:body].length
-            else
-              0
-            end
+            params[:headers]['Content-Length'] = detect_content_length(params[:body])
           end
 
           # add headers to request
