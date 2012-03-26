@@ -147,6 +147,7 @@ module Excon
 
     def detect_content_length(body)
       if body.respond_to?(:binmode)
+        # IO object: File, Tempfile, etc.
         body.binmode
         File.size(body)
       elsif body.is_a?(String)
