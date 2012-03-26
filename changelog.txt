@@ -1,3 +1,8 @@
+0.13.1 03/26/12
+===============
+
+* fix to allow for passing Tempfile objects as body. Thanks rkyrychuk
+
 0.13.0 03/22/12
 ===============
 
