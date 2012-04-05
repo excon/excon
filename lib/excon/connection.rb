@@ -146,10 +146,9 @@ module Excon
   private
 
     def detect_content_length(body)
-      if body.respond_to?(:binmode)
+      if body.respond_to?(:read) && body.respond_to?(:size)
         # IO object: File, Tempfile, etc.
-        body.binmode
-        File.size(body)
+        body.size
       elsif body.is_a?(String)
         if FORCE_ENC
           body.force_encoding('BINARY')
