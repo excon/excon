@@ -234,7 +234,7 @@ module Excon
                 socket.write(params[:body])
               end
             else
-              params[:body].binmode
+              params[:body].binmode if params[:body].respond_to?(:binmode)
               while chunk = params[:body].read(CHUNK_SIZE)
                 socket.write(chunk)
               end
