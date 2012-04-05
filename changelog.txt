@@ -1,3 +1,8 @@
+0.13.3 04/05/12
+===============
+
+* fixes for file like objects which do not respond to binmode
+
 0.13.2 03/26/12
 ===============
 
