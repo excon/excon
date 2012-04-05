@@ -146,15 +146,14 @@ module Excon
   private
 
     def detect_content_length(body)
-      if body.respond_to?(:binmode)
-        # IO object: File, Tempfile, etc.
-        body.binmode
-        File.size(body)
-      elsif body.is_a?(String)
+      if body.is_a?(String)
         if FORCE_ENC
           body.force_encoding('BINARY')
         end
         body.length
+      elsif body.respond_to?(:size)
+        # IO object: File, Tempfile, etc.
+        body.size
       else
         0
       end
@@ -235,6 +234,7 @@ module Excon
                 socket.write(params[:body])
               end
             else
+              params[:body].binmode if params[:body].respond_to?(:binmode)
               while chunk = params[:body].read(CHUNK_SIZE)
                 socket.write(chunk)
               end
