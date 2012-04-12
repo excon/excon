@@ -155,7 +155,11 @@ module Excon
         # IO object: File, Tempfile, etc.
         body.size
       else
-        0
+        begin
+          File.size(body) # for 1.8.7 where file does not have size
+        rescue
+          0
+        end
       end
     end
 

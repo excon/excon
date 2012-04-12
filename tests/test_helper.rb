@@ -77,6 +77,12 @@ def basic_tests(url = 'http://127.0.0.1:9292')
 
   tests('POST /echo') do
 
+    tests('with file').returns('x' * 100 + "\n") do
+      file_path = File.join(File.dirname(__FILE__), "data", "xs")
+      response = connection.request(:method => :post, :path => '/echo', :body => File.open(file_path))
+      response.body
+    end
+
     tests('without request_block').returns('x' * 100) do
       response = connection.request(:method => :post, :path => '/echo', :body => 'x' * 100)
       response.body
@@ -94,6 +100,12 @@ def basic_tests(url = 'http://127.0.0.1:9292')
   end
 
   tests('PUT /echo') do
+
+    tests('with file').returns('x' * 100 + "\n") do
+      file_path = File.join(File.dirname(__FILE__), "data", "xs")
+      response = connection.request(:method => :put, :path => '/echo', :body => File.open(file_path))
+      response.body
+    end
 
     tests('without request_block').returns('x' * 100) do
       response = connection.request(:method => :put, :path => '/echo', :body => 'x' * 100)
