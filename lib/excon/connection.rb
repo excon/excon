@@ -37,11 +37,9 @@ module Excon
         @proxy = setup_proxy(params[:proxy])
       end
 
-      if @connection[:scheme] == HTTPS
-        # use https_proxy if that has been specified
-        if ENV.has_key?('https_proxy')
-          @proxy = setup_proxy(ENV['https_proxy'])
-        end
+      # use https_proxy if that has been specified
+      if @connection[:scheme] == HTTPS && ENV.has_key?('https_proxy')
+        @proxy = setup_proxy(ENV['https_proxy'])
       end
 
       if @proxy
