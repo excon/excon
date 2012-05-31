@@ -17,6 +17,7 @@ Shindo.tests('Excon instrumentation') do
   after do
     ActiveSupport::Notifications.unsubscribe("excon")
     ActiveSupport::Notifications.unsubscribe("excon.request")
+    ActiveSupport::Notifications.unsubscribe("excon.response")
     ActiveSupport::Notifications.unsubscribe("excon.retry")
     ActiveSupport::Notifications.unsubscribe("excon.error")
     ActiveSupport::Notifications.unsubscribe("gug")
@@ -69,11 +70,11 @@ Shindo.tests('Excon instrumentation') do
     }
   end
 
-  tests('basic notification').returns('excon.request') do
+  tests('basic notification').returns(['excon.request', 'excon.response']) do
     subscribe(/excon/)
     stub_success
     make_request
-    @events.first.name
+    @events.map(&:name)
   end
 
   tests('captures scheme, host, port, and path').returns([:host, :path, :port, :scheme]) do
@@ -83,7 +84,7 @@ Shindo.tests('Excon instrumentation') do
     [:host, :path, :port, :scheme].select {|k| @events.first.payload.has_key? k}
   end
 
-  tests('params in request overwrite those in construcor').returns('cheezburger') do
+  tests('params in request overwrite those in constructor').returns('cheezburger') do
     subscribe(/excon/)
     stub_success
     make_request(false, :host => 'cheezburger')
@@ -191,10 +192,10 @@ Shindo.tests('Excon instrumentation') do
   end
 
   with_rackup('basic.ru') do
-    tests('works unmocked').returns('excon.request') do
+    tests('works unmocked').returns(['excon.request', 'excon.response']) do
       subscribe(/excon/)
       make_request(false, :mock => false)
-      @events.first.name
+      @events.map(&:name)
     end
   end
 end

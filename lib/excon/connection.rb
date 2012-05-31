@@ -88,9 +88,11 @@ module Excon
         else
           event_name = "#{params[:instrumentor_name]}.request"
         end
-        params[:instrumentor].instrument(event_name, params) do
+        response = params[:instrumentor].instrument(event_name, params) do
           request_kernel(params)
         end
+        params[:instrumentor].instrument("#{params[:instrumentor_name]}.response", response.attributes)
+        response
       else
         request_kernel(params)
       end
