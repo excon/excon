@@ -1,3 +1,12 @@
+0.14.0 05/31/12
+===============
+
+make stubs LIFO for ease of use/understanding, updated README to explain
+simplify https proxy logic
+add instrumentation for responses
+add StandardInstrumentor (events got to stderr)
+EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
+
 0.13.3 04/05/12
 ===============
 
