@@ -46,6 +46,10 @@ module Excon
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
       end
 
+      if ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
+        @connection[:instrumentor] = Excon::StandardInstrumentor
+      end
+
       # Use Basic Auth if url contains a login
       if uri.user || uri.password
         auth = ["#{uri.user}:#{uri.password}"].pack('m').delete("\r\n")

@@ -3,6 +3,8 @@ require 'bundler'
 
 Bundler.require(:default, :development)
 
+require 'stringio'
+
 def basic_tests(url = 'http://127.0.0.1:9292')
 
   connection = Excon.new(url, :ssl_verify_peer => false)

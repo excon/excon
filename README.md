@@ -197,7 +197,9 @@ If you don't want to add activesupport to your application, simply define a clas
       end
     end
 
-The #instrument method will be called for each HTTP request, retry, and error.
+The #instrument method will be called for each HTTP request, response, retry, and error.
+
+For debugging purposes you can also use Excon::StandardInstrumentor to output all events to stderr. This can also be specified by setting the `EXCON_STANDARD_INSTRUMENTOR` ENV var.
 
 See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's instrumentation_test.rb for more examples of instrumenting excon.
 
