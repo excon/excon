@@ -134,14 +134,18 @@ Alternatively you can pass a block instead of `response_attributes` and it will 
       {:body => params[:body], :status => 200}
     end
 
-In order to clear previously defined stubs you can use:
+In order to clear all previously defined stubs you can use:
 
     Excon.stubs.clear
+
+Or to simply remove the last defined stub you can use:
+
+    Excon.stubs.shift
 
 For example, if using RSpec for your test suite you can clear stubs after running each example:
 
     config.after(:each) do
-        Excon.stubs.clear
+      Excon.stubs.clear
     end
 
 HTTPS/SSL Issues

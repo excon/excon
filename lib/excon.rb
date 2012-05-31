@@ -103,7 +103,7 @@ module Excon
       else
         raise(ArgumentError.new("stub requires either response_params OR a block"))
       end
-      stubs << stub
+      stubs.unshift(stub)
       stub
     end
 
