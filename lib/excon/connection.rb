@@ -56,7 +56,7 @@ module Excon
         @connection[:headers]['Authorization'] ||= "Basic #{auth}"
       end
 
-      @socket_key = '' << @connection[:host] << ':' << @connection[:port]
+      @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
       reset
     end
 
