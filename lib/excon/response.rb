@@ -18,7 +18,8 @@ module Excon
     end
 
     def self.parse(socket, params={})
-      response = new(:status => socket.readline[9, 11].to_i)
+      response = new(:status => socket.read(12)[9, 11].to_i)
+      socket.readline # read the rest of the status line and CRLF
 
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(/:\s*/, 2)
