@@ -1,3 +1,10 @@
+0.14.1 07/19/12
+===============
+
+accept port as a separate option
+ensure first read from socket is nonblock (fixes read_timeouts)
+respect upper case env vars
+
 0.14.0 05/31/12
 ===============
 
