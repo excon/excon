@@ -258,8 +258,8 @@ module Excon
 
           response
         end
-      rescue Excon::Errors::StubNotFound => stub_not_found
-        raise(stub_not_found)
+      rescue Excon::Errors::StubNotFound, Excon::Errors::Timeout => error
+        raise(error)
       rescue => socket_error
         reset
         raise(Excon::Errors::SocketError.new(socket_error))
