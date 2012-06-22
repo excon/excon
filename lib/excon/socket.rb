@@ -59,8 +59,6 @@ module Excon
         rescue SystemCallError => exception
           socket.close
           next
-        rescue => exception
-          next
         end
       end
 
