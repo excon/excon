@@ -242,7 +242,9 @@ module Excon
                 socket.write(params[:body])
               end
             else
-              params[:body].binmode if params[:body].respond_to?(:binmode)
+              if params[:body].respond_to?(:binmode)
+                params[:body].binmode
+              end
               while chunk = params[:body].read(CHUNK_SIZE)
                 socket.write(chunk)
               end
@@ -275,12 +277,15 @@ module Excon
 
     def invoke_stub(params)
 
-      #deal with File/Tempfile body:
-      unless params[:body].nil? or params[:body].is_a?(String)
-       params[:body].binmode if params[:body].respond_to?(:binmode)
-       params[:body].rewind  if params[:body].respond_to?(:rewind)
-       body_string = String.new(params[:body].read)
-       params[:body] = body_string
+      # convert File/Tempfile body to string before matching:
+      unless params[:body].nil? || params[:body].is_a?(String)
+       if params[:body].respond_to?(:binmode)
+         params[:body].binmode
+       end
+       if params[:body].respond_to?(:rewind)
+         params[:body].rewind
+       end
+       params[:body] = params[:body].read
       end
 
       params[:captures] = {:headers => {}} # setup data to hold captures

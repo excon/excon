@@ -105,6 +105,26 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("stub({:body => File.open(...), :method => :get}, { :status => 200 })") do
+
+    file_path = File.join(File.dirname(__FILE__), 'data', 'xs')
+
+    Excon.stub(
+      { :body => File.read(file_path), :method => :get },
+      { :status => 200 }
+    )
+
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    response = connection.request(:body => File.open(file_path), :method => :get, :path => '/')
+
+    tests('response.status') do
+      response.status
+    end
+
+    Excon.stubs.clear
+
+  end
+
   tests("mismatched stub").raises(Excon::Errors::StubNotFound) do
     Excon.stub({:method => :post}, {:body => 'body'})
     Excon.get('http://127.0.0.1:9292/', :mock => true)
