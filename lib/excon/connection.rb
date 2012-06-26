@@ -274,6 +274,15 @@ module Excon
     end
 
     def invoke_stub(params)
+
+      #deal with File/Tempfile body:
+      unless params[:body].nil? or params[:body].is_a?(String)
+       params[:body].binmode if params[:body].respond_to?(:binmode)
+       params[:body].rewind  if params[:body].respond_to?(:rewind)
+       body_string = String.new(params[:body].read)
+       params[:body] = body_string
+      end
+
       params[:captures] = {:headers => {}} # setup data to hold captures
       for stub, response in Excon.stubs
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
