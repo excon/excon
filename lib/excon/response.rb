@@ -45,7 +45,6 @@ module Excon
             end
             socket.read(2)
           elsif remaining = content_length
-            remaining = content_length
             while remaining > 0
               params[:response_block].call(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
               remaining -= CHUNK_SIZE
