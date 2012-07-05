@@ -1,3 +1,9 @@
+0.14.3 07/05/12
+===============
+
+remove a redundant setter in response streamer
+standardize on each (instead of for) to iterate enumerables
+
 0.14.2 06/26/12
 ===============
 
