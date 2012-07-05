@@ -186,11 +186,11 @@ module Excon
             request << '?' << params[:query]
           when Hash
             request << '?'
-            for key, values in params[:query]
+            params[:query].each do |key, values|
               if values.nil?
                 request << key.to_s << '&'
               else
-                for value in [*values]
+                [*values].each do |value|
                   request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
                 end
               end
@@ -210,8 +210,8 @@ module Excon
           end
 
           # add headers to request
-          for key, values in params[:headers]
-            for value in [*values]
+          params[:headers].each do |key, values|
+            [*values].each do |value|
               request << key.to_s << ': ' << value.to_s << CR_NL
             end
           end
@@ -289,7 +289,7 @@ module Excon
       end
 
       params[:captures] = {:headers => {}} # setup data to hold captures
-      for stub, response in Excon.stubs
+      Excon.stubs.each do |stub, response|
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
