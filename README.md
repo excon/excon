@@ -155,11 +155,11 @@ By default excon will try to verify peer certificates when using SSL for HTTPS. 
 
 If you have the misfortune of running into this problem you have a couple options. If you have certificates but they aren't being auto-discovered, you can specify the path to your certificates:
 
-    Excon.ssl_ca_path = '/path/to/certs'
+    Excon.defaults[:ssl_ca_path] = '/path/to/certs'
 
 Failing that, you can turn off peer verification (less secure):
 
-    Excon.ssl_verify_peer = false
+    Excon.defaults[:ssl_verify_peer] = false
 
 Either of these should allow you to work around the socket error and continue with your work.
 
