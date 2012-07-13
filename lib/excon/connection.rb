@@ -71,20 +71,7 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
-      # connection has defaults, merge in new params to override
-      params = @connection.merge(params)
-      params[:headers] = @connection[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
-
-      # if path is empty or doesn't start with '/', insert one
-      unless params[:path][0, 1] == '/'
-        params[:path].insert(0, '/')
-      end
-
-      if block_given?
-        puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
-        params[:response_block] = Proc.new
-      end
+      params = request_params(params, &block)
 
       if params.has_key?(:instrumentor)
         if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
@@ -122,6 +109,33 @@ module Excon
         end
         raise(request_error)
       end
+    end
+
+    # Send information from a response directly to another server.
+    #
+    # from  - connection to the source of the data
+    # block - pass a block to allow data manupulation before sending it to the target.
+    #
+    # Returns the response from the target destination.
+    def pipe(from, &block)
+      params = request_params(:method => :post, :headers => {'Transfer-Encoding' => 'chunked'})
+      write_request_header(params)
+
+      streamer = lambda do |chunk, remaining_bytes, total_bytes|
+        block.call(chunk, remaining_bytes, total_bytes) if block_given?
+        send_chunk(chunk)
+      end
+
+      from.get(:response_block => streamer)
+
+      # Close the chunked data.
+      #
+      # The source streamer stops sending information when it stops getting
+      # data. We need to tell the socket that we've ended sending
+      # information.
+      socket.write('0' << CR_NL << CR_NL)
+
+      end_request(params)
     end
 
     def reset
@@ -172,69 +186,13 @@ module Excon
         response = if params[:mock]
           invoke_stub(params)
         else
-          socket.params = params
-          # start with "METHOD /path"
-          request = params[:method].to_s.upcase << ' '
-          if @proxy
-            request << params[:scheme] << '://' << params[:host] << ':' << params[:port]
-          end
-          request << params[:path]
-
-          # add query to path, if there is one
-          case params[:query]
-          when String
-            request << '?' << params[:query]
-          when Hash
-            request << '?'
-            params[:query].each do |key, values|
-              if values.nil?
-                request << key.to_s << '&'
-              else
-                [*values].each do |value|
-                  request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
-                end
-              end
-            end
-            request.chop! # remove trailing '&'
-          end
-
-          # finish first line with "HTTP/1.1\r\n"
-          request << HTTP_1_1
-
-          if params.has_key?(:request_block)
-            params[:headers]['Transfer-Encoding'] = 'chunked'
-          elsif ! (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
-            # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
-            # if they don't, sending Content-Length:0 can cause issues.
-            params[:headers]['Content-Length'] = detect_content_length(params[:body])
-          end
-
-          # add headers to request
-          params[:headers].each do |key, values|
-            [*values].each do |value|
-              request << key.to_s << ': ' << value.to_s << CR_NL
-            end
-          end
-
-          # add additional "\r\n" to indicate end of headers
-          request << CR_NL
-
-          # write out the request, sans body
-          socket.write(request)
+          write_request_header(params)
 
           # write out the body
           if params.has_key?(:request_block)
             while true
-              chunk = params[:request_block].call
-              if FORCE_ENC
-                chunk.force_encoding('BINARY')
-              end
-              if chunk.length > 0
-                socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
-              else
-                socket.write('0' << CR_NL << CR_NL)
-                break
-              end
+              sent = send_chunk(params[:request_block].call)
+              break unless sent
             end
           elsif !params[:body].nil?
             if params[:body].is_a?(String)
@@ -251,14 +209,7 @@ module Excon
             end
           end
 
-          # read the response
-          response = Excon::Response.parse(socket, params)
-
-          if response.headers['Connection'] == 'close'
-            reset
-          end
-
-          response
+          end_request(params)
         end
       rescue Excon::Errors::StubNotFound, Excon::Errors::Timeout => error
         raise(error)
@@ -359,5 +310,112 @@ module Excon
       {:host => uri.host, :port => uri.port, :scheme => uri.scheme}
     end
 
+    # Generate headers for this connection
+    #
+    # Returns a hash of parameters to send in the request header.
+    def request_params(params = {}, &block)
+      # connection has defaults, merge in new params to override
+      params = @connection.merge(params)
+      params[:headers] = @connection[:headers].merge(params[:headers] || {})
+      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
+
+      # if path is empty or doesn't start with '/', insert one
+      unless params[:path][0, 1] == '/'
+        params[:path].insert(0, '/')
+      end
+
+      if block_given?
+        puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        params[:response_block] = Proc.new
+      end
+
+      params
+    end
+
+    # Write the header of the request into the socket
+    def write_request_header(params)
+      socket.params = params
+      # start with "METHOD /path"
+      request = params[:method].to_s.upcase << ' '
+      if @proxy
+        request << params[:scheme] << '://' << params[:host] << ':' << params[:port]
+      end
+      request << params[:path]
+
+      # add query to path, if there is one
+      case params[:query]
+      when String
+        request << '?' << params[:query]
+      when Hash
+        request << '?'
+        params[:query].each do |key, values|
+          if values.nil?
+            request << key.to_s << '&'
+          else
+            [*values].each do |value|
+              request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
+            end
+          end
+        end
+        request.chop! # remove trailing '&'
+      end
+
+      # finish first line with "HTTP/1.1\r\n"
+      request << HTTP_1_1
+
+      if params.has_key?(:request_block)
+        params[:headers]['Transfer-Encoding'] = 'chunked'
+      elsif ! (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
+        # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
+        # if they don't, sending Content-Length:0 can cause issues.
+        params[:headers]['Content-Length'] = detect_content_length(params[:body])
+      end
+
+      # add headers to request
+      params[:headers].each do |key, values|
+        [*values].each do |value|
+          request << key.to_s << ': ' << value.to_s << CR_NL
+        end
+      end
+
+      # add additional "\r\n" to indicate end of headers
+      request << CR_NL
+
+      # write out the request, sans body
+      socket.write(request)
+    end
+
+    # Send a chunk of data
+    #
+    # Chunk: is a piece of data to send in a chunked request.
+    #
+    # Returns the size of the chunk, nil when there is nothing else to send.
+    def send_chunk(chunk)
+      if FORCE_ENC
+        chunk.force_encoding('BINARY')
+      end
+
+      if chunk.length > 0
+        socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
+        return chunk.length
+      else
+        socket.write('0' << CR_NL << CR_NL)
+        return nil
+      end
+    end
+
+    # End the request
+    #
+    # Returns the parsed response from the server.
+    def end_request(params)
+      # read the response
+      response = Excon::Response.parse(socket, params)
+
+      if response.headers['Connection'] == 'close'
+        reset
+      end
+
+      response
+    end
   end
 end
