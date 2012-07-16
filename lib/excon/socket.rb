@@ -66,30 +66,6 @@ module Excon
         # this will be our last encountered exception
         raise exception
       end
-
-      initialize_proxy
-    end
-
-    def initialize_proxy
-      if @proxy
-        request = 'CONNECT ' << @params[:host] << ':' << @params[:port] << Excon::HTTP_1_1
-        request << 'Host: ' << @params[:host] << ':' << @params[:port] << Excon::CR_NL
-
-        if @proxy[:password] || @proxy[:user]
-          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
-        end
-
-        request << Excon::CR_NL
-
-        # write out the proxy setup request
-        @socket.write(request)
-
-        # eat the proxy's connection response
-        while line = @socket.readline.strip
-          break if line.empty?
-        end
-      end
     end
 
     def read(max_length=nil)

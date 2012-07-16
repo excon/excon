@@ -44,6 +44,11 @@ module Excon
 
       if @proxy
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+        # https credentials happen in handshake
+        if @connection[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
+          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
+          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth << Excon::CR_NL
+        end
       end
 
       if ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
