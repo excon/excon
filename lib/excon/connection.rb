@@ -52,8 +52,7 @@ module Excon
 
       # Use Basic Auth if url contains a login
       if uri.user || uri.password
-        auth = ["#{uri.user}:#{uri.password}"].pack('m').delete("\r\n")
-        @connection[:headers]['Authorization'] ||= "Basic #{auth}"
+        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user << ':' << uri.password].pack('m').delete(EXCON::CR_NL)
       end
 
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
@@ -356,7 +355,13 @@ module Excon
       unless uri.host and uri.port and uri.scheme
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
-      {:host => uri.host, :port => uri.port, :scheme => uri.scheme}
+      {
+        :host     => uri.host,
+        :password => uri.password,
+        :port     => uri.port,
+        :scheme   => uri.scheme,
+        :user     => uri.user
+      }
     end
 
   end
