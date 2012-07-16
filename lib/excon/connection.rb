@@ -52,7 +52,7 @@ module Excon
 
       # Use Basic Auth if url contains a login
       if uri.user || uri.password
-        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user << ':' << uri.password].pack('m').delete(Excon::CR_NL)
+        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
       @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
