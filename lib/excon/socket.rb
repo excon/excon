@@ -76,7 +76,7 @@ module Excon
         request << 'Host: ' << @params[:host] << ':' << @params[:port] << Excon::CR_NL
 
         if @proxy[:password] || @proxy[:user]
-          auth = ['' << uri.user << ':' << uri.password].pack('m').delete(EXCON::CR_NL)
+          auth = ['' << @proxy[:user] << ':' << @proxy[:password]].pack('m').delete(EXCON::CR_NL)
           request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
         end
 
