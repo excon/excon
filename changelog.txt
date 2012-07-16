@@ -1,3 +1,10 @@
+0.15.0 07/16/12
+===============
+
+clarifications in README
+added base error class to message for Excon::SocketError
+fixes for proxy, sets properly on http and passes auth
+
 0.14.3 07/05/12
 ===============
 
