@@ -1,3 +1,10 @@
+0.15.2 07/16/12
+===============
+
+fix capitalization of EXCON constant in auth stuff
+properly handle nil user/password values in auth
+various fixes to proxy and related tests
+
 0.15.1 07/16/12
 ===============
 
