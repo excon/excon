@@ -118,7 +118,9 @@ module Excon
     #
     # Returns the response from the target destination.
     def pipe(from, &block)
-      params = request_params(:method => :post, :headers => {'Transfer-Encoding' => 'chunked'})
+      params = request_params(:headers => {'Transfer-Encoding' => 'chunked'})
+      params[:method] = :post if !params[:method] || params[:method].to_s !~ /post|put/i
+
       write_request_header(params)
 
       streamer = lambda do |chunk, remaining_bytes, total_bytes|
