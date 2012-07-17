@@ -47,7 +47,7 @@ module Excon
         # https credentials happen in handshake
         if @connection[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
           auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth << Excon::CR_NL
+          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth
         end
       end
 
