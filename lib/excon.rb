@@ -121,5 +121,22 @@ module Excon
         end
       DEF
     end
+
+    # Open a pipe between two sockets allowing to send data from a server
+    # response directly to another server.
+    #
+    # from        - source url.
+    # to          - target url.
+    # from_params - extra parameters for the source connection.
+    # to_params   - extra parameters for the target connection.
+    # block       - pass a block to allow data manupulation before sending it to the target.
+    #
+    # Returns the response from the target connection.
+    def pipe(from, to, from_params = {}, to_params = {}, &block)
+      source = Excon::Connection.new(from, from_params)
+      destination = Excon::Connection.new(to, to_params)
+
+      destination.pipe(source, &block)
+    end
   end
 end

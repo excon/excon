@@ -95,6 +95,30 @@ You can stream responses by passing a block that will receive each chunk.
 
 Iterating over each chunk will allow you to do work on the response incrementally without buffering the entire response first. For very large responses this can lead to significant memory savings.
 
+Request/Response pipeline
+-------------------------
+
+You can stream a response directly to a request pipeline sending each chunk of data received.
+
+Imagine that you want to download a big file from a location and
+send it directly to another server without keeping it in memory nor disk.
+
+    Excon.pipe('http://geemus.com/internet.tgz', 'http://calavera.com/internet.tgz')
+
+You can provide a block that will be called before the chunked data is sent to the destination:
+
+```ruby
+require 'progressbar'
+progress = ProgressBar.new 'Uploading', 100
+
+Excon.pipe('http://geemus.com/internet.tgz', 'http://calavera.com/internet.tgz') do |chunk, remaining, total|
+  uploaded = (total - remaining * 100) / total
+  progress.set uploaded
+end
+
+progress.finish
+```
+
 Proxy Support
 -------------
 
