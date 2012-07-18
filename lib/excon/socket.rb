@@ -106,6 +106,31 @@ module Excon
       end
     end
 
+    def readline
+      return nil if @eof
+
+      begin
+        @socket.readline
+      rescue OpenSSL::SSL::SSLError => error
+        if error.message == 'read would block'
+          if IO.select([@socket], nil, nil, @params[:read_timeout])
+            retry
+          else
+            raise(Excon::Errors::Timeout.new("read timeout reached"))
+          end
+        end
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
+        if IO.select([@socket], nil, nil, @params[:read_timeout])
+          retry
+        else
+          raise(Excon::Errors::Timeout.new("read timeout reached"))
+        end
+      rescue EOFError
+        @eof = true
+        nil
+      end
+    end
+
     def write(data)
       # We normally return from the return in the else block below, but
       # we guard that data is still something in case we get weird
