@@ -1,3 +1,8 @@
+0.15.4 07/16/12
+===============
+
+rescue/retry nonblock errors from readline (even though they shouldn't occur)
+
 0.15.3 07/16/12
 ===============
 
