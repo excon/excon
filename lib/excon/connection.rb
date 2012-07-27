@@ -34,8 +34,8 @@ module Excon
         @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
         @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-      elsif params.has_key?(:proxy)
-        @proxy = setup_proxy(params[:proxy])
+      elsif @connection.has_key?(:proxy)
+        @proxy = setup_proxy(@connection[:proxy])
       end
 
       if @proxy

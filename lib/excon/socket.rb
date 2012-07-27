@@ -33,11 +33,6 @@ module Excon
 
           socket = ::Socket.new(a_family, s_type, 0)
 
-          #secs = Integer(timeout)
-          #usecs = Integer((timeout - secs) * 1_000_000)
-          #optval = [secs, usecs].pack("l_2")
-          #sock.setsockopt Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, optval
-
           socket.connect_nonblock(sockaddr)
 
           @socket = socket
