@@ -30,16 +30,12 @@ module Excon
 
       @proxy = nil
 
-      # use proxy from the environment if present
-      if (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+      if @connection[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
+      elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
         @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
       elsif params.has_key?(:proxy)
         @proxy = setup_proxy(params[:proxy])
-      end
-
-      # use https_proxy if that has been specified
-      if @connection[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       end
 
       if @proxy
