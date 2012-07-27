@@ -47,7 +47,7 @@ module Excon
         end
       end
 
-      if ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
+      if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @connection[:instrumentor] = Excon::StandardInstrumentor
       end
 
