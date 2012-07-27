@@ -38,7 +38,9 @@ module Excon
           @socket = socket
           break
         rescue Errno::EINPROGRESS
-          IO.select(nil, [socket], nil, @params[:connect_timeout])
+          unless IO.select(nil, [socket], nil, @params[:connect_timeout])
+            raise(Excon::Errors::Timeout.new("connect timeout reached"))
+          end
           begin
             socket.connect_nonblock(sockaddr)
 
