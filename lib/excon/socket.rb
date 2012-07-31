@@ -85,6 +85,8 @@ module Excon
           else
             raise(Excon::Errors::Timeout.new("read timeout reached"))
           end
+        else
+          raise
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if IO.select([@socket], nil, nil, @params[:read_timeout])
