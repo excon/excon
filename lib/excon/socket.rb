@@ -86,7 +86,7 @@ module Excon
             raise(Excon::Errors::Timeout.new("read timeout reached"))
           end
         else
-          raise
+          raise(error)
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if IO.select([@socket], nil, nil, @params[:read_timeout])
@@ -122,11 +122,9 @@ module Excon
             else
               raise(Excon::Errors::Timeout.new("write timeout reached"))
             end
+          else
+            raise(error)
           end
-
-          # If there is an unknown OpenSSL error, don't just swallow
-          # it, raise it out.
-          raise Excon::Errors::SocketError.new(error)
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
           if IO.select(nil, [@socket], nil, @params[:write_timeout])
             retry
