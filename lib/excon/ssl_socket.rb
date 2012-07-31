@@ -83,6 +83,11 @@ module Excon
       # connect the new OpenSSL::SSL::SSLSocket
       @socket.connect
 
+      # Server Name Indication (SNI) RFC 3546
+      if @socket.respond_to?(:hostname=)
+        @socket.hostname = @params[:host]
+      end
+
       # verify connection
       if params[:ssl_verify_peer]
         @socket.post_connection_check(@params[:host])
