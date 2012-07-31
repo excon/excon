@@ -75,9 +75,7 @@ module Excon
         @socket.write(request)
 
         # eat the proxy's connection response
-        while line = @socket.readline.strip
-          break if line.empty?
-        end
+        Excon::Response.parse(@socket, {})
       end
 
       # connect the new OpenSSL::SSL::SSLSocket
