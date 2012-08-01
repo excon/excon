@@ -1,3 +1,17 @@
+0.15.5 08/01/2012
+=================
+
+consolidate proxy handling
+proxy settings should pull from connection instead of params (allows
+Excon.defaults[:proxy])
+properly raise connect timeout errors
+change recommended standard instrumentor ENV to EXCON_DEBUG
+remove readline nonblock protections (they didn't fix the windows issue)
+don't swallow non-nonblock SSL exceptions
+consistency fixes for ssl nonblock error handling
+do SNI in ssl_socket setup
+use Excon::Response#parse to read https proxy response
+
 0.15.4 07/16/12
 ===============
 
