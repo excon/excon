@@ -54,6 +54,12 @@ Both one-off and persistent connections support many other options. Here are a f
     connection.request(:method => :get)
     connection.request(:method => 'GET')
 
+    # this request can be repeated safely, so retry on errors up to 3 times
+    connection.request(:idempotent => true)
+
+    # opt out of nonblocking operations for performance and/or as a workaround
+    connection.request(:nonblock => false)
+
 These options can be combined to make pretty much any request you might need.
 
 Excon can also expect one or more HTTP status code in response, raising an exception if the response does not meet the criteria.
