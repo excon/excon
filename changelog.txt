@@ -1,3 +1,9 @@
+0.16.0 09/14/2012
+=================
+
+add nonblock => false to use blocking requests with Timeout.timeout
+update readme to describe nonblock and idempotent options
+
 0.15.5 08/01/2012
 =================
 
