@@ -33,7 +33,13 @@ module Excon
 
           socket = ::Socket.new(a_family, s_type, 0)
 
-          socket.connect_nonblock(sockaddr)
+          if @params[:nonblock]
+            socket.connect_nonblock(sockaddr)
+          else
+            Timeout.timeout(@params[:connect_timeout], Excon::Errors::Timeout.new('connect timeout reached')) do
+              socket.connect(sockaddr)
+            end
+          end
 
           @socket = socket
           break
@@ -67,85 +73,98 @@ module Excon
 
     def read(max_length=nil)
       return nil if @eof
-
-      begin
-        if max_length
-          until @read_buffer.length >= max_length
-            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+      if @eof
+        nil
+      elsif @params[:nonblock]
+        begin
+          if max_length
+            until @read_buffer.length >= max_length
+              @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+            end
+          else
+            while true
+              @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
+            end
           end
-        else
-          while true
-            @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
+        rescue OpenSSL::SSL::SSLError => error
+          if error.message == 'read would block'
+            if IO.select([@socket], nil, nil, @params[:read_timeout])
+              retry
+            else
+              raise(Excon::Errors::Timeout.new("read timeout reached"))
+            end
+          else
+            raise(error)
           end
-        end
-      rescue OpenSSL::SSL::SSLError => error
-        if error.message == 'read would block'
+        rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
           if IO.select([@socket], nil, nil, @params[:read_timeout])
             retry
           else
             raise(Excon::Errors::Timeout.new("read timeout reached"))
           end
-        else
-          raise(error)
+        rescue EOFError
+          @eof = true
         end
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-        if IO.select([@socket], nil, nil, @params[:read_timeout])
-          retry
+        if max_length
+          @read_buffer.slice!(0, max_length)
         else
-          raise(Excon::Errors::Timeout.new("read timeout reached"))
+          # read until EOFError, so return everything
+          @read_buffer.slice!(0, @read_buffer.length)
         end
-      rescue EOFError
-        @eof = true
-      end
-      if max_length
-        @read_buffer.slice!(0, max_length)
       else
-        # read until EOFError, so return everything
-        @read_buffer.slice!(0, @read_buffer.length)
+        Timeout.timeout(@params[:read_timeout], Excon::Errors::Timeout.new('read timeout reached')) do
+          @socket.read(max_length)
+        end
       end
     end
 
     def write(data)
-      # We normally return from the return in the else block below, but
-      # we guard that data is still something in case we get weird
-      # values and String#[] returns nil. (This behavior has been observed
-      # in the wild, so this is a simple defensive mechanism)
-      while data
-        begin
-          # I wish that this API accepted a start position, then we wouldn't
-          # have to slice data when there is a short write.
-          written = @socket.write_nonblock(data)
-        rescue OpenSSL::SSL::SSLError => error
-          if error.message == 'write would block'
+      if @params[:nonblock]
+        # We normally return from the return in the else block below, but
+        # we guard that data is still something in case we get weird
+        # values and String#[] returns nil. (This behavior has been observed
+        # in the wild, so this is a simple defensive mechanism)
+        while data
+          begin
+            # I wish that this API accepted a start position, then we wouldn't
+            # have to slice data when there is a short write.
+            written = @socket.write_nonblock(data)
+          rescue OpenSSL::SSL::SSLError => error
+            if error.message == 'write would block'
+              if IO.select(nil, [@socket], nil, @params[:write_timeout])
+                retry
+              else
+                raise(Excon::Errors::Timeout.new("write timeout reached"))
+              end
+            else
+              raise(error)
+            end
+          rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
             if IO.select(nil, [@socket], nil, @params[:write_timeout])
               retry
             else
               raise(Excon::Errors::Timeout.new("write timeout reached"))
             end
           else
-            raise(error)
-          end
-        rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
-          if IO.select(nil, [@socket], nil, @params[:write_timeout])
-            retry
-          else
-            raise(Excon::Errors::Timeout.new("write timeout reached"))
-          end
-        else
-          # Fast, common case.
-          # The >= seems weird, why would it have written MORE than we
-          # requested. But we're getting some weird behavior when @socket
-          # is an OpenSSL socket, where it seems like it's saying it wrote
-          # more (perhaps due to SSL packet overhead?).
-          #
-          # Pretty weird, but this is a simple defensive mechanism.
-          return if written >= data.size
+            # Fast, common case.
+            # The >= seems weird, why would it have written MORE than we
+            # requested. But we're getting some weird behavior when @socket
+            # is an OpenSSL socket, where it seems like it's saying it wrote
+            # more (perhaps due to SSL packet overhead?).
+            #
+            # Pretty weird, but this is a simple defensive mechanism.
+            return if written >= data.size
 
-          # This takes advantage of the fact that most ruby implementations
-          # have Copy-On-Write strings. Thusly why requesting a subrange
-          # of data, we actually don't copy data because the new string
-          # simply references a subrange of the original.
-          data = data[written, data.size]
+            # This takes advantage of the fact that most ruby implementations
+            # have Copy-On-Write strings. Thusly why requesting a subrange
+            # of data, we actually don't copy data because the new string
+            # simply references a subrange of the original.
+            data = data[written, data.size]
+          end
+        end
+      else
+        Timeout.timeout(@params[:write_timeout], Excon::Errors::Timeout.new('write timeout reached')) do
+          @socket.write(data)
         end
       end
     end

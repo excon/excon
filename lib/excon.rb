@@ -6,6 +6,7 @@ require 'forwardable'
 require 'openssl'
 require 'rbconfig'
 require 'socket'
+require 'timeout'
 require 'uri'
 
 require 'excon/constants'
@@ -26,6 +27,7 @@ module Excon
         :headers            => {},
         :instrumentor_name  => 'excon',
         :mock               => false,
+        :nonblock           => true,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,
         :ssl_ca_file        => DEFAULT_CA_FILE,
