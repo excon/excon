@@ -36,8 +36,12 @@ module Excon
           if @params[:nonblock]
             socket.connect_nonblock(sockaddr)
           else
-            Timeout.timeout(@params[:connect_timeout], Excon::Errors::Timeout.new('connect timeout reached')) do
-              socket.connect(sockaddr)
+            begin
+              Timeout.timeout(@params[:connect_timeout]) do
+                socket.connect(sockaddr)
+              end
+            rescue Timeout::Error
+              raise Excon::Errors::Timeout.new('connect timeout reached')
             end
           end
 
@@ -112,8 +116,12 @@ module Excon
           @read_buffer.slice!(0, @read_buffer.length)
         end
       else
-        Timeout.timeout(@params[:read_timeout], Excon::Errors::Timeout.new('read timeout reached')) do
-          @socket.read(max_length)
+        begin
+          Timeout.timeout(@params[:read_timeout]) do
+            @socket.read(max_length)
+          end
+        rescue Timeout::Error
+          raise Excon::Errors::Timeout.new('read timeout reached')
         end
       end
     end
@@ -163,8 +171,12 @@ module Excon
           end
         end
       else
-        Timeout.timeout(@params[:write_timeout], Excon::Errors::Timeout.new('write timeout reached')) do
-          @socket.write(data)
+        begin
+          Timeout.timeout(@params[:write_timeout]) do
+            @socket.write(data)
+          end
+        rescue Timeout::Error
+          Excon::Errors::Timeout.new('write timeout reached')
         end
       end
     end
