@@ -130,7 +130,7 @@ module Excon
 
     # Generate HTTP request verb methods
     Excon::HTTP_VERBS.each do |method|
-      eval <<-DEF
+      class_eval <<-DEF, __FILE__, __LINE__ + 1
         def #{method}(params={}, &block)
           request(params.merge!(:method => :#{method}), &block)
         end

@@ -117,7 +117,7 @@ module Excon
 
     # Generic non-persistent HTTP methods
     HTTP_VERBS.each do |method|
-      eval <<-DEF
+      module_eval <<-DEF, __FILE__, __LINE__ + 1
         def #{method}(url, params = {}, &block)
           new(url).request(params.merge!(:method => :#{method}), &block)
         end
