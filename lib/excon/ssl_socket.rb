@@ -1,30 +1,11 @@
 module Excon
   class SSLSocket < Socket
 
-    # backwards compatability for things lacking connect_nonblock
-    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock)
-
-      undef_method :connect
-      def connect
-        @socket = TCPSocket.new(@params[:host], @params[:port])
-      end
-
-    end
-
-    # backwards compatability for things lacking read_nonblock
-    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock)
-
-      undef_method :read
-      def_delegators(:@socket, :read, :read)
-
-    end
-
-    # backwards compatability for things lacking write_nonblock
-    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
-
-      undef_method :write
-      def_delegators(:@socket, :write, :write)
-
+    # backwards compatability for things lacking nonblock
+    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
+           OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
+           OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
+      Excon.defaults[:nonblock] = false
     end
 
     def initialize(params = {}, proxy = nil)
