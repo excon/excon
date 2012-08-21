@@ -119,7 +119,7 @@ module Excon
     HTTP_VERBS.each do |method|
       module_eval <<-DEF, __FILE__, __LINE__ + 1
         def #{method}(url, params = {}, &block)
-          new(url).request(params.merge!(:method => :#{method}), &block)
+          new(url, params).request(:method => :#{method}, &block)
         end
       DEF
     end
