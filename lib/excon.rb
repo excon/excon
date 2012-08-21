@@ -9,14 +9,7 @@ require 'socket'
 require 'timeout'
 require 'uri'
 
-require 'excon/constants'
-require 'excon/connection'
-require 'excon/errors'
-require 'excon/response'
-require 'excon/socket'
-require 'excon/ssl_socket'
-require 'excon/standard_instrumentor'
-
+# Define defaults first so they will be available to other files
 module Excon
   class << self
 
@@ -41,6 +34,20 @@ module Excon
     def defaults=(new_defaults)
       @defaults = new_defaults
     end
+
+  end
+end
+
+require 'excon/constants'
+require 'excon/connection'
+require 'excon/errors'
+require 'excon/response'
+require 'excon/socket'
+require 'excon/ssl_socket'
+require 'excon/standard_instrumentor'
+
+module Excon
+  class << self
 
     # Status of mocking
     def mock
