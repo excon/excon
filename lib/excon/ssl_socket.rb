@@ -2,12 +2,8 @@ module Excon
   class SSLSocket < Socket
 
     def initialize(params = {}, proxy = nil)
-      # backwards compatability for things lacking nonblock
-      unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
-             OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
-             OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
-        params[:nonblock] = false
-      end
+      @params, @proxy = params, proxy
+      check_nonblock_support
 
       super
 
@@ -74,6 +70,35 @@ module Excon
       end
 
       @socket
+    end
+
+    def connect
+      check_nonblock_support
+      super
+    end
+
+    def read(max_length=nil)
+      check_nonblock_support
+      super
+    end
+
+    def write(data)
+      check_nonblock_support
+      super
+    end
+
+    private
+
+    def check_nonblock_support
+      # backwards compatability for things lacking nonblock
+      unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
+             OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
+             OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
+        unless params[:nonblock] == false
+          puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
+          params[:nonblock] = false
+        end
+      end
     end
 
   end
