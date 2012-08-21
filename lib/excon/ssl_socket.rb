@@ -1,14 +1,14 @@
 module Excon
   class SSLSocket < Socket
 
-    # backwards compatability for things lacking nonblock
-    unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
-           OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
-           OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
-      Excon.defaults[:nonblock] = false
-    end
-
     def initialize(params = {}, proxy = nil)
+      # backwards compatability for things lacking nonblock
+      unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
+             OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
+             OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
+        params[:nonblock] = false
+      end
+
       super
 
       # create ssl context
