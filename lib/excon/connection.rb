@@ -147,7 +147,20 @@ module Excon
       @connection[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
-  private
+    def inspect
+      c_clean = @connection.dup
+      c_clean[:headers] = @connection[:headers].dup
+      if ! @connection[:headers]['Authorization'].nil?
+        c_clean[:headers]['Authorization'] = 'REDACTED'
+      end
+      vars = instance_variables.map do |x|
+        vals = x.to_s.eql?("@connection") ? c_clean : instance_variable_get(x)
+        "#{x}=#{vals.inspect}"
+      end
+      "#{self.to_s}".gsub(/>\z/, " " + vars.join(", ") + '>')
+    end
+
+    private
 
     def detect_content_length(body)
       if body.is_a?(String)
