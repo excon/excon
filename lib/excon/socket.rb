@@ -87,7 +87,7 @@ module Excon
             end
           else
             while true
-              @read_buffer << @socket.read_nonblock(CHUNK_SIZE)
+              @read_buffer << @socket.read_nonblock(@params[:chunk_size])
             end
           end
         rescue OpenSSL::SSL::SSLError => error

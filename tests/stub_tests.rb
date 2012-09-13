@@ -132,9 +132,9 @@ Shindo.tests('Excon stubs') do
 
   Excon.stubs.clear
 
-  tests("stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})") do
+  tests("stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})") do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {:body => 'x' * (Excon::CHUNK_SIZE + 1)})
+    Excon.stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})
 
     test("with response_block") do
       chunks = []
@@ -142,7 +142,7 @@ Shindo.tests('Excon stubs') do
         chunks << chunk
       end
       connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
-      chunks == ['x' * Excon::CHUNK_SIZE, 'x']
+      chunks == ['x' * Excon::DEFAULT_CHUNK_SIZE, 'x']
     end
   end
 

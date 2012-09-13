@@ -16,6 +16,7 @@ module Excon
     # @return [Hash] defaults for Excon connections
     def defaults
       @defaults ||= {
+        :chunk_size         => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
         :connect_timeout    => 60,
         :headers            => {},
         :instrumentor_name  => 'excon',

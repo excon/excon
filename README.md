@@ -76,9 +76,9 @@ You can make `Transfer-Encoding: chunked` requests by passing a block that will 
     file = File.open('data')
 
     chunker = lambda do
-      # Excon::CHUNK_SIZE defaults to 1048576, ie 1MB
+      # Excon.defaults[:chunk_size] defaults to 1048576, ie 1MB
       # to_s will convert the nil receieved after everything is read to the final empty chunk
-      file.read(Excon::CHUNK_SIZE).to_s
+      file.read(Excon.defaults[:chunk_size]).to_s
     end
 
     Excon.post('http://geemus.com', :request_block => chunker)

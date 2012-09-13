@@ -258,7 +258,7 @@ module Excon
               if params[:body].respond_to?(:binmode)
                 params[:body].binmode
               end
-              while chunk = params[:body].read(CHUNK_SIZE)
+              while chunk = params[:body].read(params[:chunk_size])
                 socket.write(chunk)
               end
             end
@@ -340,9 +340,9 @@ module Excon
             content_length = remaining = body.bytesize
             i = 0
             while i < body.length
-              params[:response_block].call(body[i, CHUNK_SIZE], [remaining - CHUNK_SIZE, 0].max, content_length)
-              remaining -= CHUNK_SIZE
-              i += CHUNK_SIZE
+              params[:response_block].call(body[i, params[:chunk_size]], [remaining - params[:chunk_size], 0].max, content_length)
+              remaining -= params[:chunk_size]
+              i += params[:chunk_size]
             end
           end
           return Excon::Response.new(response_attributes)

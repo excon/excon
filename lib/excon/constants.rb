@@ -1,14 +1,15 @@
 module Excon
-  VERSION = '0.16.2'
-
-  # avoid overwrite if somebody has redefined
-  unless const_defined?(:CHUNK_SIZE)
-    CHUNK_SIZE = 1048576 # 1 megabyte
-  end
 
   CR_NL = "\r\n"
 
   DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
+
+  DEFAULT_CHUNK_SIZE = 1048576 # 1 megabyte
+
+  # avoid overwrite if somebody has redefined
+  unless const_defined?(:CHUNK_SIZE)
+    CHUNK_SIZE = DEFAULT_CHUNK_SIZE
+  end
 
   DEFAULT_RETRY_LIMIT = 4
 
@@ -22,6 +23,8 @@ module Excon
 
   NO_ENTITY = [204, 205, 304].freeze
 
+  VERSION = '0.16.2'
+
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
       module WaitReadable; end
@@ -33,4 +36,5 @@ module Excon
       module WaitWritable; end
     end
   end
+
 end

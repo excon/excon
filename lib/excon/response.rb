@@ -46,11 +46,11 @@ module Excon
             socket.read(2)
           elsif remaining = content_length
             while remaining > 0
-              params[:response_block].call(socket.read([CHUNK_SIZE, remaining].min), [remaining - CHUNK_SIZE, 0].max, content_length)
-              remaining -= CHUNK_SIZE
+              params[:response_block].call(socket.read([params[:chunk_size], remaining].min), [remaining - params[:chunk_size], 0].max, content_length)
+              remaining -= params[:chunk_size]
             end
           else
-            while remaining = socket.read(CHUNK_SIZE)
+            while remaining = socket.read(params[:chunk_size])
               params[:response_block].call(remaining, remaining.length, content_length)
             end
           end
@@ -62,8 +62,8 @@ module Excon
             socket.read(2) # 2 == "/r/n".length
           elsif remaining = content_length
             while remaining > 0
-              response.body << socket.read([CHUNK_SIZE, remaining].min)
-              remaining -= CHUNK_SIZE
+              response.body << socket.read([params[:chunk_size], remaining].min)
+              remaining -= params[:chunk_size]
             end
           else
             response.body << socket.read
