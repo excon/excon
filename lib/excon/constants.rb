@@ -1,43 +1,26 @@
 module Excon
-  unless const_defined?(:VERSION)
-    VERSION = '0.16.2'
-  end
+  VERSION = '0.16.2'
 
+  # avoid overwrite if somebody has redefined
   unless const_defined?(:CHUNK_SIZE)
     CHUNK_SIZE = 1048576 # 1 megabyte
   end
 
-  unless const_defined?(:CR_NL)
-    CR_NL = "\r\n"
-  end
+  CR_NL = "\r\n"
 
-  unless const_defined?(:DEFAULT_CA_FILE)
-    DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
-  end
+  DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
 
-  unless const_defined?(:DEFAULT_RETRY_LIMIT)
-    DEFAULT_RETRY_LIMIT = 4
-  end
+  DEFAULT_RETRY_LIMIT = 4
 
-  unless const_defined?(:FORCE_ENC)
-    FORCE_ENC = CR_NL.respond_to?(:force_encoding)
-  end
+  FORCE_ENC = CR_NL.respond_to?(:force_encoding)
 
-  unless const_defined?(:HTTP_1_1)
-    HTTP_1_1 = " HTTP/1.1\r\n"
-  end
+  HTTP_1_1 = " HTTP/1.1\r\n"
 
-  unless const_defined?(:HTTP_VERBS)
-    HTTP_VERBS = %w{connect delete get head options post put trace}
-  end
+  HTTP_VERBS = %w{connect delete get head options post put trace}
 
-  unless const_defined?(:HTTPS)
-    HTTPS = 'https'
-  end
+  HTTPS = 'https'
 
-  unless const_defined?(:NO_ENTITY)
-    NO_ENTITY = [204, 205, 304].freeze
-  end
+  NO_ENTITY = [204, 205, 304].freeze
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
