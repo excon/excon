@@ -23,7 +23,7 @@ module Excon
 
   NO_ENTITY = [204, 205, 304].freeze
 
-  VERSION = '0.16.2'
+  VERSION = '0.16.3'
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
