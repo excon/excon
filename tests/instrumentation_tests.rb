@@ -136,26 +136,60 @@ Shindo.tests('Excon instrumentation') do
     (@events.first.duration/1000 - REQUEST_DELAY_SECONDS).abs < 1
   end
 
-  tests('standard instrumentor').returns(
-    ['excon.request', 'excon.retry', 'excon.retry', 'excon.retry', 'excon.error']) do
+  tests('standard instrumentor') do
 
-    begin
-      original_stderr = $stderr
-      $stderr = captured_stderr = StringIO.new
-      stub_failure
-      connection = Excon.new(
-        'http://127.0.0.1:9292',
-        :instrumentor => Excon::StandardInstrumentor,
-        :mock         => true
-      )
-      raises(Excon::Errors::SocketError) do
-        connection.get(:idempotent => true)
+    tests('success').returns(
+      ['excon.request', 'excon.retry', 'excon.retry', 'excon.retry', 'excon.error']) do
+
+      begin
+        original_stderr = $stderr
+        $stderr = captured_stderr = StringIO.new
+        stub_failure
+        connection = Excon.new(
+          'http://127.0.0.1:9292',
+          :instrumentor => Excon::StandardInstrumentor,
+          :mock         => true
+        )
+        raises(Excon::Errors::SocketError) do
+          connection.get(:idempotent => true)
+        end
+
+        captured_stderr.string.split("\n").map {|event| event.split(' ').first}
+      ensure
+        $stderr = original_stderr
+      end
+    end
+
+    tests('authorization header REDACT') do
+
+      begin
+        original_stderr = $stderr
+        $stderr = @captured_stderr = StringIO.new
+        stub_failure
+        @connection = Excon.new(
+          'http://user:pass@127.0.0.1:9292',
+          :instrumentor => Excon::StandardInstrumentor,
+          :mock         => true
+        )
+        raises(Excon::Errors::SocketError) do
+          @connection.get(:idempotent => true)
+        end
+      ensure
+        $stderr = original_stderr
       end
 
-      captured_stderr.string.split("\n").map {|event| event.split(' ').first}
-    ensure
-      $stderr = original_stderr
+      @auth_header = 'Basic dXNlcjpwYXNz'
+
+      tests('does not appear in response') do
+        !@captured_stderr.include?(@auth_header)
+      end
+
+      test('does not mutate Authorization value') do
+        @connection.connection[:headers]['Authorization'] == @auth_header
+      end
+
     end
+
   end
 
   tests('use our own instrumentor').returns(

@@ -8,11 +8,11 @@ with_rackup('basic_auth.ru') do
     cases.each do |desc,url,auth_header|
       conn = Excon.new(url)
       test("authorization header concealed for #{desc}") do
-        ! conn.inspect.to_s.include? auth_header
+        !conn.inspect.to_s.include?(auth_header)
       end
 
-      tests("authorization header correct for #{desc}").returns(auth_header) do
-        conn.connection[:headers]['Authorization']
+      test("authorization header remains correct for #{desc}") do
+        conn.connection[:headers]['Authorization'] == auth_header
       end
 
     end

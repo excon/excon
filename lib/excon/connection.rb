@@ -148,16 +148,21 @@ module Excon
     end
 
     def inspect
-      c_clean = @connection.dup
-      c_clean[:headers] = @connection[:headers].dup
-      if ! @connection[:headers]['Authorization'].nil?
-        c_clean[:headers]['Authorization'] = 'REDACTED'
+      vars = instance_variables.inject({}) do |accum, var|
+        accum.merge!(var => instance_variable_get(var))
       end
-      vars = instance_variables.map do |x|
-        vals = x.to_s.eql?("@connection") ? c_clean : instance_variable_get(x)
-        "#{x}=#{vals.inspect}"
+      if vars[:'@connection'][:headers].has_key?('Authorization')
+        vars[:'@connection'] = vars[:'@connection'].dup
+        vars[:'@connection'][:headers] = vars[:'@connection'][:headers].dup
+        vars[:'@connection'][:headers]['Authorization'] = REDACTED
       end
-      "#{self.to_s}".gsub(/>\z/, " " + vars.join(", ") + '>')
+      inspection = '#<Excon::Connection:'
+      inspection << (object_id << 1).to_s(16)
+      vars.each do |key, value|
+        inspection << ' ' << key.to_s << '=' << value.inspect
+      end
+      inspection << '>'
+      inspection
     end
 
     private
