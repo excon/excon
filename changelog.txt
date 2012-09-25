@@ -1,4 +1,18 @@
-0.16.2 09/27/2012
+0.16.4 09/25/2012
+=================
+
+better behavior nonblock and use DEFAULT_NONBLOCK constant
+update deprecation/warnings to use $stderr
+consistency fixes for REDACT
+add REDACT behavior to standard_instrumentor
+
+0.16.3 09/20/2012
+=================
+
+remove overly paranoid const checking
+change chunk_size to be a param for consistency
+
+0.16.2 08/27/2012
 =================
 
 provide more helpful backtraces on connection requests
@@ -9,13 +23,12 @@ rearrange excon.rb to initialize defaults sooner
 set nonblock at init time for ssl socket
 fixes around nonbleck to properly skip/warn if unavailable but selected
 
-
-0.16.1 09/15/2012
+0.16.1 08/15/2012
 =================
 
 default to SSLv3 usage
 
-0.16.0 09/14/2012
+0.16.0 08/14/2012
 =================
 
 add nonblock => false to use blocking requests with Timeout.timeout
