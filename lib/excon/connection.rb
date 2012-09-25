@@ -149,7 +149,7 @@ module Excon
 
     def inspect
       vars = instance_variables.inject({}) do |accum, var|
-        accum.merge!(var => instance_variable_get(var))
+        accum.merge!(var.to_sym => instance_variable_get(var))
       end
       if vars[:'@connection'][:headers].has_key?('Authorization')
         vars[:'@connection'] = vars[:'@connection'].dup
