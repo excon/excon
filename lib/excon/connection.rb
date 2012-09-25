@@ -82,7 +82,7 @@ module Excon
       end
 
       if block_given?
-        puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
         params[:response_block] = Proc.new
       end
 
@@ -138,12 +138,12 @@ module Excon
     end
 
     def retry_limit=(new_retry_limit)
-      puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
       @connection[:retry_limit] = new_retry_limit
     end
 
     def retry_limit
-      puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
       @connection[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 

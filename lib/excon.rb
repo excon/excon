@@ -52,7 +52,7 @@ module Excon
 
     # Status of mocking
     def mock
-      puts("Excon#mock is deprecated, pass Excon.defaults[:mock] instead (#{caller.first})")
+      $stderr.puts("Excon#mock is deprecated, pass Excon.defaults[:mock] instead (#{caller.first})")
       self.defaults[:mock]
     end
 
@@ -60,33 +60,33 @@ module Excon
     # false is the default and works as expected
     # true returns a value from stubs or raises
     def mock=(new_mock)
-      puts("Excon#mock is deprecated, pass Excon.defaults[:mock]= instead (#{caller.first})")
+      $stderr.puts("Excon#mock is deprecated, pass Excon.defaults[:mock]= instead (#{caller.first})")
       self.defaults[:mock] = new_mock
     end
 
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path
-      puts("Excon#ssl_ca_path is deprecated, use Excon.defaults[:ssl_ca_path] instead (#{caller.first})")
+      $stderr.puts("Excon#ssl_ca_path is deprecated, use Excon.defaults[:ssl_ca_path] instead (#{caller.first})")
       self.defaults[:ssl_ca_path]
     end
 
     # Change path to the SSL Certificate Authority
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path=(new_ssl_ca_path)
-      puts("Excon#ssl_ca_path= is deprecated, use Excon.defaults[:ssl_ca_path]= instead (#{caller.first})")
+      $stderr.puts("Excon#ssl_ca_path= is deprecated, use Excon.defaults[:ssl_ca_path]= instead (#{caller.first})")
       self.defaults[:ssl_ca_path] = new_ssl_ca_path
     end
 
     # @return [true, false] Whether or not to verify the peer's SSL certificate / chain
     def ssl_verify_peer
-      puts("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
+      $stderr.puts("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
       self.defaults[:ssl_verify_peer]
     end
 
     # Change the status of ssl peer verification
     # @see Excon#ssl_verify_peer (attr_reader)
     def ssl_verify_peer=(new_ssl_verify_peer)
-      puts("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
+      $stderr.puts("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
       self.defaults[:ssl_verify_peer] = new_ssl_verify_peer
     end
 
