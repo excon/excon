@@ -91,13 +91,9 @@ module Excon
 
     def check_nonblock_support
       # backwards compatability for things lacking nonblock
-      unless OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
-             OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
-             OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
-        unless params[:nonblock] == false
-          puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
-          params[:nonblock] = false
-        end
+      if !DEFAULT_NONBLOCK && params[:nonblock]
+        puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
+        params[:nonblock] = false
       end
     end
 
