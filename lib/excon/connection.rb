@@ -101,7 +101,7 @@ module Excon
         request_kernel(params)
       end
     rescue => request_error
-      if params[:idempotent] && [Excon::Errors::SocketError,
+      if params[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
         retries_remaining ||= params[:retry_limit]
         retries_remaining -= 1
