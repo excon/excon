@@ -148,6 +148,16 @@ Shindo.tests('Excon stubs') do
 
   Excon.stubs.clear
 
+  tests("stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})") do
+    Excon.stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})
+
+    tests("get(:expects => 200)") do
+      Excon.new("https://user:pass@foo.bar.com:9999/baz?quux=true", :mock => true).get(:expects => 200)
+    end
+  end
+
+  Excon.stubs.clear
+
   tests("stub({}, {:status => 404, :body => 'Not Found'}") do
 
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
