@@ -103,6 +103,20 @@ module Excon
     #   @param [Hash<Symbol, >] request params to match against, omitted params match all
     #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params, response_params = nil)
+      if url = request_params.delete(:url)
+        uri = URI.parse(url)
+        request_params.update(
+          :host              => uri.host,
+          :path              => uri.path,
+          :port              => uri.port.to_s,
+          :query             => uri.query,
+          :scheme            => uri.scheme
+        )
+        if uri.user || uri.password
+          request_params[:headers] ||= {}
+          request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
+        end
+      end
       if block_given?
         if response_params
           raise(ArgumentError.new("stub requires either response_params OR a block"))
