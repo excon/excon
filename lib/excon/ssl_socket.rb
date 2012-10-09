@@ -9,7 +9,6 @@ module Excon
 
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
-      ssl_context.ssl_version = 'SSLv3'
 
       if params[:ssl_verify_peer]
         # turn verification on
