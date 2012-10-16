@@ -34,9 +34,6 @@ module Excon
         ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@params[:client_key]))
       end
 
-      @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
-      @socket.sync_close = true
-
       if @proxy
         request = 'CONNECT ' << @params[:host_port] << Excon::HTTP_1_1
         request << 'Host: ' << @params[:host_port] << Excon::CR_NL
@@ -52,12 +49,11 @@ module Excon
 
         # write out the proxy setup request
         @socket.write(request)
-
-        # eat the proxy's connection response
-        Excon::Response.parse(@socket, {})
       end
 
-      # connect the new OpenSSL::SSL::SSLSocket
+      # convert Socket to OpenSSL::SSL::SSLSocket
+      @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
+      @socket.sync_close = true
       @socket.connect
 
       # Server Name Indication (SNI) RFC 3546
