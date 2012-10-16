@@ -78,7 +78,7 @@ module Excon
     def read(max_length=nil)
       return nil if @eof
       if @eof
-        nil
+        ''
       elsif @params[:nonblock]
         begin
           if max_length

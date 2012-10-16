@@ -32,4 +32,16 @@ Shindo.tests('Excon bad server interaction') do
 
   end
 
+  with_server('eof') do
+
+    tests('eof server: causes EOFError') do
+
+      tests('request').raises(Excon::Errors::SocketError) do
+        Excon.get('http://127.0.0.1:9292/eof')
+      end
+
+    end
+
+  end
+
 end
