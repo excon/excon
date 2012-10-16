@@ -46,6 +46,8 @@ module Excon
           request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
         end
 
+        request << 'Proxy-Connection: Keep-Alive' << Excon::CR_NL
+
         request << Excon::CR_NL
 
         # write out the proxy setup request
