@@ -38,8 +38,8 @@ module Excon
       @socket.sync_close = true
 
       if @proxy
-        request = 'CONNECT ' << @params[:host] << ':' << @params[:port] << Excon::HTTP_1_1
-        request << 'Host: ' << @params[:host] << ':' << @params[:port] << Excon::CR_NL
+        request = 'CONNECT ' << @params[:host_port] << Excon::HTTP_1_1
+        request << 'Host: ' << @params[:host_port] << Excon::CR_NL
 
         if @proxy[:password] || @proxy[:user]
           auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)

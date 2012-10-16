@@ -19,11 +19,12 @@ module Excon
     def initialize(url, params = {})
       uri = URI.parse(url)
       @connection = Excon.defaults.merge({
-        :host              => uri.host,
-        :path              => uri.path,
-        :port              => uri.port.to_s,
-        :query             => uri.query,
-        :scheme            => uri.scheme,
+        :host       => uri.host,
+        :host_port  => '' << uri.host << ':' << uri.port.to_s,
+        :path       => uri.path,
+        :port       => uri.port.to_s,
+        :query      => uri.query,
+        :scheme     => uri.scheme,
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @connection[:headers] = @connection[:headers].dup
@@ -56,7 +57,7 @@ module Excon
         @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @connection[:host] << ':' << @connection[:port].to_s
+      @socket_key = '' << @connection[:host_port]
       reset
     end
 
@@ -74,7 +75,7 @@ module Excon
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] ||= '' << params[:host] << ':' << params[:port]
+      params[:headers]['Host'] ||= '' << params[:host_port]
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
@@ -194,7 +195,7 @@ module Excon
           # start with "METHOD /path"
           request = params[:method].to_s.upcase << ' '
           if @proxy
-            request << params[:scheme] << '://' << params[:host] << ':' << params[:port]
+            request << params[:scheme] << '://' << params[:host_port]
           end
           request << params[:path]
 
@@ -375,11 +376,12 @@ module Excon
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
       {
-        :host     => uri.host,
-        :password => uri.password,
-        :port     => uri.port,
-        :scheme   => uri.scheme,
-        :user     => uri.user
+        :host       => uri.host,
+        :host_port  => '' << uri.host << ':' << uri.port.to_s,
+        :password   => uri.password,
+        :port       => uri.port,
+        :scheme     => uri.scheme,
+        :user       => uri.user
       }
     end
 
