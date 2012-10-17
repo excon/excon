@@ -74,6 +74,7 @@ module Excon
     def request(params, &block)
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
+      params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s,
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] ||= '' << params[:host_port]
 
