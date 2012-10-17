@@ -29,7 +29,7 @@ module Excon
 
   REDACTED = 'REDACTED'
 
-  VERSION = '0.16.6'
+  VERSION = '0.16.7'
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
