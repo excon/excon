@@ -66,7 +66,7 @@ Excon can also expect one or more HTTP status code in response, raising an excep
 
 If you need to accept as response one or more HTTP status codes you can declare them in an array:
 
-    connection.request(expects => [200, 201], :method => :get, :path => path, :query => {})
+    connection.request(:expects => [200, 201], :method => :get, :path => path, :query => {})
 
 Chunked Requests
 ----------------
