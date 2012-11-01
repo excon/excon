@@ -1,6 +1,16 @@
 module Excon
   class Connection
     attr_reader :connection, :proxy
+    VALID_CONNECTION_KEYS               = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme, :retry_limit]
+    VALID_CONNECTION_KEYS_ON_INITIALIZE = VALID_CONNECTION_KEYS + [:proxy, :instrumentor, :instrumentor_name]
+    VALID_CONNECTION_KEYS_ON_REQUEST    = VALID_CONNECTION_KEYS + [:method, :idempotent]
+
+    def assert_valid_keys_for_argument!(argument, valid_keys)
+      invalid_keys = argument.keys - valid_keys
+      return true if invalid_keys.empty?
+      raise ArgumentError, "The following keys are invalid #{invalid_keys.map(&:inspect).join(', ')}"
+    end
+    private :assert_valid_keys_for_argument!
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -19,6 +29,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS_ON_INITIALIZE)
       uri = URI.parse(url)
       @connection = Excon.defaults.merge({
         :host       => uri.host,
@@ -90,6 +101,7 @@ module Excon
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     def request(params, &block)
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS_ON_REQUEST)
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
