@@ -7,6 +7,8 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
+    #     @option params [String] :user Convenience parameter for setting the user in the Authorization header
+    #     @option params [String] :password Convenience parameter for setting the password in the Authorization header
     #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
     #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
@@ -25,8 +27,8 @@ module Excon
         :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
-        :user       => URI.decode(uri.user),
-        :password   => URI.decode(uri.password),
+        :user       => (URI.decode(uri.user) if uri.user),
+        :password   => (URI.decode(uri.password) if uri.password),
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @connection[:headers] = @connection[:headers].dup
@@ -53,8 +55,10 @@ module Excon
         @connection[:instrumentor] = Excon::StandardInstrumentor
       end
 
-      # Use Basic Auth if url contains a login
-      update_authorization_header
+      # Use Basic Auth if login details were provided in url or params, provided no Authorization header is already set
+      unless @connection[:headers]['Authorization']
+        set_authorization_header *@connection.values_at(:user, :password)
+      end
 
       @socket_key = '' << @connection[:host_port]
       reset
@@ -65,31 +69,11 @@ module Excon
       'Basic ' << ['' << user.to_s << ':' << password.to_s].pack('m').delete(Excon::CR_NL)
     end
 
-    def update_authorization_header(force = false)
-      return if @connection[:headers]['Authorization'] unless force
-      if auth = encode_value_for_authorization_header(*@connection.values_at(:user, :password))
-        @connection[:headers]['Authorization'] = auth
-      else
-        @connection[:headers].delete 'Authorization'
-      end
-    end
-
-    def user= user
-      @connection[:user] = user
-      update_authorization_header(:force)
-    end
-
-    def password= password
-      @connection[:password] = password
-      update_authorization_header(:force)
-    end
-
-    def user
-      @connection[:user]
-    end
-
-    def password
-      @connection[:password]
+    # Sets/updates the Authorization header.
+    #   @param [String] :user The username
+    #   @param [String] :password The password
+    def set_authorization_header(user, password = nil)
+      @connection[:headers]['Authorization'] = encode_value_for_authorization_header(user, password)
     end
 
     # Sends the supplied request to the destination host.
