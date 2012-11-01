@@ -25,6 +25,8 @@ module Excon
         :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
+        :user       => uri.user,
+        :password   => uri.password,
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @connection[:headers] = @connection[:headers].dup
@@ -42,9 +44,8 @@ module Excon
       if @proxy
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @connection[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
-          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+        if @connection[:scheme] == 'http' && (auth = encode_value_for_authorization_header(*@proxy.values_at(:user, :password)))
+          @connection[:headers]['Proxy-Authorization'] = auth
         end
       end
 
@@ -53,12 +54,42 @@ module Excon
       end
 
       # Use Basic Auth if url contains a login
-      if uri.user || uri.password
-        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
-      end
+      update_authorization_header
 
       @socket_key = '' << @connection[:host_port]
       reset
+    end
+
+    def encode_value_for_authorization_header(user, password)
+      return unless user || password
+      'Basic ' << ['' << user.to_s << ':' << password.to_s].pack('m').delete(Excon::CR_NL)
+    end
+
+    def update_authorization_header(force = false)
+      return if @connection[:headers]['Authorization'] unless force
+      if auth = encode_value_for_authorization_header(*@connection.values_at(:user, :password))
+        @connection[:headers]['Authorization'] = auth
+      else
+        @connection[:headers].delete 'Authorization'
+      end
+    end
+
+    def user= user
+      @connection[:user] = user
+      update_authorization_header(:force)
+    end
+
+    def password= password
+      @connection[:password] = password
+      update_authorization_header(:force)
+    end
+
+    def user
+      @connection[:user]
+    end
+
+    def password
+      @connection[:password]
     end
 
     # Sends the supplied request to the destination host.
