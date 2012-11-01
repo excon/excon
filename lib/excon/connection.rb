@@ -8,7 +8,7 @@ module Excon
     def assert_valid_keys_for_argument!(argument, valid_keys)
       invalid_keys = argument.keys - valid_keys
       return true if invalid_keys.empty?
-      raise ArgumentError, "The following keys are invalid #{invalid_keys.map(&:inspect).join(', ')}"
+      raise ArgumentError, "The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}"
     end
     private :assert_valid_keys_for_argument!
 
