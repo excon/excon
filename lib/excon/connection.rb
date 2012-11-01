@@ -25,8 +25,8 @@ module Excon
         :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
-        :user       => uri.user,
-        :password   => uri.password,
+        :user       => URI.decode(uri.user),
+        :password   => URI.decode(uri.password),
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @connection[:headers] = @connection[:headers].dup
