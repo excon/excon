@@ -72,7 +72,7 @@ module Excon
     # Sets/updates the Authorization header.
     #   @param [String] :user The username
     #   @param [String] :password The password
-    def set_authorization_header(user, password = nil)
+    def set_authorization_header(user, password)
       @connection[:headers]['Authorization'] = encode_value_for_authorization_header(user, password)
     end
 
