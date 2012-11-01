@@ -86,6 +86,7 @@ module Excon
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     def request(params, &block)
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
