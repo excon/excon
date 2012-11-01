@@ -81,6 +81,8 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
     #     @option params [String] :body text to be sent over a socket
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
+    #     @option params [String] :user Convenience parameter for setting the user in the Authorization header
+    #     @option params [String] :password Convenience parameter for setting the password in the Authorization header
     #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
@@ -93,6 +95,7 @@ module Excon
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] ||= '' << params[:host_port]
+      params[:headers]['Authorization'] ||= encode_value_for_authorization_header(*params.values_at(:user, :password))
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
