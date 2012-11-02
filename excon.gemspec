@@ -55,6 +55,7 @@ Gem::Specification.new do |s|
   # s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
   s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
+  s.add_development_dependency('eventmachine')
   s.add_development_dependency('open4')
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
