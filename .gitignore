@@ -6,6 +6,5 @@
 .rvmrc
 coverage
 doc
-Gemfile.lock
 rdoc
 pkg
