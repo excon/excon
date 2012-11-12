@@ -1,3 +1,11 @@
+0.16.8 11/12/2012
+=================
+
+set file body pos to 0 at beginning of request
+add eventmachine to dev dependencies for bad server tests
+comment out benchmark deps for now
+fix typo in readme
+
 0.16.7 10/17/2012
 =================
 
