@@ -108,9 +108,6 @@ module Excon
         retries_remaining ||= params[:retry_limit]
         retries_remaining -= 1
         if retries_remaining > 0
-          if params[:body].respond_to?(:pos=)
-            params[:body].pos = 0
-          end
           retry
         else
           if params.has_key?(:instrumentor)
@@ -264,6 +261,9 @@ module Excon
             else
               if params[:body].respond_to?(:binmode)
                 params[:body].binmode
+              end
+              if params[:body].respond_to?(:pos=)
+                params[:body].pos = 0
               end
               while chunk = params[:body].read(params[:chunk_size])
                 socket.write(chunk)
