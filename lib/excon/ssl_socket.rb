@@ -49,6 +49,9 @@ module Excon
 
         # write out the proxy setup request
         @socket.write(request)
+
+        # eat the proxy's connection response
+        Excon::Response.parse(@socket, {})
       end
 
       # convert Socket to OpenSSL::SSL::SSLSocket
