@@ -66,7 +66,12 @@ module Excon
               remaining -= params[:chunk_size]
             end
           else
-            response.body << socket.read
+	    begin
+	      while true
+                response.body << socket.read_nonblock(1024)
+	      end
+	    rescue IO::WaitReadable
+	    end
           end
         end
       end
