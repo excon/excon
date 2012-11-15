@@ -154,6 +154,14 @@ For example, if using RSpec for your test suite you can clear stubs after runnin
       Excon.stubs.clear
     end
 
+You can also modify Excon defaults through the `defaults` accessor on `Excon`. Meaning in your test suite you can simply add the following in your test suite to block Excon from making any 'real' calls:
+
+```ruby
+   before(:all) { Excon.defaults[:mock] = true }
+```
+
+For additional information on stubbing, read the pull request notes [here](https://github.com/geemus/excon/issues/29)
+
 HTTPS/SSL Issues
 ----------------
 
