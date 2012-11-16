@@ -1,3 +1,9 @@
+0.16.10 11/16/2012
+==================
+
+set default request_params for stub
+do not attempt to read body for CONNECT requests
+
 0.16.9 11/16/2012
 =================
 
