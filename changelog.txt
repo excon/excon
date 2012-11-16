@@ -1,3 +1,9 @@
+0.16.9 11/16/2012
+=================
+
+readme cleanup/clarification around stubs
+fix for reading response from ssl proxy
+
 0.16.8 11/12/2012
 =================
 
