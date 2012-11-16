@@ -21,6 +21,8 @@ module Excon
 
     class ProxyParseError < Error; end
 
+    class ProxyConnectionError < Error; end
+
     class StubNotFound < Error; end
 
     class HTTPStatusError < Error

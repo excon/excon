@@ -31,7 +31,7 @@ module Excon
         end
       end
 
-      unless (params[:method].to_s.casecmp('HEAD') == 0) || NO_ENTITY.include?(response.status)
+      unless (['HEAD', 'CONNECT'].include?(params[:method].to_s.upcase) || NO_ENTITY.include?(response.status)
 
         # check to see if expects was set and matched
         expected_status = !params.has_key?(:expects) || [*params[:expects]].include?(response.status)
