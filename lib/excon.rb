@@ -102,7 +102,7 @@ module Excon
     # push an additional stub onto the list to check for mock requests
     #   @param [Hash<Symbol, >] request params to match against, omitted params match all
     #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
-    def stub(request_params, response_params = nil)
+    def stub(request_params = {}, response_params = nil)
       if url = request_params.delete(:url)
         uri = URI.parse(url)
         request_params.update(
