@@ -30,26 +30,16 @@ module Excon
       @connection[:headers] = @connection[:headers].dup
 
       @proxy = nil
+      noproxy = ENV['no_proxy'] || ENV['NO_PROXY']
 
       if @connection[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
+        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'], noproxy)
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-        @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
+        @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'], noproxy)
       elsif (ENV.has_key?('all_proxy') || ENV.has_key?('ALL_PROXY'))
-        @proxy = setup_proxy(ENV['all_proxy'] || ENV['ALL_PROXY'])
+        @proxy = setup_proxy(ENV['all_proxy'] || ENV['ALL_PROXY'], noproxy)
       elsif @connection.has_key?(:proxy)
-        @proxy = setup_proxy(@connection[:proxy])
-      end
-
-      if ENV.has_key?('no_proxy') || ENV.has_key?('NO_PROXY')
-        patterns = (ENV['no_proxy'] || ENV['NO_PROXY'])
-        if patterns == '*'
-          @proxy = nil
-        else
-          for pattern in patterns.split(',')
-            @proxy = nil if @connection[:host].end_with?(pattern)
-          end
-        end
+        @proxy = setup_proxy(@connection[:proxy], noproxy)
       end
 
       if @proxy
@@ -384,11 +374,22 @@ module Excon
       Thread.current[:_excon_sockets] ||= {}
     end
 
-    def setup_proxy(proxy)
+    def setup_proxy(proxy, noproxy=nil)
       uri = URI.parse(proxy)
       unless uri.host and uri.port and uri.scheme
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
+
+      if String === noproxy
+        if noproxy == '*'
+          return nil
+        else
+          for pattern in noproxy.split(',')
+            return nil if uri.host.end_with?(pattern)
+          end
+        end
+      end
+
       {
         :host       => uri.host,
         :host_port  => '' << uri.host << ':' << uri.port.to_s,
@@ -398,6 +399,5 @@ module Excon
         :user       => uri.user
       }
     end
-
   end
 end
