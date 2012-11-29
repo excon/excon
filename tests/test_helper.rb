@@ -8,7 +8,7 @@ require 'stringio'
 def basic_tests(url = 'http://127.0.0.1:9292')
   values = [false, true]
   if defined?(JRUBY_VERSION) && JRUBY_VERSION == '1.7.0' && VERSION > '1.9'
-    versions = [false]
+    values = [false]
   end
 
   values.each do |nonblock|
