@@ -11,7 +11,9 @@ module Excon
     CHUNK_SIZE = DEFAULT_CHUNK_SIZE
   end
 
-  DEFAULT_NONBLOCK = OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
+  # jruby 1.9 mode has nonblock method issues until 1.7.0.
+  DEFAULT_NONBLOCK = (!defined?(JRUBY_VERSION) || JRUBY_VERSION > '1.7.0' || VERSION < '1.9') &&
+    OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
     OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
     OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
 
