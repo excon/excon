@@ -30,16 +30,15 @@ module Excon
       @connection[:headers] = @connection[:headers].dup
 
       @proxy = nil
-      noproxy = ENV['no_proxy'] || ENV['NO_PROXY']
 
       if @connection[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'], noproxy)
+        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-        @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'], noproxy)
+        @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
       elsif (ENV.has_key?('all_proxy') || ENV.has_key?('ALL_PROXY'))
-        @proxy = setup_proxy(ENV['all_proxy'] || ENV['ALL_PROXY'], noproxy)
+        @proxy = setup_proxy(ENV['all_proxy'] || ENV['ALL_PROXY'])
       elsif @connection.has_key?(:proxy)
-        @proxy = setup_proxy(@connection[:proxy], noproxy)
+        @proxy = setup_proxy(@connection[:proxy])
       end
 
       if @proxy
@@ -374,12 +373,13 @@ module Excon
       Thread.current[:_excon_sockets] ||= {}
     end
 
-    def setup_proxy(proxy, noproxy=nil)
+    def setup_proxy(proxy)
       uri = URI.parse(proxy)
       unless uri.host and uri.port and uri.scheme
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
 
+      noproxy = ENV['no_proxy'] || ENV['NO_PROXY']
       if String === noproxy
         if noproxy == '*'
           return nil
