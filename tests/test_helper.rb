@@ -6,12 +6,8 @@ Bundler.require(:default, :development)
 require 'stringio'
 
 def basic_tests(url = 'http://127.0.0.1:9292')
-  values = [false, true]
-  if defined?(JRUBY_VERSION) && JRUBY_VERSION == '1.7.0' && VERSION > '1.9'
-    values = [false]
-  end
+  [false, true].each do |nonblock|
 
-  values.each do |nonblock|
     connection = Excon.new(url, :nonblock => nonblock, :ssl_verify_peer => false)
 
     tests("nonblock => #{nonblock}") do
