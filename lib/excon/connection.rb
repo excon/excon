@@ -385,7 +385,7 @@ module Excon
           return nil
         else
           for pattern in noproxy.split(',')
-            return nil if uri.host.end_with?(pattern)
+            return nil if @connection[:host].end_with?(pattern)
           end
         end
       end
