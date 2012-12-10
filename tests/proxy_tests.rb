@@ -1,7 +1,15 @@
 Shindo.tests('Excon proxy support') do
 
   tests('proxy configuration') do
-
+    ENV.delete('http_proxy')
+    ENV.delete('https_proxy')
+    ENV.delete('all_proxy')
+    ENV.delete('no_proxy')
+    ENV.delete('HTTP_PROXY')
+    ENV.delete('HTTPS_PROXY')
+    ENV.delete('ALL_PROXY')
+    ENV.delete('NO_PROXY')
+  
     tests('no proxy') do
       connection = Excon.new('http://foo.com')
 
@@ -151,6 +159,76 @@ Shindo.tests('Excon proxy support') do
       end
 
       ENV.delete('http_proxy')
+    end
+
+    tests('with only all_proxy config from the environment') do
+      ENV['all_proxy'] = 'http://myallproxy:8082'
+
+      tests('an http connection') do
+        connection = Excon.new('http://foo.com')
+
+        tests('connection.proxy.host').returns('myallproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8082) do
+          connection.proxy[:port]
+        end
+
+        tests('connection.proxy.scheme').returns('http') do
+          connection.proxy[:scheme]
+        end
+      end
+
+      tests('an https connection') do
+        connection = Excon.new('https://secret.com')
+
+        tests('connection.proxy.host').returns('myallproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8082) do
+          connection.proxy[:port]
+        end
+
+        tests('connection.proxy.scheme').returns('http') do
+          connection.proxy[:scheme]
+        end
+      end
+
+      ENV.delete('all_proxy')
+    end
+
+    tests('with both http_proxy and no_proxy config from the environment') do
+      ENV['http_proxy'] = 'http://myproxy:8080'
+      ENV['no_proxy'] = '.info,.foo.com'
+
+      tests('an http connection with proxy') do
+        connection = Excon.new('http://foo.com')
+
+        tests('connection.proxy.host').returns('myproxy') do
+          connection.proxy[:host]
+        end
+
+        tests('connection.proxy.port').returns(8080) do
+          connection.proxy[:port]
+        end
+
+        tests('connection.proxy.scheme').returns('http') do
+          connection.proxy[:scheme]
+        end
+      end
+
+      tests('an http connection with no proxy') do
+        connection = Excon.new('http://foo.info')
+
+        tests('connection.proxy').returns(nil) do
+          connection.proxy
+        end
+      end
+
+      ENV.delete('http_proxy')
+      ENV.delete('no_proxy')
     end
 
   end
