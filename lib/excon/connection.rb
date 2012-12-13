@@ -1,13 +1,10 @@
 module Excon
   class Connection
     attr_reader :connection, :proxy
-    VALID_CONNECTION_KEYS               = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme,
-                                           :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
-                                           :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
-                                           :exception, :expects, :mock]
-    VALID_CONNECTION_KEYS_ON_INITIALIZE = VALID_CONNECTION_KEYS + [:proxy]
-    VALID_CONNECTION_KEYS_ON_REQUEST    = VALID_CONNECTION_KEYS + [:method, :idempotent, :request_block, :response_block]
-
+    VALID_CONNECTION_KEYS = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme,
+                             :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
+                             :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
+                             :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block]
 
     def assert_valid_keys_for_argument!(argument, valid_keys)
       invalid_keys = argument.keys - valid_keys
@@ -33,7 +30,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
-      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS_ON_INITIALIZE)
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       uri = URI.parse(url)
       @connection = Excon.defaults.merge({
         :host       => uri.host,
@@ -105,7 +102,7 @@ module Excon
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     def request(params, &block)
-      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS_ON_REQUEST)
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
