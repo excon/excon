@@ -84,8 +84,11 @@ module Excon
     # Sets/updates the Authorization header.
     #   @param [String] :user The username
     #   @param [String] :password The password
-    def set_authorization_header(user, password)
-      @connection[:headers]['Authorization'] = encode_value_for_authorization_header(user, password)
+    #   @param [String] :in_hash The headers hash where to set the Authorization; defaults to @connection[:headers]
+    def set_authorization_header(user, password, in_hash = @connection[:headers])
+      in_hash['Authorization'] = encode_value_for_authorization_header(user, password)
+      in_hash.delete('Authorization') if in_hash['Authorization'].nil?
+      in_hash['Authorization']
     end
 
     # Sends the supplied request to the destination host.
@@ -108,7 +111,7 @@ module Excon
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] ||= '' << params[:host_port]
-      params[:headers]['Authorization'] ||= encode_value_for_authorization_header(*params.values_at(:user, :password))
+      set_authorization_header(*params.values_at(:user, :password, :headers))
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
