@@ -1,9 +1,13 @@
 module Excon
   class Connection
     attr_reader :connection, :proxy
-    VALID_CONNECTION_KEYS               = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme, :retry_limit]
-    VALID_CONNECTION_KEYS_ON_INITIALIZE = VALID_CONNECTION_KEYS + [:proxy, :instrumentor, :instrumentor_name]
-    VALID_CONNECTION_KEYS_ON_REQUEST    = VALID_CONNECTION_KEYS + [:method, :idempotent]
+    VALID_CONNECTION_KEYS               = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme,
+                                           :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
+                                           :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
+                                           :exception, :expects, :mock]
+    VALID_CONNECTION_KEYS_ON_INITIALIZE = VALID_CONNECTION_KEYS + [:proxy]
+    VALID_CONNECTION_KEYS_ON_REQUEST    = VALID_CONNECTION_KEYS + [:method, :idempotent, :request_block, :response_block]
+
 
     def assert_valid_keys_for_argument!(argument, valid_keys)
       invalid_keys = argument.keys - valid_keys
