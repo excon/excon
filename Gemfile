@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gemspec
 
-gem 'jruby-openssl', :platform => :jruby
+gem 'jruby-openssl', '0.7.4', :platform => :jruby
 
 # group :benchmark do
 #   gem 'em-http-request'
