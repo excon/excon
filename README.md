@@ -5,6 +5,7 @@ Http(s) EXtended CONnections
 
 [![Build Status](https://secure.travis-ci.org/geemus/excon.png)](http://travis-ci.org/geemus/excon)
 [![Dependency Status](https://gemnasium.com/geemus/excon.png)](https://gemnasium.com/geemus/excon)
+[![Gem Version](https://fury-badge.herokuapp.com/rb/excon.png)](http://badge.fury.io/rb/excon)
 
 Getting Started
 ---------------
