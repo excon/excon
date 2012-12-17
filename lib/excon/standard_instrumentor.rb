@@ -6,7 +6,7 @@ module Excon
         params[:headers] = params[:headers].dup
         params[:headers]['Authorization'] = REDACTED
       end
-      $stderr.puts("#{name}  #{params}")
+      $stderr.puts("#{name}  #{params.inspect}")
       if block_given?
         yield
       end
