@@ -207,7 +207,7 @@ module Excon
               if values.nil?
                 request << key.to_s << '&'
               else
-                [*values].each do |value|
+                [values].flatten.each do |value|
                   request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
                 end
               end
@@ -228,7 +228,7 @@ module Excon
 
           # add headers to request
           params[:headers].each do |key, values|
-            [*values].each do |value|
+            [values].flatten.each do |value|
               request << key.to_s << ': ' << value.to_s << CR_NL
             end
           end
