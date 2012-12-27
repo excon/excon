@@ -1,12 +1,25 @@
 module Excon
   class Connection
     attr_reader :connection, :proxy
+    VALID_CONNECTION_KEYS = [:body, :headers, :user, :password, :host, :host_port, :path, :port, :query, :scheme,
+                             :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
+                             :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
+                             :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block]
+
+    def assert_valid_keys_for_argument!(argument, valid_keys)
+      invalid_keys = argument.keys - valid_keys
+      return true if invalid_keys.empty?
+      raise ArgumentError, "The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}"
+    end
+    private :assert_valid_keys_for_argument!
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
+    #     @option params [String] :user Convenience parameter for setting the user in the Authorization header
+    #     @option params [String] :password Convenience parameter for setting the password in the Authorization header
     #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
     #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
@@ -17,6 +30,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       uri = URI.parse(url)
       @connection = Excon.defaults.merge({
         :host       => uri.host,
@@ -25,6 +39,8 @@ module Excon
         :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
+        :user       => (URI.decode(uri.user) if uri.user),
+        :password   => (URI.decode(uri.password) if uri.password),
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @connection[:headers] = @connection[:headers].dup
@@ -42,9 +58,8 @@ module Excon
       if @proxy
         @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @connection[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
-          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+        if @connection[:scheme] == 'http' && (auth = encode_value_for_authorization_header(*@proxy.values_at(:user, :password)))
+          @connection[:headers]['Proxy-Authorization'] = auth
         end
       end
 
@@ -52,13 +67,28 @@ module Excon
         @connection[:instrumentor] = Excon::StandardInstrumentor
       end
 
-      # Use Basic Auth if url contains a login
-      if uri.user || uri.password
-        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
+      # Use Basic Auth if login details were provided in url or params, provided no Authorization header is already set
+      unless @connection[:headers]['Authorization']
+        set_authorization_header *@connection.values_at(:user, :password)
       end
 
       @socket_key = '' << @connection[:host_port]
       reset
+    end
+
+    def encode_value_for_authorization_header(user, password)
+      return unless user || password
+      'Basic ' << ['' << user.to_s << ':' << password.to_s].pack('m').delete(Excon::CR_NL)
+    end
+
+    # Sets/updates the Authorization header.
+    #   @param [String] :user The username
+    #   @param [String] :password The password
+    #   @param [String] :in_hash The headers hash where to set the Authorization; defaults to @connection[:headers]
+    def set_authorization_header(user, password, in_hash = @connection[:headers])
+      in_hash['Authorization'] = encode_value_for_authorization_header(user, password)
+      in_hash.delete('Authorization') if in_hash['Authorization'].nil?
+      in_hash['Authorization']
     end
 
     # Sends the supplied request to the destination host.
@@ -66,17 +96,22 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
     #     @option params [String] :body text to be sent over a socket
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
+    #     @option params [String] :user Convenience parameter for setting the user in the Authorization header
+    #     @option params [String] :password Convenience parameter for setting the password in the Authorization header
     #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     def request(params, &block)
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       # connection has defaults, merge in new params to override
       params = @connection.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] ||= '' << params[:host_port]
+      set_authorization_header(*params.values_at(:user, :password, :headers))
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
