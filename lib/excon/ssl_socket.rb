@@ -18,11 +18,6 @@ module Excon
           ssl_context.ca_path = params[:ssl_ca_path]
         elsif params[:ssl_ca_file]
           ssl_context.ca_file = params[:ssl_ca_file]
-        else
-          # use default cert store
-          store = OpenSSL::X509::Store.new
-          store.set_default_paths
-          ssl_context.cert_store = store
         end
       else
         # turn verification off
