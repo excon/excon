@@ -35,6 +35,8 @@ module Excon
         @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
         @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
+      elsif (ENV.has_key?('all_proxy') || ENV.has_key?('ALL_PROXY'))
+        @proxy = setup_proxy(ENV['all_proxy'] || ENV['ALL_PROXY'])
       elsif @connection.has_key?(:proxy)
         @proxy = setup_proxy(@connection[:proxy])
       end
@@ -376,6 +378,18 @@ module Excon
       unless uri.host and uri.port and uri.scheme
         raise Excon::Errors::ProxyParseError, "Proxy is invalid"
       end
+
+      noproxy = ENV['no_proxy'] || ENV['NO_PROXY']
+      if String === noproxy
+        if noproxy == '*'
+          return nil
+        else
+          for pattern in noproxy.split(',')
+            return nil if @connection[:host].end_with?(pattern)
+          end
+        end
+      end
+
       {
         :host       => uri.host,
         :host_port  => '' << uri.host << ':' << uri.port.to_s,
@@ -385,6 +399,5 @@ module Excon
         :user       => uri.user
       }
     end
-
   end
 end
