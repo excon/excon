@@ -43,6 +43,10 @@ def basic_tests(url = 'http://127.0.0.1:9292')
           response.headers['Custom']
         end
 
+        tests("response.remote_ip").returns("127.0.0.1") do
+          response.remote_ip
+        end
+
         tests("response.body").returns('x' * 100) do
           response.body
         end
