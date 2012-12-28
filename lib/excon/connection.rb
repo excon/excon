@@ -88,6 +88,14 @@ module Excon
         params[:response_block] = Proc.new
       end
 
+      unless params[:mock]
+        begin
+          params[:remote_ip] = socket.remote_ip
+        rescue
+          # best effort
+        end
+      end
+
       if params.has_key?(:instrumentor)
         if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
           event_name = "#{params[:instrumentor_name]}.retry"

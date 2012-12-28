@@ -4,6 +4,7 @@ module Excon
     extend Forwardable
 
     attr_accessor :params
+    attr_reader :remote_ip
 
     def_delegators(:@socket, :close,    :close)
     def_delegators(:@socket, :readline, :readline)
@@ -27,6 +28,8 @@ module Excon
       end
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
+        @remote_ip = ip
+
         # nonblocking connect
         begin
           sockaddr = ::Socket.sockaddr_in(port, ip)

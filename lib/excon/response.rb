@@ -1,24 +1,26 @@
 module Excon
   class Response
 
-    attr_accessor :body, :headers, :status
+    attr_accessor :body, :headers, :status, :remote_ip
 
     def attributes
       {
-        :body     => body,
-        :headers  => headers,
-        :status   => status
+        :body      => body,
+        :headers   => headers,
+        :status    => status,
+        :remote_ip => remote_ip
       }
     end
 
     def initialize(attrs={})
-      @body    = attrs[:body]    || ''
-      @headers = attrs[:headers] || {}
-      @status  = attrs[:status]
+      @body      = attrs[:body]    || ''
+      @headers   = attrs[:headers] || {}
+      @status    = attrs[:status]
+      @remote_ip = attrs[:remote_ip]
     end
 
     def self.parse(socket, params={})
-      response = new(:status => socket.read(12)[9, 11].to_i)
+      response = new(:status => socket.read(12)[9, 11].to_i, :remote_ip => socket.remote_ip)
       socket.readline # read the rest of the status line and CRLF
 
       until ((data = socket.readline).chop!).empty?
