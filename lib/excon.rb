@@ -19,6 +19,7 @@ module Excon
         :chunk_size         => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
         :connect_timeout    => 60,
         :headers            => {},
+        :idempotent         => false,
         :instrumentor_name  => 'excon',
         :mock               => false,
         :nonblock           => DEFAULT_NONBLOCK,

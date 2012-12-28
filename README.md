@@ -58,8 +58,20 @@ Both one-off and persistent connections support many other options. Here are a f
     # this request can be repeated safely, so retry on errors up to 3 times
     connection.request(:idempotent => true)
 
+    # this request can be repeated safely, retry up to 6 times
+    connection.request(:idempotent => true, :retry_limit => 6)
+
     # opt out of nonblocking operations for performance and/or as a workaround
     connection.request(:nonblock => false)
+
+    # set longer connect_timeout (default is 60 seconds)
+    connection.request(:connect_timeout => 360)
+
+    # set longer read_timeout (default is 60 seconds)
+    connection.request(:read_timeout => 360)
+
+    # set longer write_timeout (default is 60 seconds)
+    connection.request(:write_timeout => 360)
 
 These options can be combined to make pretty much any request you might need.
 
