@@ -76,7 +76,8 @@ module Excon
       params = @connection.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
       params[:headers] = @connection[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] ||= '' << params[:host_port]
+      params[:headers]['Host'] = '' << params[:host_port]
+      params[:retries_remaining] ||= params[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
       unless params[:path][0, 1] == '/'
@@ -89,7 +90,7 @@ module Excon
       end
 
       if params.has_key?(:instrumentor)
-        if (retries_remaining ||= params[:retry_limit]) < params[:retry_limit]
+        if params[:retries_remaining] < params[:retry_limit]
           event_name = "#{params[:instrumentor_name]}.retry"
         else
           event_name = "#{params[:instrumentor_name]}.request"
@@ -105,9 +106,8 @@ module Excon
     rescue => request_error
       if params[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        retries_remaining ||= params[:retry_limit]
-        retries_remaining -= 1
-        if retries_remaining > 0
+        params[:retries_remaining] -= 1
+        if params[:retries_remaining] > 0
           retry
         else
           if params.has_key?(:instrumentor)
