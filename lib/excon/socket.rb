@@ -14,6 +14,9 @@ module Excon
       @read_buffer = ''
       @eof = false
 
+      @params[:family] ||= ::Socket::Constants::AF_UNSPEC
+      @proxy[:family]  ||= ::Socket::Constants::AF_UNSPEC if @proxy
+
       connect
     end
 
@@ -22,9 +25,9 @@ module Excon
       exception = nil
 
       addrinfo = if @proxy
-        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port].to_i, ::Socket::Constants::AF_UNSPEC, ::Socket::Constants::SOCK_STREAM)
+        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port].to_i, @proxy[:family], ::Socket::Constants::SOCK_STREAM)
       else
-        ::Socket.getaddrinfo(@params[:host], @params[:port].to_i, ::Socket::Constants::AF_UNSPEC, ::Socket::Constants::SOCK_STREAM)
+        ::Socket.getaddrinfo(@params[:host], @params[:port].to_i, @params[:family], ::Socket::Constants::SOCK_STREAM)
       end
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
@@ -80,9 +83,7 @@ module Excon
 
     def read(max_length=nil)
       return nil if @eof
-      if @eof
-        ''
-      elsif @params[:nonblock]
+      if @params[:nonblock]
         begin
           if max_length
             until @read_buffer.length >= max_length
