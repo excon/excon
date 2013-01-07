@@ -80,9 +80,7 @@ module Excon
 
     def read(max_length=nil)
       return nil if @eof
-      if @eof
-        ''
-      elsif @params[:nonblock]
+      if @params[:nonblock]
         begin
           if max_length
             until @read_buffer.length >= max_length
