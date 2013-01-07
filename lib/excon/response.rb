@@ -3,7 +3,7 @@ module Excon
 
     attr_accessor :body, :headers, :status, :remote_ip
 
-    def attributes
+    def params
       {
         :body      => body,
         :headers   => headers,
@@ -12,11 +12,11 @@ module Excon
       }
     end
 
-    def initialize(attrs={})
-      @body      = attrs[:body]    || ''
-      @headers   = attrs[:headers] || {}
-      @status    = attrs[:status]
-      @remote_ip = attrs[:remote_ip]
+    def initialize(params={})
+      @body      = params[:body]    || ''
+      @headers   = params[:headers] || {}
+      @status    = params[:status]
+      @remote_ip = params[:remote_ip]
     end
 
     def self.parse(socket, params={})

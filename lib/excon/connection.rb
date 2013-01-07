@@ -1,6 +1,6 @@
 module Excon
   class Connection
-    attr_reader :connection, :proxy
+    attr_reader :params, :proxy
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -18,7 +18,7 @@ module Excon
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
       uri = URI.parse(url)
-      @connection = Excon.defaults.merge({
+      @params = Excon.defaults.merge({
         :host       => uri.host,
         :host_port  => '' << uri.host << ':' << uri.port.to_s,
         :path       => uri.path,
@@ -27,37 +27,37 @@ module Excon
         :scheme     => uri.scheme,
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
-      @connection[:headers] = @connection[:headers].dup
+      @params[:headers] = @params[:headers].dup
 
       @proxy = nil
 
-      if @connection[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+      if @params[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
         @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
         @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-      elsif @connection.has_key?(:proxy)
-        @proxy = setup_proxy(@connection[:proxy])
+      elsif @params.has_key?(:proxy)
+        @proxy = setup_proxy(@params[:proxy])
       end
 
       if @proxy
-        @connection[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+        @params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @connection[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
+        if @params[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
           auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          @connection[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+          @params[:headers]['Proxy-Authorization'] = 'Basic ' << auth
         end
       end
 
       if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
-        @connection[:instrumentor] = Excon::StandardInstrumentor
+        @params[:instrumentor] = Excon::StandardInstrumentor
       end
 
       # Use Basic Auth if url contains a login
       if uri.user || uri.password
-        @connection[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
+        @params[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @connection[:host_port]
+      @socket_key = '' << @params[:host_port]
       reset
     end
 
@@ -72,10 +72,10 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
-      # connection has defaults, merge in new params to override
-      params = @connection.merge(params)
+      # @params has defaults, merge in new params to override
+      params = @params.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
-      params[:headers] = @connection[:headers].merge(params[:headers] || {})
+      params[:headers] = @params[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] = '' << params[:host_port]
       params[:retries_remaining] ||= params[:retry_limit]
 
@@ -98,7 +98,7 @@ module Excon
         response = params[:instrumentor].instrument(event_name, params) do
           request_kernel(params)
         end
-        params[:instrumentor].instrument("#{params[:instrumentor_name]}.response", response.attributes)
+        params[:instrumentor].instrument("#{params[:instrumentor_name]}.response", response.params)
         response
       else
         request_kernel(params)
@@ -138,22 +138,22 @@ module Excon
 
     def retry_limit=(new_retry_limit)
       $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @connection[:retry_limit] = new_retry_limit
+      @params[:retry_limit] = new_retry_limit
     end
 
     def retry_limit
       $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @connection[:retry_limit] ||= DEFAULT_RETRY_LIMIT
+      @params[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
     def inspect
       vars = instance_variables.inject({}) do |accum, var|
         accum.merge!(var.to_sym => instance_variable_get(var))
       end
-      if vars[:'@connection'][:headers].has_key?('Authorization')
-        vars[:'@connection'] = vars[:'@connection'].dup
-        vars[:'@connection'][:headers] = vars[:'@connection'][:headers].dup
-        vars[:'@connection'][:headers]['Authorization'] = REDACTED
+      if vars[:'@params'][:headers].has_key?('Authorization')
+        vars[:'@params'] = vars[:'@params'].dup
+        vars[:'@params'][:headers] = vars[:'@params'][:headers].dup
+        vars[:'@params'][:headers]['Authorization'] = REDACTED
       end
       inspection = '#<Excon::Connection:'
       inspection << (object_id << 1).to_s(16)
@@ -333,17 +333,17 @@ module Excon
           end
         end
         if headers_match && non_headers_match
-          response_attributes = case response
+          response_params = case response
           when Proc
             response.call(params)
           else
             response
           end
 
-          if params[:expects] && ![*params[:expects]].include?(response_attributes[:status])
+          if params[:expects] && ![*params[:expects]].include?(response_params[:status])
             # don't pass stuff into a block if there was an error
-          elsif params.has_key?(:response_block) && response_attributes.has_key?(:body)
-            body = response_attributes.delete(:body)
+          elsif params.has_key?(:response_block) && response_params.has_key?(:body)
+            body = response_params.delete(:body)
             content_length = remaining = body.bytesize
             i = 0
             while i < body.length
@@ -352,7 +352,7 @@ module Excon
               i += params[:chunk_size]
             end
           end
-          return Excon::Response.new(response_attributes)
+          return Excon::Response.new(response_params)
         end
       end
       # if we reach here no stubs matched
@@ -360,10 +360,10 @@ module Excon
     end
 
     def socket
-      sockets[@socket_key] ||= if @connection[:scheme] == HTTPS
-        Excon::SSLSocket.new(@connection, @proxy)
+      sockets[@socket_key] ||= if @params[:scheme] == HTTPS
+        Excon::SSLSocket.new(@params, @proxy)
       else
-        Excon::Socket.new(@connection, @proxy)
+        Excon::Socket.new(@params, @proxy)
       end
     end
 

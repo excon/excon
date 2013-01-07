@@ -12,7 +12,7 @@ with_rackup('basic_auth.ru') do
       end
 
       test("authorization header remains correct for #{desc}") do
-        conn.connection[:headers]['Authorization'] == auth_header
+        conn.params[:headers]['Authorization'] == auth_header
       end
 
     end

@@ -185,7 +185,7 @@ Shindo.tests('Excon instrumentation') do
       end
 
       test('does not mutate Authorization value') do
-        @connection.connection[:headers]['Authorization'] == @auth_header
+        @connection.params[:headers]['Authorization'] == @auth_header
       end
 
     end
