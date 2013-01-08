@@ -15,7 +15,9 @@ module Excon
       @eof = false
 
       @params[:family] ||= ::Socket::Constants::AF_UNSPEC
-      @proxy[:family]  ||= ::Socket::Constants::AF_UNSPEC if @proxy
+      if @proxy
+        @proxy[:family]  ||= ::Socket::Constants::AF_UNSPEC
+      end
 
       connect
     end
@@ -82,8 +84,9 @@ module Excon
     end
 
     def read(max_length=nil)
-      return nil if @eof
-      if @params[:nonblock]
+      if @eof
+        return nil
+      elsif @params[:nonblock]
         begin
           if max_length
             until @read_buffer.length >= max_length
