@@ -1,6 +1,16 @@
 module Excon
   class Connection
-    attr_reader :params, :proxy
+
+    attr_reader :data, :proxy
+
+    def params
+      $stderr.puts("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
+      @data
+    end
+    def params=(new_params)
+      $stderr.puts("Excon::Connection#params= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      @data = new_params
+    end
 
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
@@ -18,7 +28,7 @@ module Excon
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
       uri = URI.parse(url)
-      @params = Excon.defaults.merge({
+      @data = Excon.defaults.merge({
         :host       => uri.host,
         :host_port  => '' << uri.host << ':' << uri.port.to_s,
         :path       => uri.path,
@@ -27,37 +37,37 @@ module Excon
         :scheme     => uri.scheme,
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
-      @params[:headers] = @params[:headers].dup
+      @data[:headers] = @data[:headers].dup
 
       @proxy = nil
 
-      if @params[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+      if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
         @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
         @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-      elsif @params.has_key?(:proxy)
-        @proxy = setup_proxy(@params[:proxy])
+      elsif @data.has_key?(:proxy)
+        @proxy = setup_proxy(@data[:proxy])
       end
 
       if @proxy
-        @params[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+        @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @params[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
+        if @data[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
           auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
-          @params[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+          @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
         end
       end
 
       if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
-        @params[:instrumentor] = Excon::StandardInstrumentor
+        @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
       # Use Basic Auth if url contains a login
       if uri.user || uri.password
-        @params[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
+        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @params[:host_port]
+      @socket_key = '' << @data[:host_port]
       reset
     end
 
@@ -73,9 +83,9 @@ module Excon
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
       # @params has defaults, merge in new params to override
-      params = @params.merge(params)
+      params = @data.merge(params)
       params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
-      params[:headers] = @params[:headers].merge(params[:headers] || {})
+      params[:headers] = @data[:headers].merge(params[:headers] || {})
       params[:headers]['Host'] = '' << params[:host_port]
       params[:retries_remaining] ||= params[:retry_limit]
 
@@ -138,22 +148,22 @@ module Excon
 
     def retry_limit=(new_retry_limit)
       $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @params[:retry_limit] = new_retry_limit
+      @data[:retry_limit] = new_retry_limit
     end
 
     def retry_limit
       $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @params[:retry_limit] ||= DEFAULT_RETRY_LIMIT
+      @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
     def inspect
       vars = instance_variables.inject({}) do |accum, var|
         accum.merge!(var.to_sym => instance_variable_get(var))
       end
-      if vars[:'@params'][:headers].has_key?('Authorization')
-        vars[:'@params'] = vars[:'@params'].dup
-        vars[:'@params'][:headers] = vars[:'@params'][:headers].dup
-        vars[:'@params'][:headers]['Authorization'] = REDACTED
+      if vars[:'@data'][:headers].has_key?('Authorization')
+        vars[:'@data'] = vars[:'@data'].dup
+        vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
+        vars[:'@data'][:headers]['Authorization'] = REDACTED
       end
       inspection = '#<Excon::Connection:'
       inspection << (object_id << 1).to_s(16)
@@ -360,10 +370,10 @@ module Excon
     end
 
     def socket
-      sockets[@socket_key] ||= if @params[:scheme] == HTTPS
-        Excon::SSLSocket.new(@params, @proxy)
+      sockets[@socket_key] ||= if @data[:scheme] == HTTPS
+        Excon::SSLSocket.new(@data, @proxy)
       else
-        Excon::Socket.new(@params, @proxy)
+        Excon::Socket.new(@data, @proxy)
       end
     end
 
