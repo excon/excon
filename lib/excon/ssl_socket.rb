@@ -1,8 +1,8 @@
 module Excon
   class SSLSocket < Socket
 
-    def initialize(params = {}, proxy = nil)
-      @params, @proxy = params, proxy
+    def initialize(params = {})
+      @params = params
       check_nonblock_support
 
       super
@@ -29,12 +29,12 @@ module Excon
         ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@params[:client_key]))
       end
 
-      if @proxy
+      if @params[:proxy]
         request = 'CONNECT ' << @params[:host_port] << Excon::HTTP_1_1
         request << 'Host: ' << @params[:host_port] << Excon::CR_NL
 
-        if @proxy[:password] || @proxy[:user]
-          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
+        if @params[:proxy][:password] || @params[:proxy][:user]
+          auth = ['' << @params[:proxy][:user].to_s << ':' << @params[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
           request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
         end
 

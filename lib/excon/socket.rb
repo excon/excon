@@ -9,14 +9,14 @@ module Excon
     def_delegators(:@socket, :close,    :close)
     def_delegators(:@socket, :readline, :readline)
 
-    def initialize(params = {}, proxy = nil)
-      @params, @proxy = params, proxy
+    def initialize(params = {})
+      @params = params
       @read_buffer = ''
       @eof = false
 
       @params[:family] ||= ::Socket::Constants::AF_UNSPEC
-      if @proxy
-        @proxy[:family]  ||= ::Socket::Constants::AF_UNSPEC
+      if @params[:proxy]
+        @params[:proxy][:family]  ||= ::Socket::Constants::AF_UNSPEC
       end
 
       connect
@@ -26,8 +26,8 @@ module Excon
       @socket = nil
       exception = nil
 
-      addrinfo = if @proxy
-        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port], @proxy[:family], ::Socket::Constants::SOCK_STREAM)
+      addrinfo = if @params[:proxy]
+        ::Socket.getaddrinfo(@params[:proxy][:host], @params[:proxy][:port], @params[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
       else
         ::Socket.getaddrinfo(@params[:host], @params[:port], @params[:family], ::Socket::Constants::SOCK_STREAM)
       end

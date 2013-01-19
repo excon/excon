@@ -5,24 +5,24 @@ Shindo.tests('Excon proxy support') do
     tests('no proxy') do
       connection = Excon.new('http://foo.com')
 
-      tests('connection.proxy').returns(nil) do
-        connection.proxy
+      tests('connection.data[:proxy]').returns(nil) do
+        connection.data[:proxy]
       end
     end
 
     tests('with fully-specified proxy: https://myproxy.net:8080') do
       connection = Excon.new('http://foo.com', :proxy => 'https://myproxy.net:8080')
 
-      tests('connection.proxy.host').returns('myproxy.net') do
-        connection.proxy[:host]
+      tests('connection.data[:proxy][:host]').returns('myproxy.net') do
+        connection.data[:proxy][:host]
       end
 
-      tests('connection.proxy.port').returns(8080) do
-        connection.proxy[:port]
+      tests('connection.data[:proxy][:port]').returns(8080) do
+        connection.data[:proxy][:port]
       end
 
-      tests('connection.proxy.scheme').returns('https') do
-        connection.proxy[:scheme]
+      tests('connection.data[:proxy][:scheme]').returns('https') do
+        connection.data[:proxy][:scheme]
       end
     end
 
@@ -33,44 +33,44 @@ Shindo.tests('Excon proxy support') do
       tests('an http connection') do
         connection = Excon.new('http://foo.com')
 
-        tests('connection.proxy.host').returns('myproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8080) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8080) do
+          connection.data[:proxy][:port]
         end
 
-        tests('connection.proxy.scheme').returns('http') do
-          connection.proxy[:scheme]
+        tests('connection.data[:proxy][:scheme]').returns('http') do
+          connection.data[:proxy][:scheme]
         end
       end
 
       tests('an https connection') do
         connection = Excon.new('https://secret.com')
 
-        tests('connection.proxy.host').returns('mysecureproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('mysecureproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8081) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8081) do
+          connection.data[:proxy][:port]
         end
 
-        tests('connection.proxy.scheme').returns('http') do
-          connection.proxy[:scheme]
+        tests('connection.data[:proxy][:scheme]').returns('http') do
+          connection.data[:proxy][:scheme]
         end
       end
 
       tests('http proxy from the environment overrides config') do
         connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
 
-        tests('connection.proxy.host').returns('myproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8080) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8080) do
+          connection.data[:proxy][:port]
         end
       end
 
@@ -85,44 +85,44 @@ Shindo.tests('Excon proxy support') do
       tests('an http connection') do
         connection = Excon.new('http://foo.com')
 
-        tests('connection.proxy.host').returns('myproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8080) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8080) do
+          connection.data[:proxy][:port]
         end
 
-        tests('connection.proxy.scheme').returns('http') do
-          connection.proxy[:scheme]
+        tests('connection.data[:proxy][:scheme]').returns('http') do
+          connection.data[:proxy][:scheme]
         end
       end
 
       tests('an https connection') do
         connection = Excon.new('https://secret.com')
 
-        tests('connection.proxy.host').returns('mysecureproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('mysecureproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8081) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8081) do
+          connection.data[:proxy][:port]
         end
 
-        tests('connection.proxy.scheme').returns('http') do
-          connection.proxy[:scheme]
+        tests('connection.data[:proxy][:scheme]').returns('http') do
+          connection.data[:proxy][:scheme]
         end
       end
 
       tests('http proxy from the environment overrides config') do
         connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
 
-        tests('connection.proxy.host').returns('myproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8080) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8080) do
+          connection.data[:proxy][:port]
         end
       end
 
@@ -137,16 +137,16 @@ Shindo.tests('Excon proxy support') do
       tests('an https connection') do
         connection = Excon.new('https://secret.com')
 
-        tests('connection.proxy.host').returns('myproxy') do
-          connection.proxy[:host]
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
         end
 
-        tests('connection.proxy.port').returns(8080) do
-          connection.proxy[:port]
+        tests('connection.data[:proxy][:port]').returns(8080) do
+          connection.data[:proxy][:port]
         end
 
-        tests('connection.proxy.scheme').returns('http') do
-          connection.proxy[:scheme]
+        tests('connection.data[:proxy][:scheme]').returns('http') do
+          connection.data[:proxy][:scheme]
         end
       end
 

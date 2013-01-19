@@ -1,7 +1,7 @@
 module Excon
   class Connection
 
-    attr_reader :data, :proxy
+    attr_reader :data
 
     def params
       $stderr.puts("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
@@ -10,6 +10,15 @@ module Excon
     def params=(new_params)
       $stderr.puts("Excon::Connection#params= is deprecated use Excon::Connection#data= instead (#{caller.first})")
       @data = new_params
+    end
+
+    def proxy
+      $stderr.puts("Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead (#{caller.first})")
+      @data[:proxy]
+    end
+    def proxy=(new_proxy)
+      $stderr.puts("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})")
+      @data[:proxy] = new_proxy
     end
 
     # Initializes a new Connection instance
@@ -39,21 +48,19 @@ module Excon
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
 
-      @proxy = nil
-
       if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-        @proxy = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
+        @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
       elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-        @proxy = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
+        @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
       elsif @data.has_key?(:proxy)
-        @proxy = setup_proxy(@data[:proxy])
+        @data[:proxy] = setup_proxy(@data[:proxy])
       end
 
-      if @proxy
+      if @data[:proxy]
         @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @data[:scheme] == 'http' && (@proxy[:user] || @proxy[:password])
-          auth = ['' << @proxy[:user].to_s << ':' << @proxy[:password].to_s].pack('m').delete(Excon::CR_NL)
+        if @data[:scheme] == 'http' && (@data[:proxy][:user] || @data[:proxy][:password])
+          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
           @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
         end
       end
@@ -202,7 +209,7 @@ module Excon
           socket.params = params
           # start with "METHOD /path"
           request = params[:method].to_s.upcase << ' '
-          if @proxy
+          if @data[:proxy]
             request << params[:scheme] << '://' << params[:host_port]
           end
           request << params[:path]
@@ -371,9 +378,9 @@ module Excon
 
     def socket
       sockets[@socket_key] ||= if @data[:scheme] == HTTPS
-        Excon::SSLSocket.new(@data, @proxy)
+        Excon::SSLSocket.new(@data)
       else
-        Excon::Socket.new(@data, @proxy)
+        Excon::Socket.new(@data)
       end
     end
 
@@ -382,18 +389,23 @@ module Excon
     end
 
     def setup_proxy(proxy)
-      uri = URI.parse(proxy)
-      unless uri.host and uri.port and uri.scheme
-        raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+      case proxy
+      when String
+        uri = URI.parse(proxy)
+        unless uri.host and uri.port and uri.scheme
+          raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+        end
+        {
+          :host       => uri.host,
+          :host_port  => '' << uri.host << ':' << uri.port.to_s,
+          :password   => uri.password,
+          :port       => uri.port,
+          :scheme     => uri.scheme,
+          :user       => uri.user
+        }
+      else
+        proxy
       end
-      {
-        :host       => uri.host,
-        :host_port  => '' << uri.host << ':' << uri.port.to_s,
-        :password   => uri.password,
-        :port       => uri.port,
-        :scheme     => uri.scheme,
-        :user       => uri.user
-      }
     end
 
   end
