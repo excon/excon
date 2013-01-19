@@ -89,52 +89,52 @@ module Excon
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params, &block)
-      # @params has defaults, merge in new params to override
-      params = @data.merge(params)
-      params[:host_port]  = '' << params[:host] << ':' << params[:port].to_s
-      params[:headers] = @data[:headers].merge(params[:headers] || {})
-      params[:headers]['Host'] = '' << params[:host_port]
-      params[:retries_remaining] ||= params[:retry_limit]
+      # @data has defaults, merge in new params to override
+      datum = @data.merge(params)
+      datum[:host_port]  = '' << datum[:host] << ':' << datum[:port].to_s
+      datum[:headers] = @data[:headers].merge(datum[:headers] || {})
+      datum[:headers]['Host'] = '' << datum[:host_port]
+      datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
-      unless params[:path][0, 1] == '/'
-        params[:path].insert(0, '/')
+      unless datum[:path][0, 1] == '/'
+        datum[:path].insert(0, '/')
       end
 
       if block_given?
         $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
-        params[:response_block] = Proc.new
+        datum[:response_block] = Proc.new
       end
 
-      if params.has_key?(:instrumentor)
-        if params[:retries_remaining] < params[:retry_limit]
-          event_name = "#{params[:instrumentor_name]}.retry"
+      if datum.has_key?(:instrumentor)
+        if datum[:retries_remaining] < datum[:retry_limit]
+          event_name = "#{datum[:instrumentor_name]}.retry"
         else
-          event_name = "#{params[:instrumentor_name]}.request"
+          event_name = "#{datum[:instrumentor_name]}.request"
         end
-        response = params[:instrumentor].instrument(event_name, params) do
-          request_kernel(params)
+        response = datum[:instrumentor].instrument(event_name, datum) do
+          request_kernel(datum)
         end
-        params[:instrumentor].instrument("#{params[:instrumentor_name]}.response", response.params)
+        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.params)
         response
       else
-        request_kernel(params)
+        request_kernel(datum)
       end
     rescue => request_error
-      if params[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
+      if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        params[:retries_remaining] -= 1
-        if params[:retries_remaining] > 0
-          retry
+        datum[:retries_remaining] -= 1
+        if datum[:retries_remaining] > 0
+          request(datum, &block)
         else
-          if params.has_key?(:instrumentor)
-            params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
+          if datum.has_key?(:instrumentor)
+            datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
           end
           raise(request_error)
         end
       else
-        if params.has_key?(:instrumentor)
-          params[:instrumentor].instrument("#{params[:instrumentor_name]}.error", :error => request_error)
+        if datum.has_key?(:instrumentor)
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
         end
         raise(request_error)
       end
