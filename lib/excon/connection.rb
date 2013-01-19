@@ -115,7 +115,7 @@ module Excon
         response = datum[:instrumentor].instrument(event_name, datum) do
           request_kernel(datum)
         end
-        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.params)
+        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.data)
         response
       else
         request_kernel(datum)
@@ -201,26 +201,26 @@ module Excon
       end
     end
 
-    def request_kernel(params)
+    def request_kernel(datum)
       begin
-        response = if params[:mock]
-          invoke_stub(params)
+        response = if datum[:mock]
+          invoke_stub(datum)
         else
-          socket.data = params
+          socket.data = datum
           # start with "METHOD /path"
-          request = params[:method].to_s.upcase << ' '
+          request = datum[:method].to_s.upcase << ' '
           if @data[:proxy]
-            request << params[:scheme] << '://' << params[:host_port]
+            request << datum[:scheme] << '://' << datum[:host_port]
           end
-          request << params[:path]
+          request << datum[:path]
 
           # add query to path, if there is one
-          case params[:query]
+          case datum[:query]
           when String
-            request << '?' << params[:query]
+            request << '?' << datum[:query]
           when Hash
             request << '?'
-            params[:query].each do |key, values|
+            datum[:query].each do |key, values|
               if values.nil?
                 request << key.to_s << '&'
               else
@@ -235,16 +235,16 @@ module Excon
           # finish first line with "HTTP/1.1\r\n"
           request << HTTP_1_1
 
-          if params.has_key?(:request_block)
-            params[:headers]['Transfer-Encoding'] = 'chunked'
-          elsif ! (params[:method].to_s.casecmp('GET') == 0 && params[:body].nil?)
+          if datum.has_key?(:request_block)
+            datum[:headers]['Transfer-Encoding'] = 'chunked'
+          elsif ! (datum[:method].to_s.casecmp('GET') == 0 && datum[:body].nil?)
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            params[:headers]['Content-Length'] = detect_content_length(params[:body])
+            datum[:headers]['Content-Length'] = detect_content_length(datum[:body])
           end
 
           # add headers to request
-          params[:headers].each do |key, values|
+          datum[:headers].each do |key, values|
             [values].flatten.each do |value|
               request << key.to_s << ': ' << value.to_s << CR_NL
             end
@@ -257,9 +257,9 @@ module Excon
           socket.write(request)
 
           # write out the body
-          if params.has_key?(:request_block)
+          if datum.has_key?(:request_block)
             while true
-              chunk = params[:request_block].call
+              chunk = datum[:request_block].call
               if FORCE_ENC
                 chunk.force_encoding('BINARY')
               end
@@ -270,26 +270,26 @@ module Excon
                 break
               end
             end
-          elsif !params[:body].nil?
-            if params[:body].is_a?(String)
-              unless params[:body].empty?
-                socket.write(params[:body])
+          elsif !datum[:body].nil?
+            if datum[:body].is_a?(String)
+              unless datum[:body].empty?
+                socket.write(datum[:body])
               end
             else
-              if params[:body].respond_to?(:binmode)
-                params[:body].binmode
+              if datum[:body].respond_to?(:binmode)
+                datum[:body].binmode
               end
-              if params[:body].respond_to?(:pos=)
-                params[:body].pos = 0
+              if datum[:body].respond_to?(:pos=)
+                datum[:body].pos = 0
               end
-              while chunk = params[:body].read(params[:chunk_size])
+              while chunk = datum[:body].read(datum[:chunk_size])
                 socket.write(chunk)
               end
             end
           end
 
           # read the response
-          response = Excon::Response.parse(socket, params)
+          response = Excon::Response.parse(socket, datum)
 
           if response.headers['Connection'] == 'close'
             reset
@@ -304,76 +304,76 @@ module Excon
         raise(Excon::Errors::SocketError.new(socket_error))
       end
 
-      if params.has_key?(:expects) && ![*params[:expects]].include?(response.status)
+      if datum.has_key?(:expects) && ![*datum[:expects]].include?(response.status)
         reset
-        raise(Excon::Errors.status_error(params, response))
+        raise(Excon::Errors.status_error(datum, response))
       else
         response
       end
     end
 
-    def invoke_stub(params)
+    def invoke_stub(datum)
 
       # convert File/Tempfile body to string before matching:
-      unless params[:body].nil? || params[:body].is_a?(String)
-       if params[:body].respond_to?(:binmode)
-         params[:body].binmode
+      unless datum[:body].nil? || datum[:body].is_a?(String)
+       if datum[:body].respond_to?(:binmode)
+         datum[:body].binmode
        end
-       if params[:body].respond_to?(:rewind)
-         params[:body].rewind
+       if datum[:body].respond_to?(:rewind)
+         datum[:body].rewind
        end
-       params[:body] = params[:body].read
+       datum[:body] = datum[:body].read
       end
 
-      params[:captures] = {:headers => {}} # setup data to hold captures
+      datum[:captures] = {:headers => {}} # setup data to hold captures
       Excon.stubs.each do |stub, response|
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
-            if match = value.match(params[:headers][key])
-              params[:captures][:headers][key] = match.captures
+            if match = value.match(datum[:headers][key])
+              datum[:captures][:headers][key] = match.captures
             end
             match
           else
-            value == params[:headers][key]
+            value == datum[:headers][key]
           end
         end
         non_headers_match = (stub.keys - [:headers]).all? do |key|
           case value = stub[key]
           when Regexp
-            if match = value.match(params[key])
-              params[:captures][key] = match.captures
+            if match = value.match(datum[key])
+              datum[:captures][key] = match.captures
             end
             match
           else
-            value == params[key]
+            value == datum[key]
           end
         end
         if headers_match && non_headers_match
           response_params = case response
           when Proc
-            response.call(params)
+            response.call(datum)
           else
             response
           end
 
-          if params[:expects] && ![*params[:expects]].include?(response_params[:status])
+          if datum[:expects] && ![*datum[:expects]].include?(response_params[:status])
             # don't pass stuff into a block if there was an error
-          elsif params.has_key?(:response_block) && response_params.has_key?(:body)
+          elsif datum.has_key?(:response_block) && response_params.has_key?(:body)
             body = response_params.delete(:body)
             content_length = remaining = body.bytesize
             i = 0
             while i < body.length
-              params[:response_block].call(body[i, params[:chunk_size]], [remaining - params[:chunk_size], 0].max, content_length)
-              remaining -= params[:chunk_size]
-              i += params[:chunk_size]
+              datum[:response_block].call(body[i, datum[:chunk_size]], [remaining - datum[:chunk_size], 0].max, content_length)
+              remaining -= datum[:chunk_size]
+              i += datum[:chunk_size]
             end
           end
           return Excon::Response.new(response_params)
         end
       end
       # if we reach here no stubs matched
-      raise(Excon::Errors::StubNotFound.new('no stubs matched ' << params.inspect))
+      raise(Excon::Errors::StubNotFound.new('no stubs matched ' << datum.inspect))
     end
 
     def socket
