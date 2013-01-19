@@ -27,9 +27,9 @@ module Excon
       exception = nil
 
       addrinfo = if @proxy
-        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port].to_i, @proxy[:family], ::Socket::Constants::SOCK_STREAM)
+        ::Socket.getaddrinfo(@proxy[:host], @proxy[:port], @proxy[:family], ::Socket::Constants::SOCK_STREAM)
       else
-        ::Socket.getaddrinfo(@params[:host], @params[:port].to_i, @params[:family], ::Socket::Constants::SOCK_STREAM)
+        ::Socket.getaddrinfo(@params[:host], @params[:port], @params[:family], ::Socket::Constants::SOCK_STREAM)
       end
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|

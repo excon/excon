@@ -32,7 +32,7 @@ module Excon
         :host       => uri.host,
         :host_port  => '' << uri.host << ':' << uri.port.to_s,
         :path       => uri.path,
-        :port       => uri.port.to_s,
+        :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
       }).merge!(params)
