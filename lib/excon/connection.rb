@@ -206,7 +206,7 @@ module Excon
         response = if params[:mock]
           invoke_stub(params)
         else
-          socket.params = params
+          socket.data = params
           # start with "METHOD /path"
           request = params[:method].to_s.upcase << ' '
           if @data[:proxy]

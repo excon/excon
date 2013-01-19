@@ -3,20 +3,30 @@ module Excon
 
     extend Forwardable
 
-    attr_accessor :params
+    attr_accessor :data
+
+    def params
+      $stderr.puts("Excon::Socket#params is deprecated use Excon::Socket#data instead (#{caller.first})")
+      @data
+    end
+    def params=(new_params)
+      $stderr.puts("Excon::Socket#params= is deprecated use Excon::Socket#data= instead (#{caller.first})")
+      @data = new_params
+    end
+
     attr_reader :remote_ip
 
     def_delegators(:@socket, :close,    :close)
     def_delegators(:@socket, :readline, :readline)
 
-    def initialize(params = {})
-      @params = params
+    def initialize(data = {})
+      @data = data
       @read_buffer = ''
       @eof = false
 
-      @params[:family] ||= ::Socket::Constants::AF_UNSPEC
-      if @params[:proxy]
-        @params[:proxy][:family]  ||= ::Socket::Constants::AF_UNSPEC
+      @data[:family] ||= ::Socket::Constants::AF_UNSPEC
+      if @data[:proxy]
+        @data[:proxy][:family]  ||= ::Socket::Constants::AF_UNSPEC
       end
 
       connect
@@ -26,10 +36,10 @@ module Excon
       @socket = nil
       exception = nil
 
-      addrinfo = if @params[:proxy]
-        ::Socket.getaddrinfo(@params[:proxy][:host], @params[:proxy][:port], @params[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
+      addrinfo = if @data[:proxy]
+        ::Socket.getaddrinfo(@data[:proxy][:host], @data[:proxy][:port], @data[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
       else
-        ::Socket.getaddrinfo(@params[:host], @params[:port], @params[:family], ::Socket::Constants::SOCK_STREAM)
+        ::Socket.getaddrinfo(@data[:host], @data[:port], @data[:family], ::Socket::Constants::SOCK_STREAM)
       end
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
@@ -41,11 +51,11 @@ module Excon
 
           socket = ::Socket.new(a_family, s_type, 0)
 
-          if @params[:nonblock]
+          if @data[:nonblock]
             socket.connect_nonblock(sockaddr)
           else
             begin
-              Timeout.timeout(@params[:connect_timeout]) do
+              Timeout.timeout(@data[:connect_timeout]) do
                 socket.connect(sockaddr)
               end
             rescue Timeout::Error
@@ -56,7 +66,7 @@ module Excon
           @socket = socket
           break
         rescue Errno::EINPROGRESS
-          unless IO.select(nil, [socket], nil, @params[:connect_timeout])
+          unless IO.select(nil, [socket], nil, @data[:connect_timeout])
             raise(Excon::Errors::Timeout.new("connect timeout reached"))
           end
           begin
@@ -86,7 +96,7 @@ module Excon
     def read(max_length=nil)
       if @eof
         return nil
-      elsif @params[:nonblock]
+      elsif @data[:nonblock]
         begin
           if max_length
             until @read_buffer.length >= max_length
@@ -94,12 +104,12 @@ module Excon
             end
           else
             while true
-              @read_buffer << @socket.read_nonblock(@params[:chunk_size])
+              @read_buffer << @socket.read_nonblock(@data[:chunk_size])
             end
           end
         rescue OpenSSL::SSL::SSLError => error
           if error.message == 'read would block'
-            if IO.select([@socket], nil, nil, @params[:read_timeout])
+            if IO.select([@socket], nil, nil, @data[:read_timeout])
               retry
             else
               raise(Excon::Errors::Timeout.new("read timeout reached"))
@@ -108,7 +118,7 @@ module Excon
             raise(error)
           end
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-          if IO.select([@socket], nil, nil, @params[:read_timeout])
+          if IO.select([@socket], nil, nil, @data[:read_timeout])
             retry
           else
             raise(Excon::Errors::Timeout.new("read timeout reached"))
@@ -124,7 +134,7 @@ module Excon
         end
       else
         begin
-          Timeout.timeout(@params[:read_timeout]) do
+          Timeout.timeout(@data[:read_timeout]) do
             @socket.read(max_length)
           end
         rescue Timeout::Error
@@ -134,7 +144,7 @@ module Excon
     end
 
     def write(data)
-      if @params[:nonblock]
+      if @data[:nonblock]
         # We normally return from the return in the else block below, but
         # we guard that data is still something in case we get weird
         # values and String#[] returns nil. (This behavior has been observed
@@ -146,7 +156,7 @@ module Excon
             written = @socket.write_nonblock(data)
           rescue OpenSSL::SSL::SSLError => error
             if error.message == 'write would block'
-              if IO.select(nil, [@socket], nil, @params[:write_timeout])
+              if IO.select(nil, [@socket], nil, @data[:write_timeout])
                 retry
               else
                 raise(Excon::Errors::Timeout.new("write timeout reached"))
@@ -155,7 +165,7 @@ module Excon
               raise(error)
             end
           rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
-            if IO.select(nil, [@socket], nil, @params[:write_timeout])
+            if IO.select(nil, [@socket], nil, @data[:write_timeout])
               retry
             else
               raise(Excon::Errors::Timeout.new("write timeout reached"))
@@ -179,7 +189,7 @@ module Excon
         end
       else
         begin
-          Timeout.timeout(@params[:write_timeout]) do
+          Timeout.timeout(@data[:write_timeout]) do
             @socket.write(data)
           end
         rescue Timeout::Error

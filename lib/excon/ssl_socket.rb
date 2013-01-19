@@ -1,8 +1,8 @@
 module Excon
   class SSLSocket < Socket
 
-    def initialize(params = {})
-      @params = params
+    def initialize(data = {})
+      @data = data
       check_nonblock_support
 
       super
@@ -10,31 +10,31 @@ module Excon
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
 
-      if params[:ssl_verify_peer]
+      if @data[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if params[:ssl_ca_path]
-          ssl_context.ca_path = params[:ssl_ca_path]
-        elsif params[:ssl_ca_file]
-          ssl_context.ca_file = params[:ssl_ca_file]
+        if @data[:ssl_ca_path]
+          ssl_context.ca_path = @data[:ssl_ca_path]
+        elsif @data[:ssl_ca_file]
+          ssl_context.ca_file = @data[:ssl_ca_file]
         end
       else
         # turn verification off
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
-      if @params.has_key?(:client_cert) && @params.has_key?(:client_key)
-        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@params[:client_cert]))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@params[:client_key]))
+      if @data.has_key?(:client_cert) && @data.has_key?(:client_key)
+        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@data[:client_cert]))
+        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@data[:client_key]))
       end
 
-      if @params[:proxy]
-        request = 'CONNECT ' << @params[:host_port] << Excon::HTTP_1_1
-        request << 'Host: ' << @params[:host_port] << Excon::CR_NL
+      if @data[:proxy]
+        request = 'CONNECT ' << @data[:host_port] << Excon::HTTP_1_1
+        request << 'Host: ' << @data[:host_port] << Excon::CR_NL
 
-        if @params[:proxy][:password] || @params[:proxy][:user]
-          auth = ['' << @params[:proxy][:user].to_s << ':' << @params[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
+        if @data[:proxy][:password] || @data[:proxy][:user]
+          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
           request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
         end
 
@@ -56,12 +56,12 @@ module Excon
 
       # Server Name Indication (SNI) RFC 3546
       if @socket.respond_to?(:hostname=)
-        @socket.hostname = @params[:host]
+        @socket.hostname = @data[:host]
       end
 
       # verify connection
-      if params[:ssl_verify_peer]
-        @socket.post_connection_check(@params[:host])
+      if @data[:ssl_verify_peer]
+        @socket.post_connection_check(@data[:host])
       end
 
       @socket
@@ -86,9 +86,9 @@ module Excon
 
     def check_nonblock_support
       # backwards compatability for things lacking nonblock
-      if !DEFAULT_NONBLOCK && params[:nonblock]
+      if !DEFAULT_NONBLOCK && @data[:nonblock]
         $stderr.puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
-        params[:nonblock] = false
+        @data[:nonblock] = false
       end
     end
 
