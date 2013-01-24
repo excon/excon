@@ -37,9 +37,11 @@ module Excon
       exception = nil
 
       addrinfo = if @data[:proxy]
-        ::Socket.getaddrinfo(@data[:proxy][:host], @data[:proxy][:port], @data[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
+        host = Resolv.getaddress @data[:proxy][:host]
+        ::Socket.getaddrinfo(host, @data[:proxy][:port], @data[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
       else
-        ::Socket.getaddrinfo(@data[:host], @data[:port], @data[:family], ::Socket::Constants::SOCK_STREAM)
+        host = Resolv.getaddress @data[:host]
+        ::Socket.getaddrinfo(host, @data[:port], @data[:family], ::Socket::Constants::SOCK_STREAM)
       end
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
