@@ -78,130 +78,7 @@ module Excon
       reset
     end
 
-    # Sends the supplied request to the destination host.
-    #   @yield [chunk] @see Response#self.parse
-    #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
-    #     @option params [String] :body text to be sent over a socket
-    #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
-    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
-    #     @option params [String] :path appears after 'scheme://host:port/'
-    #     @option params [Fixnum] :port The port on which to connect, to the destination host
-    #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
-    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
-    def request(params, &block)
-      # @data has defaults, merge in new params to override
-      datum = @data.merge(params)
-      datum[:host_port]  = '' << datum[:host] << ':' << datum[:port].to_s
-      datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host'] = '' << datum[:host_port]
-      datum[:retries_remaining] ||= datum[:retry_limit]
-
-      # if path is empty or doesn't start with '/', insert one
-      unless datum[:path][0, 1] == '/'
-        datum[:path].insert(0, '/')
-      end
-
-      if block_given?
-        $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
-        datum[:response_block] = Proc.new
-      end
-
-      if datum.has_key?(:instrumentor)
-        if datum[:retries_remaining] < datum[:retry_limit]
-          event_name = "#{datum[:instrumentor_name]}.retry"
-        else
-          event_name = "#{datum[:instrumentor_name]}.request"
-        end
-        response = datum[:instrumentor].instrument(event_name, datum) do
-          request_kernel(datum)
-        end
-        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.data)
-        response
-      else
-        request_kernel(datum)
-      end
-    rescue => request_error
-      if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
-          Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
-        datum[:retries_remaining] -= 1
-        if datum[:retries_remaining] > 0
-          request(datum, &block)
-        else
-          if datum.has_key?(:instrumentor)
-            datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
-          end
-          raise(request_error)
-        end
-      else
-        if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
-        end
-        raise(request_error)
-      end
-    end
-
-    def reset
-      (old_socket = sockets.delete(@socket_key)) && old_socket.close
-    end
-
-    # Generate HTTP request verb methods
-    Excon::HTTP_VERBS.each do |method|
-      class_eval <<-DEF, __FILE__, __LINE__ + 1
-        def #{method}(params={}, &block)
-          request(params.merge!(:method => :#{method}), &block)
-        end
-      DEF
-    end
-
-    def retry_limit=(new_retry_limit)
-      $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @data[:retry_limit] = new_retry_limit
-    end
-
-    def retry_limit
-      $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
-      @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
-    end
-
-    def inspect
-      vars = instance_variables.inject({}) do |accum, var|
-        accum.merge!(var.to_sym => instance_variable_get(var))
-      end
-      if vars[:'@data'][:headers].has_key?('Authorization')
-        vars[:'@data'] = vars[:'@data'].dup
-        vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
-        vars[:'@data'][:headers]['Authorization'] = REDACTED
-      end
-      inspection = '#<Excon::Connection:'
-      inspection << (object_id << 1).to_s(16)
-      vars.each do |key, value|
-        inspection << ' ' << key.to_s << '=' << value.inspect
-      end
-      inspection << '>'
-      inspection
-    end
-
-    private
-
-    def detect_content_length(body)
-      if body.is_a?(String)
-        if FORCE_ENC
-          body.force_encoding('BINARY')
-        end
-        body.length
-      elsif body.respond_to?(:size)
-        # IO object: File, Tempfile, etc.
-        body.size
-      else
-        begin
-          File.size(body) # for 1.8.7 where file does not have size
-        rescue
-          0
-        end
-      end
-    end
-
-    def request_kernel(datum)
+    def call(datum)
       begin
         response = if datum[:mock]
           invoke_stub(datum)
@@ -312,8 +189,130 @@ module Excon
       end
     end
 
-    def invoke_stub(datum)
+    # Sends the supplied request to the destination host.
+    #   @yield [chunk] @see Response#self.parse
+    #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
+    #     @option params [String] :body text to be sent over a socket
+    #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
+    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #     @option params [String] :path appears after 'scheme://host:port/'
+    #     @option params [Fixnum] :port The port on which to connect, to the destination host
+    #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
+    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    def request(params, &block)
+      # @data has defaults, merge in new params to override
+      datum = @data.merge(params)
+      datum[:host_port]  = '' << datum[:host] << ':' << datum[:port].to_s
+      datum[:headers] = @data[:headers].merge(datum[:headers] || {})
+      datum[:headers]['Host'] = '' << datum[:host_port]
+      datum[:retries_remaining] ||= datum[:retry_limit]
 
+      # if path is empty or doesn't start with '/', insert one
+      unless datum[:path][0, 1] == '/'
+        datum[:path].insert(0, '/')
+      end
+
+      if block_given?
+        $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        datum[:response_block] = Proc.new
+      end
+
+      if datum.has_key?(:instrumentor)
+        if datum[:retries_remaining] < datum[:retry_limit]
+          event_name = "#{datum[:instrumentor_name]}.retry"
+        else
+          event_name = "#{datum[:instrumentor_name]}.request"
+        end
+        response = datum[:instrumentor].instrument(event_name, datum) do
+          call(datum)
+        end
+        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.data)
+        response
+      else
+        call(datum)
+      end
+    rescue => request_error
+      if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
+          Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
+        datum[:retries_remaining] -= 1
+        if datum[:retries_remaining] > 0
+          request(datum, &block)
+        else
+          if datum.has_key?(:instrumentor)
+            datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
+          end
+          raise(request_error)
+        end
+      else
+        if datum.has_key?(:instrumentor)
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
+        end
+        raise(request_error)
+      end
+    end
+
+    def reset
+      (old_socket = sockets.delete(@socket_key)) && old_socket.close
+    end
+
+    # Generate HTTP request verb methods
+    Excon::HTTP_VERBS.each do |method|
+      class_eval <<-DEF, __FILE__, __LINE__ + 1
+        def #{method}(params={}, &block)
+          request(params.merge!(:method => :#{method}), &block)
+        end
+      DEF
+    end
+
+    def retry_limit=(new_retry_limit)
+      $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      @data[:retry_limit] = new_retry_limit
+    end
+
+    def retry_limit
+      $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
+    end
+
+    def inspect
+      vars = instance_variables.inject({}) do |accum, var|
+        accum.merge!(var.to_sym => instance_variable_get(var))
+      end
+      if vars[:'@data'][:headers].has_key?('Authorization')
+        vars[:'@data'] = vars[:'@data'].dup
+        vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
+        vars[:'@data'][:headers]['Authorization'] = REDACTED
+      end
+      inspection = '#<Excon::Connection:'
+      inspection << (object_id << 1).to_s(16)
+      vars.each do |key, value|
+        inspection << ' ' << key.to_s << '=' << value.inspect
+      end
+      inspection << '>'
+      inspection
+    end
+
+    private
+
+    def detect_content_length(body)
+      if body.is_a?(String)
+        if FORCE_ENC
+          body.force_encoding('BINARY')
+        end
+        body.length
+      elsif body.respond_to?(:size)
+        # IO object: File, Tempfile, etc.
+        body.size
+      else
+        begin
+          File.size(body) # for 1.8.7 where file does not have size
+        rescue
+          0
+        end
+      end
+    end
+
+    def invoke_stub(datum)
       # convert File/Tempfile body to string before matching:
       unless datum[:body].nil? || datum[:body].is_a?(String)
        if datum[:body].respond_to?(:binmode)
