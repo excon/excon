@@ -217,20 +217,13 @@ module Excon
         datum[:response_block] = Proc.new
       end
 
-      if datum.has_key?(:instrumentor)
-        if datum[:retries_remaining] < datum[:retry_limit]
-          event_name = "#{datum[:instrumentor_name]}.retry"
-        else
-          event_name = "#{datum[:instrumentor_name]}.request"
-        end
-        response = datum[:instrumentor].instrument(event_name, datum) do
-          call(datum)
-        end
-        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.data)
-        response
-      else
-        call(datum)
+      datum[:middlewares] = [
+        lambda {|app| Excon::Middleware::Instrumentor.new(app) }
+      ]
+      stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
+        middleware.call(middlewares)
       end
+      stack.call(datum)
     rescue => request_error
       if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }

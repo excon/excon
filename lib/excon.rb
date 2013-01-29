@@ -43,6 +43,7 @@ end
 require 'excon/constants'
 require 'excon/connection'
 require 'excon/errors'
+require 'excon/middlewares/instrumentor'
 require 'excon/response'
 require 'excon/socket'
 require 'excon/ssl_socket'
