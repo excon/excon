@@ -181,12 +181,7 @@ module Excon
         raise(Excon::Errors::SocketError.new(socket_error))
       end
 
-      if datum.has_key?(:expects) && ![*datum[:expects]].include?(response_datum[:status])
-        reset
-        raise(Excon::Errors.status_error(datum, Excon::Response.new(response_datum)))
-      else
-        response_datum
-      end
+      response_datum
     end
 
     # Sends the supplied request to the destination host.
@@ -218,7 +213,8 @@ module Excon
       end
 
       datum[:middlewares] = [
-        lambda {|app| Excon::Middleware::Instrumentor.new(app) }
+        lambda {|app| Excon::Middleware::Instrumentor.new(app) },
+        lambda {|app| Excon::Middleware::Expects.new(app) }
       ]
       stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
@@ -242,6 +238,7 @@ module Excon
         if datum.has_key?(:instrumentor)
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
         end
+        reset
         raise(request_error)
       end
     end
