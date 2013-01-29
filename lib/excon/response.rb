@@ -25,12 +25,17 @@ module Excon
     end
 
     def self.parse(socket, datum={})
-      response = new(:status => socket.read(12)[9, 11].to_i, :remote_ip => socket.remote_ip)
+      response_datum = {
+        :body       => '',
+        :headers    => {},
+        :status     => socket.read(12)[9, 11].to_i,
+        :remote_ip  => socket.remote_ip
+      }
       socket.readline # read the rest of the status line and CRLF
 
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(/:\s*/, 2)
-        response.headers[key] = ([*response.headers[key]] << value).compact.join(', ')
+        response_datum[:headers][key] = ([*response_datum[:headers][key]] << value).compact.join(', ')
         if key.casecmp('Content-Length') == 0
           content_length = value.to_i
         elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
@@ -38,10 +43,10 @@ module Excon
         end
       end
 
-      unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(response.status)
+      unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(response_datum[:status])
 
         # check to see if expects was set and matched
-        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(response.status)
+        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(response_datum[:status])
 
         # if expects matched and there is a block, use it
         if expected_status && datum.has_key?(:response_block)
@@ -64,21 +69,21 @@ module Excon
         else # no block or unexpected status
           if transfer_encoding_chunked
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              response.body << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
+              response_datum[:body] << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
             end
             socket.read(2) # 2 == "/r/n".length
           elsif remaining = content_length
             while remaining > 0
-              response.body << socket.read([datum[:chunk_size], remaining].min)
+              response_datum[:body] << socket.read([datum[:chunk_size], remaining].min)
               remaining -= datum[:chunk_size]
             end
           else
-            response.body << socket.read
+            response_datum[:body] << socket.read
           end
         end
       end
 
-      response
+      response_datum
     end
 
     # Retrieve a specific header value. Header names are treated case-insensitively.

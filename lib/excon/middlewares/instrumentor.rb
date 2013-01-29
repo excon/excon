@@ -12,11 +12,11 @@ module Excon
           else
             event_name = "#{datum[:instrumentor_name]}.request"
           end
-          response = datum[:instrumentor].instrument(event_name, datum) do
+          response_datum = datum[:instrumentor].instrument(event_name, datum) do
             @app.call(datum)
           end
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response.data)
-          response
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response_datum)
+          response_datum
         else
           @app.call(datum)
         end

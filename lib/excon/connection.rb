@@ -80,7 +80,7 @@ module Excon
 
     def call(datum)
       begin
-        response = if datum[:mock]
+        response_datum = if datum[:mock]
           invoke_stub(datum)
         else
           socket.data = datum
@@ -166,13 +166,13 @@ module Excon
           end
 
           # read the response
-          response = Excon::Response.parse(socket, datum)
+          response_datum = Excon::Response.parse(socket, datum)
 
-          if response.headers['Connection'] == 'close'
+          if response_datum[:headers]['Connection'] == 'close'
             reset
           end
 
-          response
+          response_datum
         end
       rescue Excon::Errors::StubNotFound, Excon::Errors::Timeout => error
         raise(error)
@@ -181,11 +181,11 @@ module Excon
         raise(Excon::Errors::SocketError.new(socket_error))
       end
 
-      if datum.has_key?(:expects) && ![*datum[:expects]].include?(response.status)
+      if datum.has_key?(:expects) && ![*datum[:expects]].include?(response_datum[:status])
         reset
-        raise(Excon::Errors.status_error(datum, response))
+        raise(Excon::Errors.status_error(datum, Excon::Response.new(response_datum)))
       else
-        response
+        response_datum
       end
     end
 
@@ -223,7 +223,9 @@ module Excon
       stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
-      stack.call(datum)
+      response_datum = stack.call(datum)
+
+      Excon::Response.new(response_datum)
     rescue => request_error
       if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
@@ -342,17 +344,17 @@ module Excon
           end
         end
         if headers_match && non_headers_match
-          response_params = case response
+          response_datum = case response
           when Proc
             response.call(datum)
           else
             response
           end
 
-          if datum[:expects] && ![*datum[:expects]].include?(response_params[:status])
+          if datum[:expects] && ![*datum[:expects]].include?(response_datum[:status])
             # don't pass stuff into a block if there was an error
-          elsif datum.has_key?(:response_block) && response_params.has_key?(:body)
-            body = response_params.delete(:body)
+          elsif datum.has_key?(:response_block) && response_datum.has_key?(:body)
+            body = response_datum.delete(:body)
             content_length = remaining = body.bytesize
             i = 0
             while i < body.length
@@ -361,7 +363,7 @@ module Excon
               i += datum[:chunk_size]
             end
           end
-          return Excon::Response.new(response_params)
+          return response_datum
         end
       end
       # if we reach here no stubs matched
