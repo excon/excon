@@ -121,6 +121,13 @@ module Excon
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
       error, message = @errors[response.status] || [Excon::Errors::HTTPStatusError, 'Unknown']
+
+      # scrub authorization
+      if request[:headers].has_key?('Authorization')
+        request = request.dup
+        request[:headers] = request[:headers].dup
+        request[:headers]['Authorization'] = REDACTED
+      end
       error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
     end
 
