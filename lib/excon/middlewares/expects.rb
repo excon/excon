@@ -6,12 +6,17 @@ module Excon
       end
 
       def call(datum)
-        response_datum = @app.call(datum)
+        datum = @app.call(datum)
 
-        if datum.has_key?(:expects) && ![*datum[:expects]].include?(response_datum[:status])
-          raise(Excon::Errors.status_error(datum, Excon::Response.new(response_datum)))
+        if datum.has_key?(:expects) && ![*datum[:expects]].include?(datum[:response][:status])
+          raise(
+            Excon::Errors.status_error(
+              datum.reject {|key, value| key == :response},
+              datum[:response]
+            )
+          )
         else
-          response_datum
+          datum
         end
       end
     end

@@ -14,6 +14,7 @@ GEM
     delorean (2.0.0)
       chronic
     eventmachine (1.0.0)
+    eventmachine (1.0.0-java)
     formatador (0.2.3)
     i18n (0.6.0)
     jruby-openssl (0.7.7)

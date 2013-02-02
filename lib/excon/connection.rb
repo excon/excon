@@ -80,8 +80,8 @@ module Excon
 
     def call(datum)
       begin
-        response_datum = if datum[:mock]
-          invoke_stub(datum)
+        if datum[:mock]
+          datum[:response] = invoke_stub(datum)
         else
           socket.data = datum
           # start with "METHOD /path"
@@ -165,14 +165,11 @@ module Excon
             end
           end
 
-          # read the response
-          response_datum = Excon::Response.parse(socket, datum)
+          datum[:response] = Excon::Response.parse(socket, datum)
 
-          if response_datum[:headers]['Connection'] == 'close'
+          if datum[:response][:headers]['Connection'] == 'close'
             reset
           end
-
-          response_datum
         end
       rescue Excon::Errors::StubNotFound, Excon::Errors::Timeout => error
         raise(error)
@@ -181,7 +178,7 @@ module Excon
         raise(Excon::Errors::SocketError.new(socket_error))
       end
 
-      response_datum
+      datum
     end
 
     # Sends the supplied request to the destination host.
@@ -219,9 +216,9 @@ module Excon
       stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
-      response_datum = stack.call(datum)
+      datum = stack.call(datum)
 
-      Excon::Response.new(response_datum)
+      Excon::Response.new(datum[:response])
     rescue => request_error
       if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }

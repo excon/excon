@@ -120,7 +120,7 @@ module Excon
         503 => [Excon::Errors::ServiceUnavailable, 'Service Unavailable'],
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
-      error, message = @errors[response.status] || [Excon::Errors::HTTPStatusError, 'Unknown']
+      error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
 
       # scrub authorization
       if request[:headers].has_key?('Authorization')
@@ -128,7 +128,7 @@ module Excon
         request[:headers] = request[:headers].dup
         request[:headers]['Authorization'] = REDACTED
       end
-      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response.status} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
+      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
     end
 
   end
