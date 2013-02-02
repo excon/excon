@@ -210,8 +210,8 @@ module Excon
       end
 
       datum[:middlewares] = [
-        lambda {|app| Excon::Middleware::Instrumentor.new(app) },
-        lambda {|app| Excon::Middleware::Expects.new(app) }
+        lambda {|stack| Excon::Middleware::Instrumentor.new(stack) },
+        lambda {|stack| Excon::Middleware::Expects.new(stack) }
       ]
       stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)

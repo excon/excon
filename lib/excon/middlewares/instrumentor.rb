@@ -1,8 +1,8 @@
 module Excon
   module Middleware
     class Instrumentor
-      def initialize(app)
-        @app = app
+      def initialize(stack)
+        @stack = stack
       end
 
       def call(datum)
@@ -13,12 +13,12 @@ module Excon
             event_name = "#{datum[:instrumentor_name]}.request"
           end
           response_datum = datum[:instrumentor].instrument(event_name, datum) do
-            @app.call(datum)
+            @stack.call(datum)
           end
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response_datum)
           response_datum
         else
-          @app.call(datum)
+          @stack.call(datum)
         end
       end
     end

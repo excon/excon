@@ -1,12 +1,12 @@
 module Excon
   module Middleware
     class Expects
-      def initialize(app)
-        @app = app
+      def initialize(stack)
+        @stack = stack
       end
 
       def call(datum)
-        datum = @app.call(datum)
+        datum = @stack.call(datum)
 
         if datum.has_key?(:expects) && ![*datum[:expects]].include?(datum[:response][:status])
           raise(
