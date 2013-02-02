@@ -80,8 +80,9 @@ module Excon
 
     def call(datum)
       begin
-        if datum[:mock]
-          datum[:response] = invoke_stub(datum)
+        if datum.has_key?(:response)
+          # we already have data from a middleware, so bail
+          return datum
         else
           socket.data = datum
           # start with "METHOD /path"
@@ -211,7 +212,8 @@ module Excon
 
       datum[:middlewares] = [
         lambda {|stack| Excon::Middleware::Instrumentor.new(stack) },
-        lambda {|stack| Excon::Middleware::Expects.new(stack) }
+        lambda {|stack| Excon::Middleware::Expects.new(stack) },
+        lambda {|stack| Excon::Middleware::Mock.new(stack) }
       ]
       stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
@@ -299,69 +301,6 @@ module Excon
           0
         end
       end
-    end
-
-    def invoke_stub(datum)
-      # convert File/Tempfile body to string before matching:
-      unless datum[:body].nil? || datum[:body].is_a?(String)
-       if datum[:body].respond_to?(:binmode)
-         datum[:body].binmode
-       end
-       if datum[:body].respond_to?(:rewind)
-         datum[:body].rewind
-       end
-       datum[:body] = datum[:body].read
-      end
-
-      datum[:captures] = {:headers => {}} # setup data to hold captures
-      Excon.stubs.each do |stub, response|
-        headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
-          case value = stub[:headers][key]
-          when Regexp
-            if match = value.match(datum[:headers][key])
-              datum[:captures][:headers][key] = match.captures
-            end
-            match
-          else
-            value == datum[:headers][key]
-          end
-        end
-        non_headers_match = (stub.keys - [:headers]).all? do |key|
-          case value = stub[key]
-          when Regexp
-            if match = value.match(datum[key])
-              datum[:captures][key] = match.captures
-            end
-            match
-          else
-            value == datum[key]
-          end
-        end
-        if headers_match && non_headers_match
-          response_datum = case response
-          when Proc
-            response.call(datum)
-          else
-            response
-          end
-
-          if datum[:expects] && ![*datum[:expects]].include?(response_datum[:status])
-            # don't pass stuff into a block if there was an error
-          elsif datum.has_key?(:response_block) && response_datum.has_key?(:body)
-            body = response_datum.delete(:body)
-            content_length = remaining = body.bytesize
-            i = 0
-            while i < body.length
-              datum[:response_block].call(body[i, datum[:chunk_size]], [remaining - datum[:chunk_size], 0].max, content_length)
-              remaining -= datum[:chunk_size]
-              i += datum[:chunk_size]
-            end
-          end
-          return response_datum
-        end
-      end
-      # if we reach here no stubs matched
-      raise(Excon::Errors::StubNotFound.new('no stubs matched ' << datum.inspect))
     end
 
     def socket
