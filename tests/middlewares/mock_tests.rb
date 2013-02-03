@@ -107,7 +107,7 @@ Shindo.tests('Excon stubs') do
 
   tests("stub({:body => File.open(...), :method => :get}, { :status => 200 })") do
 
-    file_path = File.join(File.dirname(__FILE__), 'data', 'xs')
+    file_path = File.join(File.dirname(__FILE__), '..', 'data', 'xs')
 
     Excon.stub(
       { :body => File.read(file_path), :method => :get },
