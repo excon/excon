@@ -214,9 +214,7 @@ module Excon
       end
       datum = stack.call(datum)
 
-      unless datum.has_key?(:response)
-        datum = response(datum)
-      end
+      datum = response(datum)
 
       if datum[:response][:headers]['Connection'] == 'close'
         reset
@@ -306,60 +304,62 @@ module Excon
     end
 
     def response(datum={})
-      datum[:response] = {
-        :body       => '',
-        :headers    => {},
-        :status     => socket.read(12)[9, 11].to_i,
-        :remote_ip  => socket.remote_ip
-      }
-      socket.readline # read the rest of the status line and CRLF
+      unless datum.has_key?(:response)
+        datum[:response] = {
+          :body       => '',
+          :headers    => {},
+          :status     => socket.read(12)[9, 11].to_i,
+          :remote_ip  => socket.remote_ip
+        }
+        socket.readline # read the rest of the status line and CRLF
 
-      until ((data = socket.readline).chop!).empty?
-        key, value = data.split(/:\s*/, 2)
-        datum[:response][:headers][key] = ([*datum[:response][:headers][key]] << value).compact.join(', ')
-        if key.casecmp('Content-Length') == 0
-          content_length = value.to_i
-        elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
-          transfer_encoding_chunked = true
-        end
-      end
-
-      unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
-
-        # check to see if expects was set and matched
-        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
-
-        # if expects matched and there is a block, use it
-        if expected_status && datum.has_key?(:response_block)
-          if transfer_encoding_chunked
-            # 2 == "/r/n".length
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              datum[:response_block].call(socket.read(chunk_size + 2).chop!, nil, nil)
-            end
-            socket.read(2)
-          elsif remaining = content_length
-            while remaining > 0
-              datum[:response_block].call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-              remaining -= datum[:chunk_size]
-            end
-          else
-            while remaining = socket.read(datum[:chunk_size])
-              datum[:response_block].call(remaining, remaining.length, content_length)
-            end
+        until ((data = socket.readline).chop!).empty?
+          key, value = data.split(/:\s*/, 2)
+          datum[:response][:headers][key] = ([*datum[:response][:headers][key]] << value).compact.join(', ')
+          if key.casecmp('Content-Length') == 0
+            content_length = value.to_i
+          elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
+            transfer_encoding_chunked = true
           end
-        else # no block or unexpected status
-          if transfer_encoding_chunked
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              datum[:response][:body] << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
+        end
+
+        unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
+
+          # check to see if expects was set and matched
+          expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
+
+          # if expects matched and there is a block, use it
+          if expected_status && datum.has_key?(:response_block)
+            if transfer_encoding_chunked
+              # 2 == "/r/n".length
+              while (chunk_size = socket.readline.chop!.to_i(16)) > 0
+                datum[:response_block].call(socket.read(chunk_size + 2).chop!, nil, nil)
+              end
+              socket.read(2)
+            elsif remaining = content_length
+              while remaining > 0
+                datum[:response_block].call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+                remaining -= datum[:chunk_size]
+              end
+            else
+              while remaining = socket.read(datum[:chunk_size])
+                datum[:response_block].call(remaining, remaining.length, content_length)
+              end
             end
-            socket.read(2) # 2 == "/r/n".length
-          elsif remaining = content_length
-            while remaining > 0
-              datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
-              remaining -= datum[:chunk_size]
+          else # no block or unexpected status
+            if transfer_encoding_chunked
+              while (chunk_size = socket.readline.chop!.to_i(16)) > 0
+                datum[:response][:body] << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
+              end
+              socket.read(2) # 2 == "/r/n".length
+            elsif remaining = content_length
+              while remaining > 0
+                datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
+                remaining -= datum[:chunk_size]
+              end
+            else
+              datum[:response][:body] << socket.read
             end
-          else
-            datum[:response][:body] << socket.read
           end
         end
       end
