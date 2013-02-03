@@ -165,12 +165,6 @@ module Excon
               end
             end
           end
-
-          datum[:response] = Excon::Response.parse(socket, datum)
-
-          if datum[:response][:headers]['Connection'] == 'close'
-            reset
-          end
         end
       rescue => error
         case error
@@ -221,6 +215,14 @@ module Excon
         middleware.call(middlewares)
       end
       datum = stack.call(datum)
+
+      unless datum.has_key?(:response)
+        datum[:response] = Excon::Response.parse(socket, datum)
+      end
+
+      if datum[:response][:headers]['Connection'] == 'close'
+        reset
+      end
 
       Excon::Response.new(datum[:response])
     rescue => request_error
