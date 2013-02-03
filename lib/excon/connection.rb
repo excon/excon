@@ -39,7 +39,6 @@ module Excon
       uri = URI.parse(url)
       @data = Excon.defaults.merge({
         :host       => uri.host,
-        :host_port  => '' << uri.host << ':' << uri.port.to_s,
         :path       => uri.path,
         :port       => uri.port,
         :query      => uri.query,
@@ -74,7 +73,7 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:host_port]
+      @socket_key = '' << uri.host << ':' << uri.port.to_s
       reset
     end
 
@@ -88,7 +87,7 @@ module Excon
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
           if @data[:proxy]
-            request << datum[:scheme] << '://' << datum[:host_port]
+            request << datum[:scheme] << '://' << @data[:host] << ':' << @data[:port].to_s
           end
           request << datum[:path]
 
@@ -191,9 +190,8 @@ module Excon
     def request(params, &block)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
-      datum[:host_port]  = '' << datum[:host] << ':' << datum[:port].to_s
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host'] = '' << datum[:host_port]
+      datum[:headers]['Host'] = '' << datum[:host] << ':' << datum[:port].to_s
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
@@ -328,7 +326,6 @@ module Excon
         end
         {
           :host       => uri.host,
-          :host_port  => '' << uri.host << ':' << uri.port.to_s,
           :password   => uri.password,
           :port       => uri.port,
           :scheme     => uri.scheme,
