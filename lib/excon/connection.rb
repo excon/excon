@@ -214,13 +214,17 @@ module Excon
       end
       datum = stack.call(datum)
 
-      datum = response(datum)
+      unless datum[:pipeline]
+        datum = response(datum)
 
-      if datum[:response][:headers]['Connection'] == 'close'
-        reset
+        if datum[:response][:headers]['Connection'] == 'close'
+          reset
+        end
+
+        Excon::Response.new(datum[:response])
+      else
+        datum
       end
-
-      Excon::Response.new(datum[:response])
     rescue => request_error
       if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
           Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
@@ -239,6 +243,16 @@ module Excon
         end
         reset
         raise(request_error)
+      end
+    end
+
+    # Sends the supplied requests to the destination host using pipelining.
+    #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
+    def requests(pipeline_params)
+      pipeline_params.map do |params|
+        request(params.merge!(:pipeline => true))
+      end.map do |datum|
+        Excon::Response.new(response(datum)[:response])
       end
     end
 
