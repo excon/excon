@@ -43,11 +43,23 @@ module Excon
               end
             end
             if headers_match && non_headers_match
-              datum[:response] = case response
+              datum[:response] = {
+                :body       => '',
+                :headers    => {},
+                :status     => 200,
+                :remote_ip  => '127.0.0.1'
+              }
+
+              stub_datum = case response
               when Proc
                 response.call(datum)
               else
                 response
+              end
+
+              datum[:response].merge!(stub_datum.reject {|key,value| key == :headers})
+              if stub_datum.has_key?(:headers)
+                datum[:response][:headers].merge!(stub_datum[:headers])
               end
 
               if datum[:expects] && ![*datum[:expects]].include?(datum[:response][:status])
