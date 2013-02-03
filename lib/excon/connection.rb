@@ -208,12 +208,9 @@ module Excon
         datum[:response_block] = Proc.new
       end
 
-      datum[:middlewares] = [
-        lambda {|stack| Excon::Middleware::Instrumentor.new(stack) },
-        lambda {|stack| Excon::Middleware::Expects.new(stack) },
-        lambda {|stack| Excon::Middleware::Mock.new(stack) }
-      ]
-      datum[:stack] = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
+      datum[:stack] = datum[:middlewares].map do |middleware|
+        lambda {|stack| middleware.new(stack)}
+      end.reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
       datum = datum[:stack].before(datum)

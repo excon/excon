@@ -123,8 +123,9 @@ module Excon
       error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
 
       # scrub authorization
+      request = request.dup
+      request.reject! {|key, value| key == :stack}
       if request[:headers].has_key?('Authorization')
-        request = request.dup
         request[:headers] = request[:headers].dup
         request[:headers]['Authorization'] = REDACTED
       end

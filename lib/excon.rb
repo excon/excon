@@ -21,6 +21,11 @@ module Excon
         :headers            => {},
         :idempotent         => false,
         :instrumentor_name  => 'excon',
+        :middlewares        => [
+          Excon::Middleware::Instrumentor,
+          Excon::Middleware::Expects,
+          Excon::Middleware::Mock
+        ],
         :mock               => false,
         :nonblock           => DEFAULT_NONBLOCK,
         :read_timeout       => 60,
