@@ -1,9 +1,7 @@
 module Excon
   module Middleware
     class Expects < Excon::Middleware::Base
-      def call(datum)
-        datum = @stack.call(datum)
-
+      def after(datum)
         if datum.has_key?(:expects) && ![*datum[:expects]].include?(datum[:response][:status])
           raise(
             Excon::Errors.status_error(
@@ -12,7 +10,7 @@ module Excon
             )
           )
         else
-          datum
+          @stack.after(datum)
         end
       end
     end

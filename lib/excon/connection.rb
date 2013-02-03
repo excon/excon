@@ -77,7 +77,7 @@ module Excon
       reset
     end
 
-    def call(datum)
+    def before(datum)
       begin
         if datum.has_key?(:response)
           # we already have data from a middleware, so bail
@@ -177,6 +177,10 @@ module Excon
       datum
     end
 
+    def after(datum)
+      datum
+    end
+
     # Sends the supplied request to the destination host.
     #   @yield [chunk] @see Response#self.parse
     #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
@@ -209,10 +213,10 @@ module Excon
         lambda {|stack| Excon::Middleware::Expects.new(stack) },
         lambda {|stack| Excon::Middleware::Mock.new(stack) }
       ]
-      stack = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
+      datum[:stack] = datum[:middlewares].reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
-      datum = stack.call(datum)
+      datum = datum[:stack].before(datum)
 
       unless datum[:pipeline]
         datum = response(datum)
@@ -378,10 +382,10 @@ module Excon
         end
       end
 
-      datum
+      datum[:stack].after(datum)
     rescue => error
       case error
-      when Excon::Errors::Timeout
+      when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout
         raise(error)
       else
         raise(Excon::Errors::SocketError.new(error))

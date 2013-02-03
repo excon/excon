@@ -1,21 +1,26 @@
 module Excon
   module Middleware
     class Instrumentor < Excon::Middleware::Base
-      def call(datum)
+      def before(datum)
         if datum.has_key?(:instrumentor)
           if datum[:retries_remaining] < datum[:retry_limit]
             event_name = "#{datum[:instrumentor_name]}.retry"
           else
             event_name = "#{datum[:instrumentor_name]}.request"
           end
-          response_datum = datum[:instrumentor].instrument(event_name, datum) do
-            @stack.call(datum)
+          datum[:instrumentor].instrument(event_name, datum) do
+            @stack.before(datum)
           end
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", response_datum)
-          response_datum
         else
-          @stack.call(datum)
+          @stack.before(datum)
         end
+      end
+
+      def after(datum)
+        if datum.has_key?(:instrumentor)
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response])
+        end
+        @stack.after(datum)
       end
     end
   end
