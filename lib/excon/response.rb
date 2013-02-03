@@ -84,6 +84,13 @@ module Excon
       end
 
       response_datum
+    rescue => error
+      case error
+      when Excon::Errors::Timeout
+        raise(error)
+      else
+        raise(Excon::Errors::SocketError.new(error))
+      end
     end
 
     # Retrieve a specific header value. Header names are treated case-insensitively.

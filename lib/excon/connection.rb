@@ -172,11 +172,13 @@ module Excon
             reset
           end
         end
-      rescue Excon::Errors::StubNotFound, Excon::Errors::Timeout => error
-        raise(error)
-      rescue => socket_error
-        reset
-        raise(Excon::Errors::SocketError.new(socket_error))
+      rescue => error
+        case error
+        when Excon::Errors::StubNotFound, Excon::Errors::Timeout
+          raise(error)
+        else
+          raise(Excon::Errors::SocketError.new(error))
+        end
       end
 
       datum
