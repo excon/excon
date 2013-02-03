@@ -1,10 +1,6 @@
 module Excon
   module Middleware
-    class Expects
-      def initialize(stack)
-        @stack = stack
-      end
-
+    class Expects < Excon::Middleware::Base
       def call(datum)
         datum = @stack.call(datum)
 

@@ -43,6 +43,7 @@ end
 require 'excon/constants'
 require 'excon/connection'
 require 'excon/errors'
+require 'excon/middlewares/base'
 require 'excon/middlewares/expects'
 require 'excon/middlewares/instrumentor'
 require 'excon/middlewares/mock'

@@ -1,10 +1,6 @@
 module Excon
   module Middleware
-    class Mock
-      def initialize(stack)
-        @stack = stack
-      end
-
+    class Mock < Excon::Middleware::Base
       def call(datum)
         if datum[:mock]
           # convert File/Tempfile body to string before matching:

@@ -1,10 +1,6 @@
 module Excon
   module Middleware
-    class Instrumentor
-      def initialize(stack)
-        @stack = stack
-      end
-
+    class Instrumentor < Excon::Middleware::Base
       def call(datum)
         if datum.has_key?(:instrumentor)
           if datum[:retries_remaining] < datum[:retry_limit]
