@@ -1,7 +1,7 @@
 module Excon
   module Middleware
     class Mock < Excon::Middleware::Base
-      def before(datum)
+      def request_call(datum)
         if datum[:mock]
           # convert File/Tempfile body to string before matching:
           unless datum[:body].nil? || datum[:body].is_a?(String)
@@ -70,13 +70,13 @@ module Excon
                   i += datum[:chunk_size]
                 end
               end
-              return @stack.before(datum)
+              return @stack.request_call(datum)
             end
           end
           # if we reach here no stubs matched
           raise(Excon::Errors::StubNotFound.new('no stubs matched ' << datum.inspect))
         else
-          @stack.before(datum)
+          @stack.request_call(datum)
         end
       end
     end

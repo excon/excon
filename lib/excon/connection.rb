@@ -77,7 +77,7 @@ module Excon
       reset
     end
 
-    def before(datum)
+    def request_call(datum)
       begin
         if datum.has_key?(:response)
           # we already have data from a middleware, so bail
@@ -177,7 +177,7 @@ module Excon
       datum
     end
 
-    def after(datum)
+    def response_call(datum)
       datum
     end
 
@@ -213,7 +213,7 @@ module Excon
       end.reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
-      datum = datum[:stack].before(datum)
+      datum = datum[:stack].request_call(datum)
 
       unless datum[:pipeline]
         datum = response(datum)
@@ -379,7 +379,7 @@ module Excon
         end
       end
 
-      datum[:stack].after(datum)
+      datum[:stack].response_call(datum)
     rescue => error
       case error
       when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout

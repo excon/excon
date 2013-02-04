@@ -5,13 +5,13 @@ module Excon
         @stack = stack
       end
 
-      def before(datum)
+      def request_call(datum)
         # do stuff
-        @stack.before(datum)
+        @stack.request_call(datum)
       end
 
-      def after(datum)
-        @stack.after(datum)
+      def response_call(datum)
+        @stack.response_call(datum)
         # do stuff
       end
     end
