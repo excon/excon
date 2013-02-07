@@ -229,22 +229,15 @@ module Excon
         datum
       end
     rescue => request_error
+      reset
       if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
-          Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex }
+          Excon::Errors::HTTPStatusError].any? {|ex| request_error.kind_of? ex } && datum[:retries_remaining] > 1
         datum[:retries_remaining] -= 1
-        if datum[:retries_remaining] > 0
-          request(datum, &block)
-        else
-          if datum.has_key?(:instrumentor)
-            datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
-          end
-          raise(request_error)
-        end
+        request(datum, &block)
       else
         if datum.has_key?(:instrumentor)
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
         end
-        reset
         raise(request_error)
       end
     end
