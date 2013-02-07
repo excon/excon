@@ -208,6 +208,8 @@ module Excon
         datum[:response_block] = Proc.new
       end
 
+      datum[:connection] = self
+
       datum[:stack] = datum[:middlewares].map do |middleware|
         lambda {|stack| middleware.new(stack)}
       end.reverse.inject(self) do |middlewares, middleware|

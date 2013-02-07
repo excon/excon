@@ -124,7 +124,7 @@ module Excon
 
       # scrub authorization
       request = request.dup
-      request.reject! {|key, value| key == :stack}
+      request.reject! {|key, value| [:connection, :stack].include?(key)}
       if request[:headers].has_key?('Authorization')
         request[:headers] = request[:headers].dup
         request[:headers]['Authorization'] = REDACTED
