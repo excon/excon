@@ -1,6 +1,10 @@
 module Excon
   class Connection
-
+    VALID_CONNECTION_KEYS = [:body, :headers, :host, :host_port, :path, :port, :query, :scheme, :user, :password,
+                             :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
+                             :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
+                             :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block,
+                             :middlewares, :retries_remaining, :connection, :stack, :response, :pipeline]
     attr_reader :data
 
     def params
@@ -21,6 +25,13 @@ module Excon
       @data[:proxy] = new_proxy
     end
 
+    def assert_valid_keys_for_argument!(argument, valid_keys)
+      invalid_keys = argument.keys - valid_keys
+      return true if invalid_keys.empty?
+      raise ArgumentError, "The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}"
+    end
+    private :assert_valid_keys_for_argument!
+
     # Initializes a new Connection instance
     #   @param [String] url The destination URL
     #   @param [Hash<Symbol, >] params One or more optional params
@@ -36,6 +47,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(url, params = {})
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       uri = URI.parse(url)
       @data = Excon.defaults.merge({
         :host       => uri.host,
@@ -43,6 +55,8 @@ module Excon
         :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
+        :user       => (URI.decode(uri.user) if uri.user),
+        :password   => (URI.decode(uri.password) if uri.password),
       }).merge!(params)
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -194,6 +208,7 @@ module Excon
     def request(params, &block)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
+      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
       datum[:headers]['Host'] = '' << datum[:host] << ':' << datum[:port].to_s
       datum[:retries_remaining] ||= datum[:retry_limit]
