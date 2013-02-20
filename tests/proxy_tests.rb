@@ -17,7 +17,7 @@ Shindo.tests('Excon proxy support') do
         connection.data[:proxy][:host]
       end
 
-      tests('connection.data[:proxy][:port]').returns(8080) do
+      tests('connection.data[:proxy][:port]').returns('8080') do
         connection.data[:proxy][:port]
       end
 
@@ -37,7 +37,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
 
@@ -53,7 +53,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8081) do
+        tests('connection.data[:proxy][:port]').returns('8081') do
           connection.data[:proxy][:port]
         end
 
@@ -69,7 +69,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
       end
@@ -89,7 +89,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
 
@@ -105,7 +105,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8081) do
+        tests('connection.data[:proxy][:port]').returns('8081') do
           connection.data[:proxy][:port]
         end
 
@@ -121,7 +121,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
       end
@@ -141,7 +141,7 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
 

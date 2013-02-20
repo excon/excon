@@ -52,7 +52,7 @@ module Excon
       @data = Excon.defaults.merge({
         :host       => uri.host,
         :path       => uri.path,
-        :port       => uri.port,
+        :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
         :user       => (URI.decode(uri.user) if uri.user),
@@ -87,7 +87,7 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << uri.host << ':' << uri.port.to_s
+      @socket_key = '' << @data[:host] << ':' << @data[:port]
       reset
     end
 
@@ -210,7 +210,7 @@ module Excon
       datum = @data.merge(params)
       assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host'] = '' << datum[:host] << ':' << datum[:port].to_s
+      datum[:headers]['Host'] = '' << datum[:host] << ':' << datum[:port]
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
@@ -421,7 +421,7 @@ module Excon
         {
           :host       => uri.host,
           :password   => uri.password,
-          :port       => uri.port,
+          :port       => uri.port.to_s,
           :scheme     => uri.scheme,
           :user       => uri.user
         }
