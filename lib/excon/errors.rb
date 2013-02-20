@@ -121,17 +121,12 @@ module Excon
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
 
-      # backwards compatibility fix for fog, convert response objects into hash
-      if response.is_a?(Excon::Response)
-        response = response.data
-      end
-
       error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
 
       # scrub authorization
       request = request.dup
       request.reject! {|key, value| [:connection, :stack].include?(key)}
-      if request.has_key?(:headers) && request[:headers].has_key?('Authorization')
+      if request[:headers].has_key?('Authorization')
         request[:headers] = request[:headers].dup
         request[:headers]['Authorization'] = REDACTED
       end

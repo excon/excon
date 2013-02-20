@@ -19,6 +19,10 @@ def basic_tests(url = 'http://127.0.0.1:9292')
           response.status
         end
 
+        tests('response[:status]').returns(200) do
+          response[:status]
+        end
+
         tests("response.headers['Connection']").returns('Keep-Alive') do
           response.headers['Connection']
         end

@@ -3,6 +3,21 @@ module Excon
 
     attr_accessor :body, :headers, :status, :remote_ip
 
+    def initialize(params={})
+      @data = {
+        :body     => '',
+        :headers  => {}
+      }.merge(params)
+      @body      = @data[:body]
+      @headers   = @data[:headers]
+      @status    = @data[:status]
+      @remote_ip = @data[:remote_ip]
+    end
+
+    def [](key)
+      @data[key]
+    end
+
     def data
       {
         :body      => body,
@@ -15,13 +30,6 @@ module Excon
     def params
       $stderr.puts("Excon::Response#params is deprecated use Excon::Response#data instead (#{caller.first})")
       data
-    end
-
-    def initialize(params={})
-      @body      = params[:body]    || ''
-      @headers   = params[:headers] || {}
-      @status    = params[:status]
-      @remote_ip = params[:remote_ip]
     end
 
     # Retrieve a specific header value. Header names are treated case-insensitively.
