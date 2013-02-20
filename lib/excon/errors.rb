@@ -120,6 +120,12 @@ module Excon
         503 => [Excon::Errors::ServiceUnavailable, 'Service Unavailable'],
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
+
+      # backwards compatibility fix for fog, convert response objects into hash
+      if response.is_a?(Excon::Response)
+        response = response.data
+      end
+
       error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
 
       # scrub authorization
