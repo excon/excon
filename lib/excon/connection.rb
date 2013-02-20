@@ -210,7 +210,7 @@ module Excon
       datum = @data.merge(params)
       assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host'] = '' << datum[:host] << ':' << datum[:port]
+      datum[:headers]['Host']   ||= '' << datum[:host] << ':' << datum[:port]
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
