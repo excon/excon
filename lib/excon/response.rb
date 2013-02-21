@@ -1,7 +1,33 @@
 module Excon
   class Response
 
-    attr_accessor :body, :data, :headers, :status, :remote_ip
+    attr_accessor :data
+
+    # backwards compatability reader/writers
+    def body=(new_body)
+      @data[:body] = new_body
+    end
+    def body
+      @data[:body]
+    end
+    def headers=(new_headers)
+      @data[:headers] = new_headers
+    end
+    def headers
+      @data[:headers]
+    end
+    def status=(new_status)
+      @data[:status] = new_status
+    end
+    def status
+      @data[:status]
+    end
+    def remote_ip=(new_remote_ip)
+      @data[:remote_ip] = new_remote_ip
+    end
+    def remote_ip
+      @data[:remote_ip]
+    end
 
     def initialize(params={})
       @data = {

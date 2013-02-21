@@ -1,3 +1,8 @@
+0.18.3 02/21/2013
+=================
+
+update response accessors to read from/write to @data
+
 0.18.2 02/21/2013
 =================
 
