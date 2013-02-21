@@ -1,7 +1,7 @@
 module Excon
   class Response
 
-    attr_accessor :body, :headers, :status, :remote_ip
+    attr_accessor :body, :data, :headers, :status, :remote_ip
 
     def initialize(params={})
       @data = {
@@ -16,15 +16,6 @@ module Excon
 
     def [](key)
       @data[key]
-    end
-
-    def data
-      {
-        :body      => body,
-        :headers   => headers,
-        :status    => status,
-        :remote_ip => remote_ip
-      }
     end
 
     def params
