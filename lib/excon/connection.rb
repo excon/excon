@@ -1,6 +1,6 @@
 module Excon
   class Connection
-    VALID_CONNECTION_KEYS = [:body, :headers, :host, :path, :port, :query, :scheme, :user, :password,
+    VALID_CONNECTION_KEYS = [:body, :family, :headers, :host, :path, :port, :query, :scheme, :user, :password,
                              :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
                              :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
                              :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block,
