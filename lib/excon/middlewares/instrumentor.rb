@@ -1,6 +1,13 @@
 module Excon
   module Middleware
     class Instrumentor < Excon::Middleware::Base
+      def error_call(datum)
+        if datum.has_key?(:instrumentor)
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error])
+        end
+        @stack.error_call(datum)
+      end
+
       def request_call(datum)
         if datum.has_key?(:instrumentor)
           if datum[:retries_remaining] < datum[:retry_limit]

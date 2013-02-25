@@ -91,6 +91,12 @@ module Excon
       reset
     end
 
+    def error_call(datum)
+      if datum[:error]
+        raise(datum[:error])
+      end
+    end
+
     def request_call(datum)
       begin
         if datum.has_key?(:response)
@@ -243,11 +249,9 @@ module Excon
       else
         datum
       end
-    rescue => request_error
-      if datum.has_key?(:instrumentor)
-        datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => request_error)
-      end
-      raise(request_error)
+    rescue => error
+      datum[:error] = error
+      datum[:stack].error_call(datum)
     end
 
     # Sends the supplied requests to the destination host using pipelining.
