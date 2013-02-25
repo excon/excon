@@ -2,6 +2,7 @@ module Excon
   module Errors
 
     class Error < StandardError; end
+    class StubNotFound < StandardError; end
 
     class SocketError < Error
       attr_reader :socket_error
@@ -22,8 +23,6 @@ module Excon
     class ProxyParseError < Error; end
 
     class ProxyConnectionError < Error; end
-
-    class StubNotFound < Error; end
 
     class HTTPStatusError < Error
       attr_reader :request, :response
