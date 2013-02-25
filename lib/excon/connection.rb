@@ -33,7 +33,6 @@ module Excon
     private :assert_valid_keys_for_argument!
 
     # Initializes a new Connection instance
-    #   @param [String] url The destination URL
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
@@ -46,20 +45,13 @@ module Excon
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
-    def initialize(url, params = {})
+    def initialize(params = {})
       assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
-      uri = URI.parse(url)
-      @data = Excon.defaults.merge({
-        :host       => uri.host,
-        :path       => uri.path,
-        :port       => uri.port.to_s,
-        :query      => uri.query,
-        :scheme     => uri.scheme,
-        :user       => (URI.decode(uri.user) if uri.user),
-        :password   => (URI.decode(uri.password) if uri.password),
-      }).merge!(params)
+      @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
+
+      @data.merge!(params)
 
       if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
         @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
@@ -83,11 +75,11 @@ module Excon
       end
 
       # Use Basic Auth if url contains a login
-      if uri.user || uri.password
-        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << uri.user.to_s << ':' << uri.password.to_s].pack('m').delete(Excon::CR_NL)
+      if @data[:user] || @data[:password]
+        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << @data[:user].to_s << ':' << @data[:password].to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:host] << ':' << @data[:port]
+      @socket_key = '' << @data[:host] << ':' << @data[:port].to_s
       reset
     end
 
@@ -216,7 +208,7 @@ module Excon
       datum = @data.merge(params)
       assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host']   ||= '' << datum[:host] << ':' << datum[:port]
+      datum[:headers]['Host']   ||= '' << datum[:host] << ':' << datum[:port].to_s
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one

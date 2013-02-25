@@ -2,6 +2,24 @@ with_rackup('basic.ru') do
   Shindo.tests('Excon basics') do
     basic_tests
   end
+
+  Shindo.tests('explicit uri passed to connection') do
+    connection = Excon::Connection.new({
+      :host             => '127.0.0.1',
+      :nonblock         => false,
+      :port             => 9292,
+      :scheme           => 'http',
+      :ssl_verify_peer  => false
+    })
+
+    tests('GET /content-length/100') do
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      tests('response[:status]').returns(200) do
+        response[:status]
+      end
+    end
+  end
 end
 
 with_rackup('basic_auth.ru') do

@@ -108,7 +108,17 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
     #   @return [Connection] A new Excon::Connection instance
     def new(url, params = {})
-      Excon::Connection.new(url, params)
+      uri = URI.parse(url)
+      params.merge!({
+        :host       => uri.host,
+        :path       => uri.path,
+        :port       => uri.port.to_s,
+        :query      => uri.query,
+        :scheme     => uri.scheme,
+        :user       => (URI.decode(uri.user) if uri.user),
+        :password   => (URI.decode(uri.password) if uri.password),
+      })
+      Excon::Connection.new(params)
     end
 
     # push an additional stub onto the list to check for mock requests
