@@ -22,8 +22,9 @@ module Excon
         :idempotent         => false,
         :instrumentor_name  => 'excon',
         :middlewares        => [
-          Excon::Middleware::Instrumentor,
           Excon::Middleware::Expects,
+          Excon::Middleware::Idempotent,
+          Excon::Middleware::Instrumentor,
           Excon::Middleware::Mock
         ],
         :mock               => false,
@@ -50,6 +51,7 @@ require 'excon/connection'
 require 'excon/errors'
 require 'excon/middlewares/base'
 require 'excon/middlewares/expects'
+require 'excon/middlewares/idempotent'
 require 'excon/middlewares/instrumentor'
 require 'excon/middlewares/mock'
 require 'excon/response'
