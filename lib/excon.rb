@@ -33,6 +33,7 @@ module Excon
         :retry_limit        => DEFAULT_RETRY_LIMIT,
         :ssl_ca_file        => DEFAULT_CA_FILE,
         :ssl_verify_peer    => RbConfig::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i,
+        :uri_parser         => URI,
         :write_timeout      => 60
       }
     end
@@ -108,7 +109,8 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
     #   @return [Connection] A new Excon::Connection instance
     def new(url, params = {})
-      uri = URI.parse(url)
+      uri_parser = params[:uri_parser] || Excon.defaults[:uri_parser]
+      uri = uri_parser.parse(url)
       params.merge!({
         :host       => uri.host,
         :path       => uri.path,

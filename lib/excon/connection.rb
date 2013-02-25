@@ -4,7 +4,7 @@ module Excon
                              :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
                              :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
                              :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block,
-                             :middlewares, :retries_remaining, :connection, :stack, :response, :pipeline]
+                             :middlewares, :retries_remaining, :connection, :stack, :response, :pipeline, :uri_parser]
     attr_reader :data
 
     def params
