@@ -106,7 +106,7 @@ Pipelining Requests
 You can make use of HTTP pipelining to improve performance. Insead of the normal request/response cyle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
 
     connection = Excon.new('http://geemus.com/')
-    connection.requests([{:method => :get, :method => :get}])
+    connection.requests([{:method => :get}, {:method => :get}])
 
 Streaming Responses
 -------------------
