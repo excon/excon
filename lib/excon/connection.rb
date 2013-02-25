@@ -1,10 +1,6 @@
 module Excon
   class Connection
-    VALID_CONNECTION_KEYS = [:body, :family, :headers, :host, :path, :port, :query, :scheme, :user, :password,
-                             :instrumentor, :instrumentor_name, :ssl_ca_file, :ssl_verify_peer, :chunk_size,
-                             :nonblock, :retry_limit, :connect_timeout, :read_timeout, :write_timeout, :captures,
-                             :exception, :expects, :mock, :proxy, :method, :idempotent, :request_block, :response_block,
-                             :middlewares, :retries_remaining, :connection, :stack, :response, :pipeline, :uri_parser]
+
     attr_reader :data
 
     def params
@@ -46,7 +42,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
-      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
+      assert_valid_keys_for_argument!(params, Excon::VALID_CONNECTION_KEYS)
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup

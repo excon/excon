@@ -29,6 +29,46 @@ module Excon
 
   REDACTED = 'REDACTED'
 
+  VALID_CONNECTION_KEYS = [
+    :body,
+    :captures,
+    :chunk_size,
+    :connect_timeout,
+    :connection,
+    :error,
+    :exception,
+    :expects,
+    :family,
+    :headers,
+    :host,
+    :idempotent,
+    :instrumentor,
+    :instrumentor_name,
+    :method,
+    :middlewares,
+    :mock,
+    :nonblock,
+    :password,
+    :path,
+    :pipeline,
+    :port,
+    :proxy,
+    :query,
+    :read_timeout,
+    :request_block,
+    :response,
+    :response_block,
+    :retries_remaining,
+    :retry_limit,
+    :scheme,
+    :uri_parser,
+    :user,
+    :ssl_ca_file,
+    :ssl_verify_peer,
+    :stack,
+    :write_timeout
+  ]
+
   VERSION = '0.18.5'
 
   unless ::IO.const_defined?(:WaitReadable)
