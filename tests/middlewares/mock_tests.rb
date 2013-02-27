@@ -167,6 +167,15 @@ Shindo.tests('Excon stubs') do
       connection.request(:expects => 200, :method => :get, :path => '/')
     end
 
+    tests("Expects exception should contain response object") do
+      begin
+        connection.request(:expects => 200, :method => :get, :path => '/')
+      rescue Excon::Errors::NotFound => e
+        returns(Excon::Response) { e.response.class }
+      end
+    end
+
+
     test("request(:expects => 200, :method => :get, :path => '/') with block does not invoke the block since it raises an error") do
       block_called = false
       begin
