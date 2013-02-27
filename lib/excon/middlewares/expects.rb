@@ -6,7 +6,7 @@ module Excon
           raise(
             Excon::Errors.status_error(
               datum.reject {|key,value| key == :response},
-              datum[:response]
+              Excon::Response.new(datum[:response])              
             )
           )
         else
