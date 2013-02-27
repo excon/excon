@@ -1,3 +1,16 @@
+0.19.0 02/27/2013
+=================
+
+fix requests (pipeline) example in README
+make StubNotFound inherit from StandardError (not Excon::Errors::Error)
+idempotent reimplemented as middleware
+remaining idempotent/instrumentor functionality moved to middleware
+move uri parsing to Excon.new
+allow for configurable URI parser (ie Addressable vs URI)
+move VALID_CONNECTION_KEYS to constants
+move idempotent tests to middleware directory
+fix output of expects middleware to pass response objects instead of hashes
+
 0.18.5 02/22/2013
 =================
 
