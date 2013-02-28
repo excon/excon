@@ -1,3 +1,8 @@
+0.19.1 02/27/2013
+=================
+
+fix for ssl proxies to allow connect response to be read
+
 0.19.0 02/27/2013
 =================
 
