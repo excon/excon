@@ -50,3 +50,24 @@ with_rackup('ssl.ru') do
     basic_tests('https://127.0.0.1:9443')
   end
 end
+
+with_rackup('ssl_verify_peer.ru') do
+  Shindo.tests('Excon basics (ssl)',['focus']) do
+    connection = Excon::Connection.new({
+      :host             => '127.0.0.1',
+      :nonblock         => false,
+      :port             => 8443,
+      :scheme           => 'https',
+      :ssl_verify_peer  => false
+    })
+
+    tests('GET /content-length/100').raises(Excon::Errors::SocketError) do
+      connection.request(:method => :get, :path => '/content-length/100')
+    end
+
+    basic_tests('https://127.0.0.1:8443',
+                :client_key => File.join(File.dirname(__FILE__), 'data', 'excon.cert.key'),
+                :client_cert => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
+               )
+  end
+end
