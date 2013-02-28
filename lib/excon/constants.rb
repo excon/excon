@@ -33,6 +33,8 @@ module Excon
     :body,
     :captures,
     :chunk_size,
+    :client_key,
+    :client_cert,
     :connect_timeout,
     :connection,
     :error,
