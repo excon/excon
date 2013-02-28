@@ -5,10 +5,10 @@ Bundler.require(:default, :development)
 
 require 'stringio'
 
-def basic_tests(url = 'http://127.0.0.1:9292')
+def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   [false, true].each do |nonblock|
-
-    connection = Excon.new(url, :nonblock => nonblock, :ssl_verify_peer => false)
+    options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock })
+    connection = Excon.new(url, options)
 
     tests("nonblock => #{nonblock}") do
 
