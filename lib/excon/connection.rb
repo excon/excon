@@ -239,7 +239,11 @@ module Excon
       end
     rescue => error
       datum[:error] = error
-      datum[:stack].error_call(datum)
+      if datum[:stack]
+        datum[:stack].error_call(datum)
+      else
+        raise error
+      end
     end
 
     # Sends the supplied requests to the destination host using pipelining.
