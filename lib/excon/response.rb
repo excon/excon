@@ -34,7 +34,7 @@ module Excon
         :body       => '',
         :headers    => {},
         :status     => socket.read(12)[9, 11].to_i,
-        :remote_ip  => socket.remote_ip
+        :remote_ip  => socket.respond_to?(:remote_ip) && socket.remote_ip
       }
       socket.readline # read the rest of the status line and CRLF
 
