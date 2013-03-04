@@ -111,7 +111,7 @@ module Excon
     def new(url, params = {})
       uri_parser = params[:uri_parser] || Excon.defaults[:uri_parser]
       uri = uri_parser.parse(url)
-      params.merge!({
+      params = {
         :host       => uri.host,
         :path       => uri.path,
         :port       => uri.port.to_s,
@@ -119,7 +119,7 @@ module Excon
         :scheme     => uri.scheme,
         :user       => (URI.decode(uri.user) if uri.user),
         :password   => (URI.decode(uri.password) if uri.password),
-      })
+      }.merge!(params)
       Excon::Connection.new(params)
     end
 
