@@ -1,4 +1,9 @@
-0.19.3 03/04/2013
+0.19.5 03/04/2013
+=================
+
+fix ssl socket proxy setup
+
+0.19.4 03/04/2013
 =================
 
 fix merge order of params in new
