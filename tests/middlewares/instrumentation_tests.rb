@@ -180,12 +180,42 @@ Shindo.tests('Excon instrumentation') do
 
       @auth_header = 'Basic dXNlcjpwYXNz'
 
-      tests('does not appear in response') do
-        !@captured_stderr.include?(@auth_header)
+      test('does not appear in response') do
+        !@captured_stderr.string.include?(@auth_header)
       end
 
       test('does not mutate Authorization value') do
         @connection.data[:headers]['Authorization'] == @auth_header
+      end
+
+    end
+
+    tests('password REDACT') do
+
+      begin
+        original_stderr = $stderr
+        $stderr = @captured_stderr = StringIO.new
+        stub_failure
+        @connection = Excon.new(
+          'http://user:pass@127.0.0.1:9292',
+          :instrumentor => Excon::StandardInstrumentor,
+          :mock         => true
+          )
+        raises(Excon::Errors::SocketError) do
+          @connection.get(:idempotent => true)
+        end
+      ensure
+        $stderr = original_stderr
+      end
+
+      @password_param = '"pass"'
+
+      test('does not appear in response') do
+        !@captured_stderr.string.include?(@password_param)
+      end
+
+      test('does not mutate password value') do
+        @connection.data[:password] == "pass"
       end
 
     end
