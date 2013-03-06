@@ -288,6 +288,10 @@ module Excon
         vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
         vars[:'@data'][:headers]['Authorization'] = REDACTED
       end
+      if vars[:'@data'][:password]
+        vars[:'@data'] = vars[:'@data'].dup
+        vars[:'@data'][:password] = REDACTED
+      end
       inspection = '#<Excon::Connection:'
       inspection << (object_id << 1).to_s(16)
       vars.each do |key, value|
