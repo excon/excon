@@ -21,13 +21,6 @@ module Excon
       @data[:proxy] = new_proxy
     end
 
-    def assert_valid_keys_for_argument!(argument, valid_keys)
-      invalid_keys = argument.keys - valid_keys
-      return true if invalid_keys.empty?
-      raise ArgumentError, "The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}"
-    end
-    private :assert_valid_keys_for_argument!
-
     # Initializes a new Connection instance
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
@@ -42,7 +35,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
-      assert_valid_keys_for_argument!(params, Excon::VALID_CONNECTION_KEYS)
+      invalid_keys_warning(params, Excon::VALID_CONNECTION_KEYS)
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -202,7 +195,7 @@ module Excon
     def request(params, &block)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
-      assert_valid_keys_for_argument!(params, VALID_CONNECTION_KEYS)
+      invalid_keys_warning(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
       datum[:headers]['Host']   ||= '' << datum[:host] << ':' << datum[:port].to_s
       datum[:retries_remaining] ||= datum[:retry_limit]
@@ -318,6 +311,13 @@ module Excon
         rescue
           0
         end
+      end
+    end
+
+    def invalid_keys_warning(argument, valid_keys)
+      invalid_keys = argument.keys - valid_keys
+      unless invalid_keys.empty?
+        $stderr.puts("The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}")
       end
     end
 
