@@ -1,3 +1,9 @@
+0.20.0 03/08/2013
+=================
+
+redact password from inspect/instrument
+downgrade severity of invalid keys from error to warning
+
 0.19.5 03/04/2013
 =================
 
