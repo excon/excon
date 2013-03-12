@@ -40,6 +40,9 @@ module Excon
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
 
+      # the same goes for :middlewares
+      @data[:middlewares] = @data[:middlewares].dup
+
       @data.merge!(params)
 
       if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
