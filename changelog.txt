@@ -1,3 +1,9 @@
+0.20.1 03/19/2013
+=================
+
+dup middlewares to avoid overwriting original set
+delete datum[:response] in idempotent to ensure new response is parsed
+
 0.20.0 03/08/2013
 =================
 
