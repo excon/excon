@@ -7,6 +7,7 @@ module Excon
           # reduces remaining retries, reset connection, and restart request_call
           datum[:retries_remaining] -= 1
           datum[:connection].reset
+          datum.delete(:response)
           datum.delete(:error)
           datum[:connection].request(datum)
         else
