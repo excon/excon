@@ -57,7 +57,8 @@ module Excon
         @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
         if @data[:scheme] == 'http' && (@data[:proxy][:user] || @data[:proxy][:password])
-          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
+          user, pass = URI.decode_www_form_component(@data[:proxy][:user].to_s), URI.decode_www_form_component(@data[:proxy][:password].to_s)
+          auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
           @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
         end
       end
@@ -68,7 +69,8 @@ module Excon
 
       # Use Basic Auth if url contains a login
       if @data[:user] || @data[:password]
-        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << @data[:user].to_s << ':' << @data[:password].to_s].pack('m').delete(Excon::CR_NL)
+        user, pass = URI.decode_www_form_component(@data[:user].to_s), URI.decode_www_form_component(@data[:password].to_s)
+        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
 
       @socket_key = '' << @data[:host] << ':' << @data[:port].to_s

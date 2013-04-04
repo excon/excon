@@ -2,6 +2,7 @@ with_rackup('basic_auth.ru') do
   Shindo.tests('Excon basics (Authorization data redacted)') do
     cases = [
              ['user & pass', 'http://user1:pass1@foo.com/', 'Basic dXNlcjE6cGFzczE='],
+             ['email & pass', 'http://foo%40bar.com:pass1@foo.com/', 'Basic Zm9vQGJhci5jb206cGFzczE='],
              ['user no pass', 'http://three_user@foo.com/', 'Basic dGhyZWVfdXNlcjo='],
              ['pass no user', 'http://:derppass@foo.com/', 'Basic OmRlcnBwYXNz']
             ]
