@@ -23,7 +23,7 @@ Benchmark.bmbm do |x|
       end
     end
   end
-  
+
   x.report('Hash#has_key (non-existant)') do
     iters.times.each do
       hash.has_key? 'other_key'
@@ -49,7 +49,7 @@ Benchmark.bmbm do |x|
       hash['other_key']
     end
   end
-  
+
   x.report('Hash#has_key (if statement) explicit nil check') do
     iters.times.each do
       if hash.has_key?('nil_key') && !hash['nil_key'].nil?
@@ -57,8 +57,8 @@ Benchmark.bmbm do |x|
       end
     end
   end
-  
-  
+
+
   x.report('Hash#has_key (if statement) implicit nil check') do
     iters.times.each do
       if hash.has_key?('nil_key') && hash['nil_key']
@@ -66,7 +66,7 @@ Benchmark.bmbm do |x|
       end
     end
   end
-  
+
   x.report('Hash#[] (if statement with nil)') do
     iters.times.each do
       if hash['nil_key']
