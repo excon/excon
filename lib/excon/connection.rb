@@ -3,6 +3,15 @@ module Excon
 
     attr_reader :data
 
+    def connection
+      $stderr.puts("Excon::Connection#connection is deprecated use Excon::Connection#data instead (#{caller.first})")
+      @data
+    end
+    def connection=(new_params)
+      $stderr.puts("Excon::Connection#connection= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      @data = new_params
+    end
+
     def params
       $stderr.puts("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
       @data
