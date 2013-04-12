@@ -82,7 +82,7 @@ module Excon
             next
           end
         rescue SystemCallError => exception
-          socket.close
+          socket.close if socket
           next
         end
       end
