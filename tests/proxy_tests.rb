@@ -3,6 +3,10 @@ Shindo.tests('Excon proxy support') do
   tests('proxy configuration') do
 
     tests('no proxy') do
+      ENV.delete('http_proxy')
+      ENV.delete('https_proxy')
+      ENV.delete('HTTP_PROXY')
+      ENV.delete('HTTPS_PROXY')
       connection = Excon.new('http://foo.com')
 
       tests('connection.data[:proxy]').returns(nil) do
@@ -29,6 +33,7 @@ Shindo.tests('Excon proxy support') do
     tests('with lowercase proxy config from the environment') do
       ENV['http_proxy'] = 'http://myproxy:8080'
       ENV['https_proxy'] = 'http://mysecureproxy:8081'
+      ENV['no_proxy'] = 'noproxy, subdomain.noproxy2'
 
       tests('an http connection') do
         connection = Excon.new('http://foo.com')
@@ -36,7 +41,7 @@ Shindo.tests('Excon proxy support') do
         tests('connection.data[:proxy][:host]').returns('myproxy') do
           connection.data[:proxy][:host]
         end
-
+        
         tests('connection.data[:proxy][:port]').returns('8080') do
           connection.data[:proxy][:port]
         end
@@ -74,8 +79,33 @@ Shindo.tests('Excon proxy support') do
         end
       end
 
+      tests('an http connection in no_proxy') do
+        connection = Excon.new('http://somesubdomain.noproxy')
+
+        tests('connection.data[:proxy]').returns(nil) do 
+          connection.data[:proxy]
+        end
+      end
+
+      tests('an http connection not completely matching no_proxy') do
+        connection = Excon.new('http://noproxy2')
+
+        tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection.data[:proxy][:host]
+        end
+      end
+
+      tests('an http connection with subdomain in no_proxy') do
+        connection = Excon.new('http://unproxied.noproxy2')
+
+        tests('connection.data[:proxy]').returns(nil) do
+          nil
+        end
+      end
+
       ENV.delete('http_proxy')
       ENV.delete('https_proxy')
+      ENV.delete('no_proxy')
     end
 
     tests('with uppercase proxy config from the environment') do
