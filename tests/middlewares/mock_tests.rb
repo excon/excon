@@ -1,4 +1,5 @@
 Shindo.tests('Excon stubs') do
+  cleanEnv
 
   tests("missing stub").raises(Excon::Errors::StubNotFound) do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
@@ -198,4 +199,5 @@ Shindo.tests('Excon stubs') do
     end
   end
 
+  restoreEnv
 end
