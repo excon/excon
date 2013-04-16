@@ -140,6 +140,36 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   end
 end
 
+
+@@proxy_environment_variables = ['http_proxy', 'https_proxy', 'no_proxy'] # All lower-case
+@@saved_environment_stack = []
+
+def cleanEnv
+  current = {}
+  def moveEnv(store, k)
+    store[k] = ENV[k]
+    ENV.delete(k)
+  end
+  
+  @@proxy_environment_variables.each do |k|
+    moveEnv current, k
+    moveEnv current, k.upcase
+  end
+  @@saved_environment_stack << current
+end
+
+def setupEnv(env)
+  cleanEnv
+  env.each do |k, v|
+    ENV[k] = v
+  end
+end
+
+
+def restoreEnv
+  ENV.update(@@saved_environment_stack.pop)
+end
+
 def rackup_path(*parts)
   File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
 end

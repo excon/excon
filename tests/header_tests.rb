@@ -1,4 +1,5 @@
 Shindo.tests('Excon response header support') do
+  cleanEnv
 
   with_rackup('response_header.ru') do
 
@@ -45,5 +46,7 @@ Shindo.tests('Excon response header support') do
     end
 
   end
+  
+  restoreEnv
 
 end
