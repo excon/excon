@@ -1,5 +1,5 @@
 Shindo.tests('Excon proxy support') do
-  cleanEnv
+  env_init
 
   tests('proxy configuration') do
 
@@ -27,8 +27,8 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
-    def proxyEnv(env)
-      setupEnv(env)
+    def env_proxy_tests(env)
+      env_init(env)
 
       tests('an http connection') do
         connection = Excon.new('http://foo.com')
@@ -97,25 +97,26 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy]
         end
       end
-      
-      restoreEnv
+
+      env_restore
     end
 
     tests('with complete proxy config from the environment') do
-      env = {'http_proxy' => 'http://myproxy:8080',
-              'https_proxy' => 'http://mysecureproxy:8081',
-              'no_proxy' => 'noproxy, subdomain.noproxy2'}
-      
-      tests('lowercase') { proxyEnv(env) }
+      env = {
+        'http_proxy' => 'http://myproxy:8080',
+        'https_proxy' => 'http://mysecureproxy:8081',
+        'no_proxy' => 'noproxy, subdomain.noproxy2'
+      }
+      tests('lowercase') { env_proxy_tests(env) }
       upperenv = {}
       env.each do |k, v|
         upperenv[k.upcase] = v
       end
-      tests('uppercase') { proxyEnv(upperenv) }
+      tests('uppercase') { env_proxy_tests(upperenv) }
     end
 
     tests('with only http_proxy config from the environment') do
-      setupEnv({'http_proxy' => 'http://myproxy:8080' })
+      env_init({'http_proxy' => 'http://myproxy:8080' })
 
       tests('an https connection') do
         connection = Excon.new('https://secret.com')
@@ -133,7 +134,7 @@ Shindo.tests('Excon proxy support') do
         end
       end
 
-      restoreEnv
+      env_restore
     end
 
   end
@@ -193,7 +194,6 @@ Shindo.tests('Excon proxy support') do
     end
 
   end
-  
-  restoreEnv
 
+  env_restore
 end

@@ -141,32 +141,23 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
 end
 
 
-@@proxy_environment_variables = ['http_proxy', 'https_proxy', 'no_proxy'] # All lower-case
+PROXY_ENV_VARIABLES = %w{http_proxy https_proxy no_proxy} # All lower-case
 @@saved_environment_stack = []
 
-def cleanEnv
+def env_init(env={})
   current = {}
-  def moveEnv(store, k)
-    store[k] = ENV[k]
-    ENV.delete(k)
-  end
-  
-  @@proxy_environment_variables.each do |k|
-    moveEnv current, k
-    moveEnv current, k.upcase
+  PROXY_ENV_VARIABLES.each do |key|
+    current[key] = ENV.delete(key)
+    current[key.upcase] = ENV.delete(key.upcase)
   end
   @@saved_environment_stack << current
-end
 
-def setupEnv(env)
-  cleanEnv
-  env.each do |k, v|
-    ENV[k] = v
+  env.each do |key, value|
+    ENV[key] = value
   end
 end
 
-
-def restoreEnv
+def env_restore
   ENV.update(@@saved_environment_stack.pop)
 end
 
