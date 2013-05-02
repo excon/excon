@@ -80,7 +80,7 @@ Gem::Specification.new do |s|
     benchmarks/excon_vs.rb
     benchmarks/for_vs_array_each.rb
     benchmarks/for_vs_hash_each.rb
-    benchmarks/has_key-vs-hash[key].rb
+    benchmarks/has_key-vs-lookup.rb
     benchmarks/headers_case_sensitivity.rb
     benchmarks/headers_split_vs_match.rb
     benchmarks/implicit_block-vs-explicit_block.rb
