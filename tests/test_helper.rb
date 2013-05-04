@@ -142,7 +142,6 @@ end
 
 
 PROXY_ENV_VARIABLES = %w{http_proxy https_proxy no_proxy} # All lower-case
-@@saved_environment_stack = []
 
 def env_init(env={})
   current = {}
@@ -150,7 +149,7 @@ def env_init(env={})
     current[key] = ENV.delete(key)
     current[key.upcase] = ENV.delete(key.upcase)
   end
-  @@saved_environment_stack << current
+  env_stack << current
 
   env.each do |key, value|
     ENV[key] = value
@@ -158,7 +157,11 @@ def env_init(env={})
 end
 
 def env_restore
-  ENV.update(@@saved_environment_stack.pop)
+  ENV.update(env_stack.pop)
+end
+
+def env_stack
+  @env_stack ||= []
 end
 
 def rackup_path(*parts)
