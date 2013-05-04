@@ -157,6 +157,40 @@ module Excon
       stub
     end
 
+    # get a stub matching params or nil
+    def stub_for(request_params={})
+      Excon.stubs.each do |stub, response|
+        captures = { :headers => {} }
+        headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
+          case value = stub[:headers][key]
+          when Regexp
+            if match = value.match(request_params[:headers][key])
+              captures[:headers][key] = match.captures
+            end
+            match
+          else
+            value == request_params[:headers][key]
+          end
+        end
+        non_headers_match = (stub.keys - [:headers]).all? do |key|
+          case value = stub[key]
+          when Regexp
+            if match = value.match(request_params[key])
+              captures[key] = match.captures
+            end
+            match
+          else
+            value == request_params[key]
+          end
+        end
+        if headers_match && non_headers_match
+          request_params[:captures] = captures
+          return response
+        end
+      end
+      nil
+    end
+
     # get a list of defined stubs
     def stubs
       @stubs ||= []
