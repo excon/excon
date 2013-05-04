@@ -1,3 +1,16 @@
+0.21.0 05/04/2013
+=================
+
+update bundled cacert
+add deprecated connection helper
+URL decode user/pass for basic auth
+fix odd name/permissions in benchmarks
+check for socket before closing one
+add support for no_proxy
+include scheme in socket key
+make socket.connect private
+allow stub lookup with Excon.stub_for
+
 0.20.1 03/19/2013
 =================
 
