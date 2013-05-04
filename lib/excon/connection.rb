@@ -86,7 +86,7 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:host] << ':' << @data[:port].to_s
+      @socket_key = '' << @data[:scheme] << '://' << @data[:host] << ':' << @data[:port].to_s
       reset
     end
 
