@@ -67,11 +67,6 @@ module Excon
       @socket
     end
 
-    def connect
-      check_nonblock_support
-      super
-    end
-
     def read(max_length=nil)
       check_nonblock_support
       super
@@ -90,6 +85,11 @@ module Excon
         $stderr.puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
         @data[:nonblock] = false
       end
+    end
+
+    def connect
+      check_nonblock_support
+      super
     end
 
   end

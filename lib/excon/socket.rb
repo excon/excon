@@ -32,67 +32,6 @@ module Excon
       connect
     end
 
-    def connect
-      @socket = nil
-      exception = nil
-
-      addrinfo = if @data[:proxy]
-        ::Socket.getaddrinfo(@data[:proxy][:host], @data[:proxy][:port], @data[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
-      else
-        ::Socket.getaddrinfo(@data[:host], @data[:port], @data[:family], ::Socket::Constants::SOCK_STREAM)
-      end
-
-      addrinfo.each do |_, port, _, ip, a_family, s_type|
-        @remote_ip = ip
-
-        # nonblocking connect
-        begin
-          sockaddr = ::Socket.sockaddr_in(port, ip)
-
-          socket = ::Socket.new(a_family, s_type, 0)
-
-          if @data[:nonblock]
-            socket.connect_nonblock(sockaddr)
-          else
-            begin
-              Timeout.timeout(@data[:connect_timeout]) do
-                socket.connect(sockaddr)
-              end
-            rescue Timeout::Error
-              raise Excon::Errors::Timeout.new('connect timeout reached')
-            end
-          end
-
-          @socket = socket
-          break
-        rescue Errno::EINPROGRESS
-          unless IO.select(nil, [socket], nil, @data[:connect_timeout])
-            raise(Excon::Errors::Timeout.new("connect timeout reached"))
-          end
-          begin
-            socket.connect_nonblock(sockaddr)
-
-            @socket = socket
-            break
-          rescue Errno::EISCONN
-            @socket = socket
-            break
-          rescue SystemCallError => exception
-            socket.close
-            next
-          end
-        rescue SystemCallError => exception
-          socket.close if socket
-          next
-        end
-      end
-
-      unless @socket
-        # this will be our last encountered exception
-        raise exception
-      end
-    end
-
     def read(max_length=nil)
       if @eof
         return nil
@@ -195,6 +134,69 @@ module Excon
         rescue Timeout::Error
           Excon::Errors::Timeout.new('write timeout reached')
         end
+      end
+    end
+
+    private
+
+    def connect
+      @socket = nil
+      exception = nil
+
+      addrinfo = if @data[:proxy]
+        ::Socket.getaddrinfo(@data[:proxy][:host], @data[:proxy][:port], @data[:proxy][:family], ::Socket::Constants::SOCK_STREAM)
+      else
+        ::Socket.getaddrinfo(@data[:host], @data[:port], @data[:family], ::Socket::Constants::SOCK_STREAM)
+      end
+
+      addrinfo.each do |_, port, _, ip, a_family, s_type|
+        @remote_ip = ip
+
+        # nonblocking connect
+        begin
+          sockaddr = ::Socket.sockaddr_in(port, ip)
+
+          socket = ::Socket.new(a_family, s_type, 0)
+
+          if @data[:nonblock]
+            socket.connect_nonblock(sockaddr)
+          else
+            begin
+              Timeout.timeout(@data[:connect_timeout]) do
+                socket.connect(sockaddr)
+              end
+            rescue Timeout::Error
+              raise Excon::Errors::Timeout.new('connect timeout reached')
+            end
+          end
+
+          @socket = socket
+          break
+        rescue Errno::EINPROGRESS
+          unless IO.select(nil, [socket], nil, @data[:connect_timeout])
+            raise(Excon::Errors::Timeout.new("connect timeout reached"))
+          end
+          begin
+            socket.connect_nonblock(sockaddr)
+
+            @socket = socket
+            break
+          rescue Errno::EISCONN
+            @socket = socket
+            break
+          rescue SystemCallError => exception
+            socket.close
+            next
+          end
+        rescue SystemCallError => exception
+          socket.close if socket
+          next
+        end
+      end
+
+      unless @socket
+        # this will be our last encountered exception
+        raise exception
       end
     end
 
