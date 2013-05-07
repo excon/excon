@@ -121,15 +121,7 @@ module Excon
       }
 
       error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
-
-      # scrub authorization
-      request = request.dup
-      request.reject! {|key, value| [:connection, :stack].include?(key)}
-      if request.has_key?(:headers) && request[:headers].has_key?('Authorization')
-        request[:headers] = request[:headers].dup
-        request[:headers]['Authorization'] = REDACTED
-      end
-      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{message})\n  request => #{request.inspect}\n  response => #{response.inspect}", request, response)
+      error.new("Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{message})", request, response)
     end
 
   end
