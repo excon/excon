@@ -33,20 +33,6 @@ module Excon
             if stub_datum.has_key?(:headers)
               datum[:response][:headers].merge!(stub_datum[:headers])
             end
-
-            if datum[:expects] && ![*datum[:expects]].include?(datum[:response][:status])
-              # don't pass stuff into a block if there was an error
-            elsif datum.has_key?(:response_block) && datum[:response].has_key?(:body)
-              body = datum[:response][:body]
-              datum[:response][:body] = '' # matches with non-mocked streaming behavior
-              content_length = remaining = body.bytesize
-              i = 0
-              while i < body.length
-                datum[:response_block].call(body[i, datum[:chunk_size]], [remaining - datum[:chunk_size], 0].max, content_length)
-                remaining -= datum[:chunk_size]
-                i += datum[:chunk_size]
-              end
-            end
           else
             # if we reach here no stubs matched
             raise(Excon::Errors::StubNotFound.new('no stubs matched ' << datum.inspect))
