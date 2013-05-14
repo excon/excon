@@ -37,7 +37,8 @@ module Excon
             if datum[:expects] && ![*datum[:expects]].include?(datum[:response][:status])
               # don't pass stuff into a block if there was an error
             elsif datum.has_key?(:response_block) && datum[:response].has_key?(:body)
-              body = datum[:response].delete(:body)
+              body = datum[:response][:body]
+              datum[:response][:body] = '' # matches with non-mocked streaming behavior
               content_length = remaining = body.bytesize
               i = 0
               while i < body.length
