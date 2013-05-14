@@ -51,6 +51,9 @@ Both one-off and persistent connections support many other options. Here are a f
     # POST body
     Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
 
+    # same again, but using URI to build the body of parameters
+    Excon.post('http://geemus.com', :body => URI.encode_www_form(:language => 'ruby', :class => 'fog'))
+
     # request accepts either symbols or strings
     connection.request(:method => :get)
     connection.request(:method => 'GET')
