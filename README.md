@@ -49,10 +49,10 @@ Both one-off and persistent connections support many other options. Here are a f
     connection.get(:query => {:foo => 'bar'})
 
     # POST body encoded with application/x-www-form-urlencoded
-    Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
+    Excon.post('http://geemus.com', :body => 'language=ruby&class=fog', :headers => { "Content-Type" => "application/x-www-form-urlencoded" })
 
     # same again, but using URI to build the body of parameters
-    Excon.post('http://geemus.com', :body => URI.encode_www_form(:language => 'ruby', :class => 'fog'))
+    Excon.post('http://geemus.com', :body => URI.encode_www_form(:language => 'ruby', :class => 'fog'), :headers => { "Content-Type" => "application/x-www-form-urlencoded" })
 
     # request accepts either symbols or strings
     connection.request(:method => :get)
