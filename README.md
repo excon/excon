@@ -48,7 +48,7 @@ Both one-off and persistent connections support many other options. Here are a f
     connection = Excon.new('http://geemus.com/')
     connection.get(:query => {:foo => 'bar'})
 
-    # POST body
+    # POST body encoded with application/x-www-form-urlencoded
     Excon.post('http://geemus.com', :body => 'language=ruby&class=fog')
 
     # same again, but using URI to build the body of parameters
