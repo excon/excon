@@ -29,6 +29,7 @@ module Excon
         ],
         :mock               => false,
         :nonblock           => DEFAULT_NONBLOCK,
+        :omit_default_port  => false,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,
         :ssl_ca_file        => DEFAULT_CA_FILE,
