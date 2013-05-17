@@ -50,6 +50,7 @@ module Excon
     :middlewares,
     :mock,
     :nonblock,
+    :omit_default_port,
     :password,
     :path,
     :pipeline,

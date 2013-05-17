@@ -61,8 +61,11 @@ Both one-off and persistent connections support many other options. Here are a f
     # this request can be repeated safely, retry up to 6 times
     connection.request(:idempotent => true, :retry_limit => 6)
 
-    # opt out of nonblocking operations for performance and/or as a workaround
+    # opt-out of nonblocking operations for performance and/or as a workaround
     connection.request(:nonblock => false)
+
+    # opt-in to omitting port from http:80 and https:443
+    connection.request(:omit_default_port => true)
 
     # set longer connect_timeout (default is 60 seconds)
     connection.request(:connect_timeout => 360)
