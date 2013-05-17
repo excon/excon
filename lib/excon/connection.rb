@@ -106,7 +106,7 @@ module Excon
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
           if @data[:proxy]
-            request << datum[:scheme] << '://' << @data[:host] << port_string(data[:port], data[:scheme])
+            request << datum[:scheme] << '://' << @data[:host] << port_string(@data)
           end
           request << datum[:path]
 
@@ -215,7 +215,8 @@ module Excon
       datum = @data.merge(params)
       invalid_keys_warning(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
-      datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum[:port], datum[:scheme])
+
+      datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
@@ -385,16 +386,11 @@ module Excon
       end
     end
 
-    def port_string(port=80, scheme="http")
-      scheme = scheme.to_s.downcase
-      port = port.to_i
-
-      if port == 80 && scheme == "http"
-        ""
-      elsif port == 443 && scheme == "https"
-        ""
+    def port_string(datum)
+      if (datum[:scheme].casecmp('http') == 0 && datum[:port].to_i == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port].to_i == 443)
+        ''
       else
-        ":#{port}"
+        ':' << datum[:port].to_s
       end
     end
   end
