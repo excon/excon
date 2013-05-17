@@ -1,3 +1,11 @@
+0.22.0 05/17/2013
+=================
+
+remove request/response info from default error messages to avoid credential leaks
+add option to omit default ports (http:80 and https:443)
+add examples for form encoding
+updates to facilitate streaming responses from middleware responses
+
 0.21.0 05/04/2013
 =================
 
