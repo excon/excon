@@ -9,6 +9,9 @@ module Excon
           datum[:connection].reset
           datum.delete(:response)
           datum.delete(:error)
+          if datum[:before_retry_block]
+            datum[:before_retry_block].call(datum)
+          end
           datum[:connection].request(datum)
         else
           @stack.error_call(datum)

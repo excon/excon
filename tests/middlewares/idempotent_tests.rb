@@ -128,4 +128,36 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
+  tests("Idempotent request with a before_retry_block specified and an erroring socket").returns(3) do
+    Excon.stub({:method => :get}) { |params|
+      raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+    }
+
+    before_retry_block_call_count = 0
+    before_retry_block = proc { before_retry_block_call_count += 1 }
+
+    begin
+      response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :before_retry_block => before_retry_block)
+    rescue Excon::Errors::SocketError
+    end
+    before_retry_block_call_count
+  end
+
+  tests("Idempotent request with a before_retry_block specified and an eventually succeeding socket").returns(2) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 2 # First 2 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    before_retry_block_call_count = 0
+    before_retry_block = proc { before_retry_block_call_count += 1 }
+
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :before_retry_block => before_retry_block)
+    before_retry_block_call_count
+  end
 end

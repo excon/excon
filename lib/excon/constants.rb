@@ -30,6 +30,7 @@ module Excon
   REDACTED = 'REDACTED'
 
   VALID_CONNECTION_KEYS = [
+    :before_retry_block,
     :body,
     :captures,
     :chunk_size,
