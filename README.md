@@ -251,7 +251,7 @@ Copyright
 
 (The MIT License)
 
-Copyright (c) 2010-2011 {geemus (Wesley Beary)}[http://github.com/geemus]
+Copyright (c) 2010-2013 {geemus (Wesley Beary)}[http://github.com/geemus]
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
