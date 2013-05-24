@@ -64,6 +64,7 @@ module Excon
     :retries_remaining,
     :retry_limit,
     :scheme,
+    :tcp_nodelay,
     :uri_parser,
     :user,
     :ssl_ca_file,

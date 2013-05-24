@@ -198,6 +198,12 @@ module Excon
         # this will be our last encountered exception
         raise exception
       end
+
+      if @data[:tcp_nodelay]
+        @socket.setsockopt(::Socket::IPPROTO_TCP,
+                           ::Socket::TCP_NODELAY,
+                           true)
+      end
     end
 
   end
