@@ -4,29 +4,29 @@ module Excon
     attr_reader :data
 
     def connection
-      $stderr.puts("Excon::Connection#connection is deprecated use Excon::Connection#data instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#connection is deprecated use Excon::Connection#data instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data
     end
     def connection=(new_params)
-      $stderr.puts("Excon::Connection#connection= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#connection= is deprecated use Excon::Connection#data= instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data = new_params
     end
 
     def params
-      $stderr.puts("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data
     end
     def params=(new_params)
-      $stderr.puts("Excon::Connection#params= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#params= is deprecated use Excon::Connection#data= instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data = new_params
     end
 
     def proxy
-      $stderr.puts("Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data[:proxy]
     end
     def proxy=(new_proxy)
-      $stderr.puts("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})")
+      $stderr.puts("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data[:proxy] = new_proxy
     end
 
@@ -224,7 +224,7 @@ module Excon
       end
 
       if block_given?
-        $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        $stderr.puts("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})") if !ENV['VERBOSE'].nil?
         datum[:response_block] = Proc.new
       end
 
@@ -281,12 +281,12 @@ module Excon
     end
 
     def retry_limit=(new_retry_limit)
-      $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      $stderr.puts("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data[:retry_limit] = new_retry_limit
     end
 
     def retry_limit
-      $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      $stderr.puts("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
@@ -335,7 +335,7 @@ module Excon
     def invalid_keys_warning(argument, valid_keys)
       invalid_keys = argument.keys - valid_keys
       unless invalid_keys.empty?
-        $stderr.puts("The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}")
+        $stderr.puts("The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}") if !ENV['VERBOSE'].nil?
       end
     end
 

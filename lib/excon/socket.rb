@@ -6,11 +6,11 @@ module Excon
     attr_accessor :data
 
     def params
-      $stderr.puts("Excon::Socket#params is deprecated use Excon::Socket#data instead (#{caller.first})")
+      $stderr.puts("Excon::Socket#params is deprecated use Excon::Socket#data instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data
     end
     def params=(new_params)
-      $stderr.puts("Excon::Socket#params= is deprecated use Excon::Socket#data= instead (#{caller.first})")
+      $stderr.puts("Excon::Socket#params= is deprecated use Excon::Socket#data= instead (#{caller.first})") if !ENV['VERBOSE'].nil?
       @data = new_params
     end
 
