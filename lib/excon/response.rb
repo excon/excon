@@ -106,7 +106,7 @@ module Excon
     end
 
     def params
-      $stderr.puts("Excon::Response#params is deprecated use Excon::Response#data instead (#{caller.first})") if !ENV['VERBOSE'].nil?
+      Excon.display_warning("Excon::Response#params is deprecated use Excon::Response#data instead (#{caller.first})")
       data
     end
 

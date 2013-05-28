@@ -82,7 +82,7 @@ module Excon
     def check_nonblock_support
       # backwards compatability for things lacking nonblock
       if !DEFAULT_NONBLOCK && @data[:nonblock]
-        $stderr.puts("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket") if !ENV['VERBOSE'].nil?
+        Excon.display_warning("Excon nonblock is not supported by your OpenSSL::SSL::SSLSocket")
         @data[:nonblock] = false
       end
     end
