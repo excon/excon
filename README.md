@@ -83,6 +83,13 @@ Both one-off and persistent connections support many other options. Here are a f
     # set longer write_timeout (default is 60 seconds)
     connection.request(:write_timeout => 360)
 
+    # Enable the socket option TCP_NODELAY on the underlying socket.
+    #
+    # This can improve response time when sending frequent short
+    # requests in time-sensitive scenarios.
+    #
+    connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
+
 These options can be combined to make pretty much any request you might need.
 
 Excon can also expect one or more HTTP status code in response, raising an exception if the response does not meet the criteria.
