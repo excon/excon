@@ -25,8 +25,24 @@ module Excon
       end
 
       if @data.has_key?(:client_cert) && @data.has_key?(:client_key)
-        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(@data[:client_cert]))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(@data[:client_key]))
+        client_cert, client_key = begin
+                                    [File.read(@data[:client_cert]), File.read(@data[:client_key])]
+                                  rescue Errno::ENOENT, Errno::ENAMETOOLONG
+                                    [@data[:client_cert], @data[:client_key]]
+                                  end
+        begin
+          client_cert_file = Tempfile.new('client_cert')
+          client_key_file  = Tempfile.new('client_key')
+          client_cert_file.write client_cert
+          client_key_file.write  client_key
+          client_cert_file.flush
+          client_key_file.flush
+          ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(client_cert_file.path))
+          ssl_context.key = OpenSSL::PKey::RSA.new(File.read(client_key_file.path))
+        ensure
+          client_cert_file.close!
+          client_key_file.close!
+        end
       end
 
       if @data[:proxy]
