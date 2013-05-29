@@ -37,6 +37,8 @@ module Excon
     :client_cert,
     :connect_timeout,
     :connection,
+    :debug_request,
+    :debug_response,
     :error,
     :exception,
     :expects,
