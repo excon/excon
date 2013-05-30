@@ -149,12 +149,9 @@ module Excon
           # add additional "\r\n" to indicate end of headers
           request << CR_NL
 
-          # write out the request, sans body
-          socket.write(request)
-
-          # write out the body
           if datum.has_key?(:request_block)
-            while true
+            socket.write(request) # write out request + headers
+            while true # write out body with chunked encoding
               chunk = datum[:request_block].call
               if FORCE_ENC
                 chunk.force_encoding('BINARY')
@@ -167,11 +164,10 @@ module Excon
               end
             end
           elsif !datum[:body].nil?
-            if datum[:body].is_a?(String)
-              unless datum[:body].empty?
-                socket.write(datum[:body])
-              end
-            else
+            if datum[:body].is_a?(String) # write out string body
+              socket.write(request << datum[:body]) # write out request + headers + body
+            else # write out file body
+              socket.write(request) # write out request + headers
               if datum[:body].respond_to?(:binmode)
                 datum[:body].binmode
               end
@@ -182,6 +178,8 @@ module Excon
                 socket.write(chunk)
               end
             end
+          else # write out nil body
+            socket.write(request) # write out request + headers
           end
         end
       rescue => error
