@@ -68,6 +68,9 @@ Both one-off and persistent connections support many other options. Here are a f
     # this request can be repeated safely, retry up to 6 times
     connection.request(:idempotent => true, :retry_limit => 6)
 
+    # call a block before each retry
+    connection.request(:idempotent => true, :before_retry_block => proc {|params| ... })
+
     # opt-out of nonblocking operations for performance and/or as a workaround
     connection.request(:nonblock => false)
 
