@@ -52,7 +52,7 @@ with_rackup('ssl.ru') do
 end
 
 with_rackup('ssl_verify_peer.ru') do
-  Shindo.tests('Excon basics (ssl)',['focus']) do
+  Shindo.tests('Excon basics (ssl file)',['focus']) do
     connection = Excon::Connection.new({
       :host             => '127.0.0.1',
       :nonblock         => false,
@@ -68,6 +68,42 @@ with_rackup('ssl_verify_peer.ru') do
     basic_tests('https://127.0.0.1:8443',
                 :client_key => File.join(File.dirname(__FILE__), 'data', 'excon.cert.key'),
                 :client_cert => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
+               )
+
+  end
+
+  Shindo.tests('Excon basics (ssl file paths)',['focus']) do
+    connection = Excon::Connection.new({
+      :host             => '127.0.0.1',
+      :nonblock         => false,
+      :port             => 8443,
+      :scheme           => 'https',
+      :ssl_verify_peer  => false
+    })
+
+    tests('GET /content-length/100').raises(Excon::Errors::SocketError) do
+      connection.request(:method => :get, :path => '/content-length/100')
+    end
+
+    basic_tests('https://127.0.0.1:8443',
+                :private_key_path => File.join(File.dirname(__FILE__), 'data', 'excon.cert.key'),
+                :certificate_path => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
+               )
+
+  end
+
+  Shindo.tests('Excon basics (ssl string)', ['focus']) do
+    connection = Excon::Connection.new({
+      :host             => '127.0.0.1',
+      :nonblock         => false,
+      :port             => 8443,
+      :scheme           => 'https',
+      :ssl_verify_peer  => false
+    })
+
+    basic_tests('https://127.0.0.1:8443',
+                :private_key => File.read(File.join(File.dirname(__FILE__), 'data', 'excon.cert.key')),
+                :certificate => File.read(File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt'))
                )
   end
 end
