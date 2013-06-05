@@ -35,6 +35,8 @@ module Excon
     :chunk_size,
     :client_key,
     :client_cert,
+    :certificate,
+    :private_key,
     :connect_timeout,
     :connection,
     :error,
