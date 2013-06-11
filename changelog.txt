@@ -1,3 +1,13 @@
+0.23.0 06/10/2013
+=================
+
+defer writing request/headers to allow all-in-one
+allow opt-in for request/response error info
+add configurable TCP_NODELAY
+consolidate warning display
+respect ruby verbosity conventions
+fix copyright years in notice
+
 0.22.1 05/17/2013
 =================
 

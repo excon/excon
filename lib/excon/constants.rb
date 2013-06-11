@@ -75,7 +75,7 @@ module Excon
     :write_timeout
   ]
 
-  VERSION = '0.22.1'
+  VERSION = '0.23.0'
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
