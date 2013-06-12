@@ -1,3 +1,8 @@
+0.24.0 06/12/2013
+=================
+
+allow passing ssl creds as strings or file paths
+
 0.23.0 06/10/2013
 =================
 
