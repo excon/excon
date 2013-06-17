@@ -23,7 +23,7 @@ module Excon
           if File.exists?(OpenSSL::Config::DEFAULT_CONFIG_FILE)
             ssl_context.cert_store.set_default_paths
           else
-            ssl_context.add_file(DEFAULT_CA_FILE)
+            ssl_context.cert_store.add_file(DEFAULT_CA_FILE)
           end
         end
       else
