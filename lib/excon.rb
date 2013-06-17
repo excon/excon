@@ -34,8 +34,7 @@ module Excon
         :omit_default_port  => false,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,
-        :ssl_ca_file        => DEFAULT_CA_FILE,
-        :ssl_verify_peer    => RbConfig::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i,
+        :ssl_verify_peer    => true,
         :tcp_nodelay        => false,
         :uri_parser         => URI,
         :write_timeout      => 60

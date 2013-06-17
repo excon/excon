@@ -18,6 +18,13 @@ module Excon
           ssl_context.ca_path = @data[:ssl_ca_path]
         elsif @data[:ssl_ca_file]
           ssl_context.ca_file = @data[:ssl_ca_file]
+        else # attempt default, fallback to bundled
+          ssl_context.cert_store = OpenSSL::X509::Store.new
+          if File.exists?(OpenSSL::Config::DEFAULT_CONFIG_FILE)
+            ssl_context.cert_store.set_default_paths
+          else
+            ssl_context.add_file(DEFAULT_CA_FILE)
+          end
         end
       else
         # turn verification off
