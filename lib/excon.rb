@@ -135,6 +135,9 @@ module Excon
     #   @param [Hash<Symbol, >] request params to match against, omitted params match all
     #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params = {}, response_params = nil)
+      if method = request_params.delete(:method)
+        request_params[:method] = method.downcase.to_sym
+      end
       if url = request_params.delete(:url)
         uri = URI.parse(url)
         request_params.update(
@@ -167,6 +170,9 @@ module Excon
 
     # get a stub matching params or nil
     def stub_for(request_params={})
+      if method = request_params.delete(:method)
+        request_params[:method] = method.downcase.to_sym
+      end
       Excon.stubs.each do |stub, response|
         captures = { :headers => {} }
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
