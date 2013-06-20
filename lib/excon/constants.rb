@@ -21,7 +21,7 @@ module Excon
 
   HTTP_1_1 = " HTTP/1.1\r\n"
 
-  HTTP_VERBS = %w{connect delete get head options post put trace patch}
+  HTTP_VERBS = %w{connect delete get head options patch post put trace}
 
   HTTPS = 'https'
 
