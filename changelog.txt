@@ -1,3 +1,9 @@
+0.25.0 06/20/2013
+=================
+
+attempt to use OS certs first, only use bundled as fallback
+normalize method in stubs
+
 0.24.0 06/12/2013
 =================
 
