@@ -136,7 +136,7 @@ module Excon
     #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params = {}, response_params = nil)
       if method = request_params.delete(:method)
-        request_params[:method] = method.downcase.to_sym
+        request_params[:method] = method.to_s.downcase.to_sym
       end
       if url = request_params.delete(:url)
         uri = URI.parse(url)
@@ -171,7 +171,7 @@ module Excon
     # get a stub matching params or nil
     def stub_for(request_params={})
       if method = request_params.delete(:method)
-        request_params[:method] = method.downcase.to_sym
+        request_params[:method] = method.to_s.downcase.to_sym
       end
       Excon.stubs.each do |stub, response|
         captures = { :headers => {} }
