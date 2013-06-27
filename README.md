@@ -1,7 +1,7 @@
 excon
 =====
 
-Http(s) EXtended CONnections
+Usable, fast, simple Ruby HTTP 1.0
 
 [![Build Status](https://secure.travis-ci.org/geemus/excon.png)](http://travis-ci.org/geemus/excon)
 [![Dependency Status](https://gemnasium.com/geemus/excon.png)](https://gemnasium.com/geemus/excon)
