@@ -1,3 +1,9 @@
+0.25.1 07/01/2013
+=================
+
+fix for jruby ssl
+more explicit description in docs
+
 0.25.0 06/20/2013
 =================
 
