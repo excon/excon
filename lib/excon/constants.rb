@@ -78,6 +78,7 @@ module Excon
   ]
 
   VERSION = '0.25.1'
+  USER_AGENT = 'excon/' << VERSION
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO

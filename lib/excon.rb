@@ -20,7 +20,9 @@ module Excon
         :connect_timeout    => 60,
         :debug_request      => false,
         :debug_response     => false,
-        :headers            => {},
+        :headers            => {
+          'User-Agent' => USER_AGENT
+        },
         :idempotent         => false,
         :instrumentor_name  => 'excon',
         :middlewares        => [
