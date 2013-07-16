@@ -346,10 +346,6 @@ module Excon
     end
 
     def response(datum={})
-      unless datum.has_key?(:response)
-        datum = Excon::Response.parse(socket, datum)
-      end
-
       datum[:stack].response_call(datum)
     rescue => error
       case error
