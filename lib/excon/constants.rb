@@ -77,7 +77,7 @@ module Excon
     :write_timeout
   ]
 
-  VERSION = '0.25.1'
+  VERSION = '0.25.2'
   USER_AGENT = 'excon/' << VERSION
 
   unless ::IO.const_defined?(:WaitReadable)
