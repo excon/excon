@@ -14,10 +14,10 @@ module Excon
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if @data[:ssl_ca_path]
-          ssl_context.ca_path = @data[:ssl_ca_path]
-        elsif @data[:ssl_ca_file]
-          ssl_context.ca_file = @data[:ssl_ca_file]
+        if ca_path = ENV['SSL_CERT_DIR'] || @data[:ssl_ca_path]
+          ssl_context.ca_path = ca_path
+        elsif ca_file = ENV['SSL_CERT_FILE'] || @data[:ssl_ca_file]
+          ssl_context.ca_file = ca_file
         else # attempt default, fallback to bundled
           ssl_context.cert_store = OpenSSL::X509::Store.new
           if !defined?(OpenSSL::Config::DEFAULT_CONFIG_FILE) || File.exists?(OpenSSL::Config::DEFAULT_CONFIG_FILE)
