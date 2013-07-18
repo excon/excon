@@ -1,3 +1,12 @@
+0.25.2 07/18/2013
+=================
+
+add license to gemspec
+add "excon/#{version}" default user agent
+create/use response parser middleware
+fix proxy request info to use datum rather than @data
+
+
 0.25.1 07/01/2013
 =================
 

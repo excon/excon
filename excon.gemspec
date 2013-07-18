@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   ## the sub! line in the Rakefile
   s.name              = 'excon'
   s.version           = '0.25.1'
-  s.date              = '2013-07-16'
+  s.date              = '2013-07-18'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
