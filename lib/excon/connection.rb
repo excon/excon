@@ -105,8 +105,8 @@ module Excon
           socket.data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
-          if @data[:proxy]
-            request << datum[:scheme] << '://' << @data[:host] << port_string(@data)
+          if datum[:proxy]
+            request << datum[:scheme] << '://' << datum[:host] << port_string(datum)
           end
           request << datum[:path]
 
