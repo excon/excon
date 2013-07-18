@@ -1,3 +1,9 @@
+0.25.3 07/18/2013
+=================
+
+respect SSL_CERT_DIR/SSL_CERT_FILE
+more aggressively include bundled cert as fallback
+
 0.25.2 07/18/2013
 =================
 
