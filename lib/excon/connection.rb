@@ -378,7 +378,7 @@ module Excon
         {
           :host       => uri.host,
           :password   => uri.password,
-          :port       => uri.port.to_s,
+          :port       => uri.port,
           :scheme     => uri.scheme,
           :user       => uri.user
         }
