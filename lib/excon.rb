@@ -126,7 +126,7 @@ module Excon
       params = {
         :host       => uri.host,
         :path       => uri.path,
-        :port       => uri.port.to_s,
+        :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
         :user       => (URI.decode(uri.user) if uri.user),
