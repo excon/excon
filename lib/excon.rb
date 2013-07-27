@@ -147,7 +147,7 @@ module Excon
         request_params.update(
           :host              => uri.host,
           :path              => uri.path,
-          :port              => uri.port.to_s,
+          :port              => uri.port,
           :query             => uri.query,
           :scheme            => uri.scheme
         )
