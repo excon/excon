@@ -152,8 +152,9 @@ Shindo.tests('Excon stubs') do
   tests("stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})") do
     Excon.stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})
 
-    tests("get(:expects => 200)") do
-      Excon.new("https://user:pass@foo.bar.com:9999/baz?quux=true", :mock => true).get(:expects => 200)
+    test("get(:expects => 200)") do
+      resp = Excon.new("https://user:pass@foo.bar.com:9999/baz?quux=true", :mock => true).get(:expects => 200)
+      resp.status == 200
     end
   end
 
