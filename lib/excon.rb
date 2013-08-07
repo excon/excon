@@ -8,6 +8,7 @@ require 'rbconfig'
 require 'socket'
 require 'timeout'
 require 'uri'
+require 'zlib'
 
 # Define defaults first so they will be available to other files
 module Excon
@@ -57,6 +58,7 @@ require 'excon/constants'
 require 'excon/connection'
 require 'excon/errors'
 require 'excon/middlewares/base'
+require 'excon/middlewares/decompress'
 require 'excon/middlewares/expects'
 require 'excon/middlewares/idempotent'
 require 'excon/middlewares/instrumentor'
