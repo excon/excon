@@ -167,9 +167,9 @@ Or by enabling mock mode for a request.
 Then you can add stubs, for instance:
 
     # Excon.stub(request_attributes, response_attributes)
-    Excon.stub({:method => :get}, {:body => 'body', :status => 200})
+    Excon.stub({}, {:body => 'body', :status => 200})
 
-Omitted attributes are assumed to match, so this stub will match any get request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an error to let you know.
+Omitted attributes are assumed to match, so this stub will match *any* request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an `Excon::Errors::StubNotFound` error to let you know.
 
 Alternatively you can pass a block instead of `response_attributes` and it will be called with the request params.  For example, you could create a stub that echoes the body given to it like this:
 
@@ -195,6 +195,15 @@ For example, if using RSpec for your test suite you can clear stubs after runnin
 You can also modify 'Excon.defaults` to set a default for all requests, so for a test suite you might do this:
 
     before(:all) { Excon.defaults[:mock] = true }
+
+To mock and stub every usage of Excon by your project and its dependencies *by default*, you could add this to your test suite (using Rspec as an example):
+
+    # Mock by default and stub any request as success
+    config.before(:all) do
+      Excon.defaults[:mock] = true
+      Excon.stub({}, {:body => 'Fallback', :status => 200})
+      # Add your own stubs here or in specific tests...
+    end
 
 For additional information on stubbing, read the pull request notes [here](https://github.com/geemus/excon/issues/29)
 
