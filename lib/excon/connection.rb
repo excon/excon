@@ -136,7 +136,9 @@ module Excon
           elsif ! (datum[:method].to_s.casecmp('GET') == 0 && datum[:body].nil?)
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            datum[:headers]['Content-Length'] = detect_content_length(datum[:body])
+            unless datum[:headers].has_key?('Content-Length')
+              datum[:headers]['Content-Length'] = detect_content_length(datum[:body])
+            end
           end
 
           # add headers to request
