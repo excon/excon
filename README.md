@@ -3,6 +3,8 @@ excon
 
 Usable, fast, simple Ruby HTTP 1.0
 
+Excon was designed to be simple, fast and performant. It works great as a general HTTP(s) client and is particularly well suited to usage in API clients.
+
 [![Build Status](https://secure.travis-ci.org/geemus/excon.png)](http://travis-ci.org/geemus/excon)
 [![Dependency Status](https://gemnasium.com/geemus/excon.png)](https://gemnasium.com/geemus/excon)
 [![Gem Version](https://fury-badge.herokuapp.com/rb/excon.png)](http://badge.fury.io/rb/excon)
@@ -23,32 +25,31 @@ require 'rubygems'
 require 'excon'
 ```
 
-The simplest way to use excon is with one-off requests:
+The easiest way to get started is by using one-off requests. Supported one-off request methods are #connect, #delete, #get, #head, #options, #post, #put, and #trace. Requests return a response object which has #body, #headers, #remote_ip and #status attributes.
 
 ```ruby
 response = Excon.get('http://geemus.com')
+response.body       # => "..."
+response.headers    # => {...}
+response.remote_ip  # => "..."
+response.status     # => 200
 ```
 
-Supported one-off request methods are #connect, #delete, #get, #head, #options, #post, #put, and #trace.
-
-The returned response object has #body, #headers and #status attributes.
-
-Alternately you can create a connection object which is reusable across multiple requests (more performant!).
+For API clients or other ongoing usage, reuse a connection across multiple requests to share options and improve performance.
 
 ```ruby
 connection = Excon.new('http://geemus.com')
-response_one = connection.get
-response_two = connection.post(:path => '/foo')
-response_three = connection.delete(:path => '/bar')
+get_response = connection.get
+post_response = connection.post(:path => '/foo')
+delete_response = connection.delete(:path => '/bar')
 ```
 
-Sometimes it is more convenient to specify the request type as an argument:
+Options
+-------
 
-```ruby
-response_four = connection.request(:method => :get, :path => '/more')
-```
+Both one-off and persistent connections support many other options. The final options for a request are built up by starting with `Excon.defaults`, then merging in options from the connection and finally merging in any request options. In this way you have plenty of options on where and how to set options and can easily setup connections or defaults to match common options for a particular endpoint.
 
-Both one-off and persistent connections support many other options. Here are a few common examples:
+Here are a few common examples:
 
 ```ruby
 # Custom headers
@@ -69,9 +70,12 @@ Excon.post('http://geemus.com',
   :body => URI.encode_www_form(:language => 'ruby', :class => 'fog'),
   :headers => { "Content-Type" => "application/x-www-form-urlencoded" })
 
-# request accepts either symbols or strings
+# request takes a method option, accepting either a symbol or string
 connection.request(:method => :get)
 connection.request(:method => 'GET')
+
+# expect one or more status codes, or raise an error
+connection.request(:expects => [200, 201], :method => :get)
 
 # this request can be repeated safely, so retry on errors up to 3 times
 connection.request(:idempotent => true)
@@ -100,16 +104,6 @@ connection.request(:write_timeout => 360)
 # requests in time-sensitive scenarios.
 #
 connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
-```
-
-These options can be combined to make pretty much any request you might need.
-
-Excon can also expect one or more HTTP status code in response, raising an exception if the response does not meet the criteria.
-
-If you need to accept as response one or more HTTP status codes you can declare them in an array:
-
-```ruby
-connection.request(:expects => [200, 201], :method => :get, :path => path, :query => {})
 ```
 
 Chunked Requests
