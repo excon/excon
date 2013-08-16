@@ -1,7 +1,7 @@
 excon
 =====
 
-Usable, fast, simple Ruby HTTP 1.0
+Usable, fast, simple Ruby HTTP 1.1
 
 Excon was designed to be simple, fast and performant. It works great as a general HTTP(s) client and is particularly well suited to usage in API clients.
 
@@ -25,7 +25,7 @@ require 'rubygems'
 require 'excon'
 ```
 
-The easiest way to get started is by using one-off requests. Supported one-off request methods are #connect, #delete, #get, #head, #options, #post, #put, and #trace. Requests return a response object which has #body, #headers, #remote_ip and #status attributes.
+The easiest way to get started is by using one-off requests. Supported one-off request methods are `connect`, `delete`, `get`, `head`, `options`, `post`, `put`, and `trace`. Requests return a response object which has `body`, `headers`, `remote_ip` and `status` attributes.
 
 ```ruby
 response = Excon.get('http://geemus.com')
