@@ -20,7 +20,8 @@ module Excon
             # delete old/redirect response
             datum.delete(:response)
 
-            response = datum[:connection].request(datum.merge!(
+            response = datum[:connection].request(
+              datum.merge!(
                 :headers    => (datum[:headers] || {}).merge({'Host' => '' << uri.host << port_string}),
                 :host       => uri.host,
                 :path       => uri.path,
@@ -28,8 +29,9 @@ module Excon
                 :query      => uri.query,
                 :scheme     => uri.scheme,
                 :user       => (URI.decode(uri.user) if uri.user),
-                :password   => (URI.decode(uri.password) if uri.password),
-            ))
+                :password   => (URI.decode(uri.password) if uri.password)
+              )
+            )
             datum.merge!({:response => response.data})
           else
             @stack.response_call(datum)
