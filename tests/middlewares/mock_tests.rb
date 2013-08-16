@@ -194,6 +194,32 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("stub_for({})") do
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    Excon.stub({}, {})
+
+    tests("stub_for({})").returns([{}, {}]) do
+      Excon.stub_for({})
+    end
+
+    Excon.stubs.clear
+  end
+
+  tests("unstub({})") do
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    Excon.stub({}, {})
+
+    tests("unstub({})").returns([{}, {}]) do
+      Excon.unstub({})
+    end
+
+    tests("request(:method => :get)").raises(Excon::Errors::StubNotFound) do
+      connection.request(:method => :get)
+    end
+
+    Excon.stubs.clear
+  end
+
   tests('mock = false') do
     with_rackup('basic.ru') do
       basic_tests

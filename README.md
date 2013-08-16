@@ -184,34 +184,20 @@ Or by enabling mock mode for a request.
 connection.request(:method => :get, :path => 'example', :mock => true)
 ```
 
-Then you can add stubs, for instance:
+Add stubs by providing the request_attributes to match and response attributes to return. Response params can be specified as either a hash or block which will yield with response_params.
 
 ```ruby
-# Excon.stub(request_attributes, response_attributes)
 Excon.stub({}, {:body => 'body', :status => 200})
+Excon.stub({}, lambda {|request_params| :body => request_params[:body], :status => 200})
 ```
 
 Omitted attributes are assumed to match, so this stub will match *any* request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an `Excon::Errors::StubNotFound` error to let you know.
 
-Alternatively you can pass a block instead of `response_attributes` and it will be called with the request params.  For example, you could create a stub that echoes the body given to it like this:
+To remove a previously defined stub, or all stubs:
 
 ```ruby
-# Excon.stub(request_attributes, &response_block)
-Excon.stub({:method => :put}) do |params|
-  {:body => params[:body], :status => 200}
-end
-```
-
-In order to clear all previously defined stubs you can use:
-
-```ruby
-Excon.stubs.clear
-```
-
-Or to simply remove the last defined stub you can use:
-
-```ruby
-Excon.stubs.shift
+Excon.unstub({})  # remove first/oldest stub matching {}
+Excon.stubs.clear # remove all stubs
 ```
 
 For example, if using RSpec for your test suite you can clear stubs after running each example:
@@ -222,13 +208,7 @@ config.after(:each) do
 end
 ```
 
-You can also modify 'Excon.defaults` to set a default for all requests, so for a test suite you might do this:
-
-```ruby
-before(:all) { Excon.defaults[:mock] = true }
-```
-
-To mock and stub every usage of Excon by your project and its dependencies *by default*, you could add this to your test suite (using Rspec as an example):
+You can also modify 'Excon.defaults` to set a stub for all requests, so for a test suite you might do this:
 
 ```ruby
 # Mock by default and stub any request as success
@@ -238,27 +218,6 @@ config.before(:all) do
   # Add your own stubs here or in specific tests...
 end
 ```
-
-For additional information on stubbing, read the pull request notes [here](https://github.com/geemus/excon/issues/29)
-
-HTTPS/SSL Issues
-----------------
-
-By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::SocketError: SSL_connect returned=1 ...`
-
-If you have the misfortune of running into this problem you have a couple options. If you have certificates but they aren't being auto-discovered, you can specify the path to your certificates:
-
-```ruby
-Excon.defaults[:ssl_ca_path] = '/path/to/certs'
-```
-
-Failing that, you can turn off peer verification (less secure):
-
-```ruby
-Excon.defaults[:ssl_verify_peer] = false
-```
-
-Either of these should allow you to work around the socket error and continue with your work.
 
 Instrumentation
 ---------------
@@ -311,6 +270,25 @@ The #instrument method will be called for each HTTP request, response, retry, an
 For debugging purposes you can also use Excon::StandardInstrumentor to output all events to stderr. This can also be specified by setting the `EXCON_DEBUG` ENV var.
 
 See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's instrumentation_test.rb for more examples of instrumenting excon.
+
+HTTPS/SSL Issues
+----------------
+
+By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::SocketError: SSL_connect returned=1 ...`
+
+If you have the misfortune of running into this problem you have a couple options. If you have certificates but they aren't being auto-discovered, you can specify the path to your certificates:
+
+```ruby
+Excon.defaults[:ssl_ca_path] = '/path/to/certs'
+```
+
+Failing that, you can turn off peer verification (less secure):
+
+```ruby
+Excon.defaults[:ssl_verify_peer] = false
+```
+
+Either of these should allow you to work around the socket error and continue with your work.
 
 Copyright
 ---------

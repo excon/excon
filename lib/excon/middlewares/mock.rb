@@ -14,7 +14,7 @@ module Excon
            datum[:body] = datum[:body].read
           end
 
-          if response = Excon.stub_for(datum)
+          if stub = Excon.stub_for(datum)
             datum[:response] = {
               :body       => '',
               :headers    => {},
@@ -22,11 +22,11 @@ module Excon
               :remote_ip  => '127.0.0.1'
             }
 
-            stub_datum = case response
+            stub_datum = case stub.last
             when Proc
-              response.call(datum)
+              stub.last.call(datum)
             else
-              response
+              stub.last
             end
 
             datum[:response].merge!(stub_datum.reject {|key,value| key == :headers})

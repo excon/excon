@@ -175,11 +175,13 @@ module Excon
     end
 
     # get a stub matching params or nil
+    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
+    #   @return [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub_for(request_params={})
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
       end
-      Excon.stubs.each do |stub, response|
+      Excon.stubs.each do |stub, response_params|
         captures = { :headers => {} }
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
@@ -205,7 +207,7 @@ module Excon
         end
         if headers_match && non_headers_match
           request_params[:captures] = captures
-          return response
+          return [stub, response_params]
         end
       end
       nil
@@ -214,6 +216,14 @@ module Excon
     # get a list of defined stubs
     def stubs
       @stubs ||= []
+    end
+
+    # remove first/oldest stub matching request_params
+    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
+    #   @return [Hash<Symbol, >] response params from deleted stub
+    def unstub(request_params = {})
+      stub = stub_for(request_params)
+      Excon.stubs.delete_at(Excon.stubs.index(stub))
     end
 
     # Generic non-persistent HTTP methods
