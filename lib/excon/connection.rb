@@ -217,7 +217,7 @@ module Excon
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
-    def request(params, &block)
+    def request(params={}, &block)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
       invalid_keys_warning(params, VALID_CONNECTION_KEYS)
