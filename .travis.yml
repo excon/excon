@@ -2,7 +2,6 @@ language: ruby
 
 matrix:
   allow_failures:
-    - rvm: jruby
     - rvm: rbx
 
 rvm:
