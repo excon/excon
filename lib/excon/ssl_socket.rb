@@ -21,7 +21,16 @@ module Excon
         else # attempt default, fallback to bundled
           ssl_context.cert_store = OpenSSL::X509::Store.new
           ssl_context.cert_store.set_default_paths
-          ssl_context.cert_store.add_file(DEFAULT_CA_FILE)
+
+          # workaround issue #257 (JRUBY-6970)
+          ca_file = DEFAULT_CA_FILE
+          ca_file.gsub!(/^jar:/, "") if ca_file =~ /^jar:file:\//
+
+          begin
+            ssl_context.cert_store.add_file(ca_file)
+          rescue => e
+            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}\n#{e.backtrace.join("\n")}")
+          end
         end
       else
         # turn verification off
