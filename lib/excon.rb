@@ -129,7 +129,7 @@ module Excon
       params = {
         :host       => uri.host,
         :path       => uri.path,
-        :port       => uri.port,
+        :port       => uri.port.to_s,
         :query      => uri.query,
         :scheme     => uri.scheme,
         :user       => (URI.decode(uri.user) if uri.user),
@@ -150,7 +150,7 @@ module Excon
         request_params.update(
           :host              => uri.host,
           :path              => uri.path,
-          :port              => uri.port,
+          :port              => uri.port.to_s,
           :query             => uri.query,
           :scheme            => uri.scheme
         )
