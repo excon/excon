@@ -34,6 +34,12 @@ Shindo.tests('Excon request methods') do
         connection.delete.body
       end
 
+      tests('not modifies path argument').returns('path') do
+        path = 'path'
+        connection.get(:path => path)
+        path
+      end
+
     end
 
   end
