@@ -228,7 +228,7 @@ module Excon
 
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
-        datum[:path].insert(0, '/')
+        datum[:path] = datum[:path].dup.insert(0, '/')
       end
 
       if block_given?
