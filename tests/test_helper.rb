@@ -72,6 +72,15 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           data
         end
 
+        tests("response_block usage on unexpected status").returns(['Requested status 400', 0, 20]) do
+          data = []
+          response_block = lambda do |chunk, remaining_length, total_length|
+            data = [chunk, remaining_length, total_length]
+          end
+          connection.request(:method => :get, :path => '/status/400', :response_block => response_block)
+          data
+        end
+
       end
 
       tests('POST /body-sink') do
