@@ -91,9 +91,8 @@ module Excon
     end
 
     def error_call(datum)
-      if datum[:error]
-        raise(datum[:error])
-      end
+      invoke_response_block(datum)
+      raise datum[:error] if datum[:error]
     end
 
     def request_call(datum)
@@ -197,13 +196,7 @@ module Excon
     end
 
     def response_call(datum)
-      if datum.has_key?(:response_block) && !datum[:response][:body].empty?
-        content_length = remaining = datum[:response][:body].bytesize
-        while remaining > 0
-          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-          remaining -= datum[:chunk_size]
-        end
-      end
+      invoke_response_block(datum)
       datum
     end
 
@@ -258,6 +251,7 @@ module Excon
       end
     rescue => error
       datum[:error] = error
+      invoke_response_block(datum)
       if datum[:stack]
         datum[:stack].error_call(datum)
       else
@@ -321,6 +315,16 @@ module Excon
     end
 
     private
+
+    def invoke_response_block(datum)
+      if datum.has_key?(:response_block) && !datum[:response][:body].empty?
+        content_length = remaining = datum[:response][:body].bytesize
+        while remaining > 0
+          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+          remaining -= datum[:chunk_size]
+        end
+      end
+    end
 
     def detect_content_length(body)
       if body.is_a?(String)

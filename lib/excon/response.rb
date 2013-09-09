@@ -49,8 +49,12 @@ module Excon
       end
 
       unless (%w(HEAD CONNECT).include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
-        # if there is a response block, use it
-        if datum.has_key?(:response_block)
+
+        # check to see if expects was set and matched
+        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
+
+        # if expects matched and there is a block, use it
+        if expected_status && datum.has_key?(:response_block)
           if transfer_encoding_chunked
             # 2 == "/r/n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
