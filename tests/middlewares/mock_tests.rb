@@ -177,7 +177,7 @@ Shindo.tests('Excon stubs') do
     end
 
 
-    test("request(:expects => 200, :method => :get, :path => '/') with block does not invoke the block since it raises an error") do
+    test("request(:expects => 200, :method => :get, :path => '/') with block invokes the block despite raising an error") do
       block_called = false
       begin
         response_block = lambda do |_,_,_|
@@ -186,7 +186,7 @@ Shindo.tests('Excon stubs') do
         connection.request(:expects => 200, :method => :get, :path => '/', :response_block => response_block)
       rescue Excon::Errors::NotFound
       end
-      !block_called
+      block_called
     end
 
     Excon.stubs.clear
