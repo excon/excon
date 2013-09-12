@@ -27,7 +27,7 @@ module Excon
         :idempotent         => false,
         :instrumentor_name  => 'excon',
         :middlewares        => [
-          Excon::Middleware::ResponseParser,
+          Excon::Middleware::ResponseProcessor,
           Excon::Middleware::Expects,
           Excon::Middleware::Idempotent,
           Excon::Middleware::Instrumentor,
@@ -64,7 +64,7 @@ require 'excon/middlewares/idempotent'
 require 'excon/middlewares/instrumentor'
 require 'excon/middlewares/mock'
 require 'excon/middlewares/redirect_follower'
-require 'excon/middlewares/response_parser'
+require 'excon/middlewares/response_processor'
 require 'excon/response'
 require 'excon/socket'
 require 'excon/ssl_socket'
