@@ -130,7 +130,7 @@ Iterating in this way allows you to have more granular control over writes and t
 Pipelining Requests
 ------------------
 
-You can make use of HTTP pipelining to improve performance. Insead of the normal request/response cyle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
+You can make use of HTTP pipelining to improve performance. Instead of the normal request/response cyle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
 
 ```ruby
 connection = Excon.new('http://geemus.com/')
