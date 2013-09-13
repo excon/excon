@@ -91,7 +91,7 @@ module Excon
     end
 
     def error_call(datum)
-      invoke_response_block(datum)
+      Excon::Response.invoke_response_block(datum)
       raise datum[:error] if datum[:error]
     end
 
@@ -196,7 +196,7 @@ module Excon
     end
 
     def response_call(datum)
-      invoke_response_block(datum)
+      Excon::Response.invoke_response_block(datum)
       datum
     end
 
@@ -218,6 +218,7 @@ module Excon
 
       datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
       datum[:retries_remaining] ||= datum[:retry_limit]
+      datum[:response_block_called] = false
 
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
@@ -251,7 +252,6 @@ module Excon
       end
     rescue => error
       datum[:error] = error
-      invoke_response_block(datum)
       if datum[:stack]
         datum[:stack].error_call(datum)
       else
@@ -315,16 +315,6 @@ module Excon
     end
 
     private
-
-    def invoke_response_block(datum)
-      if datum.has_key?(:response_block) && datum[:response] && !datum[:response][:body].empty?
-        content_length = remaining = datum[:response][:body].bytesize
-        while remaining > 0
-          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-          remaining -= datum[:chunk_size]
-        end
-      end
-    end
 
     def detect_content_length(body)
       if body.is_a?(String)

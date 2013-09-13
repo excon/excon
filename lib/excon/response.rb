@@ -29,6 +29,17 @@ module Excon
       @data[:remote_ip]
     end
 
+    def self.invoke_response_block(datum)
+      if datum.has_key?(:response_block) && !datum[:response][:body].empty? && !datum[:response_block_called]
+        content_length = remaining = datum[:response][:body].bytesize
+        while remaining > 0
+          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+          remaining -= datum[:chunk_size]
+        end
+        datum[:response_block_called] = true
+      end
+    end
+
     def self.parse(socket, datum)
       datum[:response] = {
         :body       => '',

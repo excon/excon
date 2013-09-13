@@ -65,6 +65,7 @@ module Excon
     :request_block,
     :response,
     :response_block,
+    :response_block_called,
     :retries_remaining,
     :retry_limit,
     :scheme,
