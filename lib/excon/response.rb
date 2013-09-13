@@ -30,10 +30,11 @@ module Excon
     end
 
     def self.invoke_response_block(datum)
-      if datum.has_key?(:response_block) && !datum[:response][:body].empty? && !datum[:response_block_called]
-        content_length = remaining = datum[:response][:body].bytesize
+      if datum.has_key?(:response_block) && !datum[:response_block_called]
+        response_body = datum[:response][:body].dup
+        content_length = remaining = response_body.bytesize
         while remaining > 0
-          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+          datum[:response_block].call(response_body.slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
           remaining -= datum[:chunk_size]
         end
         datum[:response_block_called] = true
@@ -96,6 +97,8 @@ module Excon
           else
             datum[:response][:body] << socket.read
           end
+          # We just filled in the response body; if there was a response block, invoke it with the body.
+          invoke_response_block(datum)
         end
       end
 
