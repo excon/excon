@@ -29,6 +29,18 @@ module Excon
       @data[:remote_ip]
     end
 
+    def self.invoke_response_block(datum)
+      if datum.has_key?(:response_block) && !datum[:response_block_called] && datum[:response] && datum[:response][:body]
+        response_body = datum[:response][:body].dup
+        content_length = remaining = response_body.bytesize
+        while remaining > 0
+          datum[:response_block].call(response_body.slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+          remaining -= datum[:chunk_size]
+        end
+        datum[:response_block_called] = true
+      end
+    end
+
     def self.parse(socket, datum)
       datum[:response] = {
         :body       => '',
@@ -48,7 +60,7 @@ module Excon
         end
       end
 
-      unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
+      unless (%w(HEAD CONNECT).include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
         # check to see if expects was set and matched
         expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
@@ -71,7 +83,7 @@ module Excon
               datum[:response_block].call(remaining, remaining.length, content_length)
             end
           end
-        else # no block or unexpected status
+        else # no response block, just set the body directly
           if transfer_encoding_chunked
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               datum[:response][:body] << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
@@ -85,8 +97,11 @@ module Excon
           else
             datum[:response][:body] << socket.read
           end
+          # We just filled in the response body; if there was a response block, invoke it with the body.
+          invoke_response_block(datum)
         end
       end
+
       datum
     end
 
