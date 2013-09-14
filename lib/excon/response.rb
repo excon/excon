@@ -30,7 +30,7 @@ module Excon
     end
 
     def self.invoke_response_block(datum)
-      if datum.has_key?(:response_block) && !datum[:response_block_called]
+      if datum.has_key?(:response_block) && !datum[:response_block_called] && datum[:response] && datum[:response][:body]
         response_body = datum[:response][:body].dup
         content_length = remaining = response_body.bytesize
         while remaining > 0
