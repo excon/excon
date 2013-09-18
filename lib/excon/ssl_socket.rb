@@ -9,7 +9,8 @@ module Excon
 
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
-
+      ssl_context.ciphers = @data[:ciphers]
+      
       if @data[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
