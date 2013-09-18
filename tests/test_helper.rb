@@ -3,8 +3,6 @@ require 'bundler'
 
 Bundler.require(:default, :development)
 
-require 'stringio'
-
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   [false, true].each do |nonblock|
     options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock })
@@ -110,6 +108,20 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           response.body
         end
 
+        tests('with multi-byte strings') do
+          body = "\xC3\xBC" * 100
+          headers = { 'Custom' => body.dup }
+          if RUBY_VERSION >= '1.9'
+            body.force_encoding('BINARY')
+            headers['Custom'].force_encoding('UTF-8')
+          end
+
+          returns(body, 'properly concatenates request+headers and body') do
+            response = connection.request(:method => :post, :path => '/echo', :headers => headers, :body => body)
+            response.body
+          end
+        end
+
       end
 
       tests('PUT /echo') do
@@ -132,6 +144,20 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           end
           response = connection.request(:method => :put, :path => '/echo', :request_block => request_block)
           response.body
+        end
+
+        tests('with multi-byte strings') do
+          body = "\xC3\xBC" * 100
+          headers = { 'Custom' => body.dup }
+          if RUBY_VERSION >= '1.9'
+            body.force_encoding('BINARY')
+            headers['Custom'].force_encoding('UTF-8')
+          end
+
+          returns(body, 'properly concatenates request+headers and body') do
+            response = connection.request(:method => :put, :path => '/echo', :headers => headers, :body => body)
+            response.body
+          end
         end
 
       end
