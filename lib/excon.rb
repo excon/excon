@@ -18,6 +18,7 @@ module Excon
     def defaults
       @defaults ||= {
         :chunk_size         => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
+        :ciphers            => 'HIGH:!SSLv2:!aNULL:!eNULL:!3DES',
         :connect_timeout    => 60,
         :debug_request      => false,
         :debug_response     => false,
