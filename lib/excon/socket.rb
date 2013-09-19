@@ -84,6 +84,9 @@ module Excon
 
     def write(data)
       if @data[:nonblock]
+        if FORCE_ENC
+          data.force_encoding('BINARY')
+        end
         # Guard that data is still something in case we get weird
         # values and String#[] returns nil. (This behavior has been observed
         # in the wild, so this is a simple defensive mechanism)
