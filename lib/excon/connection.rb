@@ -237,6 +237,11 @@ module Excon
         datum[:response_block] = Proc.new
       end
 
+      if datum[:request_block] && datum[:idempotent]
+        Excon.display_warning("Excon requests with a :request_block can not be :idempotent (#{caller.first})")
+        datum[:idempotent] = false
+      end
+
       datum[:connection] = self
 
       datum[:stack] = datum[:middlewares].map do |middleware|
