@@ -4,6 +4,7 @@ require 'bundler'
 Bundler.require(:default, :development)
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
+  reset_connection = !!options.delete(:reset_connection)
   [false, true].each do |nonblock|
     options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock })
     connection = Excon.new(url, options)
@@ -75,6 +76,9 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
       tests('POST /body-sink') do
 
         tests('response.body').returns("5000000") do
+          if reset_connection && !nonblock
+            connection.reset
+          end
           response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 5_000_000)
           response.body
         end
