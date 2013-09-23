@@ -87,41 +87,26 @@ module Excon
         if FORCE_ENC
           data.force_encoding('BINARY')
         end
-        # Guard that data is still something in case we get weird
-        # values and String#[] returns nil. (This behavior has been observed
-        # in the wild, so this is a simple defensive mechanism)
-        while data
+        while true
           written = nil
           begin
             # I wish that this API accepted a start position, then we wouldn't
             # have to slice data when there is a short write.
             written = @socket.write_nonblock(data)
-          rescue OpenSSL::SSL::SSLError => error
-            if error.message == 'write would block'
+          rescue OpenSSL::SSL::SSLError, Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable => error
+            if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
+              raise error
+            else
               if IO.select(nil, [@socket], nil, @data[:write_timeout])
                 retry
               else
-                raise(Excon::Errors::Timeout.new("write timeout reached"))
+                raise Excon::Errors::Timeout.new('write timeout reached')
               end
-            else
-              raise(error)
-            end
-          rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
-            if IO.select(nil, [@socket], nil, @data[:write_timeout])
-              retry
-            else
-              raise(Excon::Errors::Timeout.new("write timeout reached"))
             end
           end
 
           # Fast, common case.
-          # The >= seems weird, why would it have written MORE than we
-          # requested. But we're getting some weird behavior when @socket
-          # is an OpenSSL socket, where it seems like it's saying it wrote
-          # more (perhaps due to SSL packet overhead?).
-          #
-          # Pretty weird, but this is a simple defensive mechanism.
-          break if written >= data.size
+          break if written == data.size
 
           # This takes advantage of the fact that most ruby implementations
           # have Copy-On-Write strings. Thusly why requesting a subrange
