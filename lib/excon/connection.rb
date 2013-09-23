@@ -258,6 +258,7 @@ module Excon
         datum
       end
     rescue => error
+      reset
       datum[:error] = error
       if datum[:stack]
         datum[:stack].error_call(datum)
