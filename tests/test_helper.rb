@@ -3,9 +3,8 @@ require 'bundler'
 
 Bundler.require(:default, :development)
 
-require 'stringio'
-
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
+  reset_connection = !!options.delete(:reset_connection)
   [false, true].each do |nonblock|
     options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock })
     connection = Excon.new(url, options)
@@ -77,6 +76,9 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
       tests('POST /body-sink') do
 
         tests('response.body').returns("5000000") do
+          if reset_connection && !nonblock
+            connection.reset
+          end
           response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 5_000_000)
           response.body
         end
@@ -110,6 +112,20 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           response.body
         end
 
+        tests('with multi-byte strings') do
+          body = "\xC3\xBC" * 100
+          headers = { 'Custom' => body.dup }
+          if RUBY_VERSION >= '1.9'
+            body.force_encoding('BINARY')
+            headers['Custom'].force_encoding('UTF-8')
+          end
+
+          returns(body, 'properly concatenates request+headers and body') do
+            response = connection.request(:method => :post, :path => '/echo', :headers => headers, :body => body)
+            response.body
+          end
+        end
+
       end
 
       tests('PUT /echo') do
@@ -132,6 +148,20 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           end
           response = connection.request(:method => :put, :path => '/echo', :request_block => request_block)
           response.body
+        end
+
+        tests('with multi-byte strings') do
+          body = "\xC3\xBC" * 100
+          headers = { 'Custom' => body.dup }
+          if RUBY_VERSION >= '1.9'
+            body.force_encoding('BINARY')
+            headers['Custom'].force_encoding('UTF-8')
+          end
+
+          returns(body, 'properly concatenates request+headers and body') do
+            response = connection.request(:method => :put, :path => '/echo', :headers => headers, :body => body)
+            response.body
+          end
         end
 
       end
