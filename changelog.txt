@@ -1,3 +1,16 @@
+0.26.0 09/24/2013
+=================
+
+add basic decompress middleware
+update readme mocking+stubbing info
+add unstub functionality
+avoid modifying original options in request
+jruby fixes
+misc cleanup/fixes
+encoding/compatibility fixes
+close sockets on error
+warn when both request_block and idempotent are set
+
 0.25.3 07/18/2013
 =================
 
