@@ -9,6 +9,7 @@ require 'socket'
 require 'timeout'
 require 'uri'
 require 'zlib'
+require 'stringio'
 
 # Define defaults first so they will be available to other files
 module Excon

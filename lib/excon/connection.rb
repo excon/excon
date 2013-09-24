@@ -134,11 +134,15 @@ module Excon
 
           if datum.has_key?(:request_block)
             datum[:headers]['Transfer-Encoding'] = 'chunked'
-          elsif ! (datum[:method].to_s.casecmp('GET') == 0 && datum[:body].nil?)
+          else
+            body = datum[:body].is_a?(String) ? StringIO.new(datum[:body]) : datum[:body]
+
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            unless datum[:headers].has_key?('Content-Length')
-              datum[:headers]['Content-Length'] = detect_content_length(datum[:body])
+            unless datum[:method].to_s.casecmp('GET') == 0 && body.nil?
+              unless datum[:headers].has_key?('Content-Length')
+                datum[:headers]['Content-Length'] = detect_content_length(body)
+              end
             end
           end
 
@@ -151,9 +155,9 @@ module Excon
 
           # add additional "\r\n" to indicate end of headers
           request << CR_NL
+          socket.write(request) # write out request + headers
 
           if datum.has_key?(:request_block)
-            socket.write(request) # write out request + headers
             while true # write out body with chunked encoding
               chunk = datum[:request_block].call
               if FORCE_ENC
@@ -166,23 +170,16 @@ module Excon
                 break
               end
             end
-          elsif !datum[:body].nil?
-            if datum[:body].is_a?(String) # write out string body
-              socket.write(request << datum[:body]) # write out request + headers + body
-            else # write out file body
-              socket.write(request) # write out request + headers
-              if datum[:body].respond_to?(:binmode)
-                datum[:body].binmode
-              end
-              if datum[:body].respond_to?(:pos=)
-                datum[:body].pos = 0
-              end
-              while chunk = datum[:body].read(datum[:chunk_size])
-                socket.write(chunk)
-              end
+          elsif !body.nil? # write out body
+            if body.respond_to?(:binmode)
+              body.binmode
             end
-          else # write out nil body
-            socket.write(request) # write out request + headers
+            if body.respond_to?(:pos=)
+              body.pos = 0
+            end
+            while chunk = body.read(datum[:chunk_size])
+              socket.write(chunk)
+            end
           end
         end
       rescue => error
@@ -330,20 +327,14 @@ module Excon
     private
 
     def detect_content_length(body)
-      if body.is_a?(String)
-        if FORCE_ENC
-          body.force_encoding('BINARY')
-        end
-        body.length
-      elsif body.respond_to?(:size)
-        # IO object: File, Tempfile, etc.
+      if body.respond_to?(:size)
+        # IO object: File, Tempfile, StringIO, etc.
         body.size
+      elsif body.respond_to?(:stat)
+        # for 1.8.7 where file does not have size
+        body.stat.size
       else
-        begin
-          File.size(body) # for 1.8.7 where file does not have size
-        rescue
-          0
-        end
+        0
       end
     end
 
