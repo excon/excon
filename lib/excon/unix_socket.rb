@@ -127,7 +127,7 @@ module Excon
       exception = nil
 
       begin
-        socket = ::UNIXSocket.new(host)
+        socket = ::UNIXSocket.new(@data['path'])
 
         @socket = socket
       rescue Errno::ECONNREFUSED => exception

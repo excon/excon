@@ -24,6 +24,7 @@ module Excon
   HTTP_VERBS = %w{connect delete get head options patch post put trace}
 
   HTTPS = 'https'
+  UNIX = 'unix'
 
   NO_ENTITY = [204, 205, 304].freeze
 

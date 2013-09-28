@@ -87,7 +87,8 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:scheme] << '://' << @data[:host] << ':' << @data[:port].to_s
+      @socket_key = '' << @data[:scheme] << '://' << @data[:host]
+      @socket_key << ':' << @data[:port].to_s if @data[:port]
       reset
     end
 
@@ -359,6 +360,8 @@ module Excon
     def socket
       sockets[@socket_key] ||= if @data[:scheme] == HTTPS
         Excon::SSLSocket.new(@data)
+      elsif @data[:scheme] == UNIX
+        Excon::UnixSocket.new(@data)
       else
         Excon::Socket.new(@data)
       end
