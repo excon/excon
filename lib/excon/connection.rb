@@ -226,7 +226,11 @@ module Excon
       invalid_keys_warning(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
-      datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
+      if datum[:scheme] == UNIX
+        datum[:headers]['Host']   ||= '' << @data[:path]
+      else
+        datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
+      end
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
