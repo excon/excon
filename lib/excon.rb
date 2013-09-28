@@ -70,6 +70,7 @@ require 'excon/middlewares/response_parser'
 require 'excon/response'
 require 'excon/socket'
 require 'excon/ssl_socket'
+require 'excon/unix_socket'
 require 'excon/standard_instrumentor'
 
 module Excon
