@@ -53,6 +53,7 @@ DEPENDENCIES
   eventmachine
   excon!
   jruby-openssl
+  kgio
   open4
   rake
   rdoc

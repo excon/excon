@@ -1,5 +1,7 @@
 source "http://rubygems.org"
 
+gem 'kgio', :platform => :mri
+
 gemspec
 
 gem 'jruby-openssl', :platform => :jruby
