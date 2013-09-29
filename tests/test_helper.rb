@@ -225,6 +225,26 @@ ensure
   end
 end
 
+def with_unicorn_rackup(name, file_name='/tmp/unicorn.sock')
+  unless RUBY_PLATFORM == 'java'
+    GC.disable
+    pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+  else
+    pid, w, r, e = IO.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+  end
+  until e.gets =~ /worker=0 ready/; puts $_ unless $_.nil?; end
+  yield
+ensure
+  Process.kill(9, pid)
+  unless RUBY_PLATFORM == 'java'
+    GC.enable
+    Process.wait(pid)
+  end
+  if File.exist?(file_name)
+    File.delete(file_name)
+  end
+end
+
 def server_path(*parts)
   File.expand_path(File.join(File.dirname(__FILE__), 'servers', *parts))
 end
