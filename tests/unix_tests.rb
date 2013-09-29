@@ -1,5 +1,5 @@
 file_name = '/tmp/unicorn.sock'
-with_unicorn_rackup('basic.ru', file_name) do
+with_unicorn('basic.ru', file_name) do
   Shindo.tests('Excon basics') do
     [false, true].each do |nonblock|
       reset_connection = true
