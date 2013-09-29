@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   ## the sub! line in the Rakefile
   s.name              = 'excon'
   s.version           = '0.26.0'
-  s.date              = '2013-09-24'
+  s.date              = '2013-09-29'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -62,6 +62,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rdoc')
   s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
+  s.add_development_dependency('unicorn')
 
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
@@ -109,6 +110,7 @@ Gem::Specification.new do |s|
     lib/excon/socket.rb
     lib/excon/ssl_socket.rb
     lib/excon/standard_instrumentor.rb
+    lib/excon/unix_socket.rb
     tests/authorization_header_tests.rb
     tests/bad_tests.rb
     tests/basic_tests.rb
@@ -146,6 +148,7 @@ Gem::Specification.new do |s|
     tests/test_helper.rb
     tests/thread_safety_tests.rb
     tests/timeout_tests.rb
+    tests/unix_tests.rb
   ]
   # = MANIFEST =
 
