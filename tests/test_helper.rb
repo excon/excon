@@ -22,8 +22,10 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           response[:status]
         end
 
-        tests("response.headers['Connection']").returns('Keep-Alive') do
-          response.headers['Connection']
+        unless connection.data[:scheme] == 'unix'
+          tests("response.headers['Connection']").returns('Keep-Alive') do
+            response.headers['Connection']
+          end
         end
 
         tests("response.headers['Content-Length']").returns('100') do
@@ -38,16 +40,20 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           Time.parse(response.headers['Date']).is_a?(Time)
         end
 
-        test("!!(response.headers['Server'] =~ /^WEBrick/)") do
-          !!(response.headers['Server'] =~ /^WEBrick/)
+        unless connection.data[:scheme] == 'unix'
+          test("!!(response.headers['Server'] =~ /^WEBrick/)") do
+            !!(response.headers['Server'] =~ /^WEBrick/)
+          end
         end
 
         tests("response.headers['Custom']").returns("Foo: bar") do
           response.headers['Custom']
         end
 
-        tests("response.remote_ip").returns("127.0.0.1") do
-          response.remote_ip
+        unless connection.data[:scheme] == 'unix'
+          tests("response.remote_ip").returns("127.0.0.1") do
+            response.remote_ip
+          end
         end
 
         tests("response.body").returns('x' * 100) do
