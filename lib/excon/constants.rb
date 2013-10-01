@@ -33,7 +33,7 @@ module Excon
 
   UNIX = 'unix'
 
-  USER_AGENT = 'excon/' << VERSION # Out of order because VERSION
+  USER_AGENT = 'excon/' << VERSION
 
   VALID_CONNECTION_KEYS = [
     :body,
