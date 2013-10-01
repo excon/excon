@@ -117,6 +117,7 @@ with_unicorn('basic.ru', file_name) do
   end
 
   Shindo.tests('explicit uri passed to connection') do
+    pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
     connection = Excon::Connection.new({
       :socket           => file_name,
       :nonblock         => false,
