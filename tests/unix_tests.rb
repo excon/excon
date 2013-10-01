@@ -1,6 +1,7 @@
 file_name = '/tmp/unicorn.sock'
 with_unicorn('basic.ru', file_name) do
   Shindo.tests('Excon basics (Unix socket)') do
+    pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
     basic_tests("unix://#{file_name}")
   end
 
