@@ -116,7 +116,7 @@ file = File.open('data')
 
 chunker = lambda do
   # Excon.defaults[:chunk_size] defaults to 1048576, ie 1MB
-  # to_s will convert the nil receieved after everything is read to the final empty chunk
+  # to_s will convert the nil received after everything is read to the final empty chunk
   file.read(Excon.defaults[:chunk_size]).to_s
 end
 
