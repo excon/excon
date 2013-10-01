@@ -89,7 +89,7 @@ module Excon
 
       @socket_key = '' << @data[:scheme]
       if @data[:scheme] == UNIX
-      	@socket_key << ':/' << @data[:path]
+      	@socket_key << '://' << @data[:socket]
       else
         @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
       end
@@ -227,7 +227,7 @@ module Excon
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       if datum[:scheme] == UNIX
-        datum[:headers]['Host']   ||= '' << @data[:path]
+        datum[:headers]['Host']   ||= '' << datum[:socket]
       else
         datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
       end

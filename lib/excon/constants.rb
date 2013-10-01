@@ -1,5 +1,7 @@
 module Excon
 
+  VERSION = '0.26.0'
+
   CR_NL = "\r\n"
 
   DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
@@ -30,6 +32,8 @@ module Excon
   REDACTED = 'REDACTED'
 
   UNIX = 'unix'
+
+  USER_AGENT = 'excon/' << VERSION # Out of order because VERSION
 
   VALID_CONNECTION_KEYS = [
     :body,
@@ -81,9 +85,6 @@ module Excon
     :stack,
     :write_timeout
   ]
-
-  VERSION = '0.26.0'
-  USER_AGENT = 'excon/' << VERSION # Out of order because VERSION
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
