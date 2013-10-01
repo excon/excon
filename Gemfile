@@ -1,10 +1,10 @@
 source "http://rubygems.org"
 
-gem 'kgio', :platform => :mri
-
 gemspec
 
 gem 'jruby-openssl', :platform => :jruby
+gem 'unicorn', :platform => :mri
+gem 'puma', :platform => :jruby
 
 # group :benchmark do
 #   gem 'em-http-request'
