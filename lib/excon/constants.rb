@@ -77,6 +77,7 @@ module Excon
     :retries_remaining,
     :retry_limit,
     :scheme,
+    :socket,
     :tcp_nodelay,
     :uri_parser,
     :user,

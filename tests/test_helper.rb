@@ -233,7 +233,7 @@ def with_unicorn(name, file_name='/tmp/unicorn.sock')
   unless RUBY_PLATFORM == 'java'
     GC.disable
     pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
-    until e.gets =~ /worker=0 ready/; puts $_ unless $_.nil?; end
+    until e.gets =~ /worker=0 ready/; end
   else
     # need to find suitable server for jruby
   end
