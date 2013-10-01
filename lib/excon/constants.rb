@@ -24,11 +24,12 @@ module Excon
   HTTP_VERBS = %w{connect delete get head options patch post put trace}
 
   HTTPS = 'https'
-  UNIX = 'unix'
 
   NO_ENTITY = [204, 205, 304].freeze
 
   REDACTED = 'REDACTED'
+
+  UNIX = 'unix'
 
   VALID_CONNECTION_KEYS = [
     :body,
@@ -82,7 +83,7 @@ module Excon
   ]
 
   VERSION = '0.26.0'
-  USER_AGENT = 'excon/' << VERSION
+  USER_AGENT = 'excon/' << VERSION # Out of order because VERSION
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
