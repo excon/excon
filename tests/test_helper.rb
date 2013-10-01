@@ -22,10 +22,9 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           response[:status]
         end
 
-        unless connection.data[:scheme] == 'unix'
-          tests("response.headers['Connection']").returns('Keep-Alive') do
-            response.headers['Connection']
-          end
+        tests("response.headers['Connection']").returns('Keep-Alive') do
+          pending if connection.data[:scheme] == 'unix'
+          response.headers['Connection']
         end
 
         tests("response.headers['Content-Length']").returns('100') do
@@ -37,23 +36,22 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         test("Time.parse(response.headers['Date']).is_a?(Time)") do
+          pending if connection.data[:scheme] == 'unix'
           Time.parse(response.headers['Date']).is_a?(Time)
         end
 
-        unless connection.data[:scheme] == 'unix'
-          test("!!(response.headers['Server'] =~ /^WEBrick/)") do
-            !!(response.headers['Server'] =~ /^WEBrick/)
-          end
+        test("!!(response.headers['Server'] =~ /^WEBrick/)") do
+          pending if connection.data[:scheme] == 'unix'
+          !!(response.headers['Server'] =~ /^WEBrick/)
         end
 
         tests("response.headers['Custom']").returns("Foo: bar") do
           response.headers['Custom']
         end
 
-        unless connection.data[:scheme] == 'unix'
-          tests("response.remote_ip").returns("127.0.0.1") do
-            response.remote_ip
-          end
+        tests("response.remote_ip").returns("127.0.0.1") do
+          pending if connection.data[:scheme] == 'unix'
+          response.remote_ip
         end
 
         tests("response.body").returns('x' * 100) do
@@ -235,10 +233,11 @@ def with_unicorn(name, file_name='/tmp/unicorn.sock')
   unless RUBY_PLATFORM == 'java'
     GC.disable
     pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+    until e.gets =~ /worker=0 ready/; puts $_ unless $_.nil?; end
   else
-    pid, w, r, e = IO.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+    pid, w, r, e = IO.popen4("puma", "-b unix://#{file_name}", rackup_path(name))
+    sleep 4
   end
-  until e.gets =~ /worker=0 ready/; puts $_ unless $_.nil?; end
   yield
 ensure
   Process.kill(9, pid)

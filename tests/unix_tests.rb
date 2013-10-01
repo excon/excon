@@ -1,6 +1,6 @@
 file_name = '/tmp/unicorn.sock'
 with_unicorn('basic.ru', file_name) do
-  Shindo.tests('Excon basics') do
+  Shindo.tests('Excon basics (Unix socket)') do
     basic_tests("unix://#{file_name}")
   end
 
