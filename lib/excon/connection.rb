@@ -89,7 +89,7 @@ module Excon
 
       @socket_key = '' << @data[:scheme]
       if @data[:scheme] == UNIX
-      	@socket_key << '://' << @data[:socket]
+        @socket_key << '://' << @data[:socket]
       else
         @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
       end
