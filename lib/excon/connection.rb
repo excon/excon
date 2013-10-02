@@ -26,7 +26,7 @@ module Excon
       @data[:proxy]
     end
     def proxy=(new_proxy)
-      Excon.display_warning("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})") if !ENV['VERBOSE'].nil?
+      Excon.display_warning("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})")
       @data[:proxy] = new_proxy
     end
 
