@@ -76,8 +76,10 @@ module Excon
   class << self
 
     def display_warning(warning)
-      # Ruby convention mandates complete silence when VERBOSE == nil
-      $stderr.puts(warning) if !ENV['VERBOSE'].nil?
+      # Respect Ruby's $VERBOSE setting, unless EXCON_DEBUG is set
+      if !$VERBOSE.nil? || ENV['EXCON_DEBUG']
+        $stderr.puts(warning)
+      end
     end
 
     # Status of mocking
