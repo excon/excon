@@ -23,6 +23,7 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         tests("response.headers['Connection']").returns('Keep-Alive') do
+          pending if connection.data[:scheme] == Excon::UNIX
           response.headers['Connection']
         end
 
@@ -35,10 +36,12 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         test("Time.parse(response.headers['Date']).is_a?(Time)") do
+          pending if connection.data[:scheme] == Excon::UNIX
           Time.parse(response.headers['Date']).is_a?(Time)
         end
 
         test("!!(response.headers['Server'] =~ /^WEBrick/)") do
+          pending if connection.data[:scheme] == Excon::UNIX
           !!(response.headers['Server'] =~ /^WEBrick/)
         end
 
@@ -47,6 +50,7 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         tests("response.remote_ip").returns("127.0.0.1") do
+          pending if connection.data[:scheme] == Excon::UNIX
           response.remote_ip
         end
 
@@ -222,6 +226,26 @@ ensure
   unless RUBY_PLATFORM == 'java'
     GC.enable
     Process.wait(pid)
+  end
+end
+
+def with_unicorn(name, file_name='/tmp/unicorn.sock')
+  unless RUBY_PLATFORM == 'java'
+    GC.disable
+    pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+    until e.gets =~ /worker=0 ready/; end
+  else
+    # need to find suitable server for jruby
+  end
+  yield
+ensure
+  unless RUBY_PLATFORM == 'java'
+    Process.kill(9, pid)
+    GC.enable
+    Process.wait(pid)
+  end
+  if File.exist?(file_name)
+    File.delete(file_name)
   end
 end
 

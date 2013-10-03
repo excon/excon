@@ -39,6 +39,7 @@ module Excon
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #     @option params [String] :socket The path to the unix socket (required for 'unix://' connections)
     #     @option params [String] :ciphers Only use the specified SSL/TLS cipher suites; use OpenSSL cipher spec format e.g. 'HIGH:!aNULL:!3DES' or 'AES256-SHA:DES-CBC3-SHA'
     #     @option params [String] :proxy Proxy server; e.g. 'http://myproxy.com:8888'
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
@@ -55,15 +56,17 @@ module Excon
 
       @data.merge!(params)
 
-      no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"] || ""
-      no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
-      unless no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
-        if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-          @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
-        elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-          @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-        elsif @data.has_key?(:proxy)
-          @data[:proxy] = setup_proxy(@data[:proxy])
+      unless @data[:scheme] == UNIX
+        no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"] || ""
+        no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
+        unless no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
+          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+            @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
+          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+            @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
+          elsif @data.has_key?(:proxy)
+            @data[:proxy] = setup_proxy(@data[:proxy])
+          end
         end
       end
 
@@ -87,7 +90,19 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:scheme] << '://' << @data[:host] << ':' << @data[:port].to_s
+      @socket_key = '' << @data[:scheme]
+      if @data[:scheme] == UNIX
+        if @data[:host]
+          raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
+                               "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
+        elsif !@data[:socket]
+          raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
+        else
+          @socket_key << '://' << @data[:socket]
+        end
+      else
+        @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
+      end
       reset
     end
 
@@ -221,7 +236,11 @@ module Excon
       invalid_keys_warning(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
-      datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
+      if datum[:scheme] == UNIX
+        datum[:headers]['Host']   ||= '' << datum[:socket]
+      else
+        datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
+      end
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
@@ -359,6 +378,8 @@ module Excon
     def socket
       sockets[@socket_key] ||= if @data[:scheme] == HTTPS
         Excon::SSLSocket.new(@data)
+      elsif @data[:scheme] == UNIX
+        Excon::UnixSocket.new(@data)
       else
         Excon::Socket.new(@data)
       end
