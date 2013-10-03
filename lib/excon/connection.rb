@@ -39,6 +39,7 @@ module Excon
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
     #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
+    #     @option params [String] :socket The path to the unix socket (required for 'unix://' connections)
     #     @option params [String] :ciphers Only use the specified SSL/TLS cipher suites; use OpenSSL cipher spec format e.g. 'HIGH:!aNULL:!3DES' or 'AES256-SHA:DES-CBC3-SHA'
     #     @option params [String] :proxy Proxy server; e.g. 'http://myproxy.com:8888'
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
@@ -89,7 +90,11 @@ module Excon
 
       @socket_key = '' << @data[:scheme]
       if @data[:scheme] == UNIX
-        @socket_key << '://' << @data[:socket]
+        if @data[:socket]
+          @socket_key << '://' << @data[:socket]
+        else
+          raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
+        end
       else
         @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
       end

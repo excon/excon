@@ -4,15 +4,10 @@ module Excon
     private
 
     def connect
-      @socket = nil
-      exception = nil
-
       begin
-        socket = ::UNIXSocket.new(@data[:socket])
-
-        @socket = socket
-      rescue Errno::ECONNREFUSED => exception
-        socket.close if socket
+        @socket = ::UNIXSocket.new(@data[:socket])
+      rescue Errno::ECONNREFUSED
+        @socket.close if @socket
         raise
       end
 
