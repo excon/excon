@@ -56,15 +56,17 @@ module Excon
 
       @data.merge!(params)
 
-      no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"] || ""
-      no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
-      unless no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
-        if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-          @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
-        elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-          @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-        elsif @data.has_key?(:proxy)
-          @data[:proxy] = setup_proxy(@data[:proxy])
+      unless @data[:scheme] == UNIX
+        no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"] || ""
+        no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
+        unless no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
+          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+            @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
+          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+            @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
+          elsif @data.has_key?(:proxy)
+            @data[:proxy] = setup_proxy(@data[:proxy])
+          end
         end
       end
 
