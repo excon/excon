@@ -169,6 +169,20 @@ Proxy support must be set when establishing a connection object and cannot be ov
 
 NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
+Unix Socket Support
+------------------
+
+The Unix socket will work for one-off requests and multiuse connections.  A Unix socket path must be provided separate from the resource path.
+
+```ruby
+# Connection for unix:///tmp/unicorn.sock/
+connection = Excon.new('unix:///', :socket => '/tmp/unicorn.sock')
+# GET request for unix:///tmp/unicorn.sock/ping
+response = Excon.get('unix:///ping', :socket => '/tmp/unicorn.sock')
+```
+
+NOTE: Proxies will be ignored when using a Unix socket, since a Unix socket has to be local.
+
 Stubs
 -----
 
