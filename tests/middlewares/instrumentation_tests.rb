@@ -84,11 +84,11 @@ Shindo.tests('Excon instrumentation') do
     [:host, :path, :port, :scheme].select {|k| @events.first.payload.has_key? k}
   end
 
-  tests('params in request overwrite those in constructor').returns('cheezburger') do
+  tests('params in request overwrite those in constructor').returns('/cheezburger') do
     subscribe(/excon/)
     stub_success
-    make_request(false, :host => 'cheezburger')
-    @events.first.payload[:host]
+    make_request(false, :path => '/cheezburger')
+    @events.first.payload[:path]
   end
 
   tests('notify on retry').returns(3) do

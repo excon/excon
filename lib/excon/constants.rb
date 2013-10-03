@@ -35,10 +35,33 @@ module Excon
 
   USER_AGENT = 'excon/' << VERSION
 
-  VALID_CONNECTION_KEYS = [
+  VALID_REQUEST_KEYS = [
     :body,
     :captures,
     :chunk_size,
+    :debug_request,
+    :debug_response,
+    :expects,
+    :headers,
+    :idempotent,
+    :instrumentor,
+    :instrumentor_name,
+    :method,
+    :middlewares,
+    :mock,
+    :nonblock,
+    :path,
+    :pipeline,
+    :query,
+    :read_timeout,
+    :request_block,
+    :response_block,
+    :retries_remaining, # used internally
+    :retry_limit,
+    :write_timeout
+  ]
+
+  VALID_CONNECTION_KEYS = VALID_REQUEST_KEYS + [
     :ciphers,
     :client_key,
     :client_cert,
@@ -47,44 +70,19 @@ module Excon
     :private_key,
     :private_key_path,
     :connect_timeout,
-    :connection,
-    :debug_request,
-    :debug_response,
-    :error,
-    :exception,
-    :expects,
     :family,
-    :headers,
     :host,
-    :idempotent,
-    :instrumentor,
-    :instrumentor_name,
-    :method,
-    :middlewares,
-    :mock,
-    :nonblock,
     :omit_default_port,
     :password,
-    :path,
-    :pipeline,
     :port,
     :proxy,
-    :query,
-    :read_timeout,
-    :request_block,
-    :response,
-    :response_block,
-    :retries_remaining,
-    :retry_limit,
     :scheme,
     :socket,
-    :tcp_nodelay,
-    :uri_parser,
-    :user,
     :ssl_ca_file,
     :ssl_verify_peer,
-    :stack,
-    :write_timeout
+    :tcp_nodelay,
+    :uri_parser,
+    :user
   ]
 
   unless ::IO.const_defined?(:WaitReadable)
