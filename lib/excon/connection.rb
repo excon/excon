@@ -90,10 +90,13 @@ module Excon
 
       @socket_key = '' << @data[:scheme]
       if @data[:scheme] == UNIX
-        if @data[:socket]
-          @socket_key << '://' << @data[:socket]
-        else
+        if @data[:host]
+          raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
+                               "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
+        elsif !@data[:socket]
           raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
+        else
+          @socket_key << '://' << @data[:socket]
         end
       else
         @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
