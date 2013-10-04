@@ -1,5 +1,5 @@
-with_rackup('query_string.ru') do
-  Shindo.tests('Excon query string variants') do
+Shindo.tests('Excon query string variants') do
+  with_rackup('query_string.ru') do
     connection = Excon.new('http://127.0.0.1:9292')
 
     tests(":query => {:foo => 'bar'}") do

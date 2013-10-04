@@ -1,9 +1,9 @@
-with_rackup('basic.ru') do
-  Shindo.tests('requests should succeed') do
-
-    connection = Excon.new('http://127.0.0.1:9292')
+Shindo.tests('requests should succeed') do
+  with_rackup('basic.ru') do
 
     tests('HEAD /content-length/100, GET /content-length/100') do
+
+      connection = Excon.new('http://127.0.0.1:9292')
       responses = connection.requests([
         {:method => :head, :path => '/content-length/100'},
         {:method => :get, :path => '/content-length/100'}
@@ -27,19 +27,18 @@ with_rackup('basic.ru') do
 
     end
 
-  end
+    tests('requests should succeed with tcp_nodelay') do
 
-  Shindo.tests('requests should succeed with tcp_nodelay') do
+      connection = Excon.new('http://127.0.0.1:9292', :tcp_nodelay => true)
 
-    connection = Excon.new('http://127.0.0.1:9292', :tcp_nodelay => true)
+      tests('GET /content-length/100') do
+        responses = connection.requests([
+          {:method => :get, :path => '/content-length/100'}
+        ])
 
-    tests('GET /content-length/100') do
-      responses = connection.requests([
-        {:method => :get, :path => '/content-length/100'}
-      ])
-
-      tests('get content length is 100').returns('100') do
-        responses.last.headers['Content-Length']
+        tests('get content length is 100').returns('100') do
+          responses.last.headers['Content-Length']
+        end
       end
     end
   end
