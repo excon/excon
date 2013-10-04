@@ -86,12 +86,6 @@ connection.request(:idempotent => true, :retry_limit => 6)
 # opt-out of nonblocking operations for performance and/or as a workaround
 connection.request(:nonblock => false)
 
-# opt-in to omitting port from http:80 and https:443
-connection.request(:omit_default_port => true)
-
-# set longer connect_timeout (default is 60 seconds)
-connection.request(:connect_timeout => 360)
-
 # set longer read_timeout (default is 60 seconds)
 connection.request(:read_timeout => 360)
 
@@ -104,6 +98,12 @@ connection.request(:write_timeout => 360)
 # requests in time-sensitive scenarios.
 #
 connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
+
+# opt-in to omitting port from http:80 and https:443
+connection = Excon.new('http://geemus.com/', :omit_default_port => true)
+
+# set longer connect_timeout (default is 60 seconds)
+connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 ```
 
 Chunked Requests
@@ -161,11 +161,13 @@ You can specify a proxy URL that Excon will use with both HTTP and HTTPS connect
 ```ruby
 connection = Excon.new('http://geemus.com', :proxy => 'http://my.proxy:3128')
 connection.request(:method => 'GET')
+
+Excon.get('http://geemus.com', :proxy => 'http://my.proxy:3128')
 ```
 
 The proxy URL must be fully specified, including scheme (e.g. "http://") and port.
 
-Proxy support must be set when establishing a connection object and cannot be overridden in individual requests. Because of this it is unavailable in one-off requests (Excon.get, etc.)
+Proxy support must be set when establishing a connection object and cannot be overridden in individual requests.
 
 NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
@@ -175,10 +177,10 @@ Unix Socket Support
 The Unix socket will work for one-off requests and multiuse connections.  A Unix socket path must be provided separate from the resource path.
 
 ```ruby
-# Connection for unix:///tmp/unicorn.sock/
 connection = Excon.new('unix:///', :socket => '/tmp/unicorn.sock')
-# GET request for unix:///tmp/unicorn.sock/ping
-response = Excon.get('unix:///ping', :socket => '/tmp/unicorn.sock')
+connection.request(:method => :get, :path => '/ping')
+
+Excon.get('unix:///ping', :socket => '/tmp/unicorn.sock')
 ```
 
 NOTE: Proxies will be ignored when using a Unix socket, since a Unix socket has to be local.

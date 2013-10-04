@@ -46,7 +46,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
-      invalid_keys_warning(params, Excon::VALID_CONNECTION_KEYS)
+      validate_params!(params, VALID_CONNECTION_KEYS)
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -225,15 +225,12 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more optional params, override defaults set in Connection.new
     #     @option params [String] :body text to be sent over a socket
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
-    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
     #     @option params [String] :path appears after 'scheme://host:port/'
-    #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
-    #     @option params [String] :scheme The protocol; 'https' causes OpenSSL to be used
     def request(params={}, &block)
+      validate_params!(params, VALID_REQUEST_KEYS)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
-      invalid_keys_warning(params, VALID_CONNECTION_KEYS)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       if datum[:scheme] == UNIX
@@ -357,10 +354,11 @@ module Excon
       end
     end
 
-    def invalid_keys_warning(argument, valid_keys)
-      invalid_keys = argument.keys - valid_keys
+    def validate_params!(params, valid_keys)
+      invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}")
+        invalid_keys.each {|key| params.delete(key) }
       end
     end
 
