@@ -1,5 +1,5 @@
-with_rackup('thread_safety.ru') do
-  Shindo.tests('Excon thread safety') do
+Shindo.tests('Excon thread safety') do
+  with_rackup('thread_safety.ru') do
     connection = Excon.new('http://127.0.0.1:9292')
 
     long_thread = Thread.new {
