@@ -1,5 +1,7 @@
 module Excon
 
+  VERSION = '0.26.0'
+
   CR_NL = "\r\n"
 
   DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))
@@ -28,6 +30,10 @@ module Excon
   NO_ENTITY = [204, 205, 304].freeze
 
   REDACTED = 'REDACTED'
+
+  UNIX = 'unix'
+
+  USER_AGENT = 'excon/' << VERSION
 
   VALID_CONNECTION_KEYS = [
     :body,
@@ -71,6 +77,7 @@ module Excon
     :retries_remaining,
     :retry_limit,
     :scheme,
+    :socket,
     :tcp_nodelay,
     :uri_parser,
     :user,
@@ -79,9 +86,6 @@ module Excon
     :stack,
     :write_timeout
   ]
-
-  VERSION = '0.26.0'
-  USER_AGENT = 'excon/' << VERSION
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO

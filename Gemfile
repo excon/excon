@@ -3,6 +3,7 @@ source "http://rubygems.org"
 gemspec
 
 gem 'jruby-openssl', :platform => :jruby
+gem 'unicorn', :platform => :mri
 
 # group :benchmark do
 #   gem 'em-http-request'
