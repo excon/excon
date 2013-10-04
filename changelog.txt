@@ -1,3 +1,14 @@
+0.27.0 10/04/2013
+=================
+
+display warnings based on ruby and/or debug settings
+add missing valid connection keys
+remove 1.8.7 related nonblock warning
+add support for unix sockets
+cleanup constants
+improve test setup to minimize server spawning
+separate connection/request key validation
+
 0.26.0 09/24/2013
 =================
 
