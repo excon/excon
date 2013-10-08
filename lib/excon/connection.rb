@@ -8,16 +8,16 @@ module Excon
       @data
     end
     def connection=(new_params)
-      Excon.display_warning("Excon::Connection#connection= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      Excon.display_warning("Excon::Connection#connection= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
       @data = new_params
     end
 
     def params
-      display_waring("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
+      Excon.display_warning("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
       @data
     end
     def params=(new_params)
-      Excon.display_warning("Excon::Connection#params= is deprecated use Excon::Connection#data= instead (#{caller.first})")
+      Excon.display_warning("Excon::Connection#params= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
       @data = new_params
     end
 
@@ -26,7 +26,7 @@ module Excon
       @data[:proxy]
     end
     def proxy=(new_proxy)
-      Excon.display_warning("Excon::Connection#proxy= is deprecated use Excon::Connection#data[:proxy]= instead (#{caller.first})")
+      Excon.display_warning("Excon::Connection#proxy= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
       @data[:proxy] = new_proxy
     end
 
@@ -314,7 +314,7 @@ module Excon
     end
 
     def retry_limit
-      Excon.display_warning("Excon::Connection#retry_limit is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      Excon.display_warning("Excon::Connection#retry_limit is deprecated, use Excon::Connection#data[:retry_limit]. (#{caller.first})")
       @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
@@ -357,7 +357,7 @@ module Excon
     def validate_params!(params, valid_keys)
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
-        Excon.display_warning("The following keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}")
+        Excon.display_warning("The following Excon keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}\n#{ caller.join("\n") }")
         invalid_keys.each {|key| params.delete(key) }
       end
     end
