@@ -46,7 +46,7 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
-      validate_params!(params, VALID_CONNECTION_KEYS)
+      validate_params!(:connection, params)
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -228,7 +228,7 @@ module Excon
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     def request(params={}, &block)
-      validate_params!(params, VALID_REQUEST_KEYS)
+      validate_params!(:request, params)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
@@ -354,10 +354,16 @@ module Excon
       end
     end
 
-    def validate_params!(params, valid_keys)
+    def validate_params!(validation, params)
+      valid_keys = case validation
+      when :connection
+        VALID_CONNECTION_KEYS
+      when :request
+        VALID_REQUEST_KEYS
+      end
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
-        Excon.display_warning("The following Excon keys are invalid: #{invalid_keys.map(&:inspect).join(', ')}\n#{ caller.join("\n") }")
+        Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}\n#{ caller.join("\n") }")
         invalid_keys.each {|key| params.delete(key) }
       end
     end
