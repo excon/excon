@@ -85,7 +85,7 @@ module Excon
 
     # Status of mocking
     def mock
-      display_warning("Excon#mock is deprecated, pass Excon.defaults[:mock] instead (#{caller.first}")
+      display_warning("Excon#mock is deprecated, use Excon.defaults[:mock] instead (#{caller.first})")
       self.defaults[:mock]
     end
 
@@ -93,7 +93,7 @@ module Excon
     # false is the default and works as expected
     # true returns a value from stubs or raises
     def mock=(new_mock)
-      display_warning("Excon#mock is deprecated, pass Excon.defaults[:mock]= instead (#{caller.first})")
+      display_warning("Excon#mock is deprecated, use Excon.defaults[:mock]= instead (#{caller.first})")
       self.defaults[:mock] = new_mock
     end
 
@@ -112,14 +112,14 @@ module Excon
 
     # @return [true, false] Whether or not to verify the peer's SSL certificate / chain
     def ssl_verify_peer
-      display_warning("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
+      display_warning("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
       self.defaults[:ssl_verify_peer]
     end
 
     # Change the status of ssl peer verification
     # @see Excon#ssl_verify_peer (attr_reader)
     def ssl_verify_peer=(new_ssl_verify_peer)
-      display_warning("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
+      display_warning("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
       self.defaults[:ssl_verify_peer] = new_ssl_verify_peer
     end
 
