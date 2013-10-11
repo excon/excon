@@ -131,16 +131,16 @@ module Excon
     def new(url, params = {})
       uri_parser = params[:uri_parser] || Excon.defaults[:uri_parser]
       uri = uri_parser.parse(url)
-      params = {
+      options = {
         :host       => uri.host,
         :path       => uri.path,
-        :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
         :user       => (URI.decode(uri.user) if uri.user),
         :password   => (URI.decode(uri.password) if uri.password),
-      }.merge!(params)
-      Excon::Connection.new(params)
+      }
+      options[:port] = uri.port.to_s if uri.port
+      Excon::Connection.new(options.merge!(params))
     end
 
     # push an additional stub onto the list to check for mock requests
@@ -155,10 +155,10 @@ module Excon
         request_params.update(
           :host              => uri.host,
           :path              => uri.path,
-          :port              => uri.port,
           :query             => uri.query,
           :scheme            => uri.scheme
         )
+        request_params[:port] = uri.port.to_s if uri.port
         if uri.user || uri.password
           request_params[:headers] ||= {}
           user, pass = URI.decode_www_form_component(uri.user.to_s), URI.decode_www_form_component(uri.password.to_s)
