@@ -415,7 +415,11 @@ module Excon
     end
 
     def port_string(datum)
-      if datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port].to_i == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port].to_i == 443))
+      if datum[:port].to_s.empty?
+        ''
+      elsif datum[:omit_default_port] &&
+          ((datum[:scheme].casecmp('http') == 0 && datum[:port].to_i == 80) ||
+          (datum[:scheme].casecmp('https') == 0 && datum[:port].to_i == 443))
         ''
       else
         ':' << datum[:port].to_s
