@@ -11,18 +11,11 @@ module Excon
             end
             uri = uri_parser.parse(location)
 
-            port_string = if datum[:omit_default_port] && ((uri.scheme.casecmp('http') == 0 && uri.port.to_i == 80) || (uri.scheme.casecmp('https') == 0 && uri.port.to_i == 443))
-              ''
-            else
-              ':' << uri.port.to_s
-            end
-
             # delete old/redirect response
             datum.delete(:response)
 
             response = datum[:connection].request(
               datum.merge!(
-                :headers    => (datum[:headers] || {}).merge({'Host' => '' << uri.host << port_string}),
                 :host       => uri.host,
                 :path       => uri.path,
                 :port       => uri.port,

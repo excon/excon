@@ -101,7 +101,7 @@ module Excon
           @socket_key << '://' << @data[:socket]
         end
       else
-        @socket_key << '://' << @data[:host]<< ':' << @data[:port].to_s
+        @socket_key << '://' << @data[:host] << port_string(@data)
       end
       reset
     end
@@ -405,7 +405,7 @@ module Excon
         {
           :host       => uri.host,
           :password   => uri.password,
-          :port       => uri.port.to_s,
+          :port       => uri.port,
           :scheme     => uri.scheme,
           :user       => uri.user
         }
@@ -415,7 +415,7 @@ module Excon
     end
 
     def port_string(datum)
-      if datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port].to_i == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port].to_i == 443))
+      if datum[:port].nil? || (datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port] == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port] == 443)))
         ''
       else
         ':' << datum[:port].to_s
