@@ -51,8 +51,8 @@ module Excon
       end
 
       if @data[:proxy]
-        request = 'CONNECT ' << @data[:host] << ':' << @data[:port] << Excon::HTTP_1_1
-        request << 'Host: ' << @data[:host] << ':' << @data[:port] << Excon::CR_NL
+        request = 'CONNECT ' << @data[:host] << @data[:connection].send(:port_string, @data) << Excon::HTTP_1_1
+        request << 'Host: ' << @data[:host] << @data[:connection].send(:port_string, @data) << Excon::CR_NL
 
         if @data[:proxy][:password] || @data[:proxy][:user]
           auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
