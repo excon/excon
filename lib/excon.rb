@@ -56,6 +56,7 @@ module Excon
   end
 end
 
+require 'excon/utils'
 require 'excon/constants'
 require 'excon/connection'
 require 'excon/errors'
