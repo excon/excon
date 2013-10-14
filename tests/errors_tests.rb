@@ -1,5 +1,14 @@
 Shindo.tests('HTTPStatusError request/response debugging') do
 
+  tests('new raises errors for bad URIs').returns(true) do
+    begin
+      Excon.new('foo')
+      false
+    rescue => err
+      err.to_s.include? 'foo'
+    end
+  end
+
   with_server('error') do
 
     tests('message does not include response or response info').returns(true) do
