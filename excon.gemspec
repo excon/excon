@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.27.3'
-  s.date              = '2013-10-11'
+  s.version           = '0.27.4'
+  s.date              = '2013-10-14'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
