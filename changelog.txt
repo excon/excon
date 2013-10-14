@@ -1,3 +1,8 @@
+0.27.5 10/14/2013
+=================
+
+extract validations/port_string to utils module
+
 0.27.4 10/14/2013
 =================
 
