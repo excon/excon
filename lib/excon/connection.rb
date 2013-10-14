@@ -1,5 +1,6 @@
 module Excon
   class Connection
+    include Utils
 
     attr_reader :data
 
@@ -46,7 +47,6 @@ module Excon
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
-      params = validate_params(:connection, params)
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -54,6 +54,7 @@ module Excon
       # the same goes for :middlewares
       @data[:middlewares] = @data[:middlewares].dup
 
+      params = validate_params(:connection, params)
       @data.merge!(params)
 
       unless @data[:scheme] == UNIX
@@ -357,9 +358,9 @@ module Excon
     def validate_params(validation, params)
       valid_keys = case validation
       when :connection
-        VALID_CONNECTION_KEYS
+        valid_connection_keys(@data, params)
       when :request
-        VALID_REQUEST_KEYS
+        valid_request_keys(@data, params)
       end
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
@@ -411,14 +412,6 @@ module Excon
         }
       else
         proxy
-      end
-    end
-
-    def port_string(datum)
-      if datum[:port].nil? || (datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port] == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port] == 443)))
-        ''
-      else
-        ':' << datum[:port].to_s
       end
     end
   end

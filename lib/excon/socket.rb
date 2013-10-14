@@ -1,5 +1,6 @@
 module Excon
   class Socket
+    include Utils
 
     extend Forwardable
 
