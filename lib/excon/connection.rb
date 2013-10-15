@@ -365,8 +365,9 @@ module Excon
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}\n#{ caller.join("\n") }")
-        params = params.dup
-        invalid_keys.each {|key| params.delete(key) }
+        # FIXME: for now, just warn, don't mutate, give things (ie fog) a chance to catch up
+        #params = params.dup
+        #invalid_keys.each {|key| params.delete(key) }
       end
       params
     end
