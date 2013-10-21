@@ -80,7 +80,7 @@ module Excon
     def display_warning(warning)
       # Respect Ruby's $VERBOSE setting, unless EXCON_DEBUG is set
       if !$VERBOSE.nil? || ENV['EXCON_DEBUG']
-        $stderr.puts(warning)
+        $stderr.puts "[excon][WARNING] #{ warning }"
       end
     end
 
