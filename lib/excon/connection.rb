@@ -341,6 +341,14 @@ module Excon
       inspection
     end
 
+    def self.formatted_uri(datum)
+      if datum[:scheme] == UNIX
+        "#{datum[:scheme]}://#{datum[:socket]}#{datum[:path]}"
+      else
+        "#{datum[:scheme]}://#{datum[:host]}:#{datum[:port]}#{datum[:path]}"
+      end
+    end
+
     private
 
     def detect_content_length(body)
