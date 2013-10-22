@@ -43,6 +43,7 @@ module Excon
     :debug_response,
     :expects,
     :headers,
+    :host,
     :idempotent,
     :instrumentor,
     :instrumentor_name,
