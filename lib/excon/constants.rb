@@ -80,6 +80,7 @@ module Excon
     :socket,
     :ssl_ca_file,
     :ssl_verify_peer,
+    :ssl_version,
     :tcp_nodelay,
     :uri_parser,
     :user
