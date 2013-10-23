@@ -125,9 +125,19 @@ Shindo.tests('Excon basics (Unix socket)') do
     end
 
     expected_formatted_uri = 'unix:///tmp/unicorn.sock/content-length/100'
-    tests('unix socket formatted_uri').returns(expected_formatted_uri) do
-      params = connection.data.merge(:method => :get, :path => '/content-length/100')
-      Excon::Utils.formatted_uri(params)
+    tests('unix socket formatted_uri') do
+      tests('with no query parameters').returns(expected_formatted_uri) do
+        params = connection.data.merge(:method => :get, :path => '/content-length/100')
+        Excon::Utils.formatted_uri(params)
+      end
+      tests('with query parameters as a Hash').returns(expected_formatted_uri + "?this=test&itworks=true") do
+        params = connection.data.merge(:method => :get, :query => { :this => 'test', :itworks => 'true' }, :path => '/content-length/100')
+        Excon::Utils.formatted_uri(params)
+      end
+      tests('with query parameters as a Hash').returns(expected_formatted_uri + "?this=test&itworks=true") do
+        params = connection.data.merge(:method => :get, :query => "this=test&itworks=true", :path => '/content-length/100')
+        Excon::Utils.formatted_uri(params)
+      end
     end
   end
 end
