@@ -18,7 +18,7 @@ Shindo.tests('Excon basics') do
     expected_formatted_uri = 'http://127.0.0.1:9292/content-length/100'
     tests('unix socket formatted_uri').returns(expected_formatted_uri) do
       params = connection.data.merge(:method => :get, :path => '/content-length/100')
-      Excon::Connection.formatted_uri(params)
+      Excon::Utils.formatted_uri(params)
     end
   end
 end
@@ -127,7 +127,7 @@ Shindo.tests('Excon basics (Unix socket)') do
     expected_formatted_uri = 'unix:///tmp/unicorn.sock/content-length/100'
     tests('unix socket formatted_uri').returns(expected_formatted_uri) do
       params = connection.data.merge(:method => :get, :path => '/content-length/100')
-      Excon::Connection.formatted_uri(params)
+      Excon::Utils.formatted_uri(params)
     end
   end
 end
