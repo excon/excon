@@ -2,18 +2,23 @@ Shindo.tests('Excon basics') do
   with_rackup('basic.ru') do
     basic_tests
 
+    connection = Excon::Connection.new({
+      :host             => '127.0.0.1',
+      :nonblock         => false,
+      :port             => 9292,
+      :scheme           => 'http',
+      :ssl_verify_peer  => false
+    })
     tests('explicit uri passed to connection') do
       tests('GET /content-length/100').returns(200) do
-        connection = Excon::Connection.new({
-          :host             => '127.0.0.1',
-          :nonblock         => false,
-          :port             => 9292,
-          :scheme           => 'http',
-          :ssl_verify_peer  => false
-        })
         response = connection.request(:method => :get, :path => '/content-length/100')
         response[:status]
       end
+    end
+    expected_formatted_uri = 'http://127.0.0.1:9292/content-length/100'
+    tests('unix socket formatted_uri').returns(expected_formatted_uri) do
+      params = connection.data.merge(:method => :get, :path => '/content-length/100')
+      Excon::Connection.formatted_uri(params)
     end
   end
 end
@@ -106,17 +111,23 @@ Shindo.tests('Excon basics (Unix socket)') do
   with_unicorn('basic.ru', file_name) do
     basic_tests("unix:/", :socket => file_name)
 
+    connection = Excon::Connection.new({
+      :socket           => file_name,
+      :nonblock         => false,
+      :scheme           => 'unix',
+      :ssl_verify_peer  => false
+    })
     tests('explicit uri passed to connection') do
       tests('GET /content-length/100').returns(200) do
-        connection = Excon::Connection.new({
-          :socket           => file_name,
-          :nonblock         => false,
-          :scheme           => 'unix',
-          :ssl_verify_peer  => false
-        })
         response = connection.request(:method => :get, :path => '/content-length/100')
         response[:status]
       end
+    end
+
+    expected_formatted_uri = 'unix:///tmp/unicorn.sock/content-length/100'
+    tests('unix socket formatted_uri').returns(expected_formatted_uri) do
+      params = connection.data.merge(:method => :get, :path => '/content-length/100')
+      Excon::Connection.formatted_uri(params)
     end
   end
 end
