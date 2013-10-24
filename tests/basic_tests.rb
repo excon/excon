@@ -130,13 +130,29 @@ Shindo.tests('Excon basics (Unix socket)') do
         params = connection.data.merge(:method => :get, :path => '/content-length/100')
         Excon::Utils.formatted_uri(params)
       end
-      tests('with query parameters as a Hash').returns(expected_formatted_uri + "?itworks=true&this=test") do
-        params = connection.data.merge(:method => :get, :query => { :this => 'test', :itworks => 'true' }, :path => '/content-length/100')
-        Excon::Utils.formatted_uri(params)
+      tests('with query parameters as a Hash') do
+        query = { :this => 'test', :itworks => 'true' }
+        params = connection.data.merge(:method => :get, :query => query, :path => '/content-length/100')
+        uri = Excon::Utils.formatted_uri(params)
+        query.each do |key, value|
+          tests('query parameters exist') do
+            uri.include?("#{key}=#{value}")
+          end
+        end
+        tests('uri formatted correctly') do
+          uri.start_with?(expected_formatted_uri)
+        end
       end
-      tests('with query parameters as a Hash').returns(expected_formatted_uri + "?this=test&itworks=true") do
-        params = connection.data.merge(:method => :get, :query => "this=test&itworks=true", :path => '/content-length/100')
-        Excon::Utils.formatted_uri(params)
+      tests('with query parameters as a Hash') do
+        query = "this=test&itworks=true"
+        params = connection.data.merge(:method => :get, :query => query, :path => '/content-length/100')
+        uri = Excon::Utils.formatted_uri(params)
+        tests('query parameters exist') do
+          uri.include?(query)
+        end
+        tests('uri formatted correctly') do
+          uri.start_with?(expected_formatted_uri)
+        end
       end
     end
   end
