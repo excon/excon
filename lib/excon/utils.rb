@@ -24,7 +24,7 @@ module Excon
         '?' << datum[:query]
       when Hash
         request = '?'
-        datum[:query].each do |key, values|
+        datum[:query].sort.each do |key, values|
           if values.nil?
             request << key.to_s << '&'
           else
