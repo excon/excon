@@ -127,7 +127,7 @@ module Excon
       if request[:debug_request]
         # scrub authorization
         req = request.dup
-        req.reject! {|key, value| [:connection, :stack].include?(key)}
+        req.delete(:stack)
         if req.has_key?(:headers) && req[:headers].has_key?('Authorization')
           req[:headers] = req[:headers].dup
           req[:headers]['Authorization'] = REDACTED

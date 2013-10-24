@@ -5,7 +5,7 @@ module Excon
         if datum.has_key?(:instrumentor)
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error])
         end
-        @stack.error_call(datum)
+        stack.error_call(datum)
       end
 
       def request_call(datum)
@@ -16,10 +16,10 @@ module Excon
             event_name = "#{datum[:instrumentor_name]}.request"
           end
           datum[:instrumentor].instrument(event_name, datum) do
-            @stack.request_call(datum)
+            stack.request_call(datum)
           end
         else
-          @stack.request_call(datum)
+          stack.request_call(datum)
         end
       end
 
@@ -27,7 +27,7 @@ module Excon
         if datum.has_key?(:instrumentor)
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response])
         end
-        @stack.response_call(datum)
+        stack.response_call(datum)
       end
     end
   end

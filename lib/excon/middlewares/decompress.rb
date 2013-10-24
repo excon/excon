@@ -11,7 +11,7 @@ module Excon
             datum[:response][:body] = Zlib::GzipReader.new(StringIO.new(datum[:response][:body])).read
           end
         end
-        @stack.response_call(datum)
+        stack.response_call(datum)
       end
     end
   end

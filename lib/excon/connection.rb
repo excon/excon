@@ -256,12 +256,10 @@ module Excon
         datum[:idempotent] = false
       end
 
-      datum[:connection] = self
-
       datum[:stack] = datum[:middlewares].map do |middleware|
-        lambda {|stack| middleware.new(stack)}
-      end.reverse.inject(self) do |middlewares, middleware|
-        middleware.call(middlewares)
+        lambda {|connection, stack| middleware.new(connection, stack) }
+      end.reverse.inject(self) do |stack, middleware|
+        middleware.call(self, stack)
       end
       datum = datum[:stack].request_call(datum)
 

@@ -10,7 +10,7 @@ module Excon
             )
           )
         else
-          @stack.response_call(datum)
+          stack.response_call(datum)
         end
       end
     end
