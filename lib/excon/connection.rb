@@ -358,9 +358,9 @@ module Excon
     def validate_params(validation, params)
       valid_keys = case validation
       when :connection
-        valid_connection_keys(@data, params)
+        valid_connection_keys(params)
       when :request
-        valid_request_keys(@data, params)
+        valid_request_keys(params)
       end
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?

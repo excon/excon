@@ -2,11 +2,11 @@ module Excon
   module Utils
     extend self
 
-    def valid_connection_keys(datum, params = {})
+    def valid_connection_keys(params = {})
       Excon::VALID_CONNECTION_KEYS
     end
 
-    def valid_request_keys(datum, params = {})
+    def valid_request_keys(params = {})
       Excon::VALID_REQUEST_KEYS
     end
 
