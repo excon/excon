@@ -17,5 +17,34 @@ module Excon
         ':' << datum[:port].to_s
       end
     end
+
+    def build_query(datum)
+      case datum[:query]
+      when String
+        '?' << datum[:query]
+      when Hash
+        request = '?'
+        datum[:query].each do |key, values|
+          if values.nil?
+            request << key.to_s << '&'
+          else
+            [values].flatten.each do |value|
+              request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
+            end
+          end
+        end
+        request.chop! # remove trailing '&'
+      else
+        ""
+      end
+    end
+
+    def formatted_uri(datum)
+      if datum[:scheme] == UNIX
+        "#{datum[:scheme]}://#{datum[:socket]}#{datum[:path]}#{build_query(datum)}"
+      else
+        "#{datum[:scheme]}://#{datum[:host]}:#{datum[:port]}#{datum[:path]}#{build_query(datum)}"
+      end
+    end
   end
 end

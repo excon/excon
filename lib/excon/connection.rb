@@ -128,22 +128,7 @@ module Excon
           request << datum[:path]
 
           # add query to path, if there is one
-          case datum[:query]
-          when String
-            request << '?' << datum[:query]
-          when Hash
-            request << '?'
-            datum[:query].each do |key, values|
-              if values.nil?
-                request << key.to_s << '&'
-              else
-                [values].flatten.each do |value|
-                  request << key.to_s << '=' << CGI.escape(value.to_s) << '&'
-                end
-              end
-            end
-            request.chop! # remove trailing '&'
-          end
+          request << build_query(datum)
 
           # finish first line with "HTTP/1.1\r\n"
           request << HTTP_1_1
