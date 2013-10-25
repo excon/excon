@@ -33,10 +33,10 @@ module Excon
             response = Excon::Connection.new(params).request
             datum.merge!({:response => response.data})
           else
-            @stack.response_call(datum)
+            stack.response_call(datum)
           end
         else
-          @stack.response_call(datum)
+          stack.response_call(datum)
         end
       end
     end

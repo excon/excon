@@ -39,7 +39,7 @@ module Excon
           end
         end
 
-        @stack.request_call(datum)
+        stack.request_call(datum)
       end
     end
   end
