@@ -14,17 +14,23 @@ module Excon
             # delete old/redirect response
             datum.delete(:response)
 
-            response = datum[:connection].request(
-              datum.merge!(
-                :host       => uri.host,
-                :path       => uri.path,
-                :port       => uri.port,
-                :query      => uri.query,
-                :scheme     => uri.scheme,
-                :user       => (URI.decode(uri.user) if uri.user),
-                :password   => (URI.decode(uri.password) if uri.password)
-              )
+            params = datum.dup
+            params.delete(:stack)
+            params[:headers] = datum[:headers].dup
+            params[:headers].delete('Authorization')
+            params[:headers].delete('Proxy-Connection')
+            params[:headers].delete('Proxy-Authorization')
+            params.merge!(
+              :scheme     => uri.scheme,
+              :host       => uri.host,
+              :port       => uri.port,
+              :path       => uri.path,
+              :query      => uri.query,
+              :user       => (URI.decode(uri.user) if uri.user),
+              :password   => (URI.decode(uri.password) if uri.password)
             )
+
+            response = Excon::Connection.new(params).request
             datum.merge!({:response => response.data})
           else
             @stack.response_call(datum)
