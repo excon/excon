@@ -22,6 +22,7 @@ module Excon
 
     def initialize(data = {})
       @data = data
+      @nonblock = data[:nonblock]
       @read_buffer = ''
       @eof = false
 
@@ -36,7 +37,7 @@ module Excon
     def read(max_length=nil)
       if @eof
         return nil
-      elsif @data[:nonblock]
+      elsif @nonblock
         begin
           if max_length
             until @read_buffer.length >= max_length
@@ -84,7 +85,7 @@ module Excon
     end
 
     def write(data)
-      if @data[:nonblock]
+      if @nonblock
         if FORCE_ENC
           data.force_encoding('BINARY')
         end
@@ -147,7 +148,7 @@ module Excon
 
           socket = ::Socket.new(a_family, s_type, 0)
 
-          if @data[:nonblock]
+          if @nonblock
             socket.connect_nonblock(sockaddr)
           else
             begin

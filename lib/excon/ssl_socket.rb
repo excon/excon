@@ -2,9 +2,6 @@ module Excon
   class SSLSocket < Socket
 
     def initialize(data = {})
-      @data = data
-      check_nonblock_support
-
       super
 
       # create ssl context
@@ -88,22 +85,12 @@ module Excon
       @socket
     end
 
-    def read(max_length=nil)
-      check_nonblock_support
-      super
-    end
-
-    def write(data)
-      check_nonblock_support
-      super
-    end
-
     private
 
     def check_nonblock_support
       # backwards compatability for things lacking nonblock
-      if !DEFAULT_NONBLOCK && @data[:nonblock]
-        @data[:nonblock] = false
+      if !DEFAULT_NONBLOCK && @nonblock
+        @nonblock = false
       end
     end
 
