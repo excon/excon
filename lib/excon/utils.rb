@@ -40,7 +40,7 @@ module Excon
         str << '?' << datum[:query]
       when Hash
         str << '?'
-        datum[:query].each do |key, values|
+        datum[:query].sort_by {|k,_| k.to_s }.each do |key, values|
           if values.nil?
             str << key.to_s << '&'
           else

@@ -37,7 +37,7 @@ Shindo.tests('Excon::Utils') do
         Excon::Utils.request_uri(connection.data.merge(params))
       end
 
-      expected_uri = 'unix:///tmp/some.sock/some/path?foo=this&bar=that'
+      expected_uri = 'unix:///tmp/some.sock/some/path?bar=that&foo=this'
       tests('with query').returns(expected_uri) do
         connection = Excon.new('unix:/', :socket => '/tmp/some.sock')
         params = { :path => '/some/path', :query => { :foo => 'this', :bar => 'that' } }
@@ -55,7 +55,7 @@ Shindo.tests('Excon::Utils') do
         Excon::Utils.request_uri(connection.data.merge(params))
       end
 
-      expected_uri = 'http://foo.com:80/some/path?foo=this&bar=that'
+      expected_uri = 'http://foo.com:80/some/path?bar=that&foo=this'
       tests('with query').returns(expected_uri) do
         connection = Excon.new('http://foo.com')
         params = { :path => '/some/path', :query => { :foo => 'this', :bar => 'that' } }
