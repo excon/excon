@@ -83,9 +83,6 @@ connection.request(:idempotent => true)
 # this request can be repeated safely, retry up to 6 times
 connection.request(:idempotent => true, :retry_limit => 6)
 
-# opt-out of nonblocking operations for performance and/or as a workaround
-connection.request(:nonblock => false)
-
 # set longer read_timeout (default is 60 seconds)
 connection.request(:read_timeout => 360)
 
@@ -104,6 +101,9 @@ connection = Excon.new('http://geemus.com/', :omit_default_port => true)
 
 # set longer connect_timeout (default is 60 seconds)
 connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
+
+# opt-out of nonblocking operations for performance and/or as a workaround
+connection = Excon.new('http://geemus.com/', :nonblock => false)
 ```
 
 Chunked Requests
