@@ -16,6 +16,7 @@ module Excon
 
             params = datum.dup
             params.delete(:stack)
+            params.delete(:connection)
             params[:headers] = datum[:headers].dup
             params[:headers].delete('Authorization')
             params[:headers].delete('Proxy-Connection')
