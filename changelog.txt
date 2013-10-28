@@ -1,3 +1,15 @@
+0.28.0 10/28/2013
+=================
+
+tag warning messages with [excon]
+allow specific ssl_versions
+fixes around param validation
+create a new connection for redirect_follower middleware
+add connection_uri/request_uri to utils
+avoid mutating connection data
+remove connection key in redirect_follower
+
+
 0.27.6 10/15/2013
 =================
 

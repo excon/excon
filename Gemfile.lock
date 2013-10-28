@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    excon (0.27.6)
+    excon (0.28.0)
 
 GEM
   remote: http://rubygems.org/
