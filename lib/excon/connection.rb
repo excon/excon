@@ -280,11 +280,17 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining.
     #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
-      pipeline_params.map do |params|
+      responses = pipeline_params.map do |params|
         request(params.merge!(:pipeline => true))
       end.map do |datum|
         Excon::Response.new(response(datum)[:response])
       end
+
+      if responses.last[:headers]['Connection'] == 'close'
+        reset
+      end
+
+      responses
     end
 
     def reset
