@@ -106,7 +106,7 @@ module Excon
     end
 
     def params
-      Excon.display_warning("Excon::Response#params is deprecated use Excon::Response#data instead (#{caller.first})")
+      Excon.display_warning('Excon::Response#params is deprecated use Excon::Response#data instead.')
       data
     end
 
