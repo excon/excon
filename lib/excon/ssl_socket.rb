@@ -27,7 +27,7 @@ module Excon
           begin
             ssl_context.cert_store.add_file(ca_file)
           rescue => e
-            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}\n#{e.backtrace.join("\n")}")
+            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
           end
         end
       else

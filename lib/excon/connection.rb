@@ -5,29 +5,29 @@ module Excon
     attr_reader :data
 
     def connection
-      Excon.display_warning("Excon::Connection#connection is deprecated use Excon::Connection#data instead (#{caller.first})")
+      Excon.display_warning('Excon::Connection#connection is deprecated use Excon::Connection#data instead.')
       @data
     end
     def connection=(new_params)
-      Excon.display_warning("Excon::Connection#connection= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
+      Excon.display_warning('Excon::Connection#connection= is deprecated. Use of this method may cause unexpected results.')
       @data = new_params
     end
 
     def params
-      Excon.display_warning("Excon::Connection#params is deprecated use Excon::Connection#data instead (#{caller.first})")
+      Excon.display_warning('Excon::Connection#params is deprecated use Excon::Connection#data instead.')
       @data
     end
     def params=(new_params)
-      Excon.display_warning("Excon::Connection#params= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
+      Excon.display_warning('Excon::Connection#params= is deprecated. Use of this method may cause unexpected results.')
       @data = new_params
     end
 
     def proxy
-      Excon.display_warning("Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead (#{caller.first})")
+      Excon.display_warning('Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead.')
       @data[:proxy]
     end
     def proxy=(new_proxy)
-      Excon.display_warning("Excon::Connection#proxy= is deprecated. Use of this method may cause unexpected results. (#{caller.first})")
+      Excon.display_warning('Excon::Connection#proxy= is deprecated. Use of this method may cause unexpected results.')
       @data[:proxy] = new_proxy
     end
 
@@ -232,13 +232,19 @@ module Excon
       end
 
       if block_given?
-        Excon.display_warning("Excon requests with a block are deprecated, pass :response_block instead (#{caller.first})")
+        Excon.display_warning('Excon requests with a block are deprecated, pass :response_block instead.')
         datum[:response_block] = Proc.new
       end
 
-      if datum[:request_block] && datum[:idempotent]
-        Excon.display_warning("Excon requests with a :request_block can not be :idempotent (#{caller.first})")
-        datum[:idempotent] = false
+      if datum[:idempotent]
+        if datum[:request_block]
+          Excon.display_warning('Excon requests with a :request_block can not be :idempotent.')
+          datum[:idempotent] = false
+        end
+        if datum[:pipeline]
+          Excon.display_warning("Excon requests can not be :idempotent when pipelining.")
+          datum[:idempotent] = false
+        end
       end
 
       datum[:connection] = self
@@ -274,11 +280,17 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining.
     #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
-      pipeline_params.map do |params|
+      responses = pipeline_params.map do |params|
         request(params.merge!(:pipeline => true))
       end.map do |datum|
         Excon::Response.new(response(datum)[:response])
       end
+
+      if responses.last[:headers]['Connection'] == 'close'
+        reset
+      end
+
+      responses
     end
 
     def reset
@@ -295,12 +307,12 @@ module Excon
     end
 
     def retry_limit=(new_retry_limit)
-      Excon.display_warning("Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer (#{caller.first})")
+      Excon.display_warning('Excon::Connection#retry_limit= is deprecated, pass :retry_limit to the initializer.')
       @data[:retry_limit] = new_retry_limit
     end
 
     def retry_limit
-      Excon.display_warning("Excon::Connection#retry_limit is deprecated, use Excon::Connection#data[:retry_limit]. (#{caller.first})")
+      Excon.display_warning('Excon::Connection#retry_limit is deprecated, use Excon::Connection#data[:retry_limit].')
       @data[:retry_limit] ||= DEFAULT_RETRY_LIMIT
     end
 
@@ -349,7 +361,7 @@ module Excon
       end
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
-        Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}\n#{ caller.join("\n") }")
+        Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}")
         # FIXME: for now, just warn, don't mutate, give things (ie fog) a chance to catch up
         #params = params.dup
         #invalid_keys.each {|key| params.delete(key) }

@@ -7,11 +7,11 @@ module Excon
     attr_accessor :data
 
     def params
-      Excon.display_warning("Excon::Socket#params is deprecated use Excon::Socket#data instead (#{caller.first})")
+      Excon.display_warning('Excon::Socket#params is deprecated use Excon::Socket#data instead.')
       @data
     end
     def params=(new_params)
-      Excon.display_warning("Excon::Socket#params= is deprecated use Excon::Socket#data= instead (#{caller.first})")
+      Excon.display_warning('Excon::Socket#params= is deprecated use Excon::Socket#data= instead.')
       @data = new_params
     end
 

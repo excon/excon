@@ -80,13 +80,13 @@ module Excon
     def display_warning(warning)
       # Respect Ruby's $VERBOSE setting, unless EXCON_DEBUG is set
       if !$VERBOSE.nil? || ENV['EXCON_DEBUG']
-        $stderr.puts "[excon][WARNING] #{ warning }"
+        $stderr.puts '[excon][WARNING] ' << warning << "\n#{ caller.join("\n") }"
       end
     end
 
     # Status of mocking
     def mock
-      display_warning("Excon#mock is deprecated, use Excon.defaults[:mock] instead (#{caller.first})")
+      display_warning('Excon#mock is deprecated, use Excon.defaults[:mock] instead.')
       self.defaults[:mock]
     end
 
@@ -94,33 +94,33 @@ module Excon
     # false is the default and works as expected
     # true returns a value from stubs or raises
     def mock=(new_mock)
-      display_warning("Excon#mock is deprecated, use Excon.defaults[:mock]= instead (#{caller.first})")
+      display_warning('Excon#mock is deprecated, use Excon.defaults[:mock]= instead.')
       self.defaults[:mock] = new_mock
     end
 
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path
-      display_warning("Excon#ssl_ca_path is deprecated, use Excon.defaults[:ssl_ca_path] instead (#{caller.first})")
+      display_warning('Excon#ssl_ca_path is deprecated, use Excon.defaults[:ssl_ca_path] instead.')
       self.defaults[:ssl_ca_path]
     end
 
     # Change path to the SSL Certificate Authority
     # @return [String] The filesystem path to the SSL Certificate Authority
     def ssl_ca_path=(new_ssl_ca_path)
-      display_warning("Excon#ssl_ca_path= is deprecated, use Excon.defaults[:ssl_ca_path]= instead (#{caller.first})")
+      display_warning('Excon#ssl_ca_path= is deprecated, use Excon.defaults[:ssl_ca_path]= instead.')
       self.defaults[:ssl_ca_path] = new_ssl_ca_path
     end
 
     # @return [true, false] Whether or not to verify the peer's SSL certificate / chain
     def ssl_verify_peer
-      display_warning("Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead (#{caller.first})")
+      display_warning('Excon#ssl_verify_peer is deprecated, use Excon.defaults[:ssl_verify_peer] instead.')
       self.defaults[:ssl_verify_peer]
     end
 
     # Change the status of ssl peer verification
     # @see Excon#ssl_verify_peer (attr_reader)
     def ssl_verify_peer=(new_ssl_verify_peer)
-      display_warning("Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead (#{caller.first})")
+      display_warning('Excon#ssl_verify_peer= is deprecated, use Excon.defaults[:ssl_verify_peer]= instead.')
       self.defaults[:ssl_verify_peer] = new_ssl_verify_peer
     end
 
