@@ -31,7 +31,7 @@ module Excon
 
     def read(max_length=nil)
       if @eof
-        return nil
+        return max_length ? nil : ''
       elsif @nonblock
         begin
           if max_length
@@ -62,8 +62,13 @@ module Excon
         rescue EOFError
           @eof = true
         end
+
         if max_length
-          @read_buffer.slice!(0, max_length)
+          if @read_buffer.empty?
+            nil # EOF met at beginning
+          else
+            @read_buffer.slice!(0, max_length)
+          end
         else
           # read until EOFError, so return everything
           @read_buffer.slice!(0, @read_buffer.length)
