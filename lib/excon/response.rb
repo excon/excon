@@ -30,13 +30,16 @@ module Excon
     end
 
     def self.parse(socket, datum)
+      # this will discard any trailing lines from the previous response if any.
+      until match = /^HTTP\/\d+\.\d+\s(\d{3})\s/.match(socket.readline); end
+      status = match[1].to_i
+
       datum[:response] = {
         :body       => '',
         :headers    => {},
-        :status     => socket.read(12)[9, 11].to_i,
+        :status     => status,
         :remote_ip  => socket.respond_to?(:remote_ip) && socket.remote_ip
       }
-      socket.readline # read the rest of the status line and CRLF
 
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(/:\s*/, 2)
@@ -56,11 +59,11 @@ module Excon
         # if expects matched and there is a block, use it
         if expected_status && datum.has_key?(:response_block)
           if transfer_encoding_chunked
-            # 2 == "/r/n".length
+            # 2 == "\r\n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               datum[:response_block].call(socket.read(chunk_size + 2).chop!, nil, nil)
             end
-            socket.read(2)
+            socket.read(2) # empty chunk-body
           elsif remaining = content_length
             while remaining > 0
               datum[:response_block].call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
@@ -73,10 +76,11 @@ module Excon
           end
         else # no block or unexpected status
           if transfer_encoding_chunked
+            # 2 == "\r\n".length
             while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              datum[:response][:body] << socket.read(chunk_size + 2).chop! # 2 == "/r/n".length
+              datum[:response][:body] << socket.read(chunk_size + 2).chop!
             end
-            socket.read(2) # 2 == "/r/n".length
+            socket.read(2) # empty chunk-body
           elsif remaining = content_length
             while remaining > 0
               datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)

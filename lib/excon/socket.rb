@@ -18,7 +18,6 @@ module Excon
     attr_reader :remote_ip
 
     def_delegators(:@socket, :close,    :close)
-    def_delegators(:@socket, :readline, :readline)
 
     def initialize(data = {})
       @data = data
@@ -31,7 +30,7 @@ module Excon
 
     def read(max_length=nil)
       if @eof
-        return nil
+        return max_length ? nil : ''
       elsif @nonblock
         begin
           if max_length
@@ -62,8 +61,13 @@ module Excon
         rescue EOFError
           @eof = true
         end
+
         if max_length
-          @read_buffer.slice!(0, max_length)
+          if @read_buffer.empty?
+            nil # EOF met at beginning
+          else
+            @read_buffer.slice!(0, max_length)
+          end
         else
           # read until EOFError, so return everything
           @read_buffer.slice!(0, @read_buffer.length)
@@ -76,6 +80,30 @@ module Excon
         rescue Timeout::Error
           raise Excon::Errors::Timeout.new('read timeout reached')
         end
+      end
+    end
+
+    def readline
+      if @eof
+        raise EOFError, 'end of file reached'
+      else
+        line = ''
+        if @nonblock
+          while char = read(1)
+            line << char
+            break if char == $/
+          end
+          raise EOFError, 'end of file reached' if line.empty?
+        else
+          begin
+            Timeout.timeout(@data[:read_timeout]) do
+              line = @socket.readline
+            end
+          rescue Timeout::Error
+            raise Excon::Errors::Timeout.new('read timeout reached')
+          end
+        end
+        line
       end
     end
 
