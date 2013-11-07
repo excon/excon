@@ -1,3 +1,16 @@
+0.29.0 11/07/2013
+=================
+
+make nonblock invalid as request key
+add backtrace to all warnings
+do not allow idempotent + pipeline
+close socket after pipeline if needed
+fix Socket#read to match IO.read EOF behavior
+use Socket#read for non-blocking readline
+respect read_timeout for status read
+read response until status line, discard chunked trailer
+fix redirect follower to properly change host
+
 0.28.0 10/28/2013
 =================
 
