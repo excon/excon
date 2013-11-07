@@ -21,6 +21,7 @@ module Excon
             params[:headers].delete('Authorization')
             params[:headers].delete('Proxy-Connection')
             params[:headers].delete('Proxy-Authorization')
+            params[:headers].delete('Host')
             params.merge!(
               :scheme     => uri.scheme,
               :host       => uri.host,
