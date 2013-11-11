@@ -262,8 +262,10 @@ module Excon
       unless datum[:pipeline]
         datum = response(datum)
 
-        if datum[:response][:headers]['Connection'] == 'close'
-          reset
+        if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+          if split_header_value(datum[:response][:headers][key]).any? {|t| t.casecmp('close') }
+            reset
+          end
         end
 
         Excon::Response.new(datum[:response])
@@ -289,8 +291,10 @@ module Excon
         Excon::Response.new(response(datum)[:response])
       end
 
-      if responses.last[:headers]['Connection'] == 'close'
-        reset
+      if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+        if split_header_value(responses.last[:headers][key]).any? {|t| t.casecmp('close') }
+          reset
+        end
       end
 
       responses
