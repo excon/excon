@@ -53,6 +53,31 @@ module GoodServer
         send_data "Connection: close\r\n"
         send_data "\r\n"
         send_data "hello world"
+
+      when 'header_continuation'
+        send_data "HTTP/1.1 200 OK\r\n"
+        send_data "Connection: close\r\n"
+        send_data "Test-Header: one, two\r\n"
+        send_data "Test-Header: three, four,\r\n"
+        send_data "  five, six\r\n"
+        send_data "\r\n"
+        send_data "hello world"
+      end
+
+    when 'bad'
+      # Excon will close these connections due to the errors.
+      case path
+      when 'malformed_header'
+        send_data "HTTP/1.1 200 OK\r\n"
+        send_data "Bad-Header\r\n"  # no ':'
+        send_data "\r\n"
+        send_data "hello world"
+
+      when 'malformed_header_continuation'
+        send_data "HTTP/1.1 200 OK\r\n"
+        send_data " Bad-Header: one, two\r\n"  # no previous header
+        send_data "\r\n"
+        send_data "hello world"
       end
     end
 
