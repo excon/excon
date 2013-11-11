@@ -4,6 +4,8 @@
 .DS_Store
 .yardoc
 .rvmrc
+.ruby-version
+.ruby-gemset
 coverage
 doc
 rdoc

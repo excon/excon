@@ -23,9 +23,9 @@ module Excon
             params[:headers].delete('Proxy-Authorization')
             params[:headers].delete('Host')
             params.merge!(
-              :scheme     => uri.scheme,
-              :host       => uri.host,
-              :port       => uri.port,
+              :scheme     => uri.scheme || datum[:scheme],
+              :host       => uri.host   || datum[:host],
+              :port       => uri.port   || datum[:port],
               :path       => uri.path,
               :query      => uri.query,
               :user       => (URI.decode(uri.user) if uri.user),
