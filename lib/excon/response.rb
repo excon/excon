@@ -73,7 +73,7 @@ module Excon
               datum[:response][:body] << socket.read(chunk_size + 2).chop!
             end
           end
-          socket.read(2)
+          parse_headers(socket, datum) # merge trailers into headers
         elsif remaining = content_length
           while remaining > 0
             if response_block
