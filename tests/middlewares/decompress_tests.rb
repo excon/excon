@@ -110,6 +110,35 @@ Shindo.tests('Excon Decompress Middleware') do
 
     end
 
+    tests('adds Accept-Encoding if needed') do
+
+      tests('without a :response_block').returns('deflate, gzip') do
+        resp = Excon.post(
+          'http://127.0.0.1:9292/echo/request',
+          :body => 'hello world',
+          :middlewares => Excon.defaults[:middlewares] +
+                          [Excon::Middleware::Decompress]
+        )
+        request = Marshal.load(resp.body)
+        request[:headers]['Accept-Encoding']
+      end
+
+      tests('with a :response_block').returns(nil) do
+        captures = capture_response_block do |block|
+          resp = Excon.post(
+            'http://127.0.0.1:9292/echo/request',
+            :body => 'hello world',
+            :response_block => block,
+            :middlewares => Excon.defaults[:middlewares] +
+                            [Excon::Middleware::Decompress]
+          )
+        end
+        request = Marshal.load(captures.map {|capture| capture[0] }.join)
+        request[:headers]['Accept-Encoding']
+      end
+
+    end
+
   end
 
   env_restore

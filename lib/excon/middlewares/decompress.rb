@@ -1,6 +1,16 @@
 module Excon
   module Middleware
     class Decompress < Excon::Middleware::Base
+      def request_call(datum)
+        unless datum.has_key?(:response_block)
+          key = datum[:headers].keys.detect {|k| k.to_s.casecmp('Accept-Encoding') == 0 } || 'Accept-Encoding'
+          if datum[:headers][key].to_s.empty?
+            datum[:headers][key] = 'deflate, gzip'
+          end
+        end
+        @stack.request_call(datum)
+      end
+
       def response_call(datum)
         unless datum.has_key?(:response_block)
           if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Encoding') == 0 }
