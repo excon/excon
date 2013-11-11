@@ -3,12 +3,19 @@ module Excon
     class Decompress < Excon::Middleware::Base
       def response_call(datum)
         unless datum.has_key?(:response_block)
-          case datum[:response][:headers]['Content-Encoding']
-          when 'deflate'
-            # assume inflate omits header
-            datum[:response][:body] = Zlib::Inflate.new(-Zlib::MAX_WBITS).inflate(datum[:response][:body])
-          when 'gzip'
-            datum[:response][:body] = Zlib::GzipReader.new(StringIO.new(datum[:response][:body])).read
+          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Encoding') == 0 }
+            encodings = Utils.split_header_value(datum[:response][:headers][key])
+            if encoding = encodings.last
+              if encoding.casecmp('deflate') == 0
+                # assume inflate omits header
+                datum[:response][:body] = Zlib::Inflate.new(-Zlib::MAX_WBITS).inflate(datum[:response][:body])
+                encodings.pop
+              elsif encoding.casecmp('gzip') == 0 || encoding.casecmp('x-gzip') == 0
+                datum[:response][:body] = Zlib::GzipReader.new(StringIO.new(datum[:response][:body])).read
+                encodings.pop
+              end
+              datum[:response][:headers][key] = encodings.join(', ')
+            end
           end
         end
         @stack.response_call(datum)

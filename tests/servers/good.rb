@@ -3,6 +3,7 @@
 require 'eventmachine'
 require 'stringio'
 require 'uri'
+require 'zlib'
 
 module GoodServer
   # This method will be called with each request received.
@@ -28,6 +29,41 @@ module GoodServer
         send_data "Content-Length: #{ data.size }\r\n"
         send_data "\r\n"
         send_data data
+
+      when 'content-encoded'
+        encodings = parse_encodings(request[:headers]['Accept-Encoding'])
+        while encoding = encodings.pop
+          break if ['gzip', 'deflate'].include?(encoding)
+        end
+
+        case encoding
+        when 'gzip'
+          io = (Zlib::GzipWriter.new(StringIO.new) << request[:body]).finish
+          io.rewind
+          body = io.read
+        when 'deflate'
+          # drops the zlib header
+          deflator = Zlib::Deflate.new(nil, -Zlib::MAX_WBITS)
+          body = deflator.deflate(request[:body], Zlib::FINISH)
+          deflator.close
+        else
+          body = request[:body]
+        end
+
+        # simulate server pre/post content encoding
+        encodings = [
+          request[:headers]['Content-Encoding-Pre'],
+          encoding,
+          request[:headers]['Content-Encoding-Post']
+        ].compact.join(', ')
+
+        send_data "HTTP/1.1 200 OK\r\n"
+        # let the test know what the server sent
+        send_data "Content-Encoding-Sent: #{ encodings }\r\n"
+        send_data "Content-Encoding: #{ encodings }\r\n" unless encodings.empty?
+        send_data "Content-Length: #{ body.size }\r\n"
+        send_data "\r\n"
+        send_data body
       end
 
     when 'chunked'
