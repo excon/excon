@@ -30,8 +30,17 @@ module GoodServer
         send_data "\r\n"
         send_data data
 
-      when 'content-encoded'
-        encodings = parse_encodings(request[:headers]['Accept-Encoding'])
+      when /(content|transfer)-encoded\/?(.*)/
+        if (encoding_type = $1) == 'content'
+          accept_header = 'Accept-Encoding'
+          encoding_header = 'Content-Encoding'
+        else
+          accept_header = 'TE'
+          encoding_header = 'Transfer-Encoding'
+        end
+        chunked = $2 == 'chunked'
+
+        encodings = parse_encodings(request[:headers][accept_header])
         while encoding = encodings.pop
           break if ['gzip', 'deflate'].include?(encoding)
         end
@@ -52,18 +61,31 @@ module GoodServer
 
         # simulate server pre/post content encoding
         encodings = [
-          request[:headers]['Content-Encoding-Pre'],
+          request[:headers]["#{ encoding_header }-Pre"],
           encoding,
-          request[:headers]['Content-Encoding-Post']
-        ].compact.join(', ')
+          request[:headers]["#{ encoding_header }-Post"],
+        ]
+        if chunked && encoding_type == 'transfer'
+          encodings << 'chunked'
+        end
+        encodings = encodings.compact.join(', ')
 
         send_data "HTTP/1.1 200 OK\r\n"
         # let the test know what the server sent
-        send_data "Content-Encoding-Sent: #{ encodings }\r\n"
-        send_data "Content-Encoding: #{ encodings }\r\n" unless encodings.empty?
-        send_data "Content-Length: #{ body.size }\r\n"
-        send_data "\r\n"
-        send_data body
+        send_data "#{ encoding_header }-Sent: #{ encodings }\r\n"
+        send_data "#{ encoding_header }: #{ encodings }\r\n" unless encodings.empty?
+        if chunked
+          if encoding_type == 'content'
+            send_data "Transfer-Encoding: chunked\r\n"
+          end
+          send_data "\r\n"
+          send_data chunks_for(body)
+          send_data "\r\n"
+        else
+          send_data "Content-Length: #{ body.size }\r\n"
+          send_data "\r\n"
+          send_data body
+        end
       end
 
     when 'chunked'

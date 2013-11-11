@@ -147,7 +147,11 @@ module Excon
             end
           end
 
-          datum[:headers]['TE'] = 'trailers'
+          if datum[:response_block]
+            datum[:headers]['TE'] = 'trailers'
+          else
+            datum[:headers]['TE'] = 'trailers, deflate, gzip'
+          end
           datum[:headers]['Connection'] = 'TE'
 
           # add headers to request
