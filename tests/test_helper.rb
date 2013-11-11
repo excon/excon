@@ -3,6 +3,12 @@ require 'bundler'
 
 Bundler.require(:default, :development)
 
+Excon.defaults.merge!(
+  :connect_timeout  => 5,
+  :read_timeout     => 5,
+  :write_timeout    => 5
+)
+
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   reset_connection = !!options.delete(:reset_connection)
   [false, true].each do |nonblock|
@@ -206,6 +212,14 @@ def silence_warnings
   yield
 ensure
   $VERBOSE = orig_verbose
+end
+
+def capture_response_block
+  captures = []
+  yield lambda {|chunk, remaining_bytes, total_bytes|
+    captures << [chunk, remaining_bytes, total_bytes]
+  }
+  captures
 end
 
 def rackup_path(*parts)
