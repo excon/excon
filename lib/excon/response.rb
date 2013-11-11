@@ -71,7 +71,7 @@ module Excon
             end
           else
             while remaining = socket.read(datum[:chunk_size])
-              datum[:response_block].call(remaining, remaining.length, content_length)
+              datum[:response_block].call(remaining, nil, nil)
             end
           end
         else # no block or unexpected status
