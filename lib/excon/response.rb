@@ -54,7 +54,9 @@ module Excon
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
         # check to see if expects was set and matched
-        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
+        unless expected_status = !datum[:middlewares].include?(Excon::Middleware::Expects)
+          expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
+        end
 
         # if expects matched and there is a block, use it
         if expected_status && datum.has_key?(:response_block)
