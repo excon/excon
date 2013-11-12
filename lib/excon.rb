@@ -10,6 +10,7 @@ require 'timeout'
 require 'uri'
 require 'zlib'
 require 'stringio'
+require 'webrick/httputils'
 
 # Define defaults first so they will be available to other files
 module Excon
@@ -139,8 +140,8 @@ module Excon
         :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
-        :user       => (URI.decode(uri.user) if uri.user),
-        :password   => (URI.decode(uri.password) if uri.password),
+        :user       => (WEBrick::HTTPUtils.unescape(uri.user) if uri.user),
+        :password   => (WEBrick::HTTPUtils.unescape(uri.password) if uri.password),
       }.merge!(params)
       Excon::Connection.new(params)
     end
