@@ -36,7 +36,7 @@ module Excon
           Excon::Middleware::Mock
         ],
         :mock               => false,
-        :nonblock           => DEFAULT_NONBLOCK,
+        :nonblock           => true,
         :omit_default_port  => false,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,
