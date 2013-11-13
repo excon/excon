@@ -197,9 +197,10 @@ module Excon
 
     def response_call(datum)
       if datum.has_key?(:response_block) && !datum[:response][:body].empty?
-        content_length = remaining = datum[:response][:body].bytesize
+        response_body = datum[:response][:body].dup
+        content_length = remaining = response_body.bytesize
         while remaining > 0
-          datum[:response_block].call(datum[:response][:body].slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+          datum[:response_block].call(response_body.slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
           remaining -= datum[:chunk_size]
         end
       end
