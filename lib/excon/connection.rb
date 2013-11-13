@@ -294,7 +294,9 @@ module Excon
     end
 
     def reset
-      (old_socket = sockets.delete(@socket_key)) && old_socket.close
+      if old_socket = sockets.delete(@socket_key)
+        old_socket.close rescue nil
+      end
     end
 
     # Generate HTTP request verb methods
