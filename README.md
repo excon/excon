@@ -170,7 +170,7 @@ The proxy URL must be fully specified, including scheme (e.g. "http://") and por
 
 Proxy support must be set when establishing a connection object and cannot be overridden in individual requests.
 
-NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
+NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If is option is set it will take precedence over the environment variables. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
 Unix Socket Support
 ------------------
