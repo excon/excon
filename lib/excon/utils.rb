@@ -53,5 +53,12 @@ module Excon
       end
       str
     end
+
+    # Splits a header value +str+ according to HTTP specification.
+    def split_header_value(str)
+      return [] if str.nil?
+      str.strip.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
+                          (?:,\s*|\Z)'xn).flatten
+    end
   end
 end
