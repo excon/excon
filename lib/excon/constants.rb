@@ -13,10 +13,6 @@ module Excon
     CHUNK_SIZE = DEFAULT_CHUNK_SIZE
   end
 
-  DEFAULT_NONBLOCK = OpenSSL::SSL::SSLSocket.public_method_defined?(:connect_nonblock) &&
-    OpenSSL::SSL::SSLSocket.public_method_defined?(:read_nonblock) &&
-    OpenSSL::SSL::SSLSocket.public_method_defined?(:write_nonblock)
-
   DEFAULT_RETRY_LIMIT = 4
 
   FORCE_ENC = CR_NL.respond_to?(:force_encoding)

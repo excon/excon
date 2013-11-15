@@ -200,11 +200,11 @@ module Excon
             @socket = socket
             break
           rescue SystemCallError => exception
-            socket.close
+            socket.close rescue nil
             next
           end
         rescue SystemCallError => exception
-          socket.close if socket
+          socket.close rescue nil if socket
           next
         end
       end

@@ -11,6 +11,8 @@ require 'uri'
 require 'zlib'
 require 'stringio'
 
+BasicSocket.do_not_reverse_lookup = true
+
 # Define defaults first so they will be available to other files
 module Excon
   class << self
@@ -36,7 +38,7 @@ module Excon
           Excon::Middleware::Mock
         ],
         :mock               => false,
-        :nonblock           => DEFAULT_NONBLOCK,
+        :nonblock           => true,
         :omit_default_port  => false,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,

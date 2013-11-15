@@ -1,6 +1,10 @@
 module Excon
   class SSLSocket < Socket
 
+    HAVE_NONBLOCK = [:connect_nonblock, :read_nonblock, :write_nonblock].all? {|m|
+      OpenSSL::SSL::SSLSocket.public_method_defined?(m)
+    }
+
     def initialize(data = {})
       super
 
@@ -87,15 +91,9 @@ module Excon
 
     private
 
-    def check_nonblock_support
-      # backwards compatability for things lacking nonblock
-      if !DEFAULT_NONBLOCK && @nonblock
-        @nonblock = false
-      end
-    end
-
     def connect
-      check_nonblock_support
+      # backwards compatability for things lacking nonblock
+      @nonblock = HAVE_NONBLOCK && @nonblock
       super
     end
 
