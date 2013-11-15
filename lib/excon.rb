@@ -10,6 +10,7 @@ require 'timeout'
 require 'uri'
 require 'zlib'
 require 'stringio'
+require 'webrick/httputils'
 
 BasicSocket.do_not_reverse_lookup = true
 
@@ -141,8 +142,8 @@ module Excon
         :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
-        :user       => (URI.decode(uri.user) if uri.user),
-        :password   => (URI.decode(uri.password) if uri.password),
+        :user       => (WEBrick::HTTPUtils.unescape(uri.user) if uri.user),
+        :password   => (WEBrick::HTTPUtils.unescape(uri.password) if uri.password),
       }.merge!(params)
       Excon::Connection.new(params)
     end
