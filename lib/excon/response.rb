@@ -46,8 +46,11 @@ module Excon
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
         if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Transfer-Encoding') == 0 }
-          if datum[:response][:headers][key].casecmp('chunked') == 0
+          encodings = Utils.split_header_value(datum[:response][:headers][key])
+          if (encoding = encodings.last) && encoding.casecmp('chunked') == 0
             transfer_encoding_chunked = true
+            encodings.pop
+            datum[:response][:headers][key] = encodings.join(', ')
           end
         end
         unless transfer_encoding_chunked
