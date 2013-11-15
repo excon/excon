@@ -65,11 +65,11 @@ Shindo.tests('Excon proxy support') do
       tests('http proxy from the environment overrides config') do
         connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
 
-        tests('connection.data[:proxy][:host]').returns('myproxy') do
+        tests('connection.data[:proxy][:host]').returns('hard.coded.proxy') do
           connection.data[:proxy][:host]
         end
 
-        tests('connection.data[:proxy][:port]').returns(8080) do
+        tests('connection.data[:proxy][:port]').returns(6666) do
           connection.data[:proxy][:port]
         end
       end
@@ -77,7 +77,7 @@ Shindo.tests('Excon proxy support') do
       tests('an http connection in no_proxy') do
         connection = Excon.new('http://somesubdomain.noproxy')
 
-        tests('connection.data[:proxy]').returns(nil) do 
+        tests('connection.data[:proxy]').returns(nil) do
           connection.data[:proxy]
         end
       end
