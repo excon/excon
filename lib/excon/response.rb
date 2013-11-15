@@ -41,17 +41,20 @@ module Excon
         :remote_ip  => socket.respond_to?(:remote_ip) && socket.remote_ip
       }
 
-      until ((data = socket.readline).chop!).empty?
-        key, value = data.split(/:\s*/, 2)
-        datum[:response][:headers][key] = ([*datum[:response][:headers][key]] << value).compact.join(', ')
-        if key.casecmp('Content-Length') == 0
-          content_length = value.to_i
-        elsif (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
-          transfer_encoding_chunked = true
-        end
-      end
+      parse_headers(socket, datum)
 
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
+
+        if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Transfer-Encoding') == 0 }
+          if datum[:response][:headers][key].casecmp('chunked') == 0
+            transfer_encoding_chunked = true
+          end
+        end
+        unless transfer_encoding_chunked
+          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 }
+            content_length = datum[:response][:headers][key].to_i
+          end
+        end
 
         # use :response_block unless :expects would fail
         if response_block = datum[:response_block]
@@ -91,6 +94,23 @@ module Excon
         end
       end
       datum
+    end
+
+    def self.parse_headers(socket, datum)
+      last_key = nil
+      until (data = socket.readline.chop!).empty?
+        if !data.lstrip!.nil?
+          raise Excon::Errors::ResponseParseError, 'malformed header' unless last_key
+          # append to last_key's last value
+          datum[:response][:headers][last_key] << ' ' << data.rstrip
+        else
+          key, value = data.split(':', 2)
+          raise Excon::Errors::ResponseParseError, 'malformed header' unless value
+          # add key/value or append value to existing values
+          datum[:response][:headers][key] = ([datum[:response][:headers][key]] << value.strip).compact.join(', ')
+          last_key = key
+        end
+      end
     end
 
     def initialize(params={})

@@ -20,6 +20,8 @@ module Excon
 
     class Timeout < Error; end
 
+    class ResponseParseError < Error; end
+
     class ProxyParseError < Error; end
 
     class ProxyConnectionError < Error; end

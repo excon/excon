@@ -127,6 +127,23 @@ Shindo.tests('Excon Response Parsing') do
 
     end
 
+    tests('header continuation') do
+
+      tests('proper continuation').returns('one, two, three, four, five, six') do
+        resp = Excon.get('http://127.0.0.1:9292/unknown/header_continuation')
+        resp.headers['Test-Header']
+      end
+
+      tests('malformed header').raises(Excon::Errors::SocketError) do
+        Excon.get('http://127.0.0.1:9292/bad/malformed_header')
+      end
+
+      tests('malformed header continuation').raises(Excon::Errors::SocketError) do
+        Excon.get('http://127.0.0.1:9292/bad/malformed_header_continuation')
+      end
+
+    end
+
   end
 
   env_restore
