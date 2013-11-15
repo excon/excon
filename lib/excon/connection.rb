@@ -147,6 +147,9 @@ module Excon
             end
           end
 
+          datum[:headers]['TE'] = 'trailers'
+          datum[:headers]['Connection'] = 'TE'
+
           # add headers to request
           datum[:headers].each do |key, values|
             [values].flatten.each do |value|

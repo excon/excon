@@ -41,6 +41,11 @@ Shindo.tests('Excon Response Parsing') do
 
       end
 
+      tests('merges trailers into headers').
+          returns('one, two, three, four, five, six') do
+        Excon.get('http://127.0.0.1:9292/chunked/trailers').headers['Test-Header']
+      end
+
     end
 
     tests('responses with content-length') do

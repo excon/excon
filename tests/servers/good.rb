@@ -20,6 +20,16 @@ module GoodServer
   def send_response(request)
     type, path = request[:uri].path.split('/', 3)[1, 2]
     case type
+    when 'echo'
+      case path
+      when 'request'
+        data = Marshal.dump(request)
+        send_data "HTTP/1.1 200 OK\r\n"
+        send_data "Content-Length: #{ data.size }\r\n"
+        send_data "\r\n"
+        send_data data
+      end
+
     when 'chunked'
       case path
       when 'simple'
@@ -33,6 +43,17 @@ module GoodServer
         send_data "5; chunk-extension\r\n"
         send_data "world\r\n"
         send_data "0; chunk-extension\r\n" # last-chunk
+        send_data "\r\n"
+
+      # merged trailers also support continuations
+      when 'trailers'
+        send_data "HTTP/1.1 200 OK\r\n"
+        send_data "Transfer-Encoding: chunked\r\n"
+        send_data "Test-Header: one, two\r\n"
+        send_data "\r\n"
+        send_data chunks_for('hello world')
+        send_data "Test-Header: three, four,\r\n"
+        send_data "\tfive, six\r\n"
         send_data "\r\n"
       end
 

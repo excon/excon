@@ -42,4 +42,16 @@ Shindo.tests('requests should succeed') do
       end
     end
   end
+
+  with_server('good') do
+
+    tests('sets transfer-coding and connection options') do
+      request = Marshal.load(
+        Excon.get('http://127.0.0.1:9292/echo/request').body
+      )
+      returns('trailers') { request[:headers]['TE'] }
+      returns('TE') { request[:headers]['Connection'] }
+    end
+
+  end
 end
