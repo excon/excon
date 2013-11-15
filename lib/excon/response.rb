@@ -53,38 +53,37 @@ module Excon
 
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
-        # check to see if expects was set and matched
-        expected_status = !datum.has_key?(:expects) || [*datum[:expects]].include?(datum[:response][:status])
-
-        # if expects matched and there is a block, use it
-        if expected_status && datum.has_key?(:response_block)
-          if transfer_encoding_chunked
-            # 2 == "\r\n".length
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              datum[:response_block].call(socket.read(chunk_size + 2).chop!, nil, nil)
-            end
-            socket.read(2) # empty chunk-body
-          elsif remaining = content_length
-            while remaining > 0
-              datum[:response_block].call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-              remaining -= datum[:chunk_size]
-            end
-          else
-            while remaining = socket.read(datum[:chunk_size])
-              datum[:response_block].call(remaining, remaining.length, content_length)
-            end
+        # use :response_block unless :expects would fail
+        if response_block = datum[:response_block]
+          if datum[:middlewares].include?(Excon::Middleware::Expects) && datum[:expects] &&
+                                !Array(datum[:expects]).include?(datum[:response][:status])
+            response_block = nil
           end
-        else # no block or unexpected status
-          if transfer_encoding_chunked
+        end
+
+        if transfer_encoding_chunked
+          while (chunk_size = socket.readline.chop!.to_i(16)) > 0
             # 2 == "\r\n".length
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
+            if response_block
+              response_block.call(socket.read(chunk_size + 2).chop!, nil, nil)
+            else
               datum[:response][:body] << socket.read(chunk_size + 2).chop!
             end
-            socket.read(2) # empty chunk-body
-          elsif remaining = content_length
-            while remaining > 0
+          end
+          socket.read(2)
+        elsif remaining = content_length
+          while remaining > 0
+            if response_block
+              response_block.call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
+            else
               datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
-              remaining -= datum[:chunk_size]
+            end
+            remaining -= datum[:chunk_size]
+          end
+        else
+          if response_block
+            while chunk = socket.read(datum[:chunk_size])
+              response_block.call(chunk, nil, nil)
             end
           else
             datum[:response][:body] << socket.read
