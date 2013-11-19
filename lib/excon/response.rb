@@ -68,23 +68,28 @@ module Excon
         end
 
         if transfer_encoding_chunked
-          while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-            # 2 == "\r\n".length
-            if response_block
+          # 2 == "\r\n".length
+          if response_block
+            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               response_block.call(socket.read(chunk_size + 2).chop!, nil, nil)
-            else
+            end
+          else
+            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
               datum[:response][:body] << socket.read(chunk_size + 2).chop!
             end
           end
           parse_headers(socket, datum) # merge trailers into headers
         elsif remaining = content_length
-          while remaining > 0
-            if response_block
+          if response_block
+            while remaining > 0
               response_block.call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-            else
-              datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
+              remaining -= datum[:chunk_size]
             end
-            remaining -= datum[:chunk_size]
+          else
+            while remaining > 0
+              datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
+              remaining -= datum[:chunk_size]
+            end
           end
         else
           if response_block
