@@ -57,8 +57,7 @@ module Excon
     # Splits a header value +str+ according to HTTP specification.
     def split_header_value(str)
       return [] if str.nil?
-      str.strip.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
-                          (?:,\s*|\Z)'xn).flatten
+      WEBrick::HTTPUtils.split_header_value(str.strip)
     end
   end
 end
