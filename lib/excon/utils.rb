@@ -59,5 +59,10 @@ module Excon
       return [] if str.nil?
       WEBrick::HTTPUtils.split_header_value(str.strip)
     end
+
+    # Unescapes HTTP reserved and unwise characters in +str+
+    def uri_unescape(str)
+      WEBrick::HTTPUtils.unescape(str)
+    end
   end
 end
