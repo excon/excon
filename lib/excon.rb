@@ -142,8 +142,8 @@ module Excon
         :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme,
-        :user       => (WEBrick::HTTPUtils.unescape(uri.user) if uri.user),
-        :password   => (WEBrick::HTTPUtils.unescape(uri.password) if uri.password),
+        :user       => (Utils.uri_unescape(uri.user) if uri.user),
+        :password   => (Utils.uri_unescape(uri.password) if uri.password)
       }.merge!(params)
       Excon::Connection.new(params)
     end

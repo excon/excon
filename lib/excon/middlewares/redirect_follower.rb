@@ -28,8 +28,8 @@ module Excon
               :port       => uri.port   || datum[:port],
               :path       => uri.path,
               :query      => uri.query,
-              :user       => (URI.decode(uri.user) if uri.user),
-              :password   => (URI.decode(uri.password) if uri.password)
+              :user       => (Utils.uri_unescape(uri.user) if uri.user),
+              :password   => (Utils.uri_unescape(uri.password) if uri.password)
             )
 
             response = Excon::Connection.new(params).request

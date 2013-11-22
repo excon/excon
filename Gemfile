@@ -4,6 +4,7 @@ gemspec
 
 gem 'jruby-openssl', :platform => :jruby
 gem 'unicorn', :platforms => [:mri, :rbx]
+gem 'rubysl', '~> 2.0', :platform => :rbx
 
 # group :benchmark do
 #   gem 'em-http-request'
