@@ -61,8 +61,13 @@ module Excon
     end
 
     # Unescapes HTTP reserved and unwise characters in +str+
-    def uri_unescape(str)
+    def unescape_uri(str)
       WEBrick::HTTPUtils.unescape(str)
+    end
+
+    # Unescape form encoded values in +str+
+    def unescape_form(str)
+      WEBrick::HTTPUtils.unescape_form(str)
     end
   end
 end
