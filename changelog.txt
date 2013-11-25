@@ -1,3 +1,28 @@
+0.30.0 11/25/2013
+=================
+
+ensure schema/host/port are passed to redirect follower with relative location
+add .ruby-version and .ruby-gemset to .gitignore
+pass nil to :response_block for unknown values
+use :response_block if expects middleware is not used
+refactor Response.parse, add tests
+support header continuations
+support chunked trailers
+improve decompress middleware/tests
+add accept-encoding in decompress middleware requests, if missing
+fixes for connection close detection
+support transfer encoding
+fix deprecated URI.decode usage
+do not try to use tcp_nodelay for unix sockets
+nonblocking connect, connect timeouts for unix sockets
+ignore IO#close exceptions
+move conditional nonblock to only SSLSocket
+skip reverse lookups
+avoid mutating canned response from middleware
+test against latest rubinius, no longer allow failures
+add unicorn as rubinius dev dependency
+use webbrick form decode
+
 0.29.0 11/07/2013
 =================
 
