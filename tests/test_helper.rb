@@ -1,7 +1,8 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
-require 'bundler'
-
-Bundler.require(:default, :development)
+require 'bundler/setup'
+require 'excon'
+require 'delorean'
+require 'open4'
 
 Excon.defaults.merge!(
   :connect_timeout  => 5,

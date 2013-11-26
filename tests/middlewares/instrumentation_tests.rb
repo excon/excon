@@ -1,4 +1,5 @@
 require 'active_support/notifications'
+require 'securerandom'
 
 class SimpleInstrumentor
   class << self
