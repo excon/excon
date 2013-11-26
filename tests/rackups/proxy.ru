@@ -1,6 +1,9 @@
 require 'sinatra'
 
 class App < Sinatra::Base
+  set :environment, :production
+  enable :dump_errors
+
   get('*') do
     headers(
       "Sent-Request-Uri" => request.env['REQUEST_URI'].to_s,

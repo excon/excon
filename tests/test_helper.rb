@@ -242,6 +242,21 @@ ensure
     GC.enable
     Process.wait(pid)
   end
+
+  # dump server errors
+  lines = e.read.split($/)
+  while line = lines.shift
+    case line
+    when /(ERROR|Error)/
+      unless line =~ /(null cert chain|did not return a certificate|SSL_read:: internal error)/
+        in_err = true
+        puts
+      end
+    when /^(127|localhost)/
+      in_err = false
+    end
+    puts line if in_err
+  end
 end
 
 def with_unicorn(name, file_name='/tmp/unicorn.sock')
