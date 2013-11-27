@@ -1,6 +1,9 @@
 require 'sinatra'
 
 class Basic < Sinatra::Base
+  set :environment, :production
+  enable :dump_errors
+
   get('/content-length/:value') do |value|
     headers("Custom" => "Foo: bar")
     'x' * value.to_i

@@ -166,7 +166,7 @@ module Excon
         )
         if uri.user || uri.password
           request_params[:headers] ||= {}
-          user, pass = URI.decode_www_form_component(uri.user.to_s), URI.decode_www_form_component(uri.password.to_s)
+          user, pass = Utils.unescape_form(uri.user.to_s), Utils.unescape_form(uri.password.to_s)
           request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
         end
       end

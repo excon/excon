@@ -1,7 +1,8 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
-require 'bundler'
-
-Bundler.require(:default, :development)
+require 'bundler/setup'
+require 'excon'
+require 'delorean'
+require 'open4'
 
 Excon.defaults.merge!(
   :connect_timeout  => 5,
@@ -240,6 +241,21 @@ ensure
   unless RUBY_PLATFORM == 'java'
     GC.enable
     Process.wait(pid)
+  end
+
+  # dump server errors
+  lines = e.read.split($/)
+  while line = lines.shift
+    case line
+    when /(ERROR|Error)/
+      unless line =~ /(null cert chain|did not return a certificate|SSL_read:: internal error)/
+        in_err = true
+        puts
+      end
+    when /^(127|localhost)/
+      in_err = false
+    end
+    puts line if in_err
   end
 end
 
