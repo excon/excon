@@ -45,6 +45,41 @@ post_response = connection.post(:path => '/foo')
 delete_response = connection.delete(:path => '/bar')
 ```
 
+By default, each connection is non-persistent. This means that each request made against a connection behaves like a
+one-off request. Each request will establish a socket connection to the server, then close the socket once the request
+is complete.
+
+To use a persistent connection, use the `:persistent` option:
+
+```ruby
+connection = Excon.new('http://geemus.com', :persistent => true)
+```
+
+The initial request will establish a socket connection to the server and leave the socket open. Subsequent requests
+will reuse that socket. You may call `Connection#reset` at any time to close the underlying socket, and the next request
+will establish a new socket connection.
+
+You may also control persistence on a per-request basis by setting the `:persistent` option for each request.
+
+```ruby
+connection = Excon.new('http://geemus.com') # non-persistent by default
+connection.get # socket established, then closed
+connection.get(:persistent => true) # socket established, left open
+connection.get(:persistent => true) # socket reused
+connection.get # socket reused, then closed
+
+connection = Excon.new('http://geemus.com', :persistent => true)
+connection.get # socket established, left open
+connection.get(:persistent => false) # socket reused, then closed
+connection.get(:persistent => false) # socket established, then closed
+connection.get # socket established, left open
+connection.get # socket reused
+```
+
+Note that sending a request with `:persistent => false` to close the socket will also send `Connection: close` to inform
+the server the connection is no longer needed. `Connection#reset` will simply close our end of the socket.
+
+
 Options
 -------
 
@@ -131,12 +166,15 @@ Iterating in this way allows you to have more granular control over writes and t
 Pipelining Requests
 ------------------
 
-You can make use of HTTP pipelining to improve performance. Instead of the normal request/response cyle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
+You can make use of HTTP pipelining to improve performance. Instead of the normal request/response cycle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
 
 ```ruby
 connection = Excon.new('http://geemus.com/')
 connection.requests([{:method => :get}, {:method => :get}])
 ```
+
+By default, each call to `requests` will use a separate persistent socket connection. To make multiple `requests` calls
+using a single persistent connection, set `:persistent => true` when establishing the connection.
 
 Streaming Responses
 -------------------

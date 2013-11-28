@@ -61,8 +61,7 @@ Shindo.tests('Excon basics (ssl file)',['focus']) do
 
     basic_tests('https://127.0.0.1:8443',
                 :client_key => File.join(File.dirname(__FILE__), 'data', 'excon.cert.key'),
-                :client_cert => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt'),
-                :reset_connection => RUBY_VERSION == '1.9.2'
+                :client_cert => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
                )
 
   end

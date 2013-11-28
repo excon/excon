@@ -46,6 +46,7 @@ module Excon
     :middlewares,
     :mock,
     :path,
+    :persistent,
     :pipeline,
     :query,
     :read_timeout,

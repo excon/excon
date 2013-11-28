@@ -30,6 +30,13 @@ module GoodServer
         send_data "\r\n"
         send_data data
 
+      when 'request_count'
+        (@request_count ||= '0').next!
+        start_response
+        send_data "Content-Length: #{ @request_count.size }\r\n"
+        send_data "\r\n"
+        send_data @request_count
+
       when /(content|transfer)-encoded\/?(.*)/
         if (encoding_type = $1) == 'content'
           accept_header = 'Accept-Encoding'

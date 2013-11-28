@@ -11,12 +11,11 @@ Excon.defaults.merge!(
 )
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
-  reset_connection = !!options.delete(:reset_connection)
-  [false, true].each do |nonblock|
-    options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock })
+  ([true, false] * 2).combination(2).to_a.uniq.each do |nonblock, persistent|
+    options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock, :persistent => persistent })
     connection = Excon.new(url, options)
 
-    tests("nonblock => #{nonblock}") do
+    tests("nonblock => #{nonblock}, persistent => #{persistent}") do
 
       tests('GET /content-length/100') do
         response = connection.request(:method => :get, :path => '/content-length/100')
@@ -27,11 +26,6 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
 
         tests('response[:status]').returns(200) do
           response[:status]
-        end
-
-        tests("response.headers['Connection']").returns('Keep-Alive') do
-          pending if connection.data[:scheme] == Excon::UNIX
-          response.headers['Connection']
         end
 
         tests("response.headers['Content-Length']").returns('100') do
@@ -89,9 +83,6 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
       tests('POST /body-sink') do
 
         tests('response.body').returns("5000000") do
-          if reset_connection && !nonblock
-            connection.reset
-          end
           response = connection.request(:method => :post, :path => '/body-sink', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 5_000_000)
           response.body
         end
@@ -177,6 +168,13 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           end
         end
 
+      end
+
+      tests('should succeed with tcp_nodelay').returns(200) do
+        options = options.merge(:ssl_verify_peer => false, :nonblock => nonblock, :tcp_nodelay => true)
+        connection = Excon.new(url, options)
+        response = connection.request(:method => :get, :path => '/content-length/100')
+        response.status
       end
 
     end
