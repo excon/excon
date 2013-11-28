@@ -17,7 +17,7 @@ module GoodServer
   #
   # Each connection to this server is persistent unless the client sends
   # "Connection: close" in the request. If a response requires the connection
-  # to be closed, it should set `@persistent = false` and send "Connection: close".
+  # to be closed, use `start_response(:persistent => false)`.
   def send_response(request)
     type, path = request[:uri].path.split('/', 3)[1, 2]
     case type
@@ -25,7 +25,7 @@ module GoodServer
       case path
       when 'request'
         data = Marshal.dump(request)
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         send_data "Content-Length: #{ data.size }\r\n"
         send_data "\r\n"
         send_data data
@@ -70,7 +70,7 @@ module GoodServer
         end
         encodings = encodings.compact.join(', ')
 
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         # let the test know what the server sent
         send_data "#{ encoding_header }-Sent: #{ encodings }\r\n"
         send_data "#{ encoding_header }: #{ encodings }\r\n" unless encodings.empty?
@@ -91,7 +91,7 @@ module GoodServer
     when 'chunked'
       case path
       when 'simple'
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         send_data "Transfer-Encoding: chunked\r\n"
         send_data "\r\n"
         # chunk-extension is currently ignored.
@@ -105,7 +105,7 @@ module GoodServer
 
       # merged trailers also support continuations
       when 'trailers'
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         send_data "Transfer-Encoding: chunked\r\n"
         send_data "Test-Header: one, two\r\n"
         send_data "\r\n"
@@ -118,24 +118,21 @@ module GoodServer
     when 'content-length'
       case path
       when 'simple'
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         send_data "Content-Length: 11\r\n"
         send_data "\r\n"
         send_data "hello world"
       end
 
     when 'unknown'
-      @persistent = false
       case path
       when 'simple'
-        send_data "HTTP/1.1 200 OK\r\n"
-        send_data "Connection: close\r\n"
+        start_response(:persistent => false)
         send_data "\r\n"
         send_data "hello world"
 
       when 'header_continuation'
-        send_data "HTTP/1.1 200 OK\r\n"
-        send_data "Connection: close\r\n"
+        start_response(:persistent => false)
         send_data "Test-Header: one, two\r\n"
         send_data "Test-Header: three, four,\r\n"
         send_data "  five, six\r\n"
@@ -147,7 +144,7 @@ module GoodServer
       # Excon will close these connections due to the errors.
       case path
       when 'malformed_header'
-        send_data "HTTP/1.1 200 OK\r\n"
+        start_response
         send_data "Bad-Header\r\n"  # no ':'
         send_data "\r\n"
         send_data "hello world"
@@ -159,8 +156,18 @@ module GoodServer
         send_data "hello world"
       end
     end
+  end
 
-    close_connection(true) unless @persistent
+  # Sends response status-line, plus headers common to all responses.
+  def start_response(opts = {})
+    opts = {
+      :status     => '200 OK',
+      :persistent => @persistent  # true unless client sent Connection: close
+    }.merge!(opts)
+
+    @persistent = opts[:persistent]
+    send_data "HTTP/1.1 #{ opts[:status] }\r\n"
+    send_data "Connection: close\r\n" unless @persistent
   end
 
   def post_init
@@ -173,6 +180,7 @@ module GoodServer
   # The data is buffered, then processed and removed from the buffer
   # as data becomes available until the @request is complete.
   def receive_data(data)
+    @buffer.seek(0, IO::SEEK_END)
     @buffer.write(data)
 
     parse_headers unless @request
@@ -180,12 +188,15 @@ module GoodServer
 
     if @request_complete
       send_response(@request)
-      sync_buffer
-      @request = nil
-      @request_complete = false
+      if @persistent
+        @request = nil
+        @request_complete = false
+        # process remaining buffer for next request
+        receive_data('') unless @buffer.eof?
+      else
+        close_connection(true)
+      end
     end
-
-    @buffer.seek(0, IO::SEEK_END)  # wait for more data
   end
 
   # Removes the processed portion of the buffer
@@ -243,8 +254,8 @@ module GoodServer
               sync_buffer
             else # last-chunk
               @buffer.read(2)  # the final \r\n may or may not be in the buffer
+              sync_buffer
               @chunk_size = nil
-              @body_pos = nil
               @request_complete = true
             end
           end
@@ -263,10 +274,9 @@ module GoodServer
       @buffer.rewind
       unless @buffer.eof?  # buffer only contained the headers
         @request[:body] << @buffer.read(@content_length - @request[:body].size)
+        sync_buffer
         if @request[:body].size == @content_length
           @request_complete = true
-        else
-          sync_buffer
         end
       end
     else
