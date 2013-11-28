@@ -2,6 +2,8 @@ module Excon
   module Utils
     extend self
 
+    ESCAPED = /%([0-9a-fA-F]{2})/
+
     def valid_connection_keys(params = {})
       Excon::VALID_CONNECTION_KEYS
     end
@@ -57,17 +59,27 @@ module Excon
     # Splits a header value +str+ according to HTTP specification.
     def split_header_value(str)
       return [] if str.nil?
-      WEBrick::HTTPUtils.split_header_value(str.strip)
+      str = str.strip
+      str.force_encoding('BINARY') if FORCE_ENC
+      str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
+                    (?:,\s*|\Z)'xn).flatten
     end
 
     # Unescapes HTTP reserved and unwise characters in +str+
     def unescape_uri(str)
-      WEBrick::HTTPUtils.unescape(str)
+      str = str.dup
+      str.force_encoding('BINARY') if FORCE_ENC
+      str.gsub!(ESCAPED) { $1.hex.chr }
+      str
     end
 
     # Unescape form encoded values in +str+
     def unescape_form(str)
-      WEBrick::HTTPUtils.unescape_form(str)
+      str = str.dup
+      str.force_encoding('BINARY') if FORCE_ENC
+      str.gsub!(/\+/, ' ')
+      str.gsub!(ESCAPED) { $1.hex.chr }
+      str
     end
   end
 end
