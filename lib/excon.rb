@@ -10,7 +10,6 @@ require 'timeout'
 require 'uri'
 require 'zlib'
 require 'stringio'
-require 'webrick/httputils'
 
 BasicSocket.do_not_reverse_lookup = true
 
