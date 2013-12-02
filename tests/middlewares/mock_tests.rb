@@ -219,11 +219,5 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
-  tests('mock = false') do
-    with_rackup('basic.ru') do
-      basic_tests
-    end
-  end
-
   env_restore
 end

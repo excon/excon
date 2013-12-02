@@ -41,6 +41,7 @@ module Excon
         :mock               => false,
         :nonblock           => true,
         :omit_default_port  => false,
+        :persistent         => false,
         :read_timeout       => 60,
         :retry_limit        => DEFAULT_RETRY_LIMIT,
         :ssl_verify_peer    => true,

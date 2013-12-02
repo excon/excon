@@ -152,7 +152,7 @@ module Excon
           else
             datum[:headers]['TE'] = 'trailers, deflate, gzip'
           end
-          datum[:headers]['Connection'] = 'TE'
+          datum[:headers]['Connection'] = datum[:persistent] ? 'TE' : 'TE, close'
 
           # add headers to request
           datum[:headers].each do |key, values|
@@ -267,10 +267,14 @@ module Excon
       unless datum[:pipeline]
         datum = response(datum)
 
-        if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-          if split_header_value(datum[:response][:headers][key]).any? {|t| t.casecmp('close') }
-            reset
+        if datum[:persistent]
+          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+            if split_header_value(datum[:response][:headers][key]).any? {|t| t.casecmp('close') }
+              reset
+            end
           end
+        else
+          reset
         end
 
         Excon::Response.new(datum[:response])
@@ -290,16 +294,23 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining.
     #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
+      pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
+      pipeline_params.last.merge!(:persistent => @data[:persistent])
+
       responses = pipeline_params.map do |params|
-        request(params.merge!(:pipeline => true))
+        request(params)
       end.map do |datum|
         Excon::Response.new(response(datum)[:response])
       end
 
-      if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-        if split_header_value(responses.last[:headers][key]).any? {|t| t.casecmp('close') }
-          reset
+      if @data[:persistent]
+        if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+          if split_header_value(responses.last[:headers][key]).any? {|t| t.casecmp('close') }
+            reset
+          end
         end
+      else
+        reset
       end
 
       responses
