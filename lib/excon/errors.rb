@@ -35,47 +35,54 @@ module Excon
         @response = response
       end
     end
+    
+    # HTTP Error classes
+    class Informational < HTTPStatusError; end
+    class Success < HTTPStatusError; end
+    class Redirection < HTTPStatusError; end
+    class ClientError < HTTPStatusError; end
+    class ServerError < HTTPStatusError; end
 
-    class Continue < HTTPStatusError; end                     # 100
-    class SwitchingProtocols < HTTPStatusError; end           # 101
-    class OK < HTTPStatusError; end                           # 200
-    class Created < HTTPStatusError; end                      # 201
-    class Accepted < HTTPStatusError; end                     # 202
-    class NonAuthoritativeInformation < HTTPStatusError; end  # 203
-    class NoContent < HTTPStatusError; end                    # 204
-    class ResetContent < HTTPStatusError; end                 # 205
-    class PartialContent < HTTPStatusError; end               # 206
-    class MultipleChoices < HTTPStatusError; end              # 300
-    class MovedPermanently < HTTPStatusError; end             # 301
-    class Found < HTTPStatusError; end                        # 302
-    class SeeOther < HTTPStatusError; end                     # 303
-    class NotModified < HTTPStatusError; end                  # 304
-    class UseProxy < HTTPStatusError; end                     # 305
-    class TemporaryRedirect < HTTPStatusError; end            # 307
-    class BadRequest < HTTPStatusError; end                   # 400
-    class Unauthorized < HTTPStatusError; end                 # 401
-    class PaymentRequired < HTTPStatusError; end              # 402
-    class Forbidden < HTTPStatusError; end                    # 403
-    class NotFound < HTTPStatusError; end                     # 404
-    class MethodNotAllowed < HTTPStatusError; end             # 405
-    class NotAcceptable < HTTPStatusError; end                # 406
-    class ProxyAuthenticationRequired < HTTPStatusError; end  # 407
-    class RequestTimeout < HTTPStatusError; end               # 408
-    class Conflict < HTTPStatusError; end                     # 409
-    class Gone < HTTPStatusError; end                         # 410
-    class LengthRequired < HTTPStatusError; end               # 411
-    class PreconditionFailed < HTTPStatusError; end           # 412
-    class RequestEntityTooLarge < HTTPStatusError; end        # 413
-    class RequestURITooLong < HTTPStatusError; end            # 414
-    class UnsupportedMediaType < HTTPStatusError; end         # 415
-    class RequestedRangeNotSatisfiable < HTTPStatusError; end # 416
-    class ExpectationFailed < HTTPStatusError; end            # 417
-    class UnprocessableEntity < HTTPStatusError; end          # 422
-    class InternalServerError < HTTPStatusError; end          # 500
-    class NotImplemented < HTTPStatusError; end               # 501
-    class BadGateway < HTTPStatusError; end                   # 502
-    class ServiceUnavailable < HTTPStatusError; end           # 503
-    class GatewayTimeout < HTTPStatusError; end               # 504
+    class Continue < Informational; end                       # 100
+    class SwitchingProtocols < Informational; end             # 101
+    class OK < Success; end                                   # 200
+    class Created < Success; end                              # 201
+    class Accepted < Success; end                             # 202
+    class NonAuthoritativeInformation < Success; end          # 203
+    class NoContent < Success; end                            # 204
+    class ResetContent < Success; end                         # 205
+    class PartialContent < Success; end                       # 206
+    class MultipleChoices < Redirection; end                  # 300
+    class MovedPermanently < Redirection; end                 # 301
+    class Found < Redirection; end                            # 302
+    class SeeOther < Redirection; end                         # 303
+    class NotModified < Redirection; end                      # 304
+    class UseProxy < Redirection; end                         # 305
+    class TemporaryRedirect < Redirection; end                # 307
+    class BadRequest < ClientError; end                       # 400
+    class Unauthorized < ClientError; end                     # 401
+    class PaymentRequired < ClientError; end                  # 402
+    class Forbidden < ClientError; end                        # 403
+    class NotFound < ClientError; end                         # 404
+    class MethodNotAllowed < ClientError; end                 # 405
+    class NotAcceptable < ClientError; end                    # 406
+    class ProxyAuthenticationRequired < ClientError; end      # 407
+    class RequestTimeout < ClientError; end                   # 408
+    class Conflict < ClientError; end                         # 409
+    class Gone < ClientError; end                             # 410
+    class LengthRequired < ClientError; end                   # 411
+    class PreconditionFailed < ClientError; end               # 412
+    class RequestEntityTooLarge < ClientError; end            # 413
+    class RequestURITooLong < ClientError; end                # 414
+    class UnsupportedMediaType < ClientError; end             # 415
+    class RequestedRangeNotSatisfiable < ClientError; end     # 416
+    class ExpectationFailed < ClientError; end                # 417
+    class UnprocessableEntity < ClientError; end              # 422
+    class InternalServerError < ServerError; end              # 500
+    class NotImplemented < ServerError; end                   # 501
+    class BadGateway < ServerError; end                       # 502
+    class ServiceUnavailable < ServerError; end               # 503
+    class GatewayTimeout < ServerError; end                   # 504
 
     # Messages for nicer exceptions, from rfc2616
     def self.status_error(request, response)
