@@ -142,7 +142,7 @@ Gem::Specification.new do |s|
     tests/rackups/timeout.ru
     tests/request_headers_tests.rb
     tests/request_method_tests.rb
-    tests/requests_tests.rb
+    tests/request_tests.rb
     tests/response_tests.rb
     tests/servers/bad.rb
     tests/servers/eof.rb
