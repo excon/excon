@@ -5,6 +5,42 @@ module Excon
       OpenSSL::SSL::SSLSocket.public_method_defined?(m)
     }
 
+    # Cache the store, certs and keys to work around memory leaks in JRuby
+    class << self
+      attr_reader :cached_certs, :cached_keys, :cached_store
+
+      def get_default_store
+        if @cached_store.nil?
+          @cached_store = OpenSSL::X509::Store.new
+          @cached_store.set_default_paths
+
+          # workaround issue #257 (JRUBY-6970)
+          ca_file = DEFAULT_CA_FILE
+          ca_file.gsub!(/^jar:/, '') if ca_file =~ /^jar:file:\//
+
+          begin
+            @cached_store.add_file(ca_file)
+          rescue => e
+            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
+          end
+        end
+
+        @cached_store
+      end
+
+      def get_cert(filename)
+        @cached_certs[filename] ||= OpenSSL::X509::Certificate.new(File.read(filename))
+      end
+
+      def get_key(filename)
+        @cached_keys[filename] ||= OpenSSL::PKey::RSA.new(File.read(filename))
+      end
+    end
+
+    @cached_store = nil
+    @cached_certs = {}
+    @cached_keys = {}
+
     def initialize(data = {})
       super
 
@@ -21,18 +57,7 @@ module Excon
         elsif ca_file = ENV['SSL_CERT_FILE'] || @data[:ssl_ca_file]
           ssl_context.ca_file = ca_file
         else # attempt default, fallback to bundled
-          ssl_context.cert_store = OpenSSL::X509::Store.new
-          ssl_context.cert_store.set_default_paths
-
-          # workaround issue #257 (JRUBY-6970)
-          ca_file = DEFAULT_CA_FILE
-          ca_file.gsub!(/^jar:/, "") if ca_file =~ /^jar:file:\//
-
-          begin
-            ssl_context.cert_store.add_file(ca_file)
-          rescue => e
-            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
-          end
+          ssl_context.cert_store = self.class.get_default_store
         end
       else
         # turn verification off
@@ -44,11 +69,11 @@ module Excon
       private_key_path = @data[:client_key] || @data[:private_key_path]
 
       if certificate_path && private_key_path
-        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(certificate_path))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path))
+        ssl_context.cert = self.class.get_cert certificate_path
+        ssl_context.key = self.class.get_key private_key_path
       elsif @data.has_key?(:certificate) && @data.has_key?(:private_key)
-        ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
-        ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key])
+        ssl_context.cert = self.class.get_cert @data[:certificate]
+        ssl_context.key = self.class.get_key @data[:private_key]
       end
 
       if @data[:proxy]
