@@ -233,7 +233,7 @@ end
 
 def with_rackup(name)
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4("rackup", rackup_path(name))
   else
     pid, w, r, e = IO.popen4("rackup", rackup_path(name))
@@ -243,7 +243,7 @@ def with_rackup(name)
 ensure
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
 
@@ -265,7 +265,7 @@ end
 
 def with_unicorn(name, file_name='/tmp/unicorn.sock')
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
     until e.gets =~ /worker=0 ready/; end
   else
@@ -275,7 +275,7 @@ def with_unicorn(name, file_name='/tmp/unicorn.sock')
 ensure
   unless RUBY_PLATFORM == 'java'
     Process.kill(9, pid)
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
   if File.exist?(file_name)
@@ -289,7 +289,7 @@ end
 
 def with_server(name)
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
   else
     pid, w, r, e = IO.popen4(server_path("#{name}.rb"))
@@ -299,7 +299,7 @@ def with_server(name)
 ensure
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
 end
