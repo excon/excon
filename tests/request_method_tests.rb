@@ -19,10 +19,10 @@ Shindo.tests('Excon request methods') do
     end
 
     tests 'with a connection object' do
-
-      connection = Excon.new('http://localhost:9292')
+      connection = nil
 
       tests('connection.get').returns('GET') do
+        connection = Excon.new('http://localhost:9292')
         connection.get.body
       end
 

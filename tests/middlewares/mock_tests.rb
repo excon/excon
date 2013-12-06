@@ -15,13 +15,15 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("stub({:method => :get}, {:body => 'body', :status => 200})") do
-
-    Excon.stub({:method => :get}, {:body => 'body', :status => 200})
-
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    response = connection.request(:method => :get, :path => '/content-length/100')
+    connection = nil
+    response = nil
 
     tests('response.body').returns('body') do
+      Excon.stub({:method => :get}, {:body => 'body', :status => 200})
+
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
       response.body
     end
 
@@ -47,18 +49,20 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("stub({:path => %r{/tests/(\S+)}}, {:body => $1, :status => 200})") do
-
-    Excon.stub({:path => %r{/tests/(\S+)}}) do |params|
-      {
-        :body => params[:captures][:path].first,
-        :status => 200
-      }
-    end
-
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    response = connection.request(:method => :get, :path => '/tests/test')
+    connection = nil
+    response = nil
 
     tests('response.body').returns('test') do
+      Excon.stub({:path => %r{/tests/(\S+)}}) do |params|
+        {
+          :body => params[:captures][:path].first,
+          :status => 200
+        }
+      end
+
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      response = connection.request(:method => :get, :path => '/tests/test')
+
       response.body
     end
 
@@ -75,13 +79,15 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}") do
-
-    Excon.stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}
-
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    response = connection.request(:body => 'body', :method => :get, :path => '/content-length/100')
+    connection = nil
+    response = nil
 
     tests('response.body').returns('body') do
+      Excon.stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}
+
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      response = connection.request(:body => 'body', :method => :get, :path => '/content-length/100')
+
       response.body
     end
 
@@ -108,17 +114,17 @@ Shindo.tests('Excon stubs') do
 
   tests("stub({:body => File.open(...), :method => :get}, { :status => 200 })") do
 
-    file_path = File.join(File.dirname(__FILE__), '..', 'data', 'xs')
+    tests('response.status').returns(200) do
+      file_path = File.join(File.dirname(__FILE__), '..', 'data', 'xs')
 
-    Excon.stub(
-      { :body => File.read(file_path), :method => :get },
-      { :status => 200 }
-    )
+      Excon.stub(
+        { :body => File.read(file_path), :method => :get },
+        { :status => 200 }
+      )
 
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    response = connection.request(:body => File.open(file_path), :method => :get, :path => '/')
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      response = connection.request(:body => File.open(file_path), :method => :get, :path => '/')
 
-    tests('response.status') do
       response.status
     end
 
@@ -134,10 +140,10 @@ Shindo.tests('Excon stubs') do
   Excon.stubs.clear
 
   tests("stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})") do
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})
-
     test("with response_block") do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})
+
       chunks = []
       response_block = lambda do |chunk, remaining_bytes, total_bytes|
         chunks << chunk
@@ -150,32 +156,32 @@ Shindo.tests('Excon stubs') do
   Excon.stubs.clear
 
   tests("stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})") do
-    Excon.stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})
-
-    tests("get(:expects => 200)") do
+    test("get(:expects => 200)") do
+      Excon.stub({:url => 'https://user:pass@foo.bar.com:9999/baz?quux=true'}, {:status => 200})
       Excon.new("https://user:pass@foo.bar.com:9999/baz?quux=true", :mock => true).get(:expects => 200)
+      true
     end
   end
 
   Excon.stubs.clear
 
   tests("stub({}, {:status => 404, :body => 'Not Found'}") do
-
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {:status => 404, :body => 'Not Found'})
+    connection = nil
 
     tests("request(:expects => 200, :method => :get, :path => '/')").raises(Excon::Errors::NotFound) do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.stub({}, {:status => 404, :body => 'Not Found'})
+
       connection.request(:expects => 200, :method => :get, :path => '/')
     end
 
-    tests("Expects exception should contain response object") do
+    tests("Expects exception should contain response object").returns(Excon::Response) do
       begin
         connection.request(:expects => 200, :method => :get, :path => '/')
       rescue Excon::Errors::NotFound => e
-        returns(Excon::Response) { e.response.class }
+        e.response.class
       end
     end
-
 
     test("request(:expects => 200, :method => :get, :path => '/') with block does not invoke the block since it raises an error") do
       block_called = false
@@ -194,10 +200,10 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("stub_for({})") do
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {})
-
     tests("stub_for({})").returns([{}, {}]) do
+      Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.stub({}, {})
+
       Excon.stub_for({})
     end
 
@@ -205,10 +211,12 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("unstub({})") do
-    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
-    Excon.stub({}, {})
+    connection = nil
 
     tests("unstub({})").returns([{}, {}]) do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.stub({}, {})
+
       Excon.unstub({})
     end
 

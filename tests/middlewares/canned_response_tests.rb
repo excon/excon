@@ -12,15 +12,12 @@ Shindo.tests("Excon support for middlewares that return canned responses") do
     end
   end
 
-  connection = Excon.new(
-    'http://some-host.com/some-path',
-    :method         => :get,
-    :middlewares    => [canned_response_middleware] + Excon.defaults[:middlewares],
-    :response_block => Proc.new { } # to force streaming
-  )
-
   tests('does not mutate the canned response body').returns("canned") do
-    connection.request
+    Excon.get(
+      'http://some-host.com/some-path',
+      :middlewares    => [canned_response_middleware] + Excon.defaults[:middlewares],
+      :response_block => Proc.new { } # to force streaming
+    )
     the_body
   end
 end

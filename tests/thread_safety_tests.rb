@@ -12,10 +12,10 @@ Shindo.tests('Excon thread safety') do
       Thread.current[:success] = response.body == '2'
     }
 
-    long_thread.join
-    short_thread.join
-
     test('long_thread') do
+      long_thread.join
+      short_thread.join
+
       long_thread[:success]
     end
 

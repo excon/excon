@@ -12,15 +12,21 @@ Excon.defaults.merge!(
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   ([true, false] * 2).combination(2).to_a.uniq.each do |nonblock, persistent|
-    options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock, :persistent => persistent })
-    connection = Excon.new(url, options)
+    connection = nil
+    test do
+      options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock, :persistent => persistent })
+      connection = Excon.new(url, options)
+      true
+    end
 
     tests("nonblock => #{nonblock}, persistent => #{persistent}") do
 
       tests('GET /content-length/100') do
-        response = connection.request(:method => :get, :path => '/content-length/100')
+        response = nil
 
         tests('response.status').returns(200) do
+          response = connection.request(:method => :get, :path => '/content-length/100')
+
           response.status
         end
 

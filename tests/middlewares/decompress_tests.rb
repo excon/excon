@@ -3,19 +3,22 @@ Shindo.tests('Excon Decompress Middleware') do
 
   with_server('good') do
 
-    connection = Excon.new(
-      'http://127.0.0.1:9292/echo/content-encoded',
-      :method => :post,
-      :body => 'hello world',
-      :middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress]
-    )
+    before do
+      @connection ||= Excon.new(
+        'http://127.0.0.1:9292/echo/content-encoded',
+        :method => :post,
+        :body => 'hello world',
+        :middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress]
+      )
+    end
 
     tests('gzip') do
-      resp = connection.request(
-        :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0' }
-      )
+      resp = nil
 
       tests('response body decompressed').returns('hello world') do
+        resp = @connection.request(
+          :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0' }
+        )
         resp[:body]
       end
 
@@ -29,11 +32,12 @@ Shindo.tests('Excon Decompress Middleware') do
     end
 
     tests('deflate') do
-      resp = connection.request(
-        :headers => { 'Accept-Encoding' => 'gzip;q=0, deflate' }
-      )
+      resp = nil
 
       tests('response body decompressed').returns('hello world') do
+        resp = @connection.request(
+          :headers => { 'Accept-Encoding' => 'gzip;q=0, deflate' }
+        )
         resp[:body]
       end
 
@@ -47,12 +51,13 @@ Shindo.tests('Excon Decompress Middleware') do
     end
 
     tests('with pre-encoding') do
-      resp = connection.request(
-        :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0',
-                      'Content-Encoding-Pre' => 'other' }
-      )
+      resp = nil
 
       tests('server sent content-encoding').returns('other, gzip') do
+        resp = @connection.request(
+          :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0',
+                        'Content-Encoding-Pre' => 'other' }
+        )
         resp[:headers]['Content-Encoding-Sent']
       end
 
@@ -67,12 +72,13 @@ Shindo.tests('Excon Decompress Middleware') do
     end
 
     tests('with post-encoding') do
-      resp = connection.request(
-        :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0',
-                      'Content-Encoding-Post' => 'other' }
-      )
+      resp = nil
 
       tests('server sent content-encoding').returns('gzip, other') do
+        resp = @connection.request(
+          :headers => { 'Accept-Encoding' => 'gzip, deflate;q=0',
+                        'Content-Encoding-Post' => 'other' }
+        )
         resp[:headers]['Content-Encoding-Sent']
       end
 
@@ -87,15 +93,16 @@ Shindo.tests('Excon Decompress Middleware') do
     end
 
     tests('with a :response_block') do
+      captures = nil
       resp = nil
-      captures = capture_response_block do |block|
-        resp = connection.request(
-          :headers => { 'Accept-Encoding' => 'gzip'},
-          :response_block => block
-        )
-      end
 
       tests('server sent content-encoding').returns('gzip') do
+        captures = capture_response_block do |block|
+          resp = @connection.request(
+            :headers => { 'Accept-Encoding' => 'gzip'},
+            :response_block => block
+          )
+        end
         resp[:headers]['Content-Encoding-Sent']
       end
 
@@ -125,7 +132,7 @@ Shindo.tests('Excon Decompress Middleware') do
 
       tests('with a :response_block').returns(nil) do
         captures = capture_response_block do |block|
-          resp = Excon.post(
+          Excon.post(
             'http://127.0.0.1:9292/echo/request',
             :body => 'hello world',
             :response_block => block,
