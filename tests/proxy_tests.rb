@@ -4,17 +4,17 @@ Shindo.tests('Excon proxy support') do
   tests('proxy configuration') do
 
     tests('no proxy') do
-      connection = Excon.new('http://foo.com')
-
       tests('connection.data[:proxy]').returns(nil) do
+        connection = Excon.new('http://foo.com')
         connection.data[:proxy]
       end
     end
 
     tests('with fully-specified proxy: https://myproxy.net:8080') do
-      connection = Excon.new('http://foo.com', :proxy => 'https://myproxy.net:8080')
+      connection = nil
 
       tests('connection.data[:proxy][:host]').returns('myproxy.net') do
+        connection = Excon.new('http://foo.com', :proxy => 'https://myproxy.net:8080')
         connection.data[:proxy][:host]
       end
 
@@ -31,9 +31,10 @@ Shindo.tests('Excon proxy support') do
       env_init(env)
 
       tests('an http connection') do
-        connection = Excon.new('http://foo.com')
+        connection = nil
 
         tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection = Excon.new('http://foo.com')
           connection.data[:proxy][:host]
         end
 
@@ -47,9 +48,10 @@ Shindo.tests('Excon proxy support') do
       end
 
       tests('an https connection') do
-        connection = Excon.new('https://secret.com')
+        connection = nil
 
         tests('connection.data[:proxy][:host]').returns('mysecureproxy') do
+          connection = Excon.new('https://secret.com')
           connection.data[:proxy][:host]
         end
 
@@ -63,9 +65,10 @@ Shindo.tests('Excon proxy support') do
       end
 
       tests('http proxy from the environment overrides config') do
-        connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
+        connection = nil
 
         tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection = Excon.new('http://foo.com', :proxy => 'http://hard.coded.proxy:6666')
           connection.data[:proxy][:host]
         end
 
@@ -75,25 +78,22 @@ Shindo.tests('Excon proxy support') do
       end
 
       tests('an http connection in no_proxy') do
-        connection = Excon.new('http://somesubdomain.noproxy')
-
-        tests('connection.data[:proxy]').returns(nil) do 
+        tests('connection.data[:proxy]').returns(nil) do
+          connection = Excon.new('http://somesubdomain.noproxy')
           connection.data[:proxy]
         end
       end
 
       tests('an http connection not completely matching no_proxy') do
-        connection = Excon.new('http://noproxy2')
-
         tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection = Excon.new('http://noproxy2')
           connection.data[:proxy][:host]
         end
       end
 
       tests('an http connection with subdomain in no_proxy') do
-        connection = Excon.new('http://a.subdomain.noproxy2')
-
         tests('connection.data[:proxy]').returns(nil) do
+          connection = Excon.new('http://a.subdomain.noproxy2')
           connection.data[:proxy]
         end
       end
@@ -119,9 +119,10 @@ Shindo.tests('Excon proxy support') do
       env_init({'http_proxy' => 'http://myproxy:8080' })
 
       tests('an https connection') do
-        connection = Excon.new('https://secret.com')
+        connection = nil
 
         tests('connection.data[:proxy][:host]').returns('myproxy') do
+          connection = Excon.new('https://secret.com')
           connection.data[:proxy][:host]
         end
 
@@ -142,10 +143,12 @@ Shindo.tests('Excon proxy support') do
   with_rackup('proxy.ru') do
 
     tests('http proxying: http://foo.com:8080') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
-      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+      response = nil
 
       tests('response.status').returns(200) do
+        connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
+        response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+
         response.status
       end
 
@@ -168,10 +171,12 @@ Shindo.tests('Excon proxy support') do
     end
 
     tests('http proxying: http://user:pass@foo.com:8080') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://user:pass@127.0.0.1:9292')
-      response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+      response = nil
 
       tests('response.status').returns(200) do
+        connection = Excon.new('http://foo.com:8080', :proxy => 'http://user:pass@127.0.0.1:9292')
+        response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+
         response.status
       end
 

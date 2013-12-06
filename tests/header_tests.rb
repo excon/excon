@@ -4,12 +4,15 @@ Shindo.tests('Excon response header support') do
   with_rackup('response_header.ru') do
 
     tests('Response#get_header') do
-      connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
-      response = connection.request(:method => :get, :path => '/foo')
+      connection = nil
+      response = nil
 
       tests('with variable header capitalization') do
 
         tests('response.get_header("mixedcase-header")').returns('MixedCase') do
+          connection = Excon.new('http://foo.com:8080', :proxy => 'http://127.0.0.1:9292')
+          response = connection.request(:method => :get, :path => '/foo')
+
           response.get_header("mixedcase-header")
         end
 

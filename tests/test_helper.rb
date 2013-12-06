@@ -12,15 +12,21 @@ Excon.defaults.merge!(
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   ([true, false] * 2).combination(2).to_a.uniq.each do |nonblock, persistent|
-    options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock, :persistent => persistent })
-    connection = Excon.new(url, options)
+    connection = nil
+    test do
+      options = options.merge({:ssl_verify_peer => false, :nonblock => nonblock, :persistent => persistent })
+      connection = Excon.new(url, options)
+      true
+    end
 
     tests("nonblock => #{nonblock}, persistent => #{persistent}") do
 
       tests('GET /content-length/100') do
-        response = connection.request(:method => :get, :path => '/content-length/100')
+        response = nil
 
         tests('response.status').returns(200) do
+          response = connection.request(:method => :get, :path => '/content-length/100')
+
           response.status
         end
 
@@ -227,7 +233,7 @@ end
 
 def with_rackup(name)
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4("rackup", rackup_path(name))
   else
     pid, w, r, e = IO.popen4("rackup", rackup_path(name))
@@ -237,7 +243,7 @@ def with_rackup(name)
 ensure
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
 
@@ -259,7 +265,7 @@ end
 
 def with_unicorn(name, file_name='/tmp/unicorn.sock')
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
     until e.gets =~ /worker=0 ready/; end
   else
@@ -269,7 +275,7 @@ def with_unicorn(name, file_name='/tmp/unicorn.sock')
 ensure
   unless RUBY_PLATFORM == 'java'
     Process.kill(9, pid)
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
   if File.exist?(file_name)
@@ -283,7 +289,7 @@ end
 
 def with_server(name)
   unless RUBY_PLATFORM == 'java'
-    GC.disable
+    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
   else
     pid, w, r, e = IO.popen4(server_path("#{name}.rb"))
@@ -293,7 +299,7 @@ def with_server(name)
 ensure
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
-    GC.enable
+    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
 end

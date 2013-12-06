@@ -156,12 +156,14 @@ Shindo.tests('Excon Response Parsing') do
     tests('Transfer-Encoding') do
 
       tests('used with chunked response') do
-        resp = Excon.post(
-          'http://127.0.0.1:9292/echo/transfer-encoded/chunked',
-          :body => 'hello world'
-        )
+        resp = nil
 
         tests('server sent transfer-encoding').returns('gzip, chunked') do
+          resp = Excon.post(
+            'http://127.0.0.1:9292/echo/transfer-encoded/chunked',
+            :body => 'hello world'
+          )
+
           resp[:headers]['Transfer-Encoding-Sent']
         end
 
@@ -175,12 +177,14 @@ Shindo.tests('Excon Response Parsing') do
       end
 
       tests('used with non-chunked response') do
-        resp = Excon.post(
-          'http://127.0.0.1:9292/echo/transfer-encoded',
-          :body => 'hello world'
-        )
+        resp = nil
 
         tests('server sent transfer-encoding').returns('gzip') do
+          resp = Excon.post(
+            'http://127.0.0.1:9292/echo/transfer-encoded',
+            :body => 'hello world'
+          )
+
           resp[:headers]['Transfer-Encoding-Sent']
         end
 
@@ -195,14 +199,16 @@ Shindo.tests('Excon Response Parsing') do
 
       # sends TE header without gzip/deflate accepted (see requests_tests)
       tests('with a :response_block') do
-        resp = nil
-        captures = capture_response_block do |block|
-          resp = Excon.post('http://127.0.0.1:9292/echo/transfer-encoded/chunked',
-                            :body => 'hello world',
-                            :response_block => block)
-        end
+        captures = nil
 
         tests('server does not compress').returns('chunked') do
+          resp = nil
+          captures = capture_response_block do |block|
+            resp = Excon.post('http://127.0.0.1:9292/echo/transfer-encoded/chunked',
+                              :body => 'hello world',
+                              :response_block => block)
+          end
+
           resp[:headers]['Transfer-Encoding-Sent']
         end
 

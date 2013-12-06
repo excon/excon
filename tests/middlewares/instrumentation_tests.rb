@@ -167,12 +167,12 @@ Shindo.tests('Excon instrumentation') do
         original_stderr = $stderr
         $stderr = @captured_stderr = StringIO.new
         stub_failure
-        @connection = Excon.new(
-          'http://user:pass@127.0.0.1:9292',
-          :instrumentor => Excon::StandardInstrumentor,
-          :mock         => true
-        )
         raises(Excon::Errors::SocketError) do
+          @connection = Excon.new(
+            'http://user:pass@127.0.0.1:9292',
+            :instrumentor => Excon::StandardInstrumentor,
+            :mock         => true
+          )
           @connection.get(:idempotent => true)
         end
       ensure
@@ -197,12 +197,12 @@ Shindo.tests('Excon instrumentation') do
         original_stderr = $stderr
         $stderr = @captured_stderr = StringIO.new
         stub_failure
-        @connection = Excon.new(
-          'http://user:pass@127.0.0.1:9292',
-          :instrumentor => Excon::StandardInstrumentor,
-          :mock         => true
-          )
         raises(Excon::Errors::SocketError) do
+          @connection = Excon.new(
+            'http://user:pass@127.0.0.1:9292',
+            :instrumentor => Excon::StandardInstrumentor,
+            :mock         => true
+            )
           @connection.get(:idempotent => true)
         end
       ensure

@@ -4,11 +4,13 @@ Shindo.tests('Request Tests') do
     tests('sets transfer-coding and connection options') do
 
       tests('without a :response_block') do
-        request = Marshal.load(
-          Excon.get('http://127.0.0.1:9292/echo/request').body
-        )
+        request = nil
 
         returns('trailers, deflate, gzip', 'sets encoding options') do
+          request = Marshal.load(
+            Excon.get('http://127.0.0.1:9292/echo/request').body
+          )
+
           request[:headers]['TE']
         end
 
@@ -18,14 +20,16 @@ Shindo.tests('Request Tests') do
       end
 
       tests('with a :response_block') do
-        captures = capture_response_block do |block|
-          Excon.get('http://127.0.0.1:9292/echo/request',
-                    :response_block => block)
-        end
-        data = captures.map {|capture| capture[0] }.join
-        request = Marshal.load(data)
+        request = nil
 
         returns('trailers', 'does not set encoding options') do
+          captures = capture_response_block do |block|
+            Excon.get('http://127.0.0.1:9292/echo/request',
+                      :response_block => block)
+          end
+          data = captures.map {|capture| capture[0] }.join
+          request = Marshal.load(data)
+
           request[:headers]['TE']
         end
 
