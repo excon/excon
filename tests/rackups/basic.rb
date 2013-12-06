@@ -1,4 +1,5 @@
 require 'sinatra'
+require File.join(File.dirname(__FILE__), 'webrick_patch')
 
 class Basic < Sinatra::Base
   set :environment, :production
