@@ -348,7 +348,7 @@ Either of these should allow you to work around the socket error and continue wi
 ## Getting Help
 
 * [General Documentation](http://excon.io).
-* Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon)
+* Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon).
 * Report bugs and discuss potential features in [Github issues](https://github.com/geemus/excon/issues).
 
 ## Getting Involved
@@ -363,7 +363,7 @@ New contributors are always welcome, when it doubt please ask questions. We stri
   * [Create an issue](https://github.com/geemus/excon/issues/new) to start a discussion on additions or features.
 * Fork the project, add your changes and tests to cover them in a topic branch.
 * Commit your changes and rebase against `geemus/excon` to ensure everything is up to date.
-* [Submit a pull request](https://github.com/geemus/excon/compare/)
+* [Submit a pull request](https://github.com/geemus/excon/compare/).
 
 ### Non-Coding
 
@@ -371,7 +371,7 @@ New contributors are always welcome, when it doubt please ask questions. We stri
 * Write and help edit [documentation](https://github.com/geemus/excon.github.com).
 * Translate [documentation](https://github.com/geemus/excon.github.com) in to other languages.
 * Organize or volunteer at events.
-* [Donate](https://www.gittip.com/geemus/)
+* [Donate](https://www.gittip.com/geemus/)!
 * Discuss other ideas for contribution with [geemus](mailto:geemus+excon@gmail.com).
 
 Copyright
