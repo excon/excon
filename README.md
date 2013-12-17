@@ -1,5 +1,4 @@
-excon
-=====
+# excon
 
 Usable, fast, simple Ruby HTTP 1.1
 
@@ -10,8 +9,7 @@ Excon was designed to be simple, fast and performant. It works great as a genera
 [![Gem Version](https://fury-badge.herokuapp.com/rb/excon.png)](http://badge.fury.io/rb/excon)
 [![Gittip](http://img.shields.io/gittip/geemus.png)](https://www.gittip.com/geemus/)
 
-Getting Started
----------------
+## Getting Started
 
 Install the gem.
 
@@ -80,8 +78,7 @@ Note that sending a request with `:persistent => false` to close the socket will
 the server the connection is no longer needed. `Connection#reset` will simply close our end of the socket.
 
 
-Options
--------
+## Options
 
 Both one-off and persistent connections support many other options. The final options for a request are built up by starting with `Excon.defaults`, then merging in options from the connection and finally merging in any request options. In this way you have plenty of options on where and how to set options and can easily setup connections or defaults to match common options for a particular endpoint.
 
@@ -142,8 +139,7 @@ connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 connection = Excon.new('http://geemus.com/', :nonblock => false)
 ```
 
-Chunked Requests
-----------------
+## Chunked Requests
 
 You can make `Transfer-Encoding: chunked` requests by passing a block that will deliver chunks, delivering an empty chunk to signal completion.
 
@@ -163,8 +159,7 @@ file.close
 
 Iterating in this way allows you to have more granular control over writes and to write things where you can not calculate the overall length up front.
 
-Pipelining Requests
-------------------
+## Pipelining Requests
 
 You can make use of HTTP pipelining to improve performance. Instead of the normal request/response cycle, pipelining sends a series of requests and then receives a series of responses. You can take advantage of this using the `requests` method, which takes an array of params where each is a hash like request would receive and returns an array of responses.
 
@@ -176,8 +171,7 @@ connection.requests([{:method => :get}, {:method => :get}])
 By default, each call to `requests` will use a separate persistent socket connection. To make multiple `requests` calls
 using a single persistent connection, set `:persistent => true` when establishing the connection.
 
-Streaming Responses
--------------------
+## Streaming Responses
 
 You can stream responses by passing a block that will receive each chunk.
 
@@ -192,8 +186,7 @@ Excon.get('http://geemus.com', :response_block => streamer)
 
 Iterating over each chunk will allow you to do work on the response incrementally without buffering the entire response first. For very large responses this can lead to significant memory savings.
 
-Proxy Support
--------------
+## Proxy Support
 
 You can specify a proxy URL that Excon will use with both HTTP and HTTPS connections:
 
@@ -210,8 +203,7 @@ Proxy support must be set when establishing a connection object and cannot be ov
 
 NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
-Unix Socket Support
-------------------
+## Unix Socket Support
 
 The Unix socket will work for one-off requests and multiuse connections.  A Unix socket path must be provided separate from the resource path.
 
@@ -224,8 +216,7 @@ Excon.get('unix:///ping', :socket => '/tmp/unicorn.sock')
 
 NOTE: Proxies will be ignored when using a Unix socket, since a Unix socket has to be local.
 
-Stubs
------
+## Stubs
 
 You can stub out requests for testing purposes by enabling mock mode on a connection.
 
@@ -274,8 +265,7 @@ config.before(:all) do
 end
 ```
 
-Instrumentation
----------------
+## Instrumentation
 
 Excon calls can be timed using the [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) API.
 
@@ -326,8 +316,7 @@ For debugging purposes you can also use Excon::StandardInstrumentor to output al
 
 See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's instrumentation_test.rb for more examples of instrumenting excon.
 
-HTTPS/SSL Issues
-----------------
+## HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::SocketError: SSL_connect returned=1 ...`
 
