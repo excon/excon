@@ -340,25 +340,10 @@ Either of these should allow you to work around the socket error and continue wi
 * Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon).
 * Report bugs and discuss potential features in [Github issues](https://github.com/geemus/excon/issues).
 
-## Getting Involved
+## Contributing
 
-New contributors are always welcome, when it doubt please ask questions. We strive to be an open and welcoming community. Please be nice to one another.
+Please refer to [LICENSE.md](https://github.com/geemus/excon/blob/master/CONTRIBUTING.md).
 
-### Coding
+## License
 
-* Pick a task:
-  * Offer feedback on open [pull requests](https://github.com/geemus/excon/pulls).
-  * Review open [issues](https://github.com/geemus/excon/issues) for things to help on.
-  * [Create an issue](https://github.com/geemus/excon/issues/new) to start a discussion on additions or features.
-* Fork the project, add your changes and tests to cover them in a topic branch.
-* Commit your changes and rebase against `geemus/excon` to ensure everything is up to date.
-* [Submit a pull request](https://github.com/geemus/excon/compare/).
-
-### Non-Coding
-
-* Offer feedback on open [issues](https://github.com/geemus/excon/issues).
-* Write and help edit [documentation](https://github.com/geemus/excon.github.com).
-* Translate [documentation](https://github.com/geemus/excon.github.com) in to other languages.
-* Organize or volunteer at events.
-* [Donate](https://www.gittip.com/geemus/)!
-* Discuss other ideas for contribution with [geemus](mailto:geemus+excon@gmail.com).
+Please refer to [LICENSE.md](https://github.com/geemus/excon/blob/master/LICENSE.md).
