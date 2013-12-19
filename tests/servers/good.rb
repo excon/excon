@@ -129,6 +129,16 @@ module GoodServer
         send_data "Content-Length: 11\r\n"
         send_data "\r\n"
         send_data "hello world"
+
+      # close the socket without informing the client
+      # after the 2nd request/response to simulate an idle timeout
+      when 'idle_timeout'
+        @idle_timeout_count = (@idle_timeout_count || 2) == 2 ? 1 : 2
+        start_response
+        send_data "Content-Length: 1\r\n"
+        send_data "\r\n"
+        send_data @idle_timeout_count.to_s
+        close_connection(true) if @idle_timeout_count == 2
       end
 
     when 'unknown'
