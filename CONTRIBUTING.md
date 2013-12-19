@@ -14,6 +14,7 @@ New contributors are always welcome, when it doubt please ask questions. We stri
 
 ### Non-Coding
 
+* Work for {twitter}[http://twitter.com]? I'd love to reclaim the unused {@excon}[http://twitter.com/excon] account!
 * Offer feedback on open [issues](https://github.com/geemus/excon/issues).
 * Write and help edit [documentation](https://github.com/geemus/excon.github.com).
 * Translate [documentation](https://github.com/geemus/excon.github.com) in to other languages.
