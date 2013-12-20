@@ -70,6 +70,7 @@ module Excon
     :host,
     :omit_default_port,
     :nonblock,
+    :reuseaddr,
     :password,
     :port,
     :proxy,

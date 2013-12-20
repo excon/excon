@@ -151,3 +151,28 @@ Shindo.tests('Excon basics (uri encoding)', ['encoding']) do
     end
   end
 end
+
+Shindo.tests('Excon basics (reusable local port)') do
+  with_rackup('basic.ru') do
+    response = Excon.get('http://127.0.0.1:9292/echo', :reuseaddr => false)
+
+    tests('has a local port').returns(true) do
+      response.local_port.to_s =~ /\d{4,5}/ ? true : false
+    end
+
+    tests('local port can be re-bound').returns('x' * 10) do
+      s = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
+      if defined?(Socket::SO_REUSEPORT)
+        s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, 1)
+      end
+      s.bind(Socket.pack_sockaddr_in(response.local_port, '0'))
+      s.connect(Socket.pack_sockaddr_in(9292, '127.0.0.1'))
+      s.print "GET /content-length/10 HTTP/1.0\r\n\r\n"
+      response = s.read
+      headers, body = response.split("\r\n\r\n", 2)
+      s.close
+      body
+    end
+  end
+end
