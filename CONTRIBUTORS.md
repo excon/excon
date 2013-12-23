@@ -1,87 +1,87 @@
-* [Andrew Katz](mailto:andrew.katz@outright.com)
-* [Anshul Khandelwal](mailto:anshul@anshulkhandelwal.com)
-* [Ben Burkert](mailto:ben@benburkert.com)
-* [Brandur](mailto:brandur@mutelight.org)
-* [Brian D. Burns](mailto:iosctr@gmail.com)
-* [Brian Hartsock](mailto:brian.hartsock@gmail.com)
-* [Caio Chassot](mailto:dev@caiochassot.com)
-* [Caius Durling](mailto:dev@caius.name)
-* [Carlos Sanchez](mailto:csanchez@maestrodev.com)
-* [Claudio Poli](mailto:masterkain@gmail.com)
-* [Dan Hensgen](mailto:dan@methodhead.com)
-* [Dan Peterson](mailto:dpiddy@gmail.com)
-* [Dan Prince](mailto:dprince@redhat.com)
-* [Dane Harrigan](mailto:dane.harrigan@gmail.com)
-* [Dave Myron](mailto:therealdave.myron@gmail.com)
-* [Dave Newton](mailto:davelnewton@gmail.com)
-* [Dimitrij Denissenko](mailto:dimitrij@blacksquaremedia.com)
-* [Eugene Howe](mailto:eugene@xtreme-computers.net)
-* [Evan Phoenix](mailto:evan@fallingsnow.net)
-* [Fabian Wiesel](mailto:fabian.wiesel@sap.com)
-* [Federico Ravasio](mailto:ravasio.federico@gmail.com)
-* [Glenn Pratt](mailto:glennpratt@gmail.com)
-* [Graeme Nelson](mailto:graeme.nelson@gmail.com)
-* [Hakan Ensari](mailto:hakan.ensari@papercavalier.com)
-* [Jacob Atzen](mailto:jacob@incremental.dk)
-* [James Watling](mailto:watling.james@gmail.com)
-* [Jeremy Hinegardner](mailto:jeremy@copiousfreetime.org)
-* [John Leach](mailto:john@brightbox.co.uk)
-* [Jonas Pfenniger](mailto:jonas@pfenniger.name)
-* [Jonathan Dance](mailto:github@wuputah.com)
-* [Jonathan Dance](mailto:jd@wuputah.com)
-* [Joshua Mckinney](mailto:joshmckin@gmail.com)
-* [Joshua Napoli](mailto:jnapoli@swipely-napoli.home)
-* [Joshua Napoli](mailto:jnapoli@swipely-napoli.local)
-* [Konstantin Shabanov](mailto:etehtsea@gmail.com)
-* [Kyle Rames](mailto:kyle.rames@rackspace.com)
-* [Lincoln Stoll](mailto:me@lstoll.net)
-* [Louis Sobel](mailto:sobel@mit.edu)
-* [Mathias Meyer](mailto:meyer@paperplanes.de)
-* [Matt Sanders](mailto:matt@modal.org)
-* [Matt Sanders](mailto:matt@polycot.com)
-* [Matt Snyder](mailto:snyder2112@me.com)
-* [Matt Todd](mailto:chiology@gmail.com)
-* [Max Lincoln](mailto:max@devopsy.com)
-* [Michael Brodhead](mailto:mkb@engineyard.com)
-* [Michael Rowe](mailto:mrowe@mojain.com)
-* [Michael Rykov](mailto:mrykov@gmail.com)
-* [Mike Heffner](mailto:mikeh@fesnel.com)
-* [Myron Marston](mailto:myron.marston@gmail.com)
-* [Nathan Long](mailto:nathan.long@tma1.com)
-* [Nathan Sutton](mailto:nate@zencoder.com)
-* [Nick Osborn](mailto:nick.osborn@digital.cabinet-office.gov.uk)
-* [Nicolas Sanguinetti](mailto:contacto@nicolassanguinetti.info)
-* [Peter Meier](mailto:peter.meier@immerda.ch)
-* [Peter Weldon](mailto:peter.weldon@null.net)
-* [Peter Weldon](mailto:peter@lautus.net)
-* [Ruslan Kyrychuk](mailto:ruslan.kyrychuk@gmail.com)
-* [Scott Gonyea](mailto:me@aitrus.org)
-* [Scott Gonyea](mailto:me@sgonyea.com)
-* [Sean Cribbs](mailto:seancribbs@gmail.com)
-* [Sergio Rubio](mailto:rubiojr@frameos.org)
-* [Shai Rosenfeld](mailto:shaiguitar@gmail.com)
-* [Terry Howe](mailto:terrylhowe@gmail.com)
-* [Thom Mahoney & Josh Lane](mailto:tmahoney@engineyard.com)
-* [Thom May](mailto:thom@digital-science.com)
-* [Tim Carey-Smith](mailto:tim@spork.in)
-* [Todd Lunter](mailto:tlunter@gmail.com)
-* [Tom Maher](mailto:tmaher@heroku.com)
-* [Tom Maher](mailto:tmaher@tursom.org)
-* [Trym Skaar](mailto:trym@tryms.no)
-* [Viven](mailto:vivien.schilis@gmail.com)
-* [Wesley Beary](mailto:geemus+github@gmail.com)
-* [Wesley Beary](mailto:geemus@engineyard.com)
-* [Wesley Beary](mailto:geemus@gmail.com)
-* [Wesley Beary](mailto:wbeary@engineyard.com)
-* [Wesley Beary](mailto:wesley@heroku.com)
-* [chrisrhoden](mailto:carhoden@gmail.com)
-* [geemus (Wesley Beary)](mailto:wbeary@engineyard.com)
-* [geemus](mailto:geemus@gmail.com)
-* [ggoodale](mailto:ggoodale@gmail.com)
-* [marios](mailto:marios@redhat.com)
-* [mkb](mailto:mkb@black-ice.org)
-* [phiggins](mailto:pete@peterhiggins.org)
-* [rin_ne](mailto:rinrin.ne@gmail.com)
-* [rinrinne](mailto:rinrin.ne@gmail.com)
-* [rkyrychuk](mailto:ruslan.kyrychuk@gmail.com)
-* [twrodriguez](mailto:tw.rodriguez@gmail.com)
+* Andrew Katz <andrew.katz@outright.com>
+* Anshul Khandelwal <anshul@anshulkhandelwal.com>
+* Ben Burkert <ben@benburkert.com>
+* Brandur <brandur@mutelight.org>
+* Brian D. Burns <iosctr@gmail.com>
+* Brian Hartsock <brian.hartsock@gmail.com>
+* Caio Chassot <dev@caiochassot.com>
+* Caius Durling <dev@caius.name>
+* Carlos Sanchez <csanchez@maestrodev.com>
+* Claudio Poli <masterkain@gmail.com>
+* Dan Hensgen <dan@methodhead.com>
+* Dan Peterson <dpiddy@gmail.com>
+* Dan Prince <dprince@redhat.com>
+* Dane Harrigan <dane.harrigan@gmail.com>
+* Dave Myron <therealdave.myron@gmail.com>
+* Dave Newton <davelnewton@gmail.com>
+* Dimitrij Denissenko <dimitrij@blacksquaremedia.com>
+* Eugene Howe <eugene@xtreme-computers.net>
+* Evan Phoenix <evan@fallingsnow.net>
+* Fabian Wiesel <fabian.wiesel@sap.com>
+* Federico Ravasio <ravasio.federico@gmail.com>
+* Glenn Pratt <glennpratt@gmail.com>
+* Graeme Nelson <graeme.nelson@gmail.com>
+* Hakan Ensari <hakan.ensari@papercavalier.com>
+* Jacob Atzen <jacob@incremental.dk>
+* James Watling <watling.james@gmail.com>
+* Jeremy Hinegardner <jeremy@copiousfreetime.org>
+* John Leach <john@brightbox.co.uk>
+* Jonas Pfenniger <jonas@pfenniger.name>
+* Jonathan Dance <github@wuputah.com>
+* Jonathan Dance <jd@wuputah.com>
+* Joshua Mckinney <joshmckin@gmail.com>
+* Joshua Napoli <jnapoli@swipely-napoli.home>
+* Joshua Napoli <jnapoli@swipely-napoli.local>
+* Konstantin Shabanov <etehtsea@gmail.com>
+* Kyle Rames <kyle.rames@rackspace.com>
+* Lincoln Stoll <me@lstoll.net>
+* Louis Sobel <sobel@mit.edu>
+* Mathias Meyer <meyer@paperplanes.de>
+* Matt Sanders <matt@modal.org>
+* Matt Sanders <matt@polycot.com>
+* Matt Snyder <snyder2112@me.com>
+* Matt Todd <chiology@gmail.com>
+* Max Lincoln <max@devopsy.com>
+* Michael Brodhead <mkb@engineyard.com>
+* Michael Rowe <mrowe@mojain.com>
+* Michael Rykov <mrykov@gmail.com>
+* Mike Heffner <mikeh@fesnel.com>
+* Myron Marston <myron.marston@gmail.com>
+* Nathan Long <nathan.long@tma1.com>
+* Nathan Sutton <nate@zencoder.com>
+* Nick Osborn <nick.osborn@digital.cabinet-office.gov.uk>
+* Nicolas Sanguinetti <contacto@nicolassanguinetti.info>
+* Peter Meier <peter.meier@immerda.ch>
+* Peter Weldon <peter.weldon@null.net>
+* Peter Weldon <peter@lautus.net>
+* Ruslan Kyrychuk <ruslan.kyrychuk@gmail.com>
+* Scott Gonyea <me@aitrus.org>
+* Scott Gonyea <me@sgonyea.com>
+* Sean Cribbs <seancribbs@gmail.com>
+* Sergio Rubio <rubiojr@frameos.org>
+* Shai Rosenfeld <shaiguitar@gmail.com>
+* Terry Howe <terrylhowe@gmail.com>
+* Thom Mahoney & Josh Lane <tmahoney@engineyard.com>
+* Thom May <thom@digital-science.com>
+* Tim Carey-Smith <tim@spork.in>
+* Todd Lunter <tlunter@gmail.com>
+* Tom Maher <tmaher@heroku.com>
+* Tom Maher <tmaher@tursom.org>
+* Trym Skaar <trym@tryms.no>
+* Viven <vivien.schilis@gmail.com>
+* Wesley Beary <geemus+github@gmail.com>
+* Wesley Beary <geemus@engineyard.com>
+* Wesley Beary <geemus@gmail.com>
+* Wesley Beary <wbeary@engineyard.com>
+* Wesley Beary <wesley@heroku.com>
+* chrisrhoden <carhoden@gmail.com>
+* geemus (Wesley Beary) <wbeary@engineyard.com>
+* geemus <geemus@gmail.com>
+* ggoodale <ggoodale@gmail.com>
+* marios <marios@redhat.com>
+* mkb <mkb@black-ice.org>
+* phiggins <pete@peterhiggins.org>
+* rin_ne <rinrin.ne@gmail.com>
+* rinrinne <rinrin.ne@gmail.com>
+* rkyrychuk <ruslan.kyrychuk@gmail.com>
+* twrodriguez <tw.rodriguez@gmail.com>
