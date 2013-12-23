@@ -342,7 +342,7 @@ Either of these should allow you to work around the socket error and continue wi
 
 ## Contributing
 
-Please refer to [LICENSE.md](https://github.com/geemus/excon/blob/master/CONTRIBUTING.md).
+Please refer to [CONTRIBUTING.md](https://github.com/geemus/excon/blob/master/CONTRIBUTING.md).
 
 ## License
 
