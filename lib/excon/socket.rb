@@ -145,7 +145,7 @@ module Excon
             @socket.write(data)
           end
         rescue Timeout::Error
-          Excon::Errors::Timeout.new('write timeout reached')
+          raise(Excon::Errors::Timeout.new('write timeout reached'))
         end
       end
     end
