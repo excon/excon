@@ -269,7 +269,7 @@ module Excon
 
         if datum[:persistent]
           if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-            if split_header_value(datum[:response][:headers][key]).any? {|t| t.casecmp('close') }
+            if split_header_value(datum[:response][:headers][key]).any? {|t| t.casecmp('close') == 0 }
               reset
             end
           end
@@ -305,7 +305,7 @@ module Excon
 
       if @data[:persistent]
         if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-          if split_header_value(responses.last[:headers][key]).any? {|t| t.casecmp('close') }
+          if split_header_value(responses.last[:headers][key]).any? {|t| t.casecmp('close') == 0 }
             reset
           end
         end
