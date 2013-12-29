@@ -34,6 +34,7 @@ module GoodServer
         (@request_count ||= '0').next!
         start_response
         send_data "Content-Length: #{ @request_count.size }\r\n"
+        send_data "Connection: Keep-Alive\r\n"
         send_data "\r\n"
         send_data @request_count
 
