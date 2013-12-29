@@ -156,6 +156,12 @@ module Excon
       raise unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
     end
 
+    def local_address
+      ::Socket.unpack_sockaddr_in(@socket.to_io.getsockname)[1]
+    rescue ArgumentError => e
+      raise unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
+    end
+
     private
 
     def connect

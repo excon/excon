@@ -31,6 +31,9 @@ module Excon
     def local_port
       @data[:local_port]
     end
+    def local_address
+      @data[:local_address]
+    end
 
     def self.parse(socket, datum)
       # this will discard any trailing lines from the previous response if any.
@@ -42,7 +45,8 @@ module Excon
         :headers    => {},
         :status     => status,
         :remote_ip  => socket.respond_to?(:remote_ip) && socket.remote_ip,
-        :local_port  => socket.respond_to?(:local_port) && socket.local_port
+        :local_port  => socket.respond_to?(:local_port) && socket.local_port,
+        :local_address  => socket.respond_to?(:local_address) && socket.local_address
       }
 
       parse_headers(socket, datum)
@@ -135,6 +139,7 @@ module Excon
       @status     = @data[:status]
       @remote_ip  = @data[:remote_ip]
       @local_port = @data[:local_port]
+      @local_address = @data[:local_address]
     end
 
     def [](key)
