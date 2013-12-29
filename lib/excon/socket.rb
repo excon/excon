@@ -185,7 +185,7 @@ module Excon
 
           socket = ::Socket.new(a_family, s_type, 0)
 
-          if @reuseaddr
+          if @data[:reuseaddr]
             socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, 1)
             if defined?(::Socket::Constants::SO_REUSEPORT)
               socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, 1)

@@ -154,24 +154,46 @@ end
 
 Shindo.tests('Excon basics (reusable local port)') do
   with_rackup('basic.ru') do
-    response = Excon.get('http://127.0.0.1:9292/echo', :reuseaddr => false)
+    connection = Excon.new("http://127.0.0.1:9292/echo",
+                           :reuseaddr => true, # enable address and port reuse
+                           :persistent => true # keep the socket open
+                           )
+    response = connection.get
 
     tests('has a local port').returns(true) do
       response.local_port.to_s =~ /\d{4,5}/ ? true : false
     end
 
     tests('local port can be re-bound').returns('x' * 10) do
+      # create a socket with address/port reuse enabled
       s = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
       s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
       if defined?(Socket::SO_REUSEPORT)
         s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, 1)
       end
-      s.bind(Socket.pack_sockaddr_in(response.local_port, '0'))
-      s.connect(Socket.pack_sockaddr_in(9292, '127.0.0.1'))
+
+      # bind to the same local port and address used in the get above (won't work without reuse options on both sockets)
+      s.bind(Socket.pack_sockaddr_in(response.local_port, response.local_address))
+
+      # connect to the server on a different address than was used for the initial connection to avoid duplicate 5-tuples of: {protcol, src_port, src_addr, dst_port, dst_addr}
+      ip = Socket.ip_address_list.detect{|a|
+        a.ipv4? &&
+        (a.ipv4_private? || a.ipv4_loopback?) &&
+        a.ip_address != '127.0.0.1'
+      }.ip_address rescue '127.0.0.1'
+      s.connect(Socket.pack_sockaddr_in(9292, ip))
+
+      # send the request
       s.print "GET /content-length/10 HTTP/1.0\r\n\r\n"
+
+      # read the response and return the body
       response = s.read
       headers, body = response.split("\r\n\r\n", 2)
+
+      # close both the sockets
       s.close
+      connection.reset
+
       body
     end
   end
