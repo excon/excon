@@ -240,7 +240,7 @@ module Excon
       end
 
       # make sure path is encoded, prevent double encoding
-      datum[:path] = URI.encode(URI.decode(datum[:path]))
+      datum[:path] = escape_uri(unescape_uri(datum[:path]))
 
       if block_given?
         Excon.display_warning('Excon requests with a block are deprecated, pass :response_block instead.')
