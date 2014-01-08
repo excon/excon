@@ -2,7 +2,12 @@ module Excon
   module Utils
     extend self
 
-    ESCAPED = /%([0-9a-fA-F]{2})/
+    control   = (0x0..0x1f).map {|c| c.chr }.join + "\x7f"
+    delims    = '<>#%"'
+    unwise    = '{}|\\^[]`'
+    nonascii  = (0x80..0xff).map {|c| c.chr }.join
+    UNESCAPED = /([#{ Regexp.escape(control + ' ' + delims + unwise + nonascii) }])/
+    ESCAPED   = /%([0-9a-fA-F]{2})/
 
     def valid_connection_keys(params = {})
       Excon::VALID_CONNECTION_KEYS
@@ -63,6 +68,14 @@ module Excon
       str.force_encoding('BINARY') if FORCE_ENC
       str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
                     (?:,\s*|\Z)'xn).flatten
+    end
+
+    # Escapes HTTP reserved and unwise characters in +str+
+    def escape_uri(str)
+      str = str.dup
+      str.force_encoding('BINARY') if FORCE_ENC
+      str.gsub!(UNESCAPED) { "%%%02X" % $1.ord }
+      str
     end
 
     # Unescapes HTTP reserved and unwise characters in +str+
