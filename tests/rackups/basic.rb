@@ -22,6 +22,10 @@ class Basic < Sinatra::Base
     echo
   end
 
+  get('/echo dirty') do
+    echo
+  end
+
   private
 
   def echo
