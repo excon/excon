@@ -119,3 +119,35 @@ Shindo.tests('Excon basics (Unix socket)') do
     end
   end
 end
+
+Shindo.tests('Excon basics (uri encoding)', ['encoding']) do
+  with_rackup('basic.ru') do
+    tests('encoded uri passed to connection') do
+      tests('GET /echo%20dirty').returns(200) do
+        connection = Excon::Connection.new({
+          :host             => '127.0.0.1',
+          :nonblock         => false,
+          :port             => 9292,
+          :scheme           => 'http',
+          :ssl_verify_peer  => false
+        })
+        response = connection.request(:method => :get, :path => '/echo%20dirty')
+        response[:status]
+      end
+    end
+
+    tests('unencoded uri passed to connection') do
+      tests('GET /echo dirty').returns(200) do
+        connection = Excon::Connection.new({
+          :host             => '127.0.0.1',
+          :nonblock         => false,
+          :port             => 9292,
+          :scheme           => 'http',
+          :ssl_verify_peer  => false
+        })
+        response = connection.request(:method => :get, :path => '/echo dirty')
+        response[:status]
+      end
+    end
+  end
+end
