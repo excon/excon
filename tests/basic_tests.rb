@@ -176,13 +176,16 @@ Shindo.tests('Excon basics (reusable local port)') do
       read.split("\r\n\r\n", 2)[1]
     end
 
+    def self.ip_address_list
+      if Socket.respond_to?(:ip_address_list)
+        Socket.ip_address_list.select(&:ipv4?).map(&:ip_address)
+      else
+        `ifconfig`.scan(/inet.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/).flatten
+      end
+    end
+
     def self.find_alternate_ip(ip)
-      Socket.ip_address_list.detect do |a|
-        a.ipv4? &&
-        a.ip_address != ip
-      end.ip_address
-    rescue
-      '127.0.0.1'
+      ip_address_list.detect {|a| a != ip } || '127.0.0.1'
     end
   end
 
