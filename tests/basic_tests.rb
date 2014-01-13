@@ -152,7 +152,40 @@ Shindo.tests('Excon basics (uri encoding)', ['encoding']) do
   end
 end
 
+
 Shindo.tests('Excon basics (reusable local port)') do
+  class CustomSocket < Socket
+    def initialize
+      super(AF_INET, SOCK_STREAM, 0)
+      setsockopt(SOL_SOCKET, SO_REUSEADDR, true)
+      if defined?(SO_REUSEPORT)
+        setsockopt(SOL_SOCKET, SO_REUSEPORT, true)
+      end
+    end
+
+    def bind(address, port)
+      super(Socket.pack_sockaddr_in(port, address))
+    end
+
+    def connect(address, port)
+      super(Socket.pack_sockaddr_in(port, address))
+    end
+
+    def http_get(path)
+      print "GET /content-length/10 HTTP/1.0\r\n\r\n"
+      read.split("\r\n\r\n", 2)[1]
+    end
+
+    def self.find_alternate_ip(ip)
+      Socket.ip_address_list.detect do |a|
+        a.ipv4? &&
+        a.ip_address != ip
+      end.ip_address
+    rescue
+      '127.0.0.1'
+    end
+  end
+
   with_rackup('basic.ru') do
     connection = Excon.new("http://127.0.0.1:9292/echo",
                            :reuseaddr => true, # enable address and port reuse
@@ -166,29 +199,16 @@ Shindo.tests('Excon basics (reusable local port)') do
 
     tests('local port can be re-bound').returns('x' * 10) do
       # create a socket with address/port reuse enabled
-      s = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-      s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
-      if defined?(Socket::SO_REUSEPORT)
-        s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, 1)
-      end
+      s = CustomSocket.new
 
       # bind to the same local port and address used in the get above (won't work without reuse options on both sockets)
-      s.bind(Socket.pack_sockaddr_in(response.local_port, response.local_address))
+      s.bind(response.local_address, response.local_port)
 
       # connect to the server on a different address than was used for the initial connection to avoid duplicate 5-tuples of: {protcol, src_port, src_addr, dst_port, dst_addr}
-      ip = Socket.ip_address_list.detect{|a|
-        a.ipv4? &&
-        (a.ipv4_private? || a.ipv4_loopback?) &&
-        a.ip_address != '127.0.0.1'
-      }.ip_address rescue '127.0.0.1'
-      s.connect(Socket.pack_sockaddr_in(9292, ip))
+      s.connect(CustomSocket.find_alternate_ip(response.local_address), 9292)
 
       # send the request
-      s.print "GET /content-length/10 HTTP/1.0\r\n\r\n"
-
-      # read the response and return the body
-      response = s.read
-      headers, body = response.split("\r\n\r\n", 2)
+      body = s.http_get("/content-length/10")
 
       # close both the sockets
       s.close
