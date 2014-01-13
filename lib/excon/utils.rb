@@ -74,7 +74,7 @@ module Excon
     def escape_uri(str)
       str = str.dup
       str.force_encoding('BINARY') if FORCE_ENC
-      str.gsub!(UNESCAPED) { "%%%02X" % $1.ord }
+      str.gsub!(UNESCAPED) { "%%%02X" % $1[0].ord }
       str
     end
 
