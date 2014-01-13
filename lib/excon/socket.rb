@@ -186,9 +186,9 @@ module Excon
           socket = ::Socket.new(a_family, s_type, 0)
 
           if @data[:reuseaddr]
-            socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, 1)
+            socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, true)
             if defined?(::Socket::Constants::SO_REUSEPORT)
-              socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, 1)
+              socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, true)
             end
           end
 
