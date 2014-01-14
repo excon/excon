@@ -217,8 +217,8 @@ if defined?(Socket::SO_REUSEPORT)
   s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, true)
 end
 
-s.bind(connection.local_port)
-s.connect(Socket.pack_sockaddr_in(port, address))
+s.bind(Socket.pack_sockaddr_in(connection.local_port, connection.local_address))
+s.connect(Socket.pack_sockaddr_in(80, '1.2.3.4'))
 puts s.read
 s.close
 ```
