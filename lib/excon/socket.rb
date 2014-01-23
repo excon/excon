@@ -150,6 +150,18 @@ module Excon
       end
     end
 
+    def local_port
+      ::Socket.unpack_sockaddr_in(@socket.to_io.getsockname)[0]
+    rescue ArgumentError => e
+      raise unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
+    end
+
+    def local_address
+      ::Socket.unpack_sockaddr_in(@socket.to_io.getsockname)[1]
+    rescue ArgumentError => e
+      raise unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
+    end
+
     private
 
     def connect
@@ -172,6 +184,13 @@ module Excon
           sockaddr = ::Socket.sockaddr_in(port, ip)
 
           socket = ::Socket.new(a_family, s_type, 0)
+
+          if @data[:reuseaddr]
+            socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEADDR, true)
+            if defined?(::Socket::Constants::SO_REUSEPORT)
+              socket.setsockopt(::Socket::Constants::SOL_SOCKET, ::Socket::Constants::SO_REUSEPORT, true)
+            end
+          end
 
           if @nonblock
             socket.connect_nonblock(sockaddr)

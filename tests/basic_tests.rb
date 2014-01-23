@@ -151,3 +151,73 @@ Shindo.tests('Excon basics (uri encoding)', ['encoding']) do
     end
   end
 end
+
+
+Shindo.tests('Excon basics (reusable local port)') do
+  class CustomSocket < Socket
+    def initialize
+      super(AF_INET, SOCK_STREAM, 0)
+      setsockopt(SOL_SOCKET, SO_REUSEADDR, true)
+      if defined?(SO_REUSEPORT)
+        setsockopt(SOL_SOCKET, SO_REUSEPORT, true)
+      end
+    end
+
+    def bind(address, port)
+      super(Socket.pack_sockaddr_in(port, address))
+    end
+
+    def connect(address, port)
+      super(Socket.pack_sockaddr_in(port, address))
+    end
+
+    def http_get(path)
+      print "GET /content-length/10 HTTP/1.0\r\n\r\n"
+      read.split("\r\n\r\n", 2)[1]
+    end
+
+    def self.ip_address_list
+      if Socket.respond_to?(:ip_address_list)
+        Socket.ip_address_list.select(&:ipv4?).map(&:ip_address)
+      else
+        `ifconfig`.scan(/inet.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/).flatten
+      end
+    end
+
+    def self.find_alternate_ip(ip)
+      ip_address_list.detect {|a| a != ip } || '127.0.0.1'
+    end
+  end
+
+  with_rackup('basic.ru') do
+    connection = Excon.new("http://127.0.0.1:9292/echo",
+                           :reuseaddr => true, # enable address and port reuse
+                           :persistent => true # keep the socket open
+                           )
+    response = connection.get
+
+    tests('has a local port').returns(true) do
+      response.local_port.to_s =~ /\d{4,5}/ ? true : false
+    end
+
+    tests('local port can be re-bound').returns('x' * 10) do
+      # create a socket with address/port reuse enabled
+      s = CustomSocket.new
+
+      # bind to the same local port and address used in the get above (won't work without reuse options on both sockets)
+      s.bind(response.local_address, response.local_port)
+
+      # connect to the server on a different address than was used for the initial connection to avoid duplicate 5-tuples of: {protcol, src_port, src_addr, dst_port, dst_addr}
+      s.connect(CustomSocket.find_alternate_ip(response.local_address), 9292)
+
+      # send the request
+      body = s.http_get("/content-length/10")
+
+      # close both the sockets
+      s.close
+      connection.reset
+
+      body
+    end
+  end
+end

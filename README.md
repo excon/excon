@@ -203,6 +203,26 @@ Proxy support must be set when establishing a connection object and cannot be ov
 
 NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
 
+## Reusable ports
+
+For advanced cases where you'd like to reuse the local port assigned to the excon socket in another socket, use the `:reuseaddr` option.
+
+```ruby
+connection = Excon.new('http://geemus.com', :reuseaddr => true)
+connection.get
+
+s = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
+if defined?(Socket::SO_REUSEPORT)
+  s.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, true)
+end
+
+s.bind(Socket.pack_sockaddr_in(connection.local_port, connection.local_address))
+s.connect(Socket.pack_sockaddr_in(80, '1.2.3.4'))
+puts s.read
+s.close
+```
+
 ## Unix Socket Support
 
 The Unix socket will work for one-off requests and multiuse connections.  A Unix socket path must be provided separate from the resource path.
