@@ -11,8 +11,6 @@ require 'uri'
 require 'zlib'
 require 'stringio'
 
-BasicSocket.do_not_reverse_lookup = true
-
 # Define defaults first so they will be available to other files
 module Excon
   class << self

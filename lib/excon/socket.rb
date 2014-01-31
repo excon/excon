@@ -168,13 +168,17 @@ module Excon
       @socket = nil
       exception = nil
 
-      addrinfo = if @data[:proxy]
+      if @data[:proxy]
         family = @data[:proxy][:family] || ::Socket::Constants::AF_UNSPEC
-        ::Socket.getaddrinfo(@data[:proxy][:host], @data[:proxy][:port], family, ::Socket::Constants::SOCK_STREAM)
+        args = [@data[:proxy][:host], @data[:proxy][:port], family, ::Socket::Constants::SOCK_STREAM]
       else
         family = @data[:family] || ::Socket::Constants::AF_UNSPEC
-        ::Socket.getaddrinfo(@data[:host], @data[:port], family, ::Socket::Constants::SOCK_STREAM)
+        args = [@data[:host], @data[:port], family, ::Socket::Constants::SOCK_STREAM]
       end
+      if RUBY_VERSION >= '1.9.2'
+        args << nil << nil << false # no reverse lookup
+      end
+      addrinfo = ::Socket.getaddrinfo(*args)
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
         @remote_ip = ip
