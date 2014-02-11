@@ -196,16 +196,16 @@ module Excon
             end
           end
 
-          if @nonblock
-            socket.connect_nonblock(sockaddr)
-          else
-            begin
-              Timeout.timeout(@data[:connect_timeout]) do
+          begin
+            Timeout.timeout(@data[:connect_timeout]) do
+              if @nonblock
+                socket.connect_nonblock(sockaddr)
+              else
                 socket.connect(sockaddr)
               end
-            rescue Timeout::Error
-              raise Excon::Errors::Timeout.new('connect timeout reached')
             end
+          rescue Timeout::Error
+            raise Excon::Errors::Timeout.new('connect timeout reached')
           end
 
           @socket = socket

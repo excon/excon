@@ -76,9 +76,7 @@ module Excon
       @socket.sync_close = true
       begin
         Timeout.timeout(@data[:connect_timeout]) do
-          unless @nonblock
-            @socket.connect
-          else
+          if @nonblock
             while true
               begin
                 @socket.connect_nonblock
@@ -90,6 +88,8 @@ module Excon
                 end
               end
             end
+          else
+            @socket.connect
           end
         end
       rescue Timeout::Error
