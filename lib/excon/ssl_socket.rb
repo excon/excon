@@ -74,7 +74,27 @@ module Excon
       # convert Socket to OpenSSL::SSL::SSLSocket
       @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
       @socket.sync_close = true
-      @socket.connect
+      begin
+        Timeout.timeout(@data[:connect_timeout]) do
+          unless @nonblock
+            @socket.connect
+          else
+            while true
+              begin
+                @socket.connect_nonblock
+                break # connect succeeded
+              rescue OpenSSL::SSL::SSLError => error
+                # would block, rescue and retry as select is non-helpful
+                unless error.message == 'read would block'
+                  raise error
+                end
+              end
+            end
+          end
+        end
+      rescue Timeout::Error
+        raise Excon::Errors::Timeout.new('connect timeout reached')
+      end
 
       # Server Name Indication (SNI) RFC 3546
       if @socket.respond_to?(:hostname=)
