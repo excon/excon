@@ -10,8 +10,21 @@ module Excon
 
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
+
+      # disable less secure options, when supported
+      ssl_context_options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
+      if defined?(OpenSSL::SSL::OP_DONT_INSERT_EMPTY_FRAGMENTS)
+        ssl_context_options &= ~OpenSSL::SSL::OP_DONT_INSERT_EMPTY_FRAGMENTS
+      end
+      if defined?(OpenSSL::SSL::OP_NO_COMPRESSION)
+        ssl_context_options |= OpenSSL::SSL::OP_NO_COMPRESSION
+      end
+      ssl_context.options = ssl_context_options
+
       ssl_context.ciphers = @data[:ciphers]
-      ssl_context.ssl_version = @data[:ssl_version] if @data[:ssl_version]
+      if @data[:ssl_version]
+        ssl_context.ssl_version = @data[:ssl_version]
+      end
       if @data[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
