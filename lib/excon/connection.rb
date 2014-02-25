@@ -239,9 +239,6 @@ module Excon
         datum[:path] = datum[:path].dup.insert(0, '/')
       end
 
-      # make sure path is encoded, prevent double encoding
-      datum[:path] = escape_uri(unescape_uri(datum[:path]))
-
       if block_given?
         Excon.display_warning('Excon requests with a block are deprecated, pass :response_block instead.')
         datum[:response_block] = Proc.new
