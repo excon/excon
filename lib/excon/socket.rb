@@ -175,7 +175,7 @@ module Excon
         family = @data[:family] || ::Socket::Constants::AF_UNSPEC
         args = [@data[:host], @data[:port], family, ::Socket::Constants::SOCK_STREAM]
       end
-      if RUBY_VERSION >= '1.9.2'
+      if RUBY_VERSION >= '1.9.2' && defined?(RUBY_ENGINE) && RUBY_ENGINE == 'ruby'
         args << nil << nil << false # no reverse lookup
       end
       addrinfo = ::Socket.getaddrinfo(*args)
