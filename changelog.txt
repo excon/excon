@@ -1,3 +1,19 @@
+0.32.0 02/27/2014
+=================
+
+README improvements
+fixes around LICENSE/CONTRIBUTING/CONTRIBUTORS
+update bundled cert
+nonblock connect/timeout fixes for ssl sockets
+skip reverse lookups where feasible
+more secure ssl settings, when available
+add escape stuff as middleware
+fix to raise exceptions properly
+fix for keep alive check
+add tests around keep alive
+escape/unescape uri added to utils
+add support for reusable local ports
+
 0.31.0 12/16/2013
 =================
 

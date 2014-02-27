@@ -43,6 +43,7 @@
 * Matt Todd <chiology@gmail.com>
 * Max Lincoln <max@devopsy.com>
 * Michael Brodhead <mkb@engineyard.com>
+* Michael Hale <mike@hales.ws>
 * Michael Rowe <mrowe@mojain.com>
 * Michael Rykov <mrykov@gmail.com>
 * Mike Heffner <mikeh@fesnel.com>
@@ -55,6 +56,7 @@
 * Peter Weldon <peter.weldon@null.net>
 * Peter Weldon <peter@lautus.net>
 * Ruslan Kyrychuk <ruslan.kyrychuk@gmail.com>
+* Ryan Mohr <ryan.mohr@gmail.com>
 * Scott Gonyea <me@aitrus.org>
 * Scott Gonyea <me@sgonyea.com>
 * Sean Cribbs <seancribbs@gmail.com>
@@ -85,3 +87,4 @@
 * rinrinne <rinrin.ne@gmail.com>
 * rkyrychuk <ruslan.kyrychuk@gmail.com>
 * twrodriguez <tw.rodriguez@gmail.com>
+* zimbatm <zimbatm@zimbatm.com>
