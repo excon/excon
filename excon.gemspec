@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'excon'
-  s.version           = '0.31.0'
-  s.date              = '2013-12-16'
+  s.version           = '0.32.0'
+  s.date              = '2014-02-27'
   s.rubyforge_project = 'excon'
 
   ## Make sure your summary is short. The description may be as long
@@ -68,8 +68,11 @@ Gem::Specification.new do |s|
   ## THE MANIFEST COMMENTS, they are used as delimiters by the task.
   # = MANIFEST =
   s.files = %w[
+    CONTRIBUTING.md
+    CONTRIBUTORS.md
     Gemfile
     Gemfile.lock
+    LICENSE.md
     README.md
     Rakefile
     benchmarks/class_vs_lambda.rb
@@ -99,6 +102,7 @@ Gem::Specification.new do |s|
     lib/excon/errors.rb
     lib/excon/middlewares/base.rb
     lib/excon/middlewares/decompress.rb
+    lib/excon/middlewares/escape_path.rb
     lib/excon/middlewares/expects.rb
     lib/excon/middlewares/idempotent.rb
     lib/excon/middlewares/instrumentor.rb
@@ -121,6 +125,7 @@ Gem::Specification.new do |s|
     tests/header_tests.rb
     tests/middlewares/canned_response_tests.rb
     tests/middlewares/decompress_tests.rb
+    tests/middlewares/escape_path_tests.rb
     tests/middlewares/idempotent_tests.rb
     tests/middlewares/instrumentation_tests.rb
     tests/middlewares/mock_tests.rb
