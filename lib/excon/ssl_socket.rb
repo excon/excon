@@ -87,6 +87,12 @@ module Excon
       # convert Socket to OpenSSL::SSL::SSLSocket
       @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
       @socket.sync_close = true
+      
+      # Server Name Indication (SNI) RFC 3546
+      if @socket.respond_to?(:hostname=)
+        @socket.hostname = @data[:host]
+      end
+      
       begin
         Timeout.timeout(@data[:connect_timeout]) do
           if @nonblock
@@ -107,11 +113,6 @@ module Excon
         end
       rescue Timeout::Error
         raise Excon::Errors::Timeout.new('connect timeout reached')
-      end
-
-      # Server Name Indication (SNI) RFC 3546
-      if @socket.respond_to?(:hostname=)
-        @socket.hostname = @data[:host]
       end
 
       # verify connection
