@@ -4,6 +4,8 @@ module Excon
     class Error < StandardError; end
     class StubNotFound < StandardError; end
 
+    class EOFError < Error; end
+
     class SocketError < Error
       attr_reader :socket_error
 
