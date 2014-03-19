@@ -83,6 +83,10 @@ module Excon
 
       if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
+
+        if ENV.has_key?('EXCON_DEBUG')
+          @data[:debug_request] = @data[:debug_reponse] = true
+        end
       end
 
       # Use Basic Auth if url contains a login
