@@ -137,6 +137,11 @@ connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 
 # opt-out of nonblocking operations for performance and/or as a workaround
 connection = Excon.new('http://geemus.com/', :nonblock => false)
+
+# use basic authentication by supplying credentials in the URL or as parameters
+connection = Excon.new('http://username:password@secure.geemus.com')
+connection = Excon.new('http://secure.geemus.com',
+  :user => 'username', :password => 'password')
 ```
 
 ## Chunked Requests
