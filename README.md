@@ -274,7 +274,7 @@ config.after(:each) do
 end
 ```
 
-You can also modify 'Excon.defaults` to set a stub for all requests, so for a test suite you might do this:
+You can also modify `Excon.defaults` to set a stub for all requests, so for a test suite you might do this:
 
 ```ruby
 # Mock by default and stub any request as success
