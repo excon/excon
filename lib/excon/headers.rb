@@ -32,8 +32,8 @@ module Excon
       should_delegate?(key) ? @downcased.delete(key.downcase, proc) : raw_delete(key, proc)
     end
 
-    def fetch(key, &proc)
-      should_delegate?(key) ? @downcased.fetch(key.downcase, proc) : raw_fetch(key, proc)
+    def fetch(key, default = nil, &proc)
+      should_delegate?(key) ? @downcased.fetch(key.downcase, default, proc) : raw_fetch(key, default, proc)
     end
 
     alias_method :has_key?, :key?
