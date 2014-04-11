@@ -39,7 +39,10 @@ module Excon
     alias_method :has_key?, :key?
     alias_method :has_key?, :member?
     def has_key?(key)
-      raw_has_key?(key) || (@downcased && @downcased.has_key?(key.downcase))
+      raw_has_key?(key) || begin
+        index_case_insensitive if @downcased.nil?
+        @downcased.has_key?(key.downcase)
+      end
     end
 
     def rehash
