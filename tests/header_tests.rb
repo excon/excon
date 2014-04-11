@@ -23,8 +23,10 @@ Shindo.tests('Excon response header support') do
     end
 
     tests('Hash methods that should support case-insensitive access') do
-      tests('#assoc').returns(%w{exact-case expected}) do
-        headers.assoc('exact-Case')
+      if {}.respond_to? :assoc
+        tests('#assoc').returns(%w{exact-case expected}) do
+          headers.assoc('exact-Case')
+        end
       end
 
       tests('#delete') do

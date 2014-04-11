@@ -1,9 +1,11 @@
 module Excon
   class Headers < Hash
 
+    SENTINEL = {}
+
     alias_method :raw_writer, :[]=
     alias_method :raw_reader, :[]
-    alias_method :raw_assoc, :assoc
+    alias_method :raw_assoc, :assoc if SENTINEL.respond_to? :assoc
     alias_method :raw_delete, :delete
     alias_method :raw_fetch, :fetch
     alias_method :raw_has_key?, :has_key?
