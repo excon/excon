@@ -10,8 +10,10 @@ Shindo.tests('Excon response header support') do
       headers['Exact-Case']
     end
 
-    tests('enumerates keys as received').returns(%w{Exact-Case Another-Fixture}) do
-      headers.keys
+    tests('enumerates keys as received') do
+      ks = headers.keys
+      tests('contains Exact-Case').returns(true) { ks.include? 'Exact-Case' }
+      tests('contains Another-Fixture').returns(true) { ks.include? 'Another-Fixture' }
     end
 
     tests('supports case-insensitive access').returns('expected') do
