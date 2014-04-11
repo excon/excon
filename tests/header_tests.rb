@@ -23,8 +23,8 @@ Shindo.tests('Excon response header support') do
     end
 
     tests('Hash methods that should support case-insensitive access') do
-      tests('#assoc').returns(['Exact-Case', 'expected']) do
-        headers.assoc('exact-case')
+      tests('#assoc').returns(%w{exact-case expected}) do
+        headers.assoc('exact-Case')
       end
 
       tests('#delete') do
@@ -53,10 +53,10 @@ Shindo.tests('Excon response header support') do
 
       tests('#values_at') do
         tests('all present').returns(%w{expected another}) do
-          headers.values_at(%w{exACT-cASE anotheR-fixturE})
+          headers.values_at('exACT-cASE', 'anotheR-fixturE')
         end
         tests('some missing').returns(['expected', nil]) do
-          headers.values_at(%w{exact-case missing-header})
+          headers.values_at('exact-case', 'missing-header')
         end
       end
     end

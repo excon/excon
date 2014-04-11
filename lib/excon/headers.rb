@@ -25,15 +25,19 @@ module Excon
     end
 
     def assoc(obj)
-      should_delegate?(key) ? @downcased.assoc(key.downcase) : raw_assoc(key)
+      should_delegate?(obj) ? @downcased.assoc(obj.downcase) : raw_assoc(obj)
     end
 
     def delete(key, &proc)
-      should_delegate?(key) ? @downcased.delete(key.downcase, proc) : raw_delete(key, proc)
+      should_delegate?(key) ? @downcased.delete(key.downcase, &proc) : raw_delete(key, &proc)
     end
 
     def fetch(key, default = nil, &proc)
-      should_delegate?(key) ? @downcased.fetch(key.downcase, default, proc) : raw_fetch(key, default, proc)
+      if should_delegate?(key)
+        proc ? @downcased.fetch(key.downcase, &proc) : @downcased.fetch(key.downcase, default)
+      else
+        proc ? raw_fetch(key, &proc) : raw_fetch(key, default)
+      end
     end
 
     alias_method :has_key?, :key?
