@@ -4,14 +4,13 @@ Shindo.tests('Excon response header support') do
   tests('Excon::Headers storage') do
     headers = Excon::Headers.new
     headers['Exact-Case'] = 'expected'
+    headers['Another-Fixture'] = 'another'
 
     tests('stores and retrieves as received').returns('expected') do
       headers['Exact-Case']
     end
 
-    tests('enumerates keys as received').returns(['Exact-Case', 'Another-Header']) do
-      headers['Another-Header'] = 'as-is'
-
+    tests('enumerates keys as received').returns(%w{Exact-Case Another-Fixture}) do
       headers.keys
     end
 
@@ -23,10 +22,42 @@ Shindo.tests('Excon response header support') do
       headers['Missing-Header']
     end
 
-    tests('Hash methods for reading') do
-      headers['Exact-Case'] = 'expected'
+    tests('Hash methods that should support case-insensitive access') do
       tests('#assoc').returns(['Exact-Case', 'expected']) do
         headers.assoc('exact-case')
+      end
+
+      tests('#delete') do
+        tests('with just a key').returns('yes') do
+          headers['Extra'] = 'yes'
+          headers.delete('extra')
+        end
+
+        tests('with a proc').returns('called with notpresent') do
+          headers.delete('notpresent') { |k| "called with #{k}" }
+        end
+      end
+
+      tests('#fetch') do
+        tests('when present').returns('expected') { headers.fetch('exact-CASE') }
+        tests('with a default value').returns('default') { headers.fetch('missing', 'default') }
+        tests('with a default proc').returns('got missing') do
+          headers.fetch('missing') { |k| "got #{k}" }
+        end
+      end
+
+      tests('#has_key?') do
+        tests('when present').returns(true) { headers.has_key?('EXACT-case') }
+        tests('when absent').returns(false) { headers.has_key?('missing') }
+      end
+
+      tests('#values_at') do
+        tests('all present').returns(%w{expected another}) do
+          headers.values_at(%w{exACT-cASE anotheR-fixturE})
+        end
+        tests('some missing').returns(['expected', nil]) do
+          headers.values_at(%w{exact-case missing-header})
+        end
       end
     end
   end
