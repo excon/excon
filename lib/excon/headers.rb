@@ -17,7 +17,11 @@ module Excon
     alias_method :raw_values_at, :values_at
 
     def [](key)
-      should_delegate?(key) ? @downcased[key.downcase] : raw_reader(key)
+      if should_delegate?(key)
+        @downcased[key.downcase]
+      else
+        raw_reader(key)
+      end
     end
 
     alias_method :[]=, :store
@@ -28,19 +32,35 @@ module Excon
 
     if SENTINEL.respond_to? :assoc
       def assoc(obj)
-        should_delegate?(obj) ? @downcased.assoc(obj.downcase) : raw_assoc(obj)
+        if should_delegate?(obj)
+          @downcased.assoc(obj.downcase)
+        else
+          raw_assoc(obj)
+        end
       end
     end
 
     def delete(key, &proc)
-      should_delegate?(key) ? @downcased.delete(key.downcase, &proc) : raw_delete(key, &proc)
+      if should_delegate?(key)
+        @downcased.delete(key.downcase, &proc)
+      else
+        raw_delete(key, &proc)
+      end
     end
 
     def fetch(key, default = nil, &proc)
       if should_delegate?(key)
-        proc ? @downcased.fetch(key.downcase, &proc) : @downcased.fetch(key.downcase, default)
+        if proc
+          @downcased.fetch(key.downcase, &proc)
+        else
+          @downcased.fetch(key.downcase, default)
+        end
       else
-        proc ? raw_fetch(key, &proc) : raw_fetch(key, default)
+        if proc
+          raw_fetch(key, &proc)
+        else
+          raw_fetch(key, default)
+        end
       end
     end
 
