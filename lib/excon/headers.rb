@@ -26,8 +26,10 @@ module Excon
       @downcased[key.downcase] = value unless @downcased.nil?
     end
 
-    def assoc(obj)
-      should_delegate?(obj) ? @downcased.assoc(obj.downcase) : raw_assoc(obj)
+    if SENTINEL.respond_to? :assoc
+      def assoc(obj)
+        should_delegate?(obj) ? @downcased.assoc(obj.downcase) : raw_assoc(obj)
+      end
     end
 
     def delete(key, &proc)
