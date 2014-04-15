@@ -1,3 +1,9 @@
+0.33.0 05/15/2014
+=================
+
+README clarifications around defaults and basic auth
+case insensitive headers
+
 0.32.1 03/13/2014
 =================
 

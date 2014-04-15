@@ -1,6 +1,8 @@
 * Andrew Katz <andrew.katz@outright.com>
 * Anshul Khandelwal <anshul@anshulkhandelwal.com>
+* Ash Wilson <smashwilson@gmail.com>
 * Ben Burkert <ben@benburkert.com>
+* Bo Jeanes <me@bjeanes.com>
 * Brandur <brandur@mutelight.org>
 * Brian D. Burns <iosctr@gmail.com>
 * Brian Hartsock <brian.hartsock@gmail.com>
@@ -29,6 +31,7 @@
 * Jonas Pfenniger <jonas@pfenniger.name>
 * Jonathan Dance <github@wuputah.com>
 * Jonathan Dance <jd@wuputah.com>
+* Jonathan Roes <jroes@jroes.net>
 * Joshua Mckinney <joshmckin@gmail.com>
 * Joshua Napoli <jnapoli@swipely-napoli.home>
 * Joshua Napoli <jnapoli@swipely-napoli.local>
@@ -86,5 +89,6 @@
 * rin_ne <rinrin.ne@gmail.com>
 * rinrinne <rinrin.ne@gmail.com>
 * rkyrychuk <ruslan.kyrychuk@gmail.com>
+* sshaw <skye.shaw@gmail.com>
 * twrodriguez <tw.rodriguez@gmail.com>
 * zimbatm <zimbatm@zimbatm.com>
