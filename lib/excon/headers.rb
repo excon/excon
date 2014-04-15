@@ -72,9 +72,7 @@ module Excon
     alias_method :has_key?, :member?
     def has_key?(key)
       raw_has_key?(key) || begin
-        if @downcased.nil?
-          index_case_insensitive
-        end
+        index_case_insensitive
         @downcased.has_key?(key.downcase)
       end
     end
@@ -89,9 +87,7 @@ module Excon
     def values_at(*keys)
       raw_values_at(*keys).zip(keys).map do |v, k|
         if v.nil?
-          if @downcased.nil?
-            index_case_insensitive
-          end
+          index_case_insensitive
           @downcased[k.downcase]
         end
       end
@@ -103,17 +99,17 @@ module Excon
       if raw_has_key?(key)
         false
       else
-        if @downcased.nil?
-          index_case_insensitive
-        end
+        index_case_insensitive
         true
       end
     end
 
     def index_case_insensitive
-      @downcased = {}
-      each_pair do |key, value|
-        @downcased[key.downcase] = value
+      if @downcased.nil?
+        @downcased = {}
+        each_pair do |key, value|
+          @downcased[key.downcase] = value
+        end
       end
     end
 
