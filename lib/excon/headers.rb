@@ -5,7 +5,9 @@ module Excon
 
     alias_method :raw_writer, :[]=
     alias_method :raw_reader, :[]
-    alias_method :raw_assoc, :assoc if SENTINEL.respond_to? :assoc
+    if SENTINEL.respond_to?(:assoc)
+      alias_method :raw_assoc, :assoc
+    end
     alias_method :raw_delete, :delete
     alias_method :raw_fetch, :fetch
     alias_method :raw_has_key?, :has_key?
@@ -27,7 +29,9 @@ module Excon
     alias_method :[]=, :store
     def []=(key, value)
       raw_writer(key, value)
-      @downcased[key.downcase] = value unless @downcased.nil?
+      unless @downcased.nil?
+        @downcased[key.downcase] = value
+      end
     end
 
     if SENTINEL.respond_to? :assoc
@@ -68,20 +72,26 @@ module Excon
     alias_method :has_key?, :member?
     def has_key?(key)
       raw_has_key?(key) || begin
-        index_case_insensitive if @downcased.nil?
+        if @downcased.nil?
+          index_case_insensitive
+        end
         @downcased.has_key?(key.downcase)
       end
     end
 
     def rehash
       raw_rehash
-      @downcased.rehash if @downcased
+      if @downcased
+        @downcased.rehash
+      end
     end
 
     def values_at(*keys)
       raw_values_at(*keys).zip(keys).map do |v, k|
         if v.nil?
-          index_case_insensitive if @downcased.nil?
+          if @downcased.nil?
+            index_case_insensitive
+          end
           @downcased[k.downcase]
         end
       end
@@ -93,7 +103,9 @@ module Excon
       if raw_has_key?(key)
         false
       else
-        index_case_insensitive if @downcased.nil?
+        if @downcased.nil?
+          index_case_insensitive
+        end
         true
       end
     end
