@@ -42,7 +42,7 @@ module Excon
 
       datum[:response] = {
         :body          => '',
-        :headers       => {},
+        :headers       => Excon::Headers.new,
         :status        => status,
         :remote_ip     => socket.respond_to?(:remote_ip) && socket.remote_ip,
         :local_port    => socket.respond_to?(:local_port) && socket.local_port,
@@ -132,7 +132,7 @@ module Excon
     def initialize(params={})
       @data = {
         :body     => '',
-        :headers  => {}
+        :headers  => Excon::Headers.new
       }.merge(params)
       @body          = @data[:body]
       @headers       = @data[:headers]
@@ -154,12 +154,7 @@ module Excon
     # Retrieve a specific header value. Header names are treated case-insensitively.
     #   @param [String] name Header name
     def get_header(name)
-      headers.each do |key,value|
-        if key.casecmp(name) == 0
-          return value
-        end
-      end
-      nil
+      headers[name]
     end
 
   end # class Response
