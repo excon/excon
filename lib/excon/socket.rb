@@ -53,10 +53,13 @@ module Excon
             raise(error)
           end
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-          if IO.select([@socket], nil, nil, @data[:read_timeout])
-            retry
-          else
-            raise(Excon::Errors::Timeout.new("read timeout reached"))
+          if @read_buffer.length == 0
+            # if we didn't read anything, try again...
+            if IO.select([@socket], nil, nil, @data[:read_timeout])
+              retry
+            else
+              raise(Excon::Errors::Timeout.new("read timeout reached"))
+            end
           end
         rescue EOFError
           @eof = true
