@@ -105,7 +105,9 @@ module Excon
               response_block.call(chunk, nil, nil)
             end
           else
-            datum[:response][:body] << socket.read
+            while chunk = socket.read(datum[:chunk_size])
+              datum[:response][:body] << chunk
+            end
           end
         end
       end
