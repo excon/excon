@@ -77,6 +77,7 @@ module Excon
     :scheme,
     :socket,
     :ssl_ca_file,
+    :ssl_verify_callback,
     :ssl_verify_peer,
     :ssl_version,
     :tcp_nodelay,
