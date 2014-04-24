@@ -47,6 +47,10 @@ module Excon
             Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
           end
         end
+
+        if verify_callback = @data[:ssl_verify_callback]
+          ssl_context.verify_callback = verify_callback
+        end
       else
         # turn verification off
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
