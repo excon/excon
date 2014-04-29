@@ -132,6 +132,12 @@ Shindo.tests('Excon stubs') do
 
   end
 
+  tests("invalid stub response").raises(Excon::Errors::InvalidStub) do
+    Excon.stub({:body => 42, :method => :get}, {:status => 200})
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    connection.request(:body => 42, :method => :get, :path => '/').status
+  end
+
   tests("mismatched stub").raises(Excon::Errors::StubNotFound) do
     Excon.stub({:method => :post}, {:body => 'body'})
     Excon.get('http://127.0.0.1:9292/', :mock => true)
