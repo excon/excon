@@ -157,13 +157,13 @@ module Excon
       end
       if url = request_params.delete(:url)
         uri = URI.parse(url)
-        request_params.update(
+        request_params = {
           :host              => uri.host,
           :path              => uri.path,
           :port              => uri.port,
           :query             => uri.query,
           :scheme            => uri.scheme
-        )
+        }.merge!(request_params)
         if uri.user || uri.password
           request_params[:headers] ||= {}
           user, pass = Utils.unescape_form(uri.user.to_s), Utils.unescape_form(uri.password.to_s)
