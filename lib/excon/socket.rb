@@ -53,7 +53,7 @@ module Excon
             raise(error)
           end
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-          if @read_buffer.length == 0
+          if @read_buffer.empty?
             # if we didn't read anything, try again...
             if IO.select([@socket], nil, nil, @data[:read_timeout])
               retry
