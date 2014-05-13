@@ -145,6 +145,7 @@ Gem::Specification.new do |s|
     tests/rackups/response_header.ru
     tests/rackups/ssl.ru
     tests/rackups/ssl_verify_peer.ru
+    tests/rackups/streaming.ru
     tests/rackups/thread_safety.ru
     tests/rackups/timeout.ru
     tests/rackups/webrick_patch.rb
