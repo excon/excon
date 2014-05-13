@@ -19,6 +19,7 @@ Shindo.tests('Excon basics') do
 end
 
 Shindo.tests('Excon streaming basics') do
+  pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
   with_unicorn('streaming.ru', nil) do
     # expected values: the response, in pieces, and a timeout after each piece
     res = %w{Hello streamy world}
