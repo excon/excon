@@ -263,10 +263,11 @@ ensure
   end
 end
 
-def with_unicorn(name, file_name='/tmp/unicorn.sock')
+def with_unicorn(name, unix_socket='/tmp/unicorn.sock')
   unless RUBY_PLATFORM == 'java'
     GC.disable if RUBY_VERSION < '1.9'
-    pid, w, r, e = Open4.popen4("unicorn", "-l", "unix://#{file_name}", rackup_path(name))
+    destination = (unix_socket.nil?) ? "127.0.0.1:9292" : "unix://#{unix_socket}"
+    pid, w, r, e = Open4.popen4("unicorn", "--no-default-middleware","-l", destination, rackup_path(name))
     until e.gets =~ /worker=0 ready/; end
   else
     # need to find suitable server for jruby
@@ -278,8 +279,8 @@ ensure
     GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
-  if File.exist?(file_name)
-    File.delete(file_name)
+  if not unix_socket.nil? and File.exist?(unix_socket)
+    File.delete(unix_socket)
   end
 end
 
