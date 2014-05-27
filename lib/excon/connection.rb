@@ -126,7 +126,7 @@ module Excon
           socket.data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
-          if datum[:proxy]
+          if datum[:proxy] && datum[:scheme] != HTTPS
             request << datum[:scheme] << '://' << datum[:host] << port_string(datum)
           end
           request << datum[:path]
