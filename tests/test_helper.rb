@@ -263,11 +263,11 @@ ensure
   end
 end
 
-def with_unicorn(name, unix_socket='/tmp/unicorn.sock')
+def with_unicorn(name, listen='127.0.0.1:9292')
   unless RUBY_PLATFORM == 'java'
     GC.disable if RUBY_VERSION < '1.9'
-    destination = (unix_socket.nil?) ? "127.0.0.1:9292" : "unix://#{unix_socket}"
-    pid, w, r, e = Open4.popen4("unicorn", "--no-default-middleware","-l", destination, rackup_path(name))
+    unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
+    pid, w, r, e = Open4.popen4("unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
     until e.gets =~ /worker=0 ready/; end
   else
     # need to find suitable server for jruby

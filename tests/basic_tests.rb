@@ -20,7 +20,7 @@ end
 
 Shindo.tests('Excon streaming basics') do
   pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
-  with_unicorn('streaming.ru', nil) do
+  with_unicorn('streaming.ru') do
     # expected values: the response, in pieces, and a timeout after each piece
     res = %w{Hello streamy world}
     timeout = 1
@@ -147,7 +147,7 @@ Shindo.tests('Excon basics (Unix socket)') do
   pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
 
   file_name = '/tmp/unicorn.sock'
-  with_unicorn('basic.ru', file_name) do
+  with_unicorn('basic.ru', 'unix://'+file_name) do
     basic_tests("unix:/", :socket => file_name)
 
     tests('explicit uri passed to connection') do
