@@ -1,3 +1,13 @@
+0.34.0 05/29/2014
+=================
+
+add support for setting ssl_verify_callback
+stream partial results imediately, when available
+update rack/unicorn in tests to support streaming tests
+skip streaming tests on jruby (as they depend on unicorn)
+update travis tests to use newest rubinius
+improve formatting/readibility of standard instrumentor output
+
 0.33.0 05/15/2014
 =================
 
