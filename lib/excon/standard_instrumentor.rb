@@ -21,7 +21,7 @@ module Excon
       pretty_printer = lambda do |hash|
         indent += 2
         max_key_length = hash.keys.map {|key| key.inspect.length}.max
-        hash.keys.sort.each do |key|
+        hash.keys.sort_by {|key| key.to_s}.each do |key|
           value = hash[key]
           $stderr.write("#{' ' * indent}#{key.inspect.ljust(max_key_length)} => ")
           case value
