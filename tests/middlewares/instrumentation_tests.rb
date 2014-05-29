@@ -155,7 +155,7 @@ Shindo.tests('Excon instrumentation') do
           connection.get(:idempotent => true)
         end
 
-        captured_stderr.string.split("\n").map {|event| event.split(' ').first}
+        captured_stderr.string.split("\n").reject {|line| line =~ %r{^  }}.map {|event| event.split(' ').first}
       ensure
         $stderr = original_stderr
       end
