@@ -90,13 +90,15 @@ module Excon
         elsif remaining = content_length
           if response_block
             while remaining > 0
-              response_block.call(socket.read([datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
-              remaining -= datum[:chunk_size]
+              chunk = socket.read([datum[:chunk_size], remaining].min)
+              response_block.call(chunk, [remaining - chunk.length, 0].max, content_length)
+              remaining -= chunk.length
             end
           else
             while remaining > 0
-              datum[:response][:body] << socket.read([datum[:chunk_size], remaining].min)
-              remaining -= datum[:chunk_size]
+              chunk = socket.read([datum[:chunk_size], remaining].min)
+              datum[:response][:body] << chunk
+              remaining -= chunk.length
             end
           end
         else
