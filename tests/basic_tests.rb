@@ -53,11 +53,11 @@ Shindo.tests('Excon streaming basics') do
 
     # expect each response piece to arrive to the body right away
     # and wait for timeout until next one arrives
-    tests('simple request with response_block on streaming endpoint').returns([res,'response times ok']) do
+    def timed_streaming_test(endpoint, timeout)
       ret = []
       timing = 'response times ok'
       start = Time.now
-      Excon.get('http://127.0.0.1:9292/streamed/simple', :response_block => lambda do |c,r,t|
+      Excon.get(endpoint, :response_block => lambda do |c,r,t|
         # add the response
         ret.push(c)
         # check if the timing is ok
@@ -74,27 +74,12 @@ Shindo.tests('Excon streaming basics') do
       [ret, timing]
     end
 
-    # expect each response piece to arrive to the body right away
-    # and wait for timeout until next one arrives (with fixed Content-Length header)
+    tests('simple request with response_block on streaming endpoint').returns([res,'response times ok']) do
+      timed_streaming_test('http://127.0.0.1:9292/streamed/simple', timeout)
+    end
+
     tests('simple request with response_block on streaming endpoint with fixed length').returns([res,'response times ok']) do
-      ret = []
-      timing = 'response times ok'
-      start = Time.now
-      Excon.get('http://127.0.0.1:9292/streamed/fixed_length', :response_block => lambda do |c,r,t|
-        # add the response
-        ret.push(c)
-        # check if the timing is ok
-        # each response arrives after timeout and before timeout + 1
-        cur_time = Time.now - start
-        if cur_time < ret.length * timeout or cur_time > (ret.length+1) * timeout
-          timing = 'response time not ok!'
-        end
-      end)
-      # validate the final timing
-      if Time.now - start <= timeout*3
-        timing = 'final timing was not ok!'
-      end
-      [ret, timing]
+      timed_streaming_test('http://127.0.0.1:9292/streamed/fixed_length', timeout)
     end
 
   end
