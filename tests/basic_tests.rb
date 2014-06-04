@@ -44,7 +44,7 @@ Shindo.tests('Excon streaming basics') do
       start = Time.now
       ret = Excon.get('http://127.0.0.1:9292/streamed/fixed_length').body
 
-      if Time.now - start <= timeout*3
+      if Time.now - start <= timeout*2
         [ret, 'streaming response came too quickly']
       else
         [ret, 'response time ok']
@@ -91,7 +91,7 @@ Shindo.tests('Excon streaming basics') do
         ret.push(c)
       end)
       # validate the final timing
-      if Time.now - start <= timeout*3
+      if Time.now - start <= timeout*2
         timing = 'final timing was not ok!'
       end
       [ret, timing]
