@@ -16,9 +16,9 @@ app = lambda do |env|
     begin
       # return the response in pieces
       pieces.each do |x|
+        sleep 1
         io.write(x)
         io.flush
-        sleep 1
       end
     ensure
       io.close

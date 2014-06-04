@@ -44,7 +44,7 @@ Shindo.tests('Excon streaming basics') do
       start = Time.now
       ret = Excon.get('http://127.0.0.1:9292/streamed/fixed_length').body
 
-      if Time.now - start <= timeout*2
+      if Time.now - start <= timeout*3
         [ret, 'streaming response came too quickly']
       else
         [ret, 'response time ok']
@@ -58,14 +58,14 @@ Shindo.tests('Excon streaming basics') do
       timing = 'response times ok'
       start = Time.now
       Excon.get('http://127.0.0.1:9292/streamed/simple', :response_block => lambda do |c,r,t|
+        # add the response
+        ret.push(c)
         # check if the timing is ok
         # each response arrives after timeout and before timeout + 1
         cur_time = Time.now - start
         if cur_time < ret.length * timeout or cur_time > (ret.length+1) * timeout
           timing = 'response time not ok!'
         end
-        # add the response
-        ret.push(c)
       end)
       # validate the final timing
       if Time.now - start <= timeout*3
@@ -81,17 +81,17 @@ Shindo.tests('Excon streaming basics') do
       timing = 'response times ok'
       start = Time.now
       Excon.get('http://127.0.0.1:9292/streamed/fixed_length', :response_block => lambda do |c,r,t|
+        # add the response
+        ret.push(c)
         # check if the timing is ok
         # each response arrives after timeout and before timeout + 1
         cur_time = Time.now - start
         if cur_time < ret.length * timeout or cur_time > (ret.length+1) * timeout
           timing = 'response time not ok!'
         end
-        # add the response
-        ret.push(c)
       end)
       # validate the final timing
-      if Time.now - start <= timeout*2
+      if Time.now - start <= timeout*3
         timing = 'final timing was not ok!'
       end
       [ret, timing]
