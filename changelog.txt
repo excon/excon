@@ -1,4 +1,9 @@
-0.34.0 06/03/2014
+0.36.0 06/04/2014
+=================
+
+fix to reconcile streaming changes for chunked encoding
+
+0.35.0 06/03/2014
 =================
 
 fix for responses with content_length
