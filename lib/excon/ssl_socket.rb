@@ -69,7 +69,7 @@ module Excon
       end
 
       if @data[:proxy]
-        request = 'CONNECT ' << @data[:host] << port_string(@data) << Excon::HTTP_1_1
+        request = 'CONNECT ' << @data[:host] << port_string(@data.merge(:omit_default_port => false)) << Excon::HTTP_1_1
         request << 'Host: ' << @data[:host] << port_string(@data) << Excon::CR_NL
 
         if @data[:proxy][:password] || @data[:proxy][:user]
@@ -91,12 +91,12 @@ module Excon
       # convert Socket to OpenSSL::SSL::SSLSocket
       @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
       @socket.sync_close = true
-      
+
       # Server Name Indication (SNI) RFC 3546
       if @socket.respond_to?(:hostname=)
         @socket.hostname = @data[:host]
       end
-      
+
       begin
         Timeout.timeout(@data[:connect_timeout]) do
           if @nonblock

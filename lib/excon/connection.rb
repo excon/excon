@@ -71,10 +71,10 @@ module Excon
         end
       end
 
-      if @data[:proxy]
+      if @data[:proxy] && @data[:scheme] == 'http'
         @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
-        if @data[:scheme] == 'http' && (@data[:proxy][:user] || @data[:proxy][:password])
+        if @data[:proxy][:user] || @data[:proxy][:password]
           user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
           auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
           @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
@@ -126,7 +126,7 @@ module Excon
           socket.data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
-          if datum[:proxy]
+          if datum[:proxy] && datum[:scheme] != HTTPS
             request << datum[:scheme] << '://' << datum[:host] << port_string(datum)
           end
           request << datum[:path]
