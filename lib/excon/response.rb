@@ -81,7 +81,7 @@ module Excon
               chunk_size += 2 # 2 == "\r\n".length
               while chunk_size > 0
                 chunk = socket.read(chunk_size)
-                chunk_size -= chunk.length
+                chunk_size -= chunk.bytesize
                 response_block.call(chunk.chop!, nil, nil)
               end
             end
@@ -90,7 +90,7 @@ module Excon
               chunk_size += 2 # 2 == "\r\n".length
               while chunk_size > 0
                 chunk = socket.read(chunk_size)
-                chunk_size -= chunk.length
+                chunk_size -= chunk.bytesize
                 datum[:response][:body] << chunk.chop!
               end
             end
@@ -100,14 +100,14 @@ module Excon
           if response_block
             while remaining > 0
               chunk = socket.read([datum[:chunk_size], remaining].min)
-              response_block.call(chunk, [remaining - chunk.length, 0].max, content_length)
-              remaining -= chunk.length
+              response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
+              remaining -= chunk.bytesize
             end
           else
             while remaining > 0
               chunk = socket.read([datum[:chunk_size], remaining].min)
               datum[:response][:body] << chunk
-              remaining -= chunk.length
+              remaining -= chunk.bytesize
             end
           end
         else
