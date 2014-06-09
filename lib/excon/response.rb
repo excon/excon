@@ -77,22 +77,22 @@ module Excon
 
         if transfer_encoding_chunked
           if response_block
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              chunk_size += 2 # 2 == "\r\n".length
+            while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
               while chunk_size > 0
                 chunk = socket.read(chunk_size)
                 chunk_size -= chunk.bytesize
-                response_block.call(chunk.chop!, nil, nil)
+                response_block.call(chunk, nil, nil)
               end
+              socket.read(2) # 2 == "\r\n".length
             end
           else
-            while (chunk_size = socket.readline.chop!.to_i(16)) > 0
-              chunk_size += 2 # 2 == "\r\n".length
+            while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
               while chunk_size > 0
                 chunk = socket.read(chunk_size)
                 chunk_size -= chunk.bytesize
-                datum[:response][:body] << chunk.chop!
+                datum[:response][:body] << chunk
               end
+              socket.read(2) # 2 == "\r\n".length
             end
           end
           parse_headers(socket, datum) # merge trailers into headers
@@ -127,7 +127,7 @@ module Excon
 
     def self.parse_headers(socket, datum)
       last_key = nil
-      until (data = socket.readline.chop!).empty?
+      until (data = socket.readline.chomp!).empty?
         if !data.lstrip!.nil?
           raise Excon::Errors::ResponseParseError, 'malformed header' unless last_key
           # append to last_key's last value
