@@ -1,3 +1,9 @@
+0.37.0 06/09/2014
+=================
+
+fix chunked reading to avoid chop! on non-chunk endings
+fixes for proxy usage
+
 0.36.0 06/04/2014
 =================
 
