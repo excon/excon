@@ -75,6 +75,7 @@
 * Tom Maher <tmaher@heroku.com>
 * Tom Maher <tmaher@tursom.org>
 * Trym Skaar <trym@tryms.no>
+* Tuomas Silen <tuomas.silen@nodeta.fi>
 * Viven <vivien.schilis@gmail.com>
 * Wesley Beary <geemus+github@gmail.com>
 * Wesley Beary <geemus@engineyard.com>
