@@ -4,7 +4,7 @@ module Excon
       def request_call(datum)
         if datum[:mock]
           # convert File/Tempfile body to string before matching:
-          unless datum[:body].nil? || datum[:body].is_a?(String)
+          if datum[:body].respond_to?(:read)
            if datum[:body].respond_to?(:binmode)
              datum[:body].binmode
            end
@@ -12,6 +12,8 @@ module Excon
              datum[:body].rewind
            end
            datum[:body] = datum[:body].read
+          elsif !datum[:body].nil? && !datum[:body].is_a?(String)
+            raise Excon::Errors::InvalidStub.new("Request body should be a string or an IO object. #{datum[:body].class} provided")
           end
 
           if stub = Excon.stub_for(datum)
