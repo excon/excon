@@ -4,7 +4,7 @@ Usable, fast, simple Ruby HTTP 1.1
 
 Excon was designed to be simple, fast and performant. It works great as a general HTTP(s) client and is particularly well suited to usage in API clients.
 
-[![Build Status](https://secure.travis-ci.org/geemus/excon.png)](http://travis-ci.org/geemus/excon)
+[![Build Status](https://secure.travis-ci.org/excon/excon.png)](http://travis-ci.org/excon/excon)
 [![Dependency Status](https://gemnasium.com/geemus/excon.png)](https://gemnasium.com/geemus/excon)
 [![Gem Version](https://fury-badge.herokuapp.com/rb/excon.png)](http://badge.fury.io/rb/excon)
 [![Gittip](http://img.shields.io/gittip/geemus.png)](https://www.gittip.com/geemus/)
@@ -363,12 +363,12 @@ Either of these should allow you to work around the socket error and continue wi
 
 * [General Documentation](http://excon.io).
 * Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon).
-* Report bugs and discuss potential features in [Github issues](https://github.com/geemus/excon/issues).
+* Report bugs and discuss potential features in [Github issues](https://github.com/excon/excon/issues).
 
 ## Contributing
 
-Please refer to [CONTRIBUTING.md](https://github.com/geemus/excon/blob/master/CONTRIBUTING.md).
+Please refer to [CONTRIBUTING.md](https://github.com/excon/excon/blob/master/CONTRIBUTING.md).
 
 ## License
 
-Please refer to [LICENSE.md](https://github.com/geemus/excon/blob/master/LICENSE.md).
+Please refer to [LICENSE.md](https://github.com/excon/excon/blob/master/LICENSE.md).
