@@ -83,7 +83,10 @@ module Excon
                 chunk_size -= chunk.bytesize
                 response_block.call(chunk, nil, nil)
               end
-              socket.read(2) # 2 == "\r\n".length
+              new_line_size = 2 # 2 == "\r\n".length
+              while new_line_size > 0
+                new_line_size -= socket.read(new_line_size).length
+              end
             end
           else
             while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
@@ -92,7 +95,10 @@ module Excon
                 chunk_size -= chunk.bytesize
                 datum[:response][:body] << chunk
               end
-              socket.read(2) # 2 == "\r\n".length
+              new_line_size = 2 # 2 == "\r\n".length
+              while new_line_size > 0
+                new_line_size -= socket.read(new_line_size).length
+              end
             end
           end
           parse_headers(socket, datum) # merge trailers into headers
