@@ -123,6 +123,10 @@ module Excon
           # we already have data from a middleware, so bail
           return datum
         else
+          if sockets[@socket_key] && datum[:detect_timeout]
+            reset unless socket.alive?
+          end
+
           socket.data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase << ' '
@@ -298,7 +302,7 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining.
     #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
-      pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
+      pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true, :detect_timeout => false) }
       pipeline_params.last.merge!(:persistent => @data[:persistent])
 
       responses = pipeline_params.map do |params|
@@ -410,9 +414,11 @@ module Excon
     end
 
     def socket
-      sockets[@socket_key] ||= if @data[:scheme] == HTTPS
+      sockets[@socket_key] ||= \
+      case @data[:scheme]
+      when HTTPS
         Excon::SSLSocket.new(@data)
-      elsif @data[:scheme] == UNIX
+      when UNIX
         Excon::UnixSocket.new(@data)
       else
         Excon::Socket.new(@data)

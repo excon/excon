@@ -28,6 +28,24 @@ module Excon
       connect
     end
 
+    def alive?
+      if @nonblock
+        begin
+          while true
+            @socket.read_nonblock(@data[:chunk_size])
+          end
+        rescue OpenSSL::SSL::SSLError => error
+          error.message == 'write would block'
+        rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable
+          true
+        rescue
+          false
+        end
+      else
+        true # can't check without blocking
+      end
+    end
+
     def read(max_length=nil)
       if @eof
         return max_length ? nil : ''

@@ -37,6 +37,7 @@ module Excon
     :chunk_size,
     :debug_request,
     :debug_response,
+    :detect_timeout,
     :expects,
     :headers,
     :idempotent,
