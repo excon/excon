@@ -58,9 +58,10 @@ module Excon
       @data.merge!(params)
 
       unless @data[:scheme] == UNIX
-        no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"] || ""
-        no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
-        unless no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
+        if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
+          no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
+        end
+        unless no_proxy_env && no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
           if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
             @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
           elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
@@ -69,15 +70,15 @@ module Excon
             @data[:proxy] = setup_proxy(@data[:proxy])
           end
         end
-      end
 
-      if @data[:proxy] && @data[:scheme] == 'http'
-        @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-        # https credentials happen in handshake
-        if @data[:proxy][:user] || @data[:proxy][:password]
-          user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-          auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
-          @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+        if @data.has_key?(:proxy) && @data[:scheme] == 'http'
+          @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+          # https credentials happen in handshake
+          if @data[:proxy][:user] || @data[:proxy][:password]
+            user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
+            auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
+            @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+          end
         end
       end
 
