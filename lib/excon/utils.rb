@@ -2,11 +2,11 @@ module Excon
   module Utils
     extend self
 
-    control   = (0x0..0x1f).map {|c| c.chr }.join + "\x7f"
-    delims    = '<>#%"'
-    unwise    = '{}|\\^[]`'
-    nonascii  = (0x80..0xff).map {|c| c.chr }.join
-    UNESCAPED = /([#{ Regexp.escape(control + ' ' + delims + unwise + nonascii) }])/
+    CONTROL   = (0x0..0x1f).map {|c| c.chr }.join + "\x7f"
+    DELIMS    = '<>#%"'
+    UNWISE    = '{}|\\^[]`'
+    NONASCII  = (0x80..0xff).map {|c| c.chr }.join
+    UNESCAPED = /([#{ Regexp.escape(CONTROL + ' ' + DELIMS + UNWISE + NONASCII) }])/
     ESCAPED   = /%([0-9a-fA-F]{2})/
 
     def connection_uri(datum = @data)
