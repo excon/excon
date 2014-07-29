@@ -87,26 +87,12 @@ module Excon
     end
 
     def readline
-      if @eof
-        raise EOFError, 'end of file reached'
-      else
-        line = ''
-        if @nonblock
-          while char = read(1)
-            line << char
-            break if char == $/
-          end
-          raise EOFError, 'end of file reached' if line.empty?
-        else
-          begin
-            Timeout.timeout(@data[:read_timeout]) do
-              line = @socket.readline
-            end
-          rescue Timeout::Error
-            raise Excon::Errors::Timeout.new('read timeout reached')
-          end
+      begin
+        Timeout.timeout(@data[:read_timeout]) do
+          @socket.readline
         end
-        line
+      rescue Timeout::Error
+        raise Excon::Errors::Timeout.new('read timeout reached')
       end
     end
 
