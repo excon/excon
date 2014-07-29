@@ -249,17 +249,6 @@ module Excon
         datum[:response_block] = Proc.new
       end
 
-      if datum[:idempotent]
-        if datum[:request_block]
-          Excon.display_warning('Excon requests with a :request_block can not be :idempotent.')
-          datum[:idempotent] = false
-        end
-        if datum[:pipeline]
-          Excon.display_warning("Excon requests can not be :idempotent when pipelining.")
-          datum[:idempotent] = false
-        end
-      end
-
       datum[:connection] = self
 
       datum[:stack] = datum[:middlewares].map do |middleware|
