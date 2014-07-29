@@ -11,41 +11,35 @@ require 'uri'
 require 'zlib'
 require 'stringio'
 
+require 'excon/middlewares/base'
+require 'excon/middlewares/expects'
+require 'excon/middlewares/idempotent'
+require 'excon/middlewares/instrumentor'
+require 'excon/middlewares/mock'
+require 'excon/middlewares/response_parser'
+
+require 'excon/constants'
+require 'excon/utils'
+
+require 'excon/connection'
+require 'excon/errors'
+require 'excon/headers'
+require 'excon/response'
+require 'excon/middlewares/decompress'
+require 'excon/middlewares/escape_path'
+require 'excon/middlewares/redirect_follower'
+require 'excon/socket'
+require 'excon/ssl_socket'
+require 'excon/unix_socket'
+require 'excon/standard_instrumentor'
+
 # Define defaults first so they will be available to other files
 module Excon
   class << self
 
     # @return [Hash] defaults for Excon connections
     def defaults
-      @defaults ||= {
-        :chunk_size         => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
-        :ciphers            => 'HIGH:!SSLv2:!aNULL:!eNULL:!3DES',
-        :connect_timeout    => 60,
-        :debug_request      => false,
-        :debug_response     => false,
-        :headers            => {
-          'User-Agent' => USER_AGENT
-        },
-        :idempotent         => false,
-        :instrumentor_name  => 'excon',
-        :middlewares        => [
-          Excon::Middleware::ResponseParser,
-          Excon::Middleware::Expects,
-          Excon::Middleware::Idempotent,
-          Excon::Middleware::Instrumentor,
-          Excon::Middleware::Mock
-        ],
-        :mock               => false,
-        :nonblock           => true,
-        :omit_default_port  => false,
-        :persistent         => false,
-        :read_timeout       => 60,
-        :retry_limit        => DEFAULT_RETRY_LIMIT,
-        :ssl_verify_peer    => true,
-        :tcp_nodelay        => false,
-        :uri_parser         => URI,
-        :write_timeout      => 60
-      }
+      @defaults ||= DEFAULTS
     end
 
     # Change defaults for Excon connections
@@ -53,32 +47,6 @@ module Excon
     def defaults=(new_defaults)
       @defaults = new_defaults
     end
-
-  end
-end
-
-require 'excon/utils'
-require 'excon/constants'
-require 'excon/connection'
-require 'excon/errors'
-require 'excon/middlewares/base'
-require 'excon/middlewares/decompress'
-require 'excon/middlewares/escape_path'
-require 'excon/middlewares/expects'
-require 'excon/middlewares/idempotent'
-require 'excon/middlewares/instrumentor'
-require 'excon/middlewares/mock'
-require 'excon/middlewares/redirect_follower'
-require 'excon/middlewares/response_parser'
-require 'excon/response'
-require 'excon/headers'
-require 'excon/socket'
-require 'excon/ssl_socket'
-require 'excon/unix_socket'
-require 'excon/standard_instrumentor'
-
-module Excon
-  class << self
 
     def display_warning(warning)
       # Respect Ruby's $VERBOSE setting, unless EXCON_DEBUG is set

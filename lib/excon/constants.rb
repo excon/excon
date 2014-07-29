@@ -96,5 +96,35 @@ module Excon
       module WaitWritable; end
     end
   end
+  # these come last as they rely on the above
+  DEFAULTS = {
+    :chunk_size         => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
+    :ciphers            => 'HIGH:!SSLv2:!aNULL:!eNULL:!3DES',
+    :connect_timeout    => 60,
+    :debug_request      => false,
+    :debug_response     => false,
+    :headers            => {
+      'User-Agent' => USER_AGENT
+    },
+    :idempotent         => false,
+    :instrumentor_name  => 'excon',
+    :middlewares        => [
+      Excon::Middleware::ResponseParser,
+      Excon::Middleware::Expects,
+      Excon::Middleware::Idempotent,
+      Excon::Middleware::Instrumentor,
+      Excon::Middleware::Mock
+    ],
+    :mock               => false,
+    :nonblock           => true,
+    :omit_default_port  => false,
+    :persistent         => false,
+    :read_timeout       => 60,
+    :retry_limit        => DEFAULT_RETRY_LIMIT,
+    :ssl_verify_peer    => true,
+    :tcp_nodelay        => false,
+    :uri_parser         => URI,
+    :write_timeout      => 60
+  }
 
 end
