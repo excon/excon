@@ -57,13 +57,7 @@ module Excon
           encodings = Utils.split_header_value(datum[:response][:headers][key])
           if (encoding = encodings.last) && encoding.casecmp('chunked') == 0
             transfer_encoding_chunked = true
-            encodings.pop
-            datum[:response][:headers][key] = encodings.join(', ')
-          end
-        end
-        unless transfer_encoding_chunked
-          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 }
-            content_length = datum[:response][:headers][key].to_i
+            datum[:response][:headers][key] = encodings[0...-1].join(', ')
           end
         end
 
@@ -102,28 +96,34 @@ module Excon
             end
           end
           parse_headers(socket, datum) # merge trailers into headers
-        elsif remaining = content_length
-          if response_block
-            while remaining > 0
-              chunk = socket.read([datum[:chunk_size], remaining].min)
-              response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
-              remaining -= chunk.bytesize
-            end
-          else
-            while remaining > 0
-              chunk = socket.read([datum[:chunk_size], remaining].min)
-              datum[:response][:body] << chunk
-              remaining -= chunk.bytesize
-            end
-          end
         else
-          if response_block
-            while chunk = socket.read(datum[:chunk_size])
-              response_block.call(chunk, nil, nil)
+          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 }
+            content_length = datum[:response][:headers][key].to_i
+          end
+
+          if remaining = content_length
+            if response_block
+              while remaining > 0
+                chunk = socket.read([datum[:chunk_size], remaining].min)
+                response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
+                remaining -= chunk.bytesize
+              end
+            else
+              while remaining > 0
+                chunk = socket.read([datum[:chunk_size], remaining].min)
+                datum[:response][:body] << chunk
+                remaining -= chunk.bytesize
+              end
             end
           else
-            while chunk = socket.read(datum[:chunk_size])
-              datum[:response][:body] << chunk
+            if response_block
+              while chunk = socket.read(datum[:chunk_size])
+                response_block.call(chunk, nil, nil)
+              end
+            else
+              while chunk = socket.read(datum[:chunk_size])
+                datum[:response][:body] << chunk
+              end
             end
           end
         end
