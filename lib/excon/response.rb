@@ -37,8 +37,8 @@ module Excon
 
     def self.parse(socket, datum)
       # this will discard any trailing lines from the previous response if any.
-      until match = /^HTTP\/\d+\.\d+\s(\d{3})\s/.match(socket.readline); end
-      status = match[1].to_i
+      until status = socket.readline[9,11].to_i
+      end
 
       datum[:response] = {
         :body          => '',
