@@ -18,8 +18,7 @@ module Excon
           # reduces remaining retries, reset connection, and restart request_call
           datum[:retries_remaining] -= 1
           connection = datum.delete(:connection)
-          request_keys = Utils.valid_request_keys(datum)
-          datum.reject! {|key, _| !request_keys.include?(key) }
+          datum.reject! {|key, _| !Excon::VALID_REQUEST_KEYS.include?(key) }
           connection.request(datum)
         else
           @stack.error_call(datum)

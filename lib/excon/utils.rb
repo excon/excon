@@ -9,14 +9,6 @@ module Excon
     UNESCAPED = /([#{ Regexp.escape(control + ' ' + delims + unwise + nonascii) }])/
     ESCAPED   = /%([0-9a-fA-F]{2})/
 
-    def valid_connection_keys(params = {})
-      Excon::VALID_CONNECTION_KEYS
-    end
-
-    def valid_request_keys(params = {})
-      Excon::VALID_REQUEST_KEYS
-    end
-
     def connection_uri(datum = @data)
       unless datum
         raise ArgumentError, '`datum` must be given unless called on a Connection'
