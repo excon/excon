@@ -103,16 +103,22 @@ module Excon
     def new(url, params = {})
       uri_parser = params[:uri_parser] || Excon.defaults[:uri_parser]
       uri = uri_parser.parse(url)
-      raise ArgumentError.new("Invalid URI: #{uri}") unless uri.scheme
+      unless uri.scheme
+        raise ArgumentError.new("Invalid URI: #{uri}")
+      end
       params = {
         :host       => uri.host,
         :path       => uri.path,
         :port       => uri.port,
         :query      => uri.query,
-        :scheme     => uri.scheme,
-        :user       => (Utils.unescape_uri(uri.user) if uri.user),
-        :password   => (Utils.unescape_uri(uri.password) if uri.password)
+        :scheme     => uri.scheme
       }.merge!(params)
+      if uri.password
+        params[:password] = Utils.unescape_uri(uri.password)
+      end
+      if uri.user
+        params[:user] = Utils.unescape_uri(uri.user)
+      end
       Excon::Connection.new(params)
     end
 

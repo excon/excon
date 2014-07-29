@@ -74,7 +74,7 @@ module Excon
         if @data.has_key?(:proxy) && @data[:scheme] == 'http'
           @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
           # https credentials happen in handshake
-          if @data[:proxy][:user] || @data[:proxy][:password]
+          if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
             user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
             auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
             @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
@@ -91,7 +91,7 @@ module Excon
       end
 
       # Use Basic Auth if url contains a login
-      if @data[:user] || @data[:password]
+      if @data.has_key?(:user) || @data.has_key?(:password)
         user, pass = Utils.unescape_form(@data[:user].to_s), Utils.unescape_form(@data[:password].to_s)
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
@@ -428,16 +428,21 @@ module Excon
       case proxy
       when String
         uri = URI.parse(proxy)
-        unless uri.host and uri.port and uri.scheme
+        unless uri.host && uri.port && uri.scheme
           raise Excon::Errors::ProxyParseError, "Proxy is invalid"
         end
-        {
+        proxy_params = {
           :host       => uri.host,
-          :password   => uri.password,
           :port       => uri.port,
           :scheme     => uri.scheme,
-          :user       => uri.user
         }
+        if uri.password
+          proxy_params[:password] = uri.password
+        end
+        if uri.user
+          proxy_params[:user] = uri.user
+        end
+        proxy_params
       else
         proxy
       end
