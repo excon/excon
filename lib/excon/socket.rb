@@ -15,7 +15,7 @@ module Excon
       @data = new_params
     end
 
-    attr_reader :local_address, :local_port, :remote_ip
+    attr_reader :remote_ip
 
     def_delegators(:@socket, :close,    :close)
 
@@ -139,6 +139,14 @@ module Excon
       end
     end
 
+    def local_address
+      unpacked_sockaddr[1]
+    end
+
+    def local_port
+      unpacked_sockaddr[0]
+    end
+
     private
 
     def connect
@@ -163,7 +171,6 @@ module Excon
         # nonblocking connect
         begin
           sockaddr = ::Socket.sockaddr_in(port, ip)
-          @local_port, @local_address = port, ip
 
           socket = ::Socket.new(a_family, s_type, 0)
 
@@ -219,6 +226,14 @@ module Excon
         @socket.setsockopt(::Socket::IPPROTO_TCP,
                            ::Socket::TCP_NODELAY,
                            true)
+      end
+    end
+
+    def unpacked_sockaddr
+      @unpacked_sockaddr ||= ::Socket.unpack_sockaddr_in(@socket.to_io.getsockname)
+    rescue ArgumentError => e
+      unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
+        raise
       end
     end
 

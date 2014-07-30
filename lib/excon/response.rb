@@ -43,11 +43,16 @@ module Excon
       datum[:response] = {
         :body          => '',
         :headers       => Excon::Headers.new,
-        :status        => status,
-        :remote_ip     => socket.remote_ip,
-        :local_port    => socket.local_port,
-        :local_address => socket.local_address
+        :status        => status
       }
+
+      unless datum[:scheme] == UNIX
+        datum[:response].merge!(
+          :remote_ip     => socket.remote_ip,
+          :local_port    => socket.local_port,
+          :local_address => socket.local_address
+        )
+      end
 
       parse_headers(socket, datum)
 
