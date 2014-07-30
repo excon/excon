@@ -18,99 +18,52 @@ module Excon
     alias_method :raw_store, :store
     alias_method :raw_values_at, :values_at
 
+    def initialize
+      @downcased = {}
+    end
+
     def [](key)
-      if should_delegate?(key)
-        @downcased[key.downcase]
-      else
-        raw_reader(key)
-      end
+      @downcased[key.downcase]
     end
 
     alias_method :[]=, :store
     def []=(key, value)
       raw_writer(key, value)
-      unless @downcased.nil?
-        @downcased[key.downcase] = value
-      end
+      @downcased[key.downcase] = value
     end
 
     if SENTINEL.respond_to? :assoc
       def assoc(obj)
-        if should_delegate?(obj)
-          @downcased.assoc(obj.downcase)
-        else
-          raw_assoc(obj)
-        end
+        @downcased.assoc(obj.downcase)
       end
     end
 
     def delete(key, &proc)
-      if should_delegate?(key)
-        @downcased.delete(key.downcase, &proc)
-      else
-        raw_delete(key, &proc)
-      end
+      raw_delete(key, &proc)
+      @downcased.delete(key.downcase, &proc)
     end
 
     def fetch(key, default = nil, &proc)
-      if should_delegate?(key)
-        if proc
-          @downcased.fetch(key.downcase, &proc)
-        else
-          @downcased.fetch(key.downcase, default)
-        end
+      if proc
+        @downcased.fetch(key.downcase, &proc)
       else
-        if proc
-          raw_fetch(key, &proc)
-        else
-          raw_fetch(key, default)
-        end
+        @downcased.fetch(key.downcase, default)
       end
     end
 
     alias_method :has_key?, :key?
     alias_method :has_key?, :member?
     def has_key?(key)
-      raw_has_key?(key) || begin
-        index_case_insensitive
-        @downcased.has_key?(key.downcase)
-      end
+      @downcased.has_key?(key.downcase)
     end
 
     def rehash
       raw_rehash
-      if @downcased
-        @downcased.rehash
-      end
+      @downcased.rehash
     end
 
     def values_at(*keys)
-      raw_values_at(*keys).zip(keys).map do |v, k|
-        if v.nil?
-          index_case_insensitive
-          @downcased[k.downcase]
-        end
-      end
-    end
-
-    private
-
-    def should_delegate?(key)
-      if raw_has_key?(key)
-        false
-      else
-        index_case_insensitive
-        true
-      end
-    end
-
-    def index_case_insensitive
-      if @downcased.nil?
-        @downcased = {}
-        each_pair do |key, value|
-          @downcased[key.downcase] = value
-        end
-      end
+      @downcased.values_at(*keys.map {|key| key.downcase})
     end
 
   end
