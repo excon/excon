@@ -152,13 +152,6 @@ module Excon
             end
           end
 
-          if datum[:response_block]
-            datum[:headers]['TE'] = 'trailers'
-          else
-            datum[:headers]['TE'] = 'trailers, deflate, gzip'
-          end
-          datum[:headers]['Connection'] = datum[:persistent] ? 'TE' : 'TE, close'
-
           # add headers to request
           datum[:headers].each do |key, values|
             [values].flatten.each do |value|

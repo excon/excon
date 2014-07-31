@@ -1,45 +1,6 @@
 Shindo.tests('Request Tests') do
   with_server('good') do
 
-    tests('sets transfer-coding and connection options') do
-
-      tests('without a :response_block') do
-        request = nil
-
-        returns('trailers, deflate, gzip', 'sets encoding options') do
-          request = Marshal.load(
-            Excon.get('http://127.0.0.1:9292/echo/request').body
-          )
-
-          request[:headers]['TE']
-        end
-
-        returns(true, 'TE added to Connection header') do
-          request[:headers]['Connection'].include?('TE')
-        end
-      end
-
-      tests('with a :response_block') do
-        request = nil
-
-        returns('trailers', 'does not set encoding options') do
-          captures = capture_response_block do |block|
-            Excon.get('http://127.0.0.1:9292/echo/request',
-                      :response_block => block)
-          end
-          data = captures.map {|capture| capture[0] }.join
-          request = Marshal.load(data)
-
-          request[:headers]['TE']
-        end
-
-        returns(true, 'TE added to Connection header') do
-          request[:headers]['Connection'].include?('TE')
-        end
-      end
-
-    end
-
     tests('persistent connections') do
 
       tests('with default :persistent => true') do
@@ -86,24 +47,6 @@ Shindo.tests('Request Tests') do
                                     :path   => '/echo/request_count').body
           ret << connection.request(:method => :get,
                                     :path   => '/echo/request_count').body
-        end
-      end
-
-      tests('sends `Connection: close`') do
-        returns(true, 'when :persistent => false') do
-          request = Marshal.load(
-            Excon.get('http://127.0.0.1:9292/echo/request',
-                      :persistent => false).body
-          )
-          request[:headers]['Connection'].include?('close')
-        end
-
-        returns(false, 'not when :persistent => true') do
-          request = Marshal.load(
-            Excon.get('http://127.0.0.1:9292/echo/request',
-                      :persistent => true).body
-          )
-          request[:headers]['Connection'].include?('close')
         end
       end
 
