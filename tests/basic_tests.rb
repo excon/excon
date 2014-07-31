@@ -23,7 +23,7 @@ Shindo.tests('Excon streaming basics') do
   with_unicorn('streaming.ru') do
     # expected values: the response, in pieces, and a timeout after each piece
     res = %w{Hello streamy world}
-    timeout = 1
+    timeout = 0.1
 
     # expect the full response as a string
     # and expect it to take a (timeout * pieces) seconds
