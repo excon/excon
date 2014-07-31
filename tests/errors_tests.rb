@@ -48,10 +48,6 @@ Shindo.tests('HTTPStatusError request/response debugging') do
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
                   :debug_request => true, :debug_response => true)
       rescue => err
-        puts err.message
-        puts err.message.include?('Expected(200) <=> Actual(404 Not Found)')
-        puts err.message.include?('excon.error.request')
-        puts err.message.include?('excon.error.response')
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
           err.message.include?('excon.error.request') &&
           err.message.include?('excon.error.response')
