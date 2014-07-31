@@ -82,7 +82,8 @@ module Excon
     :ssl_version,
     :tcp_nodelay,
     :uri_parser,
-    :user
+    :user,
+    :version
   ]
 
   unless ::IO.const_defined?(:WaitReadable)
@@ -124,6 +125,7 @@ module Excon
     :ssl_verify_peer    => true,
     :tcp_nodelay        => false,
     :uri_parser         => URI,
+    :version            => VERSION,
     :write_timeout      => 60
   }
 
