@@ -31,6 +31,8 @@ module Excon
 
   USER_AGENT = 'excon/' << VERSION
 
+  VERSIONS = USER_AGENT + ' (' << RUBY_PLATFORM << ') ruby/' << RUBY_VERSION
+
   VALID_REQUEST_KEYS = [
     :body,
     :captures,
@@ -54,6 +56,7 @@ module Excon
     :response_block,
     :retries_remaining, # used internally
     :retry_limit,
+    :versions,
     :write_timeout
   ]
 
@@ -82,8 +85,7 @@ module Excon
     :ssl_version,
     :tcp_nodelay,
     :uri_parser,
-    :user,
-    :version
+    :user
   ]
 
   unless ::IO.const_defined?(:WaitReadable)
@@ -125,7 +127,7 @@ module Excon
     :ssl_verify_peer    => true,
     :tcp_nodelay        => false,
     :uri_parser         => URI,
-    :version            => VERSION,
+    :versions           => VERSIONS,
     :write_timeout      => 60
   }
 
