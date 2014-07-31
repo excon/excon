@@ -16,19 +16,8 @@ Shindo.tests('HTTPStatusError request/response debugging') do
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200)
       rescue => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
-        !err.message.include?('request =>') &&
-        !err.message.include?('response =>')
-      end
-    end
-
-    tests('message includes only response info').returns(true) do
-      begin
-        Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
-                  :debug_response => true)
-      rescue => err
-        err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
-        !err.message.include?('request =>') &&
-        !!(err.message =~ /response =>(.*)server says not found/)
+          !err.message.include?('excon.error.request') &&
+          !err.message.include?('excon.error.response')
       end
     end
 
@@ -38,8 +27,19 @@ Shindo.tests('HTTPStatusError request/response debugging') do
                   :debug_request => true)
       rescue => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
-        !!(err.message =~ /request =>(.*)error\/not_found/) &&
-        !err.message.include?('response =>')
+          err.message.include?('excon.error.request') &&
+          !err.message.include?('excon.error.response')
+      end
+    end
+
+    tests('message includes only response info').returns(true) do
+      begin
+        Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
+                  :debug_response => true)
+      rescue => err
+        err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
+          !err.message.include?('excon.error.request') &&
+          err.message.include?('excon.error.response')
       end
     end
 
@@ -49,8 +49,8 @@ Shindo.tests('HTTPStatusError request/response debugging') do
                   :debug_request => true, :debug_response => true)
       rescue => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
-        !!(err.message =~ /request =>(.*)not_found/) &&
-        !!(err.message =~ /response =>(.*)server says not found/)
+          err.message.include?('excon.error.request') &&
+          err.message.include?('excon.error.response')
       end
     end
 

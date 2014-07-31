@@ -28,10 +28,11 @@ require 'excon/response'
 require 'excon/middlewares/decompress'
 require 'excon/middlewares/escape_path'
 require 'excon/middlewares/redirect_follower'
+require 'excon/pretty_printer'
 require 'excon/socket'
 require 'excon/ssl_socket'
-require 'excon/unix_socket'
 require 'excon/standard_instrumentor'
+require 'excon/unix_socket'
 
 # Define defaults first so they will be available to other files
 module Excon

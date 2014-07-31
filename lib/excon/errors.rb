@@ -36,7 +36,7 @@ module Excon
         @response = response
       end
     end
-    
+
     # HTTP Error classes
     class Informational < HTTPStatusError; end
     class Success < HTTPStatusError; end
@@ -130,24 +130,23 @@ module Excon
         504 => [Excon::Errors::GatewayTimeout, 'Gateway Timeout']
       }
 
-      error, message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
+      error_class, error_message = @errors[response[:status]] || [Excon::Errors::HTTPStatusError, 'Unknown']
 
-      message = "Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{message})"
+      message = StringIO.new
+      message.puts("Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{error_message})")
 
       if request[:debug_request]
-        # scrub authorization
-        req = request.dup
-        req.reject! {|key, value| [:connection, :stack].include?(key)}
-        if req.has_key?(:headers) && req[:headers].has_key?('Authorization')
-          req[:headers] = req[:headers].dup
-          req[:headers]['Authorization'] = REDACTED
-        end
-        message << "\n  request => #{req.inspect}"
+        message.puts("excon.error.request")
+        Excon::PrettyPrinter.puts(message, request)
       end
 
-      message << "\n  response => #{response.inspect}" if request[:debug_response]
+      if request[:debug_response]
+        message.puts("excon.error.response")
+        Excon::PrettyPrinter.puts(message, response.data)
+      end
 
-      error.new(message, request, response)
+      message.rewind
+      error_class.new(message.read, request, response)
     end
 
   end
