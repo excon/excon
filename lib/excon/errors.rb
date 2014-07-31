@@ -136,12 +136,12 @@ module Excon
       message.puts("Expected(#{request[:expects].inspect}) <=> Actual(#{response[:status]} #{error_message})")
 
       if request[:debug_request]
-        message.puts("excon.error.request")
+        message.puts('excon.error.request')
         Excon::PrettyPrinter.puts(message, request)
       end
 
       if request[:debug_response]
-        message.puts("excon.error.response")
+        message.puts('excon.error.response')
         Excon::PrettyPrinter.puts(message, response.data)
       end
 
