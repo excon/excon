@@ -359,8 +359,14 @@ module Excon
 
     private
 
+    # We needed to add :length method because the StringIO class
+    #   in ruby 2.0.0p195 returns nil even when StringIO
+    #   was instantiated with a valid string.
     def detect_content_length(body)
-      if body.respond_to?(:size)
+      if body.respond_to?(:length)
+        # Edge case for ruby 2.0.0p195 and StringIO class
+        body.length
+      elsif body.respond_to?(:size)
         # IO object: File, Tempfile, StringIO, etc.
         body.size
       elsif body.respond_to?(:stat)
