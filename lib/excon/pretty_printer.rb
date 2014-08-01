@@ -4,10 +4,8 @@ module Excon
       datum = datum.dup
 
       # reduce duplication/noise of output
-      if datum.has_key?(:connection)
+      unless datum.is_a?(Excon::Headers)
         datum.delete(:connection)
-      end
-      if datum.has_key?(:stack)
         datum.delete(:stack)
       end
 
