@@ -1,3 +1,26 @@
+0.39.0 08/01/2014
+=================
+
+revert to a blocking readline, for performance
+simplify status lookup
+consolidate proxy code
+store defaults as a constant
+avoid setting nil user/pass vs just no setting keys
+move idempotent warnings in to middleware
+simplify validations
+use constants in utils
+group non-chunk response paring
+optimize/simplify socket local lookup
+simplify to pro-actively build downcased headers instead of lazily do so
+add version to options (so it will appear in debug)
+add OS/Ruby version info to options/version for debugging
+more consistent output styling for errors
+remove TE stuff to simplify
+shorten timeout/sleep in streaming tests
+remove transfer-encoding altogether if it only includes chunked
+only rescue http status errors in relevant tests
+use case-insensitive headers in stubs also
+
 0.38.0 07/09/2014
 =================
 
