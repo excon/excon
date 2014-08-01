@@ -7,15 +7,15 @@ module Excon
       unless datum.is_a?(Excon::Headers)
         datum.delete(:connection)
         datum.delete(:stack)
-      end
 
-      if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
-        datum[:headers] = datum[:headers].dup
-        datum[:headers]['Authorization'] = REDACTED
-      end
+        if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
+          datum[:headers] = datum[:headers].dup
+          datum[:headers]['Authorization'] = REDACTED
+        end
 
-      if datum.has_key?(:password)
-        datum[:password] = REDACTED
+        if datum.has_key?(:password)
+          datum[:password] = REDACTED
+        end
       end
 
       indent += 2
