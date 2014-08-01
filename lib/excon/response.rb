@@ -62,7 +62,11 @@ module Excon
           encodings = Utils.split_header_value(datum[:response][:headers][key])
           if (encoding = encodings.last) && encoding.casecmp('chunked') == 0
             transfer_encoding_chunked = true
-            datum[:response][:headers][key] = encodings[0...-1].join(', ')
+            if encodings.length == 1
+              datum[:response][:headers].delete(key)
+            else
+              datum[:response][:headers][key] = encodings[0...-1].join(', ')
+            end
           end
         end
 

@@ -46,7 +46,7 @@ Shindo.tests('Excon Response Parsing') do
         Excon.get('http://127.0.0.1:9292/chunked/trailers').headers['Test-Header']
       end
 
-      tests("removes 'chunked' from Transfer-Encoding").returns('') do
+      tests("removes 'chunked' from Transfer-Encoding").returns(nil) do
         Excon.get('http://127.0.0.1:9292/chunked/simple').headers['Transfer-Encoding']
       end
 
