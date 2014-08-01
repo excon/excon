@@ -14,7 +14,7 @@ Shindo.tests('HTTPStatusError request/response debugging') do
     tests('message does not include response or response info').returns(true) do
       begin
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200)
-      rescue => err
+      rescue Excon::Errors::HTTPStatusError => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
           !err.message.include?('excon.error.request') &&
           !err.message.include?('excon.error.response')
@@ -25,7 +25,7 @@ Shindo.tests('HTTPStatusError request/response debugging') do
       begin
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
                   :debug_request => true)
-      rescue Excon::Errors::Error => err
+      rescue Excon::Errors::HTTPStatusError => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
           err.message.include?('excon.error.request') &&
           !err.message.include?('excon.error.response')
@@ -36,7 +36,7 @@ Shindo.tests('HTTPStatusError request/response debugging') do
       begin
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
                   :debug_response => true)
-      rescue Excon::Errors::Error => err
+      rescue Excon::Errors::HTTPStatusError => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
           !err.message.include?('excon.error.request') &&
           err.message.include?('excon.error.response')
@@ -47,7 +47,7 @@ Shindo.tests('HTTPStatusError request/response debugging') do
       begin
         Excon.get('http://127.0.0.1:9292/error/not_found', :expects => 200,
                   :debug_request => true, :debug_response => true)
-      rescue Excon::Errors::Error => err
+      rescue Excon::Errors::HTTPStatusError => err
         err.message.include?('Expected(200) <=> Actual(404 Not Found)') &&
           err.message.include?('excon.error.request') &&
           err.message.include?('excon.error.response')
