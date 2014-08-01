@@ -175,6 +175,10 @@ module Excon
       data
     end
 
+    def pp
+      Excon::PrettyPrinter.pp($stdout, @data)
+    end
+
     # Retrieve a specific header value. Header names are treated case-insensitively.
     #   @param [String] name Header name
     def get_header(name)

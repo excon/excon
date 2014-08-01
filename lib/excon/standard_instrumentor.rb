@@ -17,7 +17,7 @@ module Excon
       end
 
       $stderr.puts(name)
-      Excon::PrettyPrinter.puts($stderr, params)
+      Excon::PrettyPrinter.pp($stderr, params)
 
       if block_given?
         yield

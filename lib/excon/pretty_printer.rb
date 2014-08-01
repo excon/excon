@@ -1,6 +1,6 @@
 module Excon
   class PrettyPrinter
-    def self.puts(io, datum, indent=0)
+    def self.pp(io, datum, indent=0)
       datum = datum.dup
 
       # reduce duplication/noise of output
@@ -30,7 +30,7 @@ module Excon
           io.write("#{' ' * indent}]")
         when Hash
           io.puts("{")
-          self.puts(io, value, indent)
+          self.pp(io, value, indent)
           io.write("#{' ' * indent}}")
         else
           io.write("#{value.inspect}")

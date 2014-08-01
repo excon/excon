@@ -137,12 +137,12 @@ module Excon
 
       if request[:debug_request]
         message.puts('excon.error.request')
-        Excon::PrettyPrinter.puts(message, request)
+        Excon::PrettyPrinter.pp(message, request)
       end
 
       if request[:debug_response]
         message.puts('excon.error.response')
-        Excon::PrettyPrinter.puts(message, response.data)
+        Excon::PrettyPrinter.pp(message, response.data)
       end
 
       message.rewind
