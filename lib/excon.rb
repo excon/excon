@@ -146,7 +146,11 @@ module Excon
         end
       end
       if request_params.has_key?(:headers)
-        request_params[:headers] = Excon::Headers.new
+        headers = Excon::Headers.new
+        request_params[:headers].each do |key, value|
+          headers[key] = value
+        end
+        request_params[:headers] = headers
       end
       if block_given?
         if response_params
