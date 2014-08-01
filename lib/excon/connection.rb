@@ -59,12 +59,13 @@ module Excon
 
       setup_proxy
 
-      if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
+      if  ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
+      end
 
-        if ENV.has_key?('EXCON_DEBUG')
-          @data[:debug_request] = @data[:debug_response] = true
-        end
+      if @data[:debug] != false && @data[:debug] || ENV.has_key?('EXCON_DEBUG')
+        @data[:debug_request] = @data[:debug_response] = true
+        @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
       # Use Basic Auth if url contains a login
