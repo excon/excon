@@ -57,30 +57,7 @@ module Excon
       params = validate_params(:connection, params)
       @data.merge!(params)
 
-      unless @data[:scheme] == UNIX
-        if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
-          no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
-        end
-        unless no_proxy_env && no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
-          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-            @data[:proxy] = setup_proxy(ENV['https_proxy'] || ENV['HTTPS_PROXY'])
-          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-            @data[:proxy] = setup_proxy(ENV['http_proxy'] || ENV['HTTP_PROXY'])
-          elsif @data.has_key?(:proxy)
-            @data[:proxy] = setup_proxy(@data[:proxy])
-          end
-        end
-
-        if @data.has_key?(:proxy) && @data[:scheme] == 'http'
-          @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-          # https credentials happen in handshake
-          if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
-            user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-            auth = ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
-            @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
-          end
-        end
-      end
+      setup_proxy
 
       if ENV.has_key?('EXCON_DEBUG') || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
@@ -406,27 +383,48 @@ module Excon
       Thread.current[:_excon_sockets] ||= {}
     end
 
-    def setup_proxy(proxy)
-      case proxy
-      when String
-        uri = URI.parse(proxy)
-        unless uri.host && uri.port && uri.scheme
-          raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+    def setup_proxy
+      unless @data[:scheme] == UNIX
+        if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
+          no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
         end
-        proxy_params = {
-          :host       => uri.host,
-          :port       => uri.port,
-          :scheme     => uri.scheme,
-        }
-        if uri.password
-          proxy_params[:password] = uri.password
+
+        unless no_proxy_env && no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
+          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+            @data[:proxy] = ENV['https_proxy'] || ENV['HTTPS_PROXY']
+          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+            @data[:proxy] = ENV['http_proxy'] || ENV['HTTP_PROXY']
+          end
         end
-        if uri.user
-          proxy_params[:user] = uri.user
+
+        case @data[:proxy]
+        when String
+          uri = URI.parse(@data[:proxy])
+          unless uri.host && uri.port && uri.scheme
+            raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+          end
+          @data[:proxy] = {
+            :host       => uri.host,
+            :port       => uri.port,
+            :scheme     => uri.scheme,
+          }
+          if uri.password
+            @data[:proxy][:password] = uri.password
+          end
+          if uri.user
+            @data[:proxy][:user] = uri.user
+          end
         end
-        proxy_params
-      else
-        proxy
+
+        if @data.has_key?(:proxy) && @data[:scheme] == 'http'
+          @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+          # https credentials happen in handshake
+          if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
+            user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
+            auth = ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
+            @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+          end
+        end
       end
     end
   end
