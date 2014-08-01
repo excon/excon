@@ -145,6 +145,9 @@ module Excon
           request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
         end
       end
+      if request_params.has_key?(:headers)
+        request_params[:headers] = Excon::Headers.new
+      end
       if block_given?
         if response_params
           raise(ArgumentError.new("stub requires either response_params OR a block"))
