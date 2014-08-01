@@ -23,38 +23,38 @@ module Excon
     end
 
     def [](key)
-      @downcased[key.to_s.downcase]
+      @downcased[key.downcase]
     end
 
     alias_method :[]=, :store
     def []=(key, value)
       raw_writer(key, value)
-      @downcased[key.to_s.downcase] = value
+      @downcased[key.downcase] = value
     end
 
     if SENTINEL.respond_to? :assoc
       def assoc(obj)
-        @downcased.assoc(obj.to_s.downcase)
+        @downcased.assoc(obj.downcase)
       end
     end
 
     def delete(key, &proc)
       raw_delete(key, &proc)
-      @downcased.delete(key.to_s.downcase, &proc)
+      @downcased.delete(key.downcase, &proc)
     end
 
     def fetch(key, default = nil, &proc)
       if proc
-        @downcased.fetch(key.to_s.downcase, &proc)
+        @downcased.fetch(key.downcase, &proc)
       else
-        @downcased.fetch(key.to_s.downcase, default)
+        @downcased.fetch(key.downcase, default)
       end
     end
 
     alias_method :has_key?, :key?
     alias_method :has_key?, :member?
     def has_key?(key)
-      @downcased.has_key?(key.to_s.downcase)
+      @downcased.has_key?(key.downcase)
     end
 
     def rehash
@@ -63,7 +63,7 @@ module Excon
     end
 
     def values_at(*keys)
-      @downcased.values_at(*keys.map {|key| key.to_s.downcase})
+      @downcased.values_at(*keys.map {|key| key.downcase})
     end
 
   end

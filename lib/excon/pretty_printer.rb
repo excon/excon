@@ -4,8 +4,12 @@ module Excon
       datum = datum.dup
 
       # reduce duplication/noise of output
-      datum.delete(:connection)
-      datum.delete(:stack)
+      if datum.has_key?(:connection)
+        datum.delete(:connection)
+      end
+      if datum.has_key?(:stack)
+        datum.delete(:stack)
+      end
 
       if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
         datum[:headers] = datum[:headers].dup
