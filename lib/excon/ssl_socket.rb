@@ -85,7 +85,7 @@ module Excon
         @socket.write(request)
 
         # eat the proxy's connection response
-        Excon::Response.parse(@socket, { :expects => 200, :method => "CONNECT" })
+        Excon::Response.parse(self, { :expects => 200, :method => "CONNECT" })
       end
 
       # convert Socket to OpenSSL::SSL::SSLSocket
