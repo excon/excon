@@ -1,3 +1,8 @@
+0.39.2 08/04/2014
+=================
+
+respect both ca_file/ca_path when both present
+
 0.39.1 08/04/2014
 =================
 
