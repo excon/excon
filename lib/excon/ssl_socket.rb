@@ -63,13 +63,14 @@ module Excon
       # maintain existing API
       certificate_path = @data[:client_cert] || @data[:certificate_path]
       private_key_path = @data[:client_key] || @data[:private_key_path]
+      private_key_pass = @data[:client_key_pass] || @data[:private_key_pass]
 
       if certificate_path && private_key_path
         ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(certificate_path))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path))
+        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path), private_key_pass)
       elsif @data.has_key?(:certificate) && @data.has_key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
-        ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key])
+        ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], private_key_pass)
       end
 
       if @data[:proxy]
