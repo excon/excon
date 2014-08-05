@@ -344,6 +344,19 @@ For debugging purposes you can also use Excon::StandardInstrumentor to output al
 
 See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's [instrumentation_test.rb](https://github.com/excon/excon/blob/master/tests/middlewares/instrumentation_tests.rb) for more examples of instrumenting excon.
 
+## HTTPS client certificate
+
+You can supply a client side certificate if the server requires it for authentication:
+
+```ruby
+connection = Excon.new('https://example.com',
+                       client_cert: 'mycert.pem',
+                       client_key: 'mycert.key',
+                       client_key_pass: 'my pass phrase')
+```
+
+`client_key_pass` is optional.
+
 ## HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::SocketError: SSL_connect returned=1 ...`
