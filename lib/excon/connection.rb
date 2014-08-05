@@ -399,6 +399,10 @@ module Excon
         end
 
         case @data[:proxy]
+        when nil
+          @data.delete(:proxy)
+        when Hash
+          # no processing needed
         when String
           uri = URI.parse(@data[:proxy])
           unless uri.host && uri.port && uri.scheme
@@ -415,6 +419,8 @@ module Excon
           if uri.user
             @data[:proxy][:user] = uri.user
           end
+        else
+          raise Excon::Errors::ProxyParseError, "Proxy is invalid"
         end
 
         if @data.has_key?(:proxy) && @data[:scheme] == 'http'
