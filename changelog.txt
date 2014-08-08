@@ -1,3 +1,9 @@
+0.39.4 08/08/2014
+=================
+
+ensure Response#new uses case-insensitive headers
+add client cert pass phrase support
+
 0.39.3 08/05/2014
 =================
 
