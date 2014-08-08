@@ -159,9 +159,10 @@ module Excon
 
     def initialize(params={})
       @data = {
-        :body     => '',
-        :headers  => Excon::Headers.new
+        :body     => ''
       }.merge(params)
+      @data[:headers] = Excon::Headers.new.merge!(params[:headers] || {})
+
       @body          = @data[:body]
       @headers       = @data[:headers]
       @status        = @data[:status]

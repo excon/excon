@@ -14,6 +14,8 @@ module Excon
     alias_method :raw_include?, :include?
     alias_method :raw_key?, :key?
     alias_method :raw_member?, :member?
+    alias_method :raw_merge, :merge
+    alias_method :raw_merge!, :merge!
     alias_method :raw_rehash, :rehash
     alias_method :raw_store, :store
     alias_method :raw_values_at, :values_at
@@ -57,9 +59,20 @@ module Excon
       raw_key?(key) || @downcased.has_key?(key.downcase)
     end
 
+    def merge(other_hash)
+      self.dup.merge!(other_hash)
+    end
+
+    def merge!(other_hash)
+      other_hash.each do |key, value|
+        self[key] = value
+      end
+      raw_merge!(other_hash)
+    end
+
     def rehash
-      raw_rehash
       @downcased.rehash
+      raw_rehash
     end
 
     def values_at(*keys)
