@@ -17,7 +17,7 @@ module Excon
 
     attr_reader :remote_ip
 
-    def_delegators(:@socket, :close,    :close)
+    def_delegators(:@socket, :close)
 
     def initialize(data = {})
       @data = data
