@@ -63,6 +63,7 @@ module Excon
   VALID_CONNECTION_KEYS = VALID_REQUEST_KEYS + [
     :ciphers,
     :client_key,
+    :client_key_pass,
     :client_cert,
     :certificate,
     :certificate_path,
