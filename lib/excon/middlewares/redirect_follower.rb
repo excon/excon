@@ -2,9 +2,9 @@ module Excon
   module Middleware
     class RedirectFollower < Excon::Middleware::Base
       def response_call(datum)
-        if datum.has_key?(:response) && [:get, :head].include?(datum[:method].to_s.downcase.to_sym)
+        if datum.has_key?(:response)
           case datum[:response][:status]
-          when 301, 302, 303, 307
+          when 301, 302, 303, 307, 308
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
             _, location = datum[:response][:headers].detect do |key, value|
               key.casecmp('Location') == 0
@@ -12,11 +12,12 @@ module Excon
             uri = uri_parser.parse(location)
 
             # delete old/redirect response
-            datum.delete(:response)
+            response = datum.delete(:response)
 
             params = datum.dup
             params.delete(:stack)
             params.delete(:connection)
+            params[:method] = :get if [301, 302, 303].include? response[:status]
             params[:headers] = datum[:headers].dup
             params[:headers].delete('Authorization')
             params[:headers].delete('Proxy-Connection')
