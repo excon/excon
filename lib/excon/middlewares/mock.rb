@@ -37,7 +37,10 @@ module Excon
             end
           else
             # if we reach here no stubs matched
-            raise(Excon::Errors::StubNotFound.new('no stubs matched ' << datum.inspect))
+            message = StringIO.new
+            message.puts('no stubs matched')
+            Excon::PrettyPrinter.pp(message, datum)
+            raise(Excon::Errors::StubNotFound.new(message))
           end
         end
 
