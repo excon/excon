@@ -5,7 +5,7 @@ module Excon
 
     def connect
       @socket  = ::Socket.new(::Socket::AF_UNIX, ::Socket::SOCK_STREAM, 0)
-      sockaddr = ::Socket.sockaddr_un(@data[:socket])
+      sockaddr = ::Socket.sockaddr_un(@data[:proxy_socket] || @data[:socket])
 
       if @nonblock
         begin
