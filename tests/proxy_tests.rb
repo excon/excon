@@ -27,6 +27,27 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
+    tests('with fully-specified Unix socket proxy: unix:///') do
+      connection = nil
+
+      tests('connection.data[:proxy][:host]').returns(nil) do
+        connection = Excon.new('http://foo.com', :proxy => 'unix:///', :proxy_socket => '/tmp/myproxy.sock')
+        connection.data[:proxy][:host]
+      end
+
+      tests('connection.data[:proxy][:port]').returns(nil) do
+        connection.data[:proxy][:port]
+      end
+
+      tests('connection.data[:proxy][:scheme]').returns('unix') do
+        connection.data[:proxy][:scheme]
+      end
+
+      tests('connection.data[:proxy_socket]').returns('/tmp/myproxy.sock') do
+        connection.data[:proxy_socket]
+      end
+    end
+
     def env_proxy_tests(env)
       env_init(env)
 
@@ -138,6 +159,36 @@ Shindo.tests('Excon proxy support') do
       env_restore
     end
 
+    tests('with a unix socket proxy config from the environment') do
+      env_init({
+        'http_proxy' => 'unix:///',
+        'http_proxy_socket' => '/tmp/myproxy.sock'
+      })
+
+      tests('an https connection') do
+        connection = nil
+
+        tests('connection.data[:proxy][:host]').returns(nil) do
+          connection = Excon.new('https://secret.com')
+          connection.data[:proxy][:host]
+        end
+
+        tests('connection.data[:proxy][:port]').returns(nil) do
+          connection.data[:proxy][:port]
+        end
+
+        tests('connection.data[:proxy][:scheme]').returns('unix') do
+          connection.data[:proxy][:scheme]
+        end
+
+        tests('connection.data[:proxy_socket]').returns('/tmp/myproxy.sock') do
+          connection.data[:proxy_socket]
+        end
+      end
+
+      env_restore
+    end
+
   end
 
   with_rackup('proxy.ru') do
@@ -198,6 +249,31 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
+  end
+
+  with_unicorn('proxy.ru', 'unix:///tmp/myproxy.sock') do
+    tests('http proxying over unix socket: http://foo.com:8080') do
+      response = nil
+
+      tests('response.status').returns(200) do
+        connection = Excon.new('http://foo.com:8080', :proxy => 'unix:///', :proxy_socket => '/tmp/myproxy.sock')
+        response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
+
+        response.status
+      end
+
+      tests('sent Sent-Host header').returns('foo.com:8080') do
+        response.headers['Sent-Host']
+      end
+
+      tests('sent Proxy-Connection header').returns('Keep-Alive') do
+        response.headers['Sent-Proxy-Connection']
+      end
+
+      tests('response.body (proxied content)').returns('proxied content') do
+        response.body
+      end
+    end
   end
 
   env_restore
