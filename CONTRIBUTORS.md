@@ -89,6 +89,7 @@
 * Wesley Beary <wbeary@engineyard.com>
 * Wesley Beary <wesley@heroku.com>
 * chrisrhoden <carhoden@gmail.com>
+* dickeyxxx <jeff@dickeyxxx.com>
 * geemus (Wesley Beary) <wbeary@engineyard.com>
 * geemus <geemus@gmail.com>
 * ggoodale <ggoodale@gmail.com>
