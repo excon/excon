@@ -40,7 +40,7 @@ module Excon
             message = StringIO.new
             message.puts('no stubs matched')
             Excon::PrettyPrinter.pp(message, datum)
-            raise(Excon::Errors::StubNotFound.new(message))
+            raise(Excon::Errors::StubNotFound.new(message.string))
           end
         end
 
