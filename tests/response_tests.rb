@@ -20,6 +20,11 @@ Shindo.tests('Excon Response Parsing') do
           end
         end
 
+        tests('simple response has empty body').returns('') do
+          response_block = lambda { |_, _, _| }
+          Excon.get('http://127.0.0.1:9292/chunked/simple', :response_block => response_block).body
+        end
+
         tests('with expected response status').
               returns([['hello ', nil, nil], ['world', nil, nil]]) do
           capture_response_block do |block|
@@ -69,6 +74,11 @@ Shindo.tests('Excon Response Parsing') do
           end
         end
 
+        tests('simple response has empty body').returns('') do
+          response_block = lambda { |_, _, _| }
+          Excon.get('http://127.0.0.1:9292/content-length/simple', :response_block => response_block).body
+        end
+
         tests('with expected response status').
               returns([['hello', 6, 11], [' worl', 1, 11], ['d', 0, 11]]) do
           capture_response_block do |block|
@@ -109,6 +119,11 @@ Shindo.tests('Excon Response Parsing') do
                       :response_block => block,
                       :chunk_size => 5)
           end
+        end
+
+        tests('simple response has empty body').returns('') do
+          response_block = lambda { |_, _, _| }
+          Excon.get('http://127.0.0.1:9292/unknown/simple', :response_block => response_block).body
         end
 
         tests('with expected response status').

@@ -35,13 +35,18 @@ Shindo.tests('Excon stubs') do
       response.status
     end
 
-    tests('request body with response_block given').returns('body') do
+    tests('response_block yields body').returns('body') do
       body = ''
       response_block = lambda do |chunk, remaining_bytes, total_bytes|
         body << chunk
       end
       connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
       body
+    end
+
+    tests('response.body empty with response_block').returns('') do
+      response_block = lambda { |_, _, _| }
+      connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block).body
     end
 
     Excon.stubs.clear
@@ -99,13 +104,18 @@ Shindo.tests('Excon stubs') do
       response.status
     end
 
-    tests('request body with response block given').returns('body') do
+    tests('response_block yields body').returns('body') do
       body = ''
       response_block = lambda do |chunk, remaining_bytes, total_bytes|
         body << chunk
       end
       connection.request(:body => 'body', :method => :get, :path => '/content-length/100', :response_block => response_block)
       body
+    end
+
+    tests('response.body empty with response_block').returns('') do
+      response_block = lambda { |_, _, _| }
+      connection.request(:body => 'body', :method => :get, :path => '/content-length/100', :response_block => response_block).body
     end
 
     Excon.stubs.clear
@@ -146,7 +156,8 @@ Shindo.tests('Excon stubs') do
   Excon.stubs.clear
 
   tests("stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})") do
-    test("with response_block") do
+
+    test("response_block yields body") do
       connection = Excon.new('http://127.0.0.1:9292', :mock => true)
       Excon.stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})
 
@@ -157,6 +168,14 @@ Shindo.tests('Excon stubs') do
       connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block)
       chunks == ['x' * Excon::DEFAULT_CHUNK_SIZE, 'x']
     end
+
+    tests("response.body empty with response_block").returns('') do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})
+      response_block = lambda { |_, _, _| }
+      connection.request(:method => :get, :path => '/content-length/100', :response_block => response_block).body
+    end
+
   end
 
   Excon.stubs.clear
