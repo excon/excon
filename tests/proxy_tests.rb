@@ -31,7 +31,7 @@ Shindo.tests('Excon proxy support') do
       connection = nil
 
       tests('connection.data[:proxy][:host]').returns(nil) do
-        connection = Excon.new('http://foo.com', :proxy => 'unix:///', :proxy_socket => '/tmp/myproxy.sock')
+        connection = Excon.new('http://foo.com', :proxy => 'unix:///tmp/myproxy.sock')
         connection.data[:proxy][:host]
       end
 
@@ -43,8 +43,8 @@ Shindo.tests('Excon proxy support') do
         connection.data[:proxy][:scheme]
       end
 
-      tests('connection.data[:proxy_socket]').returns('/tmp/myproxy.sock') do
-        connection.data[:proxy_socket]
+      tests('connection.data[:proxy][:path]').returns('/tmp/myproxy.sock') do
+        connection.data[:proxy][:path]
       end
     end
 
@@ -161,8 +161,7 @@ Shindo.tests('Excon proxy support') do
 
     tests('with a unix socket proxy config from the environment') do
       env_init({
-        'http_proxy' => 'unix:///',
-        'http_proxy_socket' => '/tmp/myproxy.sock'
+        'http_proxy' => 'unix:///tmp/myproxy.sock',
       })
 
       tests('an https connection') do
@@ -181,8 +180,8 @@ Shindo.tests('Excon proxy support') do
           connection.data[:proxy][:scheme]
         end
 
-        tests('connection.data[:proxy_socket]').returns('/tmp/myproxy.sock') do
-          connection.data[:proxy_socket]
+        tests('connection.data[:proxy][:path]').returns('/tmp/myproxy.sock') do
+          connection.data[:proxy][:path]
         end
       end
 
@@ -258,7 +257,7 @@ Shindo.tests('Excon proxy support') do
       response = nil
 
       tests('response.status').returns(200) do
-        connection = Excon.new('http://foo.com:8080', :proxy => 'unix:///', :proxy_socket => '/tmp/myproxy.sock')
+        connection = Excon.new('http://foo.com:8080', :proxy => 'unix:///tmp/myproxy.sock')
         response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
 
         response.status

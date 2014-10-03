@@ -5,8 +5,10 @@ module Excon
 
     def connect
       @socket  = ::Socket.new(::Socket::AF_UNIX, ::Socket::SOCK_STREAM, 0)
-      sockaddr = ::Socket.sockaddr_un(@data[:proxy_socket] || @data[:socket])
-
+      # If a Unix proxy was specified, the :path option will be set for it,
+      # otherwise fall back to the :socket option.
+      proxy_path = @data[:proxy] ? @data[:proxy][:path] : nil
+      sockaddr = ::Socket.sockaddr_un(proxy_path || @data[:socket])
       if @nonblock
         begin
           @socket.connect_nonblock(sockaddr)

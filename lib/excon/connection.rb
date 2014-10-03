@@ -396,7 +396,6 @@ module Excon
             @data[:proxy] = ENV['https_proxy'] || ENV['HTTPS_PROXY']
           elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
             @data[:proxy] = ENV['http_proxy'] || ENV['HTTP_PROXY']
-            @data[:proxy_socket] = ENV['http_proxy_socket'] || ENV['HTTP_PROXY_SOCKET']
           end
         end
 
@@ -409,6 +408,8 @@ module Excon
           uri = URI.parse(@data[:proxy])
           @data[:proxy] = {
             :host       => uri.host,
+            # path is only sensible for a Unix socket proxy
+            :path       => uri.scheme == UNIX ? uri.path : nil,
             :port       => uri.port,
             :scheme     => uri.scheme,
           }
@@ -422,8 +423,6 @@ module Excon
             if @data[:proxy][:host]
               raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
                                    "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
-            elsif !@data[:proxy_socket]
-              raise ArgumentError, 'You must provide a `:proxy_socket` for `unix://` proxies'
             end
           else
             unless uri.host && uri.port && uri.scheme

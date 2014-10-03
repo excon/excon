@@ -78,7 +78,6 @@ module Excon
     :password,
     :port,
     :proxy,
-    :proxy_socket,
     :scheme,
     :socket,
     :ssl_ca_file,
