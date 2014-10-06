@@ -1,3 +1,10 @@
+0.40.0 10/06/2014
+=================
+
+fix support for specifying ssl_ca_path
+more consistent response_block/response.body behavior for mocks
+add support for proxies running on unix domain sockets
+
 0.39.6 09/22/2014
 =================
 

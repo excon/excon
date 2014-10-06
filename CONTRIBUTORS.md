@@ -37,6 +37,7 @@
 * Jonathan Dance <github@wuputah.com>
 * Jonathan Dance <jd@wuputah.com>
 * Jonathan Roes <jroes@jroes.net>
+* Joshua Gross <joshua@surfeasy.com>
 * Joshua Mckinney <joshmckin@gmail.com>
 * Joshua Napoli <jnapoli@swipely-napoli.home>
 * Joshua Napoli <jnapoli@swipely-napoli.local>
