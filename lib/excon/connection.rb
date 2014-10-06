@@ -373,10 +373,11 @@ module Excon
     end
 
     def socket
-      sockets[@socket_key] ||= if @data[:scheme] == HTTPS
-        Excon::SSLSocket.new(@data)
-      elsif @data[:scheme] == UNIX
+      unix_proxy = @data[:proxy] ? @data[:proxy][:scheme] == UNIX : false
+      sockets[@socket_key] ||= if @data[:scheme] == UNIX || unix_proxy
         Excon::UnixSocket.new(@data)
+      elsif @data[:scheme] == HTTPS
+        Excon::SSLSocket.new(@data)
       else
         Excon::Socket.new(@data)
       end
@@ -407,11 +408,10 @@ module Excon
           # no processing needed
         when String
           uri = URI.parse(@data[:proxy])
-          unless uri.host && uri.port && uri.scheme
-            raise Excon::Errors::ProxyParseError, "Proxy is invalid"
-          end
           @data[:proxy] = {
             :host       => uri.host,
+            # path is only sensible for a Unix socket proxy
+            :path       => uri.scheme == UNIX ? uri.path : nil,
             :port       => uri.port,
             :scheme     => uri.scheme,
           }
@@ -420,6 +420,16 @@ module Excon
           end
           if uri.user
             @data[:proxy][:user] = uri.user
+          end
+          if @data[:proxy][:scheme] == UNIX
+            if @data[:proxy][:host]
+              raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
+                                   "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
+            end
+          else
+            unless uri.host && uri.port && uri.scheme
+              raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+            end
           end
         else
           raise Excon::Errors::ProxyParseError, "Proxy is invalid"

@@ -46,7 +46,8 @@ module Excon
         :status        => status
       }
 
-      unless datum[:scheme] == UNIX
+      unix_proxy = datum[:proxy] ? datum[:proxy][:scheme] == UNIX : false
+      unless datum[:scheme] == UNIX || unix_proxy
         datum[:response].merge!(
           :remote_ip     => socket.remote_ip,
           :local_port    => socket.local_port,
