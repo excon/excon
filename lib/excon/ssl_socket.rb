@@ -126,7 +126,7 @@ module Excon
 
       # verify connection
       if @data[:ssl_verify_peer]
-        @socket.post_connection_check(@data[:host])
+        @socket.post_connection_check(@data[:ssl_verify_peer_host] || @data[:host])
       end
 
       @socket
