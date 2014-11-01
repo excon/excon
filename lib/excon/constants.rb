@@ -84,6 +84,7 @@ module Excon
     :ssl_ca_path,
     :ssl_verify_callback,
     :ssl_verify_peer,
+    :ssl_verify_peer_host,
     :ssl_version,
     :tcp_nodelay,
     :uri_parser,

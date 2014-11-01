@@ -112,6 +112,38 @@ Shindo.tests('Excon basics (ssl)') do
   end
 end
 
+Shindo.tests('Excon ssl verify peer (ssl)') do
+  with_rackup('ssl.ru') do
+    connection = nil
+    test do
+      ssl_ca_file = File.join(File.dirname(__FILE__), 'data', '127.0.0.1.cert.crt')
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true, :ssl_ca_file => ssl_ca_file )
+      true
+    end
+
+    tests('response.status').returns(200) do
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      response.status
+    end
+  end
+
+  with_rackup('ssl_mismatched_cn.ru') do
+    connection = nil
+    test do
+      ssl_ca_file = File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true, :ssl_ca_file => ssl_ca_file, :ssl_verify_peer_host => 'Excon' )
+      true
+    end
+
+    tests('response.status').returns(200) do
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      response.status
+    end
+  end
+end
+
 Shindo.tests('Excon basics (ssl file)',['focus']) do
   with_rackup('ssl_verify_peer.ru') do
 
