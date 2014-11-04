@@ -163,6 +163,12 @@ module GoodServer
         send_data "\r\n"
         send_data "hello world"
       end
+
+    when 'not-found'
+      start_response(:status => "404 Not Found")
+      send_data "Content-Length: 11\r\n"
+      send_data "\r\n"
+      send_data "hello world"
     end
   end
 
