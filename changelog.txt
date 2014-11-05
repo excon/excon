@@ -1,3 +1,9 @@
+0.41.0 11/05/2014
+=================
+
+add :ssl_verify_peer_host option for dev purposes
+add #reason_phrase to response
+
 0.40.0 10/06/2014
 =================
 
