@@ -22,6 +22,12 @@ module Excon
     def status
       @data[:status]
     end
+    def reason_phrase=(new_reason_phrase)
+      @data[:reason_phrase] = new_reason_phrase
+    end
+    def reason_phrase
+      @data[:reason_phrase]
+    end
     def remote_ip=(new_remote_ip)
       @data[:remote_ip] = new_remote_ip
     end
@@ -37,13 +43,17 @@ module Excon
 
     def self.parse(socket, datum)
       # this will discard any trailing lines from the previous response if any.
-      until status = socket.readline[9,11].to_i
-      end
+      begin
+        line = socket.readline
+      end until status = line[9, 3].to_i
+
+      reason_phrase = line[13..-3] # -3 strips the trailing "\r\n"
 
       datum[:response] = {
         :body          => '',
         :headers       => Excon::Headers.new,
-        :status        => status
+        :status        => status,
+        :reason_phrase => reason_phrase
       }
 
       unix_proxy = datum[:proxy] ? datum[:proxy][:scheme] == UNIX : false

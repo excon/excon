@@ -168,6 +168,20 @@ Shindo.tests('Excon Response Parsing') do
 
     end
 
+    tests('status line parsing') do
+
+      tests('proper status code').returns(404) do
+        resp = Excon.get('http://127.0.0.1:9292/not-found')
+        resp.status
+      end
+
+      tests('proper reason phrase').returns("Not Found") do
+        resp = Excon.get('http://127.0.0.1:9292/not-found')
+        resp.reason_phrase
+      end
+
+    end
+
   end
 
   env_restore
