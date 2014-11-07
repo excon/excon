@@ -258,11 +258,11 @@ Or by enabling mock mode for a request.
 connection.request(:method => :get, :path => 'example', :mock => true)
 ```
 
-Add stubs by providing the request_attributes to match and response attributes to return. Response params can be specified as either a hash or block which will yield with response_params.
+Add stubs by providing the request attributes to match and response attributes to return. Response params can be specified as either a hash or block which will yield with the request params.
 
 ```ruby
 Excon.stub({}, {:body => 'body', :status => 200})
-Excon.stub({}, lambda {|request_params| :body => request_params[:body], :status => 200})
+Excon.stub({}, lambda {|request_params| {:body => request_params[:body], :status => 200}})
 ```
 
 Omitted attributes are assumed to match, so this stub will match *any* request and return an Excon::Response with a body of 'body' and status of 200.  You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an `Excon::Errors::StubNotFound` error to let you know.
