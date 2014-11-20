@@ -158,8 +158,8 @@ module Excon
             if body.respond_to?(:binmode)
               body.binmode
             end
-            if body.respond_to?(:pos=)
-              body.pos = 0
+            if body.respond_to?(:rewind)
+              body.rewind  rescue nil
             end
             while chunk = body.read(datum[:chunk_size])
               socket.write(chunk)
