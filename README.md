@@ -377,7 +377,6 @@ Either of these should allow you to work around the socket error and continue wi
 
 ## Getting Help
 
-* [General Documentation](http://excon.io).
 * Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon).
 * Report bugs and discuss potential features in [Github issues](https://github.com/excon/excon/issues).
 
