@@ -144,6 +144,25 @@ Shindo.tests('Excon ssl verify peer (ssl)') do
   end
 end
 
+Shindo.tests('Excon ssl verify peer (ssl cert store)') do
+  with_rackup('ssl.ru') do
+    connection = nil
+    test do
+      ssl_ca_cert = File.read(File.join(File.dirname(__FILE__), 'data', '127.0.0.1.cert.crt'))
+      ssl_cert_store = OpenSSL::X509::Store.new
+      ssl_cert_store.add_cert OpenSSL::X509::Certificate.new ssl_ca_cert
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true, :ssl_cert_store => ssl_cert_store )
+      true
+    end
+
+    tests('response.status').returns(200) do
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      response.status
+    end
+  end
+end
+
 Shindo.tests('Excon basics (ssl file)',['focus']) do
   with_rackup('ssl_verify_peer.ru') do
 
