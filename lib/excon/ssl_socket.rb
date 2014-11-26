@@ -35,9 +35,12 @@ module Excon
         if ca_path = ENV['SSL_CERT_DIR'] || @data[:ssl_ca_path]
           ssl_context.ca_path = ca_path
         end
+        if cert_store = @data[:ssl_cert_store]
+          ssl_context.cert_store = cert_store
+        end
 
         # no defaults, fallback to bundled
-        unless ca_file || ca_path
+        unless ca_file || ca_path || cert_store
           ssl_context.cert_store = OpenSSL::X509::Store.new
           ssl_context.cert_store.set_default_paths
 

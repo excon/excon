@@ -82,6 +82,7 @@ module Excon
     :socket,
     :ssl_ca_file,
     :ssl_ca_path,
+    :ssl_cert_store,
     :ssl_verify_callback,
     :ssl_verify_peer,
     :ssl_verify_peer_host,
