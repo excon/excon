@@ -4,8 +4,12 @@ module Excon
       def error_call(datum)
         if datum[:idempotent]
           if datum.has_key?(:request_block)
-            Excon.display_warning('Excon requests with a :request_block can not be :idempotent.')
-            datum[:idempotent] = false
+            if datum[:request_block].respond_to?(:rewind)
+              datum[:request_block].rewind
+            else
+              Excon.display_warning('Excon requests with a :request_block must implement #rewind in order to be :idempotent.')
+              datum[:idempotent] = false
+            end
           end
           if datum.has_key?(:pipeline)
             Excon.display_warning("Excon requests can not be :idempotent when pipelining.")
