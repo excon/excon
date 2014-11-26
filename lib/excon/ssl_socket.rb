@@ -67,10 +67,18 @@ module Excon
 
       if certificate_path && private_key_path
         ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(certificate_path))
-        ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path), private_key_pass)
+        if OpenSSL::PKey.respond_to? :read
+          ssl_context.key = OpenSSL::PKey.read(File.read(private_key_path), private_key_pass)
+        else
+          ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path), private_key_pass)
+        end
       elsif @data.has_key?(:certificate) && @data.has_key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
-        ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], private_key_pass)
+        if OpenSSL::PKey.respond_to? :read
+          ssl_context.key = OpenSSL::PKey.read(@data[:private_key], private_key_pass)
+        else
+          ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], private_key_pass)
+        end
       end
 
       if @data[:proxy]
