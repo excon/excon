@@ -384,7 +384,11 @@ module Excon
     end
 
     def sockets
-      Thread.current[:_excon_sockets] ||= {}
+      if @data[:thread_safe_sockets]
+        Thread.current[:_excon_sockets] ||= {}
+      else
+        @_excon_sockets ||= {}
+      end
     end
 
     def setup_proxy

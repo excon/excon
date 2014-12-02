@@ -1,4 +1,17 @@
 Shindo.tests('Excon thread safety') do
+  
+  tests('thread_safe_sockets configuration') do
+    tests('thread_safe_sockets default').returns(true) do
+      connection = Excon.new('http://foo.com')
+      connection.data[:thread_safe_sockets]
+    end
+
+    tests('with thread_safe_sockets set false').returns(false) do
+      connection = Excon.new('http://foo.com', :thread_safe_sockets => false)
+      connection.data[:thread_safe_sockets]
+    end
+  end
+
   with_rackup('thread_safety.ru') do
     connection = Excon.new('http://127.0.0.1:9292')
 
