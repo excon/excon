@@ -1,3 +1,16 @@
+0.42.0 12/02/2014
+=================
+
+fix stubbing section of README
+follow redirect for all request methods
+remove unhelpful link for excon.io
+rescue/ignore illegal seek on rewind
+add ssl_cert_store option
+allow non-RSA ssl keys
+attempt to rewind request_block when idempotent
+add configurable thread safety for socket pool
+
+
 0.41.0 11/05/2014
 =================
 
