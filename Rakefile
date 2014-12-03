@@ -75,7 +75,7 @@ end
 #
 #############################################################################
 
-task :release => :build do
+task :release => [:update_certs, :build] do
   unless `git branch` =~ /^\* master$/
     puts "You must be on the master branch to release!"
     exit!
