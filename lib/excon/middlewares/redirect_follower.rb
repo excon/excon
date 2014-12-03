@@ -28,10 +28,11 @@ module Excon
               :host       => uri.host   || datum[:host],
               :port       => uri.port   || datum[:port],
               :path       => uri.path,
-              :query      => uri.query,
-              :user       => (Utils.unescape_uri(uri.user) if uri.user),
-              :password   => (Utils.unescape_uri(uri.password) if uri.password)
+              :query      => uri.query
             )
+
+            params.merge!(:user => Utils.unescape_uri(uri.user)) if uri.user
+            params.merge!(:password => Utils.unescape_uri(uri.password)) if uri.password
 
             response = Excon::Connection.new(params).request
             datum.merge!({:response => response.data})

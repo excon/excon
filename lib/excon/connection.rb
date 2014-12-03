@@ -69,7 +69,7 @@ module Excon
       end
 
       # Use Basic Auth if url contains a login
-      if @data.has_key?(:user) || @data.has_key?(:password)
+      if @data[:user] || @data[:password]
         user, pass = Utils.unescape_form(@data[:user].to_s), Utils.unescape_form(@data[:password].to_s)
         @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
