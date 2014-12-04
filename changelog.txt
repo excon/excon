@@ -1,3 +1,9 @@
+0.42.1 12/04/2014
+=================
+
+update bundled certs
+fix redirect follower to avoid erroneously setting basic auth
+
 0.42.0 12/02/2014
 =================
 
