@@ -84,6 +84,7 @@ module Excon
     keepalive
     host
     hostname
+    include_default_port
     omit_default_port
     nonblock
     reuseaddr
@@ -157,6 +158,7 @@ module Excon
       Excon::Middleware::Mock
     ],
     mock: false,
+    include_default_port: false,
     nonblock: true,
     omit_default_port: false,
     persistent: false,
