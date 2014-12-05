@@ -25,11 +25,16 @@ module Excon
     end
 
     def port_string(datum)
-      if datum[:port].nil? || (datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port] == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port] == 443)))
-        ''
-      else
+      if datum[:include_default_port] || !default_port?(datum)
         ':' << datum[:port].to_s
+      else
+        ''
       end
+    end
+
+    def default_port?(datum)
+      (datum[:scheme].casecmp('http') == 0 && datum[:port] == 80) ||
+        (datum[:scheme].casecmp('https') == 0 && datum[:port] == 443)
     end
 
     def query_string(datum)

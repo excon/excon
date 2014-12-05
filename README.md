@@ -132,8 +132,8 @@ connection.request(:write_timeout => 360)
 #
 connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
 
-# opt-in to omitting port from http:80 and https:443
-connection = Excon.new('http://geemus.com/', :omit_default_port => true)
+# opt-in to having Excon add a default port (http:80 and https:443)
+connection = Excon.new('http://geemus.com/', :include_default_port => true)
 
 # set longer connect_timeout (default is 60 seconds)
 connection = Excon.new('http://geemus.com/', :connect_timeout => 360)

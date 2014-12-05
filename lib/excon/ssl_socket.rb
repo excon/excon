@@ -85,7 +85,7 @@ module Excon
       end
 
       if @data[:proxy]
-        request = 'CONNECT ' << @data[:host] << port_string(@data.merge(:omit_default_port => false)) << Excon::HTTP_1_1
+        request = 'CONNECT ' << @data[:host] << Excon::HTTP_1_1
         request << 'Host: ' << @data[:host] << port_string(@data) << Excon::CR_NL
 
         if @data[:proxy][:password] || @data[:proxy][:user]
