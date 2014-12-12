@@ -410,8 +410,8 @@ module Excon
           @data.delete(:proxy)
         when Hash
           # no processing needed
-        when String
-          uri = URI.parse(@data[:proxy])
+        when String, URI
+          uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
           @data[:proxy] = {
             :host       => uri.host,
             # path is only sensible for a Unix socket proxy
