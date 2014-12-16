@@ -67,6 +67,7 @@ module Excon
     :client_cert,
     :certificate,
     :certificate_path,
+    :disable_proxy,
     :private_key,
     :private_key_path,
     :connect_timeout,

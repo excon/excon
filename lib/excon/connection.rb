@@ -392,6 +392,13 @@ module Excon
     end
 
     def setup_proxy
+      if @data[:disable_proxy]
+        if @data[:proxy]
+          raise ArgumentError, "`:disable_proxy` parameter and `:proxy` parameter cannot both be set at the same time."
+        end
+        return
+      end
+
       unless @data[:scheme] == UNIX
         if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
           no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
