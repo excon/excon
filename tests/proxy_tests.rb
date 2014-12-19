@@ -66,6 +66,15 @@ Shindo.tests('Excon proxy support') do
         tests('connection.data[:proxy][:scheme]').returns('http') do
           connection.data[:proxy][:scheme]
         end
+
+        tests('with disable_proxy set') do
+          connection = nil
+
+          tests('connection.data[:proxy]').returns(nil) do
+            connection = Excon.new('http://foo.com', :disable_proxy => true)
+            connection.data[:proxy]
+          end
+        end
       end
 
       tests('an https connection') do
@@ -82,6 +91,15 @@ Shindo.tests('Excon proxy support') do
 
         tests('connection.data[:proxy][:scheme]').returns('http') do
           connection.data[:proxy][:scheme]
+        end
+
+        tests('with disable_proxy set') do
+          connection = nil
+
+          tests('connection.data[:proxy]').returns(nil) do
+            connection = Excon.new('https://foo.com', :disable_proxy => true)
+            connection.data[:proxy]
+          end
         end
       end
 
