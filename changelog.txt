@@ -1,3 +1,10 @@
+0.43.0 01/09/2015
+=================
+
+use basic error instead of nil as default for socket error
+allow setup_proxy to accept uri
+add disable_proxy and proxy: false to disable proxy settings
+
 0.42.1 12/04/2014
 =================
 
