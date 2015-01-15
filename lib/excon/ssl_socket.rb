@@ -1,9 +1,8 @@
 module Excon
   class SSLSocket < Socket
-
-    HAVE_NONBLOCK = [:connect_nonblock, :read_nonblock, :write_nonblock].all? {|m|
+    HAVE_NONBLOCK = [:connect_nonblock, :read_nonblock, :write_nonblock].all? do |m|
       OpenSSL::SSL::SSLSocket.public_method_defined?(m)
-    }
+    end
 
     def initialize(data = {})
       super
@@ -16,6 +15,7 @@ module Excon
       if defined?(OpenSSL::SSL::OP_DONT_INSERT_EMPTY_FRAGMENTS)
         ssl_context_options &= ~OpenSSL::SSL::OP_DONT_INSERT_EMPTY_FRAGMENTS
       end
+
       if defined?(OpenSSL::SSL::OP_NO_COMPRESSION)
         ssl_context_options |= OpenSSL::SSL::OP_NO_COMPRESSION
       end
@@ -25,6 +25,7 @@ module Excon
       if @data[:ssl_version]
         ssl_context.ssl_version = @data[:ssl_version]
       end
+
       if @data[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -46,11 +47,11 @@ module Excon
 
           # workaround issue #257 (JRUBY-6970)
           ca_file = DEFAULT_CA_FILE
-          ca_file.gsub!(/^jar:/, "") if ca_file =~ /^jar:file:\//
+          ca_file.gsub!(/^jar:/, '') if ca_file =~ /^jar:file:\//
 
           begin
             ssl_context.cert_store.add_file(ca_file)
-          rescue => e
+          rescue
             Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
           end
         end
@@ -75,7 +76,7 @@ module Excon
         else
           ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path), private_key_pass)
         end
-      elsif @data.has_key?(:certificate) && @data.has_key?(:private_key)
+      elsif @data.key?(:certificate) && @data.key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
         if OpenSSL::PKey.respond_to? :read
           ssl_context.key = OpenSSL::PKey.read(@data[:private_key], private_key_pass)
@@ -90,7 +91,7 @@ module Excon
 
         if @data[:proxy][:password] || @data[:proxy][:user]
           auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
-          request << "Proxy-Authorization: Basic " << auth << Excon::CR_NL
+          request << 'Proxy-Authorization: Basic ' << auth << Excon::CR_NL
         end
 
         request << 'Proxy-Connection: Keep-Alive' << Excon::CR_NL
@@ -101,7 +102,7 @@ module Excon
         @socket.write(request)
 
         # eat the proxy's connection response
-        Excon::Response.parse(self, { :expects => 200, :method => "CONNECT" })
+        Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
       end
 
       # convert Socket to OpenSSL::SSL::SSLSocket
@@ -114,24 +115,22 @@ module Excon
       end
 
       begin
-        Timeout.timeout(@data[:connect_timeout]) do
-          if @nonblock
-            while true
-              begin
-                @socket.connect_nonblock
-                break # connect succeeded
-              rescue OpenSSL::SSL::SSLError => error
-                # would block, rescue and retry as select is non-helpful
-                unless error.message == 'read would block'
-                  raise error
-                end
-              end
+        if @nonblock
+          loop do
+            begin
+              @socket.connect_nonblock
+              break # connect succeeded
+            rescue OpenSSL::SSL::SSLError => error
+              # would block, rescue and retry as select is non-helpful
+              raise error unless error.message == 'read would block'
             end
-          else
-            @socket.connect
           end
+        else
+          @socket.connect
         end
-      rescue Timeout::Error
+      rescue OpenSSL::SSL::SSLError => e
+        raise e
+      rescue
         raise Excon::Errors::Timeout.new('connect timeout reached')
       end
 
@@ -150,6 +149,5 @@ module Excon
       @nonblock = HAVE_NONBLOCK && @nonblock
       super
     end
-
   end
 end
