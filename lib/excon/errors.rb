@@ -79,6 +79,7 @@ module Excon
     class RequestedRangeNotSatisfiable < ClientError; end     # 416
     class ExpectationFailed < ClientError; end                # 417
     class UnprocessableEntity < ClientError; end              # 422
+    class TooManyRequests < ClientError; end                  # 429
     class InternalServerError < ServerError; end              # 500
     class NotImplemented < ServerError; end                   # 501
     class BadGateway < ServerError; end                       # 502
@@ -123,6 +124,7 @@ module Excon
         416 => [Excon::Errors::RequestedRangeNotSatisfiable, 'Request Range Not Satisfiable'],
         417 => [Excon::Errors::ExpectationFailed, 'Expectation Failed'],
         422 => [Excon::Errors::UnprocessableEntity, 'Unprocessable Entity'],
+        429 => [Excon::Errors::TooManyRequests, 'Too Many Requests'],
         500 => [Excon::Errors::InternalServerError, 'InternalServerError'],
         501 => [Excon::Errors::NotImplemented, 'Not Implemented'],
         502 => [Excon::Errors::BadGateway, 'Bad Gateway'],
