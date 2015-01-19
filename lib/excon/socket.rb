@@ -149,16 +149,27 @@ module Excon
 
     private
 
+    # IPv6 addresses need to be unwrapped for socket connections:
+    #   host: "[::1]" => "::1"
+    # Borrowed from ruby URI's:
+    #   https://github.com/ruby/ruby/blob/deba55eb1a950b72788aa4cab10ccc032c1d37a7/lib/uri/generic.rb#L650
+    def unwrapped_host_for_socket(v)
+      /\A\[(.*)\]\z/ =~ v ? $1 : v
+    end
+
     def connect
       @socket = nil
       exception = nil
 
       if @data[:proxy]
         family = @data[:proxy][:family] || ::Socket::Constants::AF_UNSPEC
-        args = [@data[:proxy][:host], @data[:proxy][:port], family, ::Socket::Constants::SOCK_STREAM]
+
+        host = unwrapped_host_for_socket(@data[:proxy][:host])
+        args = [host, @data[:proxy][:port], family, ::Socket::Constants::SOCK_STREAM]
       else
         family = @data[:family] || ::Socket::Constants::AF_UNSPEC
-        args = [@data[:host], @data[:port], family, ::Socket::Constants::SOCK_STREAM]
+        host = unwrapped_host_for_socket(@data[:host])
+        args = [host, @data[:port], family, ::Socket::Constants::SOCK_STREAM]
       end
       if RUBY_VERSION >= '1.9.2' && defined?(RUBY_ENGINE) && RUBY_ENGINE == 'ruby'
         args << nil << nil << false # no reverse lookup
