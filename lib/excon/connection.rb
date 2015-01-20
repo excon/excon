@@ -35,7 +35,8 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request. Only used if params[:headers] is not supplied to Connection#request
-    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String
+    #     @option params [String] :host The destination host's reachable DNS name or IP, in the form of a String. IPv6 addresses must be wrapped (e.g. [::1]).  See URI#host.
+    #     @option params [String] :hostname Same as host, but usable for socket connections. IPv6 addresses must not be wrapped (e.g. ::1).  See URI#hostname.
     #     @option params [String] :path Default path; appears after 'scheme://host:port/'. Only used if params[:path] is not supplied to Connection#request
     #     @option params [Fixnum] :port The port on which to connect, to the destination host
     #     @option params [Hash]   :query Default query; appended to the 'scheme://host:port/path/' in the form of '?key=value'. Will only be used if params[:query] is not supplied to Connection#request
@@ -358,6 +359,12 @@ module Excon
         #params = params.dup
         #invalid_keys.each {|key| params.delete(key) }
       end
+
+      if validation == :connection && params.key?(:host) && !params.key?(:hostname)
+        Excon.display_warning('hostname is missing! For IPv6 support, provide both host and hostname: Excon::Connection#new(:host => uri.host, :hostname => uri.hostname, ...).')
+        params[:hostname] = params[:host]
+      end
+
       params
     end
 

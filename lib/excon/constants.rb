@@ -73,6 +73,7 @@ module Excon
     :connect_timeout,
     :family,
     :host,
+    :hostname,
     :omit_default_port,
     :nonblock,
     :reuseaddr,
