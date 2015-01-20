@@ -111,6 +111,7 @@ module Excon
       end
       params = {
         :host       => uri.host,
+        :hostname   => uri.hostname,
         :path       => uri.path,
         :port       => uri.port,
         :query      => uri.query,

@@ -428,6 +428,7 @@ module Excon
           uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
           @data[:proxy] = {
             :host       => uri.host,
+            :hostname   => uri.hostname,
             # path is only sensible for a Unix socket proxy
             :path       => uri.scheme == UNIX ? uri.path : nil,
             :port       => uri.port,

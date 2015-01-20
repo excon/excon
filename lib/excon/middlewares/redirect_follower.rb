@@ -26,6 +26,7 @@ module Excon
             params.merge!(
               :scheme     => uri.scheme || datum[:scheme],
               :host       => uri.host   || datum[:host],
+              :hostname   => uri.hostname || datum[:hostname],
               :port       => uri.port   || datum[:port],
               :path       => uri.path,
               :query      => uri.query

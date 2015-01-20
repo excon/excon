@@ -5,6 +5,7 @@ Shindo.tests('Excon Decompress Middleware') do
       tests('GET /echo%20dirty').returns(200) do
         connection = Excon::Connection.new({
           :host             => '127.0.0.1',
+          :hostname         => '127.0.0.1',
           :middlewares      => Excon.defaults[:middlewares] + [Excon::Middleware::EscapePath],
           :nonblock         => false,
           :port             => 9292,
@@ -20,6 +21,7 @@ Shindo.tests('Excon Decompress Middleware') do
       tests('GET /echo dirty').returns(200) do
         connection = Excon::Connection.new({
           :host             => '127.0.0.1',
+          :hostname         => '127.0.0.1',
           :middlewares      => Excon.defaults[:middlewares] + [Excon::Middleware::EscapePath],
           :nonblock         => false,
           :port             => 9292,
