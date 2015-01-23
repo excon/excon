@@ -2,7 +2,9 @@ Shindo.tests('Request Tests') do
   with_server('good') do
 
     tests('persistent connections') do
-      %w([::1]:9293 127.0.0.1:9292).each do |ip_port|
+      ip_ports = %w(127.0.0.1:9292)
+      ip_ports << "[::1]:9293" unless RUBY_PLATFORM == 'java'
+      ip_ports.each do |ip_port|
 
         tests("with default :persistent => true, #{ip_port}") do
           connection = nil

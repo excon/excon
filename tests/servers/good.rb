@@ -333,6 +333,6 @@ end
 
 EM.run do
   EM.start_server("127.0.0.1", 9292, GoodServer)
-  EM.start_server("::1", 9293, GoodServer)
+  EM.start_server("::1", 9293, GoodServer) unless RUBY_PLATFORM == 'java'
   $stderr.puts "ready"
 end
