@@ -119,10 +119,10 @@ module Excon
     :idempotent           => false,
     :instrumentor_name    => 'excon',
     :middlewares          => [
+      Excon::Middleware::Instrumentor,
       Excon::Middleware::ResponseParser,
       Excon::Middleware::Expects,
       Excon::Middleware::Idempotent,
-      Excon::Middleware::Instrumentor,
       Excon::Middleware::Mock
     ],
     :mock                 => false,
