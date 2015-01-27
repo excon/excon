@@ -65,4 +65,17 @@ Shindo.tests('Excon::Utils') do
     end
 
   end
+
+  tests('#escape_uri').returns('/hello%20excon') do
+    Excon::Utils.escape_uri('/hello excon')
+  end
+
+  tests('#unescape_uri').returns('/hello excon') do
+    Excon::Utils.unescape_uri('/hello%20excon')
+  end
+
+  tests('#unescape_form').returns('message=We love excon!') do
+    Excon::Utils.unescape_form('message=We+love+excon!')
+  end
+
 end
