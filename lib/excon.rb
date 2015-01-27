@@ -11,6 +11,8 @@ require 'uri'
 require 'zlib'
 require 'stringio'
 
+require 'excon/extensions/uri'
+
 require 'excon/middlewares/base'
 require 'excon/middlewares/expects'
 require 'excon/middlewares/idempotent'
@@ -109,6 +111,7 @@ module Excon
       end
       params = {
         :host       => uri.host,
+        :hostname   => uri.hostname,
         :path       => uri.path,
         :port       => uri.port,
         :query      => uri.query,

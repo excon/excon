@@ -6,6 +6,7 @@ Shindo.tests('Excon basics') do
       tests('GET /content-length/100').returns(200) do
         connection = Excon::Connection.new({
           :host             => '127.0.0.1',
+          :hostname         => '127.0.0.1',
           :nonblock         => false,
           :port             => 9292,
           :scheme           => 'http',
@@ -169,6 +170,7 @@ Shindo.tests('Excon basics (ssl file)',['focus']) do
     tests('GET /content-length/100').raises(Excon::Errors::SocketError) do
       connection = Excon::Connection.new({
         :host             => '127.0.0.1',
+        :hostname         => '127.0.0.1',
         :nonblock         => false,
         :port             => 8443,
         :scheme           => 'https',
@@ -191,6 +193,7 @@ Shindo.tests('Excon basics (ssl file paths)',['focus']) do
     tests('GET /content-length/100').raises(Excon::Errors::SocketError) do
       connection = Excon::Connection.new({
         :host             => '127.0.0.1',
+        :hostname         => '127.0.0.1',
         :nonblock         => false,
         :port             => 8443,
         :scheme           => 'https',
