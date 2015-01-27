@@ -145,6 +145,10 @@ connection = Excon.new('http://geemus.com/', :nonblock => false)
 connection = Excon.new('http://username:password@secure.geemus.com')
 connection = Excon.new('http://secure.geemus.com',
   :user => 'username', :password => 'password')
+
+# use custom uri parser
+require 'addressable/uri'
+connection = Excon.new('http://geemus.com/', uri_parser: Addressable::URI)
 ```
 
 ## Chunked Requests
