@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'rake'
 require 'date'
-
+include Rake::DSL
 #############################################################################
 #
 # Helper functions
