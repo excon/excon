@@ -13,8 +13,8 @@ GEM
     chronic (0.6.7)
     delorean (2.0.0)
       chronic
-    eventmachine (1.0.0)
-    eventmachine (1.0.0-java)
+    eventmachine (1.0.4)
+    eventmachine (1.0.4-java)
     ffi2-generators (0.1.1)
     formatador (0.2.3)
     i18n (0.6.0)
@@ -257,7 +257,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   delorean
-  eventmachine
+  eventmachine (>= 1.0.4)
   excon!
   jruby-openssl
   open4
