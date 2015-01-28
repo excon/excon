@@ -104,7 +104,7 @@ module Excon
     #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
     #   @return [Connection] A new Excon::Connection instance
     def new(url, params = {})
-      uri_parser = params[:uri_parser] || Excon.defaults[:uri_parser]
+      uri_parser = params[:uri_parser] || defaults[:uri_parser]
       uri = uri_parser.parse(url)
       unless uri.scheme
         raise ArgumentError.new("Invalid URI: #{uri}")
@@ -116,7 +116,7 @@ module Excon
         :port       => uri.port,
         :query      => uri.query,
         :scheme     => uri.scheme
-      }.merge!(params)
+      }.merge(params)
       if uri.password
         params[:password] = Utils.unescape_uri(uri.password)
       end
