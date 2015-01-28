@@ -62,6 +62,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rdoc')
   s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
+  s.add_development_dependency('json', '>= 1.8.2')
 
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
