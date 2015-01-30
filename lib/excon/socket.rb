@@ -32,8 +32,8 @@ module Excon
       if @eof
         return max_length ? nil : ''
       elsif @nonblock
-        read_nonblock(max_length) 
-      else 
+        read_nonblock(max_length)
+      else
         read_block(max_length)
       end
     end
@@ -45,15 +45,15 @@ module Excon
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer
       rescue Errno::EAGAIN
-        if timeout_reached('read') 
-          raise_timeout_error('read') 
+        if timeout_reached('read')
+          raise_timeout_error('read')
         else
           retry
         end
       rescue OpenSSL::SSL::SSLError => e
         if e.message == 'read would block'
-          if timeout_reached('read') 
-            raise_timeout_error('read') 
+          if timeout_reached('read')
+            raise_timeout_error('read')
           else
             retry
           end
