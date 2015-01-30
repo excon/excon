@@ -74,7 +74,11 @@ module Excon
     end
 
     def write(data)
-      @nonblock ? write_nonblock(data) : write_block(data)
+      if @nonblock
+        write_nonblock(data)
+      else
+        write_block(data)
+      end
     end
 
     def local_address
