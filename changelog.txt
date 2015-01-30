@@ -1,3 +1,13 @@
+0.44.0 01/30/2015
+=================
+
+re-implement timeout using IO.select
+document custom URI parser usage
+fix ruby 2.2 build
+improved IPv6 support
+Excon::Utils improvements
+add 429 errors
+
 0.43.0 01/09/2015
 =================
 
