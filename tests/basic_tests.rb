@@ -89,19 +89,27 @@ end
 Shindo.tests('Excon basics (Basic Auth Pass)') do
   with_rackup('basic_auth.ru') do
     basic_tests('http://test_user:test_password@127.0.0.1:9292')
+    tests('with frozen args').returns(200) do
+      user, pass, uri = ['test_user', 'test_password', 'http://127.0.0.1:9292'].map(&:freeze)
+      connection = Excon.new(uri, :user => user, :password => pass )
+      response = connection.request(:method => :get, :path => '/content-length/100')
+      response.status
+    end  
+  end
+end
 
-    tests('Excon basics (Basic Auth Fail)') do
-      cases = [
-        ['correct user, no password', 'http://test_user@127.0.0.1:9292'],
-        ['correct user, wrong password', 'http://test_user:fake_password@127.0.0.1:9292'],
-        ['wrong user, correct password', 'http://fake_user:test_password@127.0.0.1:9292'],
-      ]
-      cases.each do |desc,url|
-        tests("response.status for #{desc}").returns(401) do
-          connection = Excon.new(url)
-          response = connection.request(:method => :get, :path => '/content-length/100')
-          response.status
-        end
+Shindo.tests('Excon basics (Basic Auth Fail)') do
+  with_rackup('basic_auth.ru') do
+    cases = [
+      ['correct user, no password', 'http://test_user@127.0.0.1:9292'],
+      ['correct user, wrong password', 'http://test_user:fake_password@127.0.0.1:9292'],
+      ['wrong user, correct password', 'http://fake_user:test_password@127.0.0.1:9292']
+    ]
+    cases.each do |desc,url|
+      tests("response.status for #{desc}").returns(401) do
+        connection = Excon.new(url)
+        response = connection.request(:method => :get, :path => '/content-length/100')
+        response.status
       end
     end
   end
