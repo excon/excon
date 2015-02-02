@@ -56,7 +56,7 @@ module Excon
     # Splits a header value +str+ according to HTTP specification.
     def split_header_value(str)
       return [] if str.nil?
-      str = str.strip
+      str = str.dup.strip
       str.force_encoding('BINARY') if FORCE_ENC
       str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
                     (?:,\s*|\Z)'xn).flatten
@@ -64,18 +64,21 @@ module Excon
 
     # Escapes HTTP reserved and unwise characters in +str+
     def escape_uri(str)
+      str = str.dup
       str.force_encoding('BINARY') if FORCE_ENC
       str.gsub(UNESCAPED) { "%%%02X" % $1[0].ord }
     end
 
     # Unescapes HTTP reserved and unwise characters in +str+
     def unescape_uri(str)
+      str = str.dup
       str.force_encoding('BINARY') if FORCE_ENC
       str.gsub(ESCAPED) { $1.hex.chr }
     end
 
     # Unescape form encoded values in +str+
     def unescape_form(str)
+      str = str.dup
       str.force_encoding('BINARY') if FORCE_ENC
       str.gsub!(/\+/, ' ')
       str.gsub(ESCAPED) { $1.hex.chr }
