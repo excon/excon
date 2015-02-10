@@ -64,7 +64,7 @@ module Excon
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
-      if @data[:debug] != false && @data[:debug] || ENV.has_key?('EXCON_DEBUG')
+      if @data[:debug] || ENV.has_key?('EXCON_DEBUG')
         @data[:debug_request] = @data[:debug_response] = true
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
