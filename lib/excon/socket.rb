@@ -44,7 +44,7 @@ module Excon
         buffer = ''
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer
-      rescue Errno::EAGAIN
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable 
         if timeout_reached('read')
           raise_timeout_error('read')
         else
