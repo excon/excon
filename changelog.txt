@@ -1,3 +1,10 @@
+0.44.2 02/11/2015
+=================
+
+simplify data[:debug] logic
+catch nonblock errors around readline
+
+
 0.44.1 02/01/2015
 =================
 
