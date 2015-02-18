@@ -17,7 +17,11 @@ module Excon
             params = datum.dup
             params.delete(:stack)
             params.delete(:connection)
-            params[:method] = :get if [301, 302, 303].include? response[:status]
+            if [301, 302, 303].include?(response[:status])
+              params[:method] = :get
+              params.delete(:body)
+              params[:headers].delete('Content-Length')
+            end
             params[:headers] = datum[:headers].dup
             params[:headers].delete('Authorization')
             params[:headers].delete('Proxy-Connection')
