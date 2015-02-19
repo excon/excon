@@ -61,3 +61,20 @@ Shindo.tests('Excon redirect support for relative Location headers') do
 
   env_restore
 end
+
+Shindo.tests("Excon redirecting post request") do
+  env_init
+
+  with_rackup('redirecting.ru') do
+    tests("request not have content-length and body").returns('ok') do
+      Excon.post(
+        'http://127.0.0.1:9292',
+        :path         => '/first',
+        :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+        :body => "a=Some_content"
+      ).body
+    end
+  end
+
+  env_restore
+end
