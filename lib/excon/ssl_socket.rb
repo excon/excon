@@ -52,7 +52,7 @@ module Excon
           begin
             ssl_context.cert_store.add_file(ca_file)
           rescue
-            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{e.class}] #{e.message}")
+            Excon.display_warning("Excon unable to add file to cert store, ignoring: #{ca_file}\n[#{$!.class}] #{$!.message}")
           end
         end
 
