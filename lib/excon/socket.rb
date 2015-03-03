@@ -110,6 +110,11 @@ module Excon
       addrinfo.each do |_, port, _, ip, a_family, s_type|
         @remote_ip = ip
 
+        # already succeeded on previous addrinfo
+        if @socket
+          break
+        end
+
         # nonblocking connect
         begin
           sockaddr = ::Socket.sockaddr_in(port, ip)
@@ -129,7 +134,6 @@ module Excon
             socket.connect(sockaddr)
           end
           @socket = socket
-          break
         rescue Errno::EINPROGRESS
           unless IO.select(nil, [socket], nil, @data[:connect_timeout])
             raise(Excon::Errors::Timeout.new('connect timeout reached'))
@@ -137,17 +141,13 @@ module Excon
           begin
             socket.connect_nonblock(sockaddr)
             @socket = socket
-            break
           rescue Errno::EISCONN
             @socket = socket
-            break
           rescue SystemCallError => exception
             socket.close rescue nil
-            next
           end
         rescue SystemCallError => exception
           socket.close rescue nil if socket
-          next
         end
       end
 
