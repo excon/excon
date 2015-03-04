@@ -1,3 +1,10 @@
+0.44.4 03/04/2015
+=================
+
+update bundled certs
+loosen travis versions, to get ~> type follow-the-leader behavior
+fix syntax issue in ruby 2.2.1
+
 0.44.3 02/24/2015
 =================
 
