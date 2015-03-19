@@ -308,7 +308,7 @@ connection = Excon.new(
 )
 ```
 
-Excon will then instrument each request, retry, and error.  The corresponding events are named excon.request, excon.retry, and excon.error respectively.
+Excon will then instrument each request, retry, and error.  The corresponding events are named request.excon, retry.excon, and error.excon respectively.
 
 ```ruby
 ActiveSupport::Notifications.subscribe(/excon/) do |*args|
@@ -316,7 +316,7 @@ ActiveSupport::Notifications.subscribe(/excon/) do |*args|
 end
 ```
 
-If you prefer to label each event with something other than "excon," you may specify
+If you prefer to label each event with a namespace other than "excon," you may specify
 an alternate name in the constructor:
 
 ```ruby
