@@ -121,8 +121,9 @@ module Excon
               @socket.connect_nonblock
               break # connect succeeded
             rescue OpenSSL::SSL::SSLError => error
-              # would block, rescue and retry as select is non-helpful
               raise error unless error.message == 'read would block'
+              # Wait for socket status to change
+              IO.select([@socket.io],nil,[@socket.io])
             end
           end
         else
