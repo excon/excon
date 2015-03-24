@@ -17,10 +17,10 @@ Shindo.tests('Excon instrumentation') do
 
   after do
     ActiveSupport::Notifications.unsubscribe("excon")
-    ActiveSupport::Notifications.unsubscribe("excon.request")
-    ActiveSupport::Notifications.unsubscribe("excon.response")
-    ActiveSupport::Notifications.unsubscribe("excon.retry")
-    ActiveSupport::Notifications.unsubscribe("excon.error")
+    ActiveSupport::Notifications.unsubscribe("request.excon")
+    ActiveSupport::Notifications.unsubscribe("response.excon")
+    ActiveSupport::Notifications.unsubscribe("retry.excon")
+    ActiveSupport::Notifications.unsubscribe("error.excon")
     ActiveSupport::Notifications.unsubscribe("gug")
     Delorean.back_to_the_present
     Excon.stubs.clear
@@ -71,7 +71,7 @@ Shindo.tests('Excon instrumentation') do
     }
   end
 
-  tests('basic notification').returns(['excon.request', 'excon.response']) do
+  tests('basic notification').returns(['request.excon', 'response.excon']) do
     subscribe(/excon/)
     stub_success
     make_request
@@ -109,9 +109,9 @@ Shindo.tests('Excon instrumentation') do
     @events.any?{|e| e.name =~ /error/}
   end
 
-  tests('filtering').returns(['excon.request', 'excon.error']) do
-    subscribe(/excon.request/)
-    subscribe(/excon.error/)
+  tests('filtering').returns(['request.excon', 'error.excon']) do
+    subscribe(/request.excon/)
+    subscribe(/error.excon/)
     stub_failure
     raises(Excon::Errors::SocketError) do
       make_request(true)
@@ -120,8 +120,8 @@ Shindo.tests('Excon instrumentation') do
     @events.map(&:name)
   end
 
-  tests('more filtering').returns(['excon.retry', 'excon.retry', 'excon.retry']) do
-    subscribe(/excon.retry/)
+  tests('more filtering').returns(['retry.excon', 'retry.excon', 'retry.excon']) do
+    subscribe(/retry.excon/)
     stub_failure
     raises(Excon::Errors::SocketError) do
       make_request(true)
@@ -140,7 +140,7 @@ Shindo.tests('Excon instrumentation') do
   tests('standard instrumentor') do
 
     tests('success').returns(
-      ['excon.request', 'excon.retry', 'excon.retry', 'excon.retry', 'excon.error']) do
+      ['request.excon', 'retry.excon', 'retry.excon', 'retry.excon', 'error.excon']) do
 
       begin
         original_stderr = $stderr
@@ -224,7 +224,7 @@ Shindo.tests('Excon instrumentation') do
   end
 
   tests('use our own instrumentor').returns(
-      ['excon.request', 'excon.retry', 'excon.retry', 'excon.retry', 'excon.error']) do
+      ['request.excon', 'retry.excon', 'retry.excon', 'retry.excon', 'error.excon']) do
     stub_failure
     connection = Excon.new(
       'http://127.0.0.1:9292',
@@ -246,8 +246,8 @@ Shindo.tests('Excon instrumentation') do
     @events.count
   end
 
-  tests('allows setting the prefix').returns(
-      ['gug.request', 'gug.retry', 'gug.retry','gug.retry', 'gug.error']) do
+  tests('allows setting the namespace').returns(
+      ['request.gug', 'retry.gug', 'retry.gug','retry.gug', 'error.gug']) do
     subscribe(/gug/)
     stub_failure
     connection = Excon.new(
@@ -262,8 +262,8 @@ Shindo.tests('Excon instrumentation') do
     @events.map(&:name)
   end
 
-  tests('allows setting the prefix when not idempotent', 'foo').returns(
-    ['gug.request', 'gug.error']) do
+  tests('allows setting the namespace when not idempotent', 'foo').returns(
+    ['request.gug', 'error.gug']) do
     subscribe(/gug/)
     stub_failure
     connection = Excon.new(
@@ -279,7 +279,7 @@ Shindo.tests('Excon instrumentation') do
   end
 
   with_rackup('basic.ru') do
-    tests('works unmocked').returns(['excon.request', 'excon.response']) do
+    tests('works unmocked').returns(['request.excon', 'response.excon']) do
       subscribe(/excon/)
       make_request(false, :mock => false)
       @events.map(&:name)
