@@ -30,10 +30,10 @@ module Excon
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if ca_file = ENV['SSL_CERT_FILE'] || @data[:ssl_ca_file]
+        if ca_file = @data[:ssl_ca_file] || ENV['SSL_CERT_FILE']
           ssl_context.ca_file = ca_file
         end
-        if ca_path = ENV['SSL_CERT_DIR'] || @data[:ssl_ca_path]
+        if ca_path = @data[:ssl_ca_path] || ENV['SSL_CERT_DIR']
           ssl_context.ca_path = ca_path
         end
         if cert_store = @data[:ssl_cert_store]
