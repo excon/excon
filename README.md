@@ -308,7 +308,7 @@ connection = Excon.new(
 )
 ```
 
-Excon will then instrument each request, retry, and error.  The corresponding events are named excon.request, excon.retry, and excon.error respectively.
+Excon will then instrument each request, retry, and error.  The corresponding events are named `excon.request`, `excon.retry`, and `excon.error` respectively.
 
 ```ruby
 ActiveSupport::Notifications.subscribe(/excon/) do |*args|
@@ -316,7 +316,7 @@ ActiveSupport::Notifications.subscribe(/excon/) do |*args|
 end
 ```
 
-If you prefer to label each event with something other than "excon," you may specify
+If you prefer to label each event with a namespace other than "excon", you may specify
 an alternate name in the constructor:
 
 ```ruby
@@ -327,7 +327,23 @@ connection = Excon.new(
 )
 ```
 
-If you don't want to add activesupport to your application, simply define a class which implements the same #instrument method like so:
+Note: Excon's ActiveSupport::Notifications implementation has the following event format: `<namespace>.<event>` which is the opposite of the Rails' implementation.
+
+ActiveSupport provides a [subscriber](http://api.rubyonrails.org/classes/ActiveSupport/Subscriber.html) interface which lets you attach a subscriber to a namespace. Due to the incompability above, you won't be able to attach a subscriber to the "excon" namespace out of the box.
+
+If you want this functionality, you can use a simple adapter such as this one:
+
+```ruby
+class ExconToRailsInstrumentor
+  def self.instrument(name, datum, &block)
+    namespace, *event = name.split(".")
+    rails_name = [event, namespace].flatten.join(".")
+    ActiveSupport::Notifications.instrument(rails_name, datum, &block)
+  end
+end
+```
+
+If you don't want to add ActiveSupport to your application, simply define a class which implements the same `#instrument` method like so:
 
 ```ruby
 class SimpleInstrumentor
@@ -344,7 +360,7 @@ end
 
 The #instrument method will be called for each HTTP request, response, retry, and error.
 
-For debugging purposes you can also use Excon::StandardInstrumentor to output all events to stderr. This can also be specified by setting the `EXCON_DEBUG` ENV var.
+For debugging purposes you can also use `Excon::StandardInstrumentor` to output all events to stderr. This can also be specified by setting the `EXCON_DEBUG` ENV var.
 
 See [the documentation for ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) for more detail on using the subscription interface.  See excon's [instrumentation_test.rb](https://github.com/excon/excon/blob/master/tests/middlewares/instrumentation_tests.rb) for more examples of instrumenting excon.
 
