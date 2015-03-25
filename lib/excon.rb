@@ -42,13 +42,23 @@ module Excon
 
     # @return [Hash] defaults for Excon connections
     def defaults
-      @defaults ||= DEFAULTS
+      defaults = Thread.current.thread_variable_get(:excon_defaults)
+      return defaults if defaults
+      Thread.current.thread_variable_set(:excon_defaults, DEFAULTS.dup)
     end
 
     # Change defaults for Excon connections
     # @return [Hash] defaults for Excon connections
     def defaults=(new_defaults)
-      @defaults = new_defaults
+      Thread.current.thread_variable_set(:excon_defaults, new_defaults)
+    end
+
+    def with_defaults(defaults_overrides)
+      original_defaults = self.defaults
+      self.defaults = original_defaults.merge(defaults_overrides)
+      result = yield
+      self.defaults = original_defaults
+      return result
     end
 
     def display_warning(warning)
