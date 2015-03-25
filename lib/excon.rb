@@ -44,7 +44,8 @@ module Excon
     def defaults
       defaults = Thread.current.thread_variable_get(:excon_defaults)
       return defaults if defaults
-      Thread.current.thread_variable_set(:excon_defaults, DEFAULTS.dup)
+      defaults = (Thread.main.thread_variable_get(:excon_defaults) || DEFAULTS).dup
+      Thread.current.thread_variable_set(:excon_defaults, defaults)
     end
 
     # Change defaults for Excon connections
