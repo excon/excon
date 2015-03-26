@@ -15,8 +15,11 @@ module Excon
             response = datum.delete(:response)
 
             params = datum.dup
-            params.delete(:stack)
             params.delete(:connection)
+            params.delete(:password)
+            params.delete(:stack)
+            params.delete(:user)
+
             if [301, 302, 303].include?(response[:status])
               params[:method] = :get
               params.delete(:body)
