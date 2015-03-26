@@ -116,20 +116,17 @@ module Excon
 
       begin
         if @nonblock
-          loop do
-            begin
-              @socket.connect_nonblock
-              break # connect succeeded
-            rescue OpenSSL::SSL::SSLError => error
-              # would block, rescue and retry as select is non-helpful
-              raise error unless error.message == 'read would block'
-            end
+          begin
+            @socket.connect_nonblock
+          rescue IO::WaitReadable
+            IO.select([@socket])
+            retry
           end
         else
           @socket.connect
         end
-      rescue OpenSSL::SSL::SSLError => e
-        raise e
+      rescue OpenSSL::SSL::SSLError
+        raise
       rescue
         raise Excon::Errors::Timeout.new('connect timeout reached')
       end
