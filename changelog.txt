@@ -1,3 +1,12 @@
+0.45.0 03/26/2015
+=================
+
+prefer default SSL config to ENV, when available
+document instrumentor deviation from rails format
+better error/warning around openssl 1.0.2 bug
+fix nonblocking ssl connect to not have tight loop
+also remove user/pass when following redirects
+
 0.44.4 03/04/2015
 =================
 
