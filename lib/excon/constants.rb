@@ -1,6 +1,6 @@
 module Excon
 
-  VERSION = '0.45.0'
+  VERSION = '0.45.1'
 
   CR_NL = "\r\n"
 

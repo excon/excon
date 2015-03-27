@@ -1,3 +1,8 @@
+0.45.1 03/27/2015
+=================
+
+fix scope for readline buffer, fixes dropped initial characters
+
 0.45.0 03/26/2015
 =================
 
