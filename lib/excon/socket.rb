@@ -40,8 +40,8 @@ module Excon
 
     def readline
       return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
+      buffer = ''
       begin
-        buffer = ''
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable 
