@@ -121,6 +121,9 @@ module Excon
           rescue IO::WaitReadable
             IO.select([@socket])
             retry
+          rescue IO::WaitWritable
+            IO.select(nil, [@socket])
+            retry
           end
         else
           @socket.connect
