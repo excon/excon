@@ -13,12 +13,6 @@ module Excon
     def headers=(new_headers)
       @data[:headers] = new_headers
     end
-    def raw_status
-      @data[:raw_status]
-    end
-    def raw_status=(new_raw_status)
-      @data[:raw_status] = new_raw_status
-    end
     def headers
       @data[:headers]
     end
@@ -27,6 +21,12 @@ module Excon
     end
     def status
       @data[:status]
+    end
+    def status_line
+      @data[:status_line]
+    end
+    def status_line=(new_status_line)
+      @data[:status_line] = new_status_line
     end
     def reason_phrase=(new_reason_phrase)
       @data[:reason_phrase] = new_reason_phrase
@@ -59,7 +59,7 @@ module Excon
         :body          => '',
         :headers       => Excon::Headers.new,
         :status        => status,
-        :raw_status    => line,
+        :status_line   => line,
         :reason_phrase => reason_phrase
       }
 

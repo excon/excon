@@ -6,7 +6,7 @@ Shindo.tests('Excon Response Validation') do
         100.times do
           res = Excon.get('http://127.0.0.1:9292/chunked/simple')
           returns(true) { res.body == "hello world" }
-          returns(true) { res.raw_status ==  "HTTP/1.1 200 OK\r\n" }
+          returns(true) { res.status_line ==  "HTTP/1.1 200 OK\r\n" }
           returns(true) { res.status == 200}
           returns(true) { res.reason_phrase == "OK" }
           returns(true) { res.remote_ip == "127.0.0.1" }
@@ -19,7 +19,7 @@ Shindo.tests('Excon Response Validation') do
         100.times do
           res = Excon.get('http://127.0.0.1:9292/error/not_found')
           returns(true) { res.body == "server says not found" }
-          returns(true) { res.raw_status ==  "HTTP/1.1 404 Not Found\r\n" }
+          returns(true) { res.status_line ==  "HTTP/1.1 404 Not Found\r\n" }
           returns(true) { res.status == 404}
           returns(true) { res.reason_phrase == "Not Found" }
           returns(true) { res.remote_ip == "127.0.0.1" }
