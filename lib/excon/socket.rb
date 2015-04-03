@@ -64,12 +64,12 @@ module Excon
     end
 
     def legacy_readline
-       begin
+      begin
         Timeout.timeout(@data[:read_timeout]) do
           @socket.readline
-      end
+        end
       rescue Timeout::Error
-      raise Excon::Errors::Timeout.new('read timeout reached')
+        raise Excon::Errors::Timeout.new('read timeout reached')
       end
     end
 
@@ -163,37 +163,37 @@ module Excon
 
     def read_nonblock(max_length)
       begin
-            if max_length
-              until @read_buffer.length >= max_length
-                @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
-              end
-            else
-              loop do
-                @read_buffer << @socket.read_nonblock(@data[:chunk_size])
-              end
-            end
-          rescue OpenSSL::SSL::SSLError => error
-            if error.message == 'read would block'
-              if timeout_reached('read')  
-                raise_timeout_error('read') 
-              else 
-                retry
-              end
-            else
-              raise(error)
-            end
-          rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-            if @read_buffer.empty?
-              # if we didn't read anything, try again...
-              if timeout_reached('read') 
-                raise_timeout_error('read') 
-              else
-                retry
-              end
-            end
-          rescue EOFError
-            @eof = true
+        if max_length
+          until @read_buffer.length >= max_length
+            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
           end
+        else
+          loop do
+            @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+          end
+        end
+      rescue OpenSSL::SSL::SSLError => error
+        if error.message == 'read would block'
+          if timeout_reached('read')  
+            raise_timeout_error('read') 
+          else 
+            retry
+          end
+        else
+          raise(error)
+        end
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
+        if @read_buffer.empty?
+          # if we didn't read anything, try again...
+          if timeout_reached('read') 
+            raise_timeout_error('read') 
+          else
+            retry
+          end
+        end
+      rescue EOFError
+        @eof = true
+      end
 
       if max_length
         if @read_buffer.empty?
@@ -234,7 +234,7 @@ module Excon
     def write_nonblock(data)
       if FORCE_ENC
         data.force_encoding('BINARY')
-          end
+      end
       loop do
         written = nil
         begin
