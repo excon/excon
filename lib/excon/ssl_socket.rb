@@ -128,9 +128,7 @@ module Excon
         else
           @socket.connect
         end
-      rescue OpenSSL::SSL::SSLError
-        raise
-      rescue
+      rescue Errno::ETIMEDOUT, Timeout::Error
         raise Excon::Errors::Timeout.new('connect timeout reached')
       end
 
