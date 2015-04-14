@@ -130,7 +130,7 @@ module Excon
         end
       rescue OpenSSL::SSL::SSLError
         raise
-      rescue
+      rescue Errno::ETIMEDOUT
         raise Excon::Errors::Timeout.new('connect timeout reached')
       end
 
