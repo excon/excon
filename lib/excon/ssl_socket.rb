@@ -118,7 +118,7 @@ module Excon
         if @nonblock
           begin
             @socket.connect_nonblock
-          rescue IO::WaitReadable
+          rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
             IO.select([@socket])
             retry
           rescue IO::WaitWritable
