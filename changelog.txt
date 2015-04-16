@@ -1,3 +1,13 @@
+0.45.2 04/16/2015
+=================
+
+add raw_status reader
+improved tests around response/status
+rescue IO::WaitWritable for SSL sockets also
+indentation fixes
+tighten rescue in ssl socket connect to better report non-timeouts
+rescue EAGAIN and EWOULDBLOCK for non-blocking connects
+
 0.45.1 03/27/2015
 =================
 
