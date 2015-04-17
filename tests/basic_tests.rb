@@ -94,7 +94,7 @@ Shindo.tests('Excon basics (Basic Auth Pass)') do
       connection = Excon.new(uri, :user => user, :password => pass )
       response = connection.request(:method => :get, :path => '/content-length/100')
       response.status
-    end  
+    end
   end
 end
 
@@ -285,7 +285,7 @@ Shindo.tests('Excon basics (reusable local port)') do
     end
   end
 
-  with_rackup('basic.ru') do
+  with_rackup('basic.ru', '0.0.0.0') do
     connection = Excon.new("http://127.0.0.1:9292/echo",
                            :reuseaddr => true, # enable address and port reuse
                            :persistent => true # keep the socket open
