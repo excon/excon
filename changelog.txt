@@ -1,3 +1,9 @@
+0.45.3 04/21/2015
+=================
+
+guard warning about openssl versions in case constant undefined
+ensure rackup listens properly, fixes local tests
+
 0.45.2 04/16/2015
 =================
 
