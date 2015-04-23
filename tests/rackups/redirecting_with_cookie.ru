@@ -21,6 +21,20 @@ class App < Sinatra::Base
       JSON.pretty_generate(headers)
     end
   end
+  
+  get('/sets_multi_cookie') do
+    cookies[:chocolatechip] = "chunky"
+    cookies[:thinmints] = "minty"
+    redirect "/requires_cookie"
+  end
+
+  get('/requires_cookie') do
+    if cookies[:chocolatechip] == "chunky" && cookies[:thinmints] == "minty" 
+      "ok"
+    else
+      JSON.pretty_generate(headers)
+    end
+  end
 end
 
 run App
