@@ -101,5 +101,16 @@ Shindo.tests("Excon redirecting with cookie preserved") do
     end
   end
 
+  with_rackup('redirecting.ru') do
+    tests("runs normally when there are no cookies set").returns('ok') do
+      Excon.post(
+        'http://127.0.0.1:9292',
+        :path         => '/first',
+        :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+        :body => "a=Some_content"
+      ).body
+    end
+  end
+
   env_restore
 end
