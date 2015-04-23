@@ -6,19 +6,23 @@ module Excon
         set_cookie.split(',').map { |full| full.split(';').first.strip }.join('; ')
       end
 
+      def get_header(datum, header)
+        _, header_value = datum[:response][:headers].detect do |key, value|
+          key.casecmp(header) == 0
+        end
+        header_value
+      end
+
       def response_call(datum)
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
-            _, location = datum[:response][:headers].detect do |key, value|
-              key.casecmp('Location') == 0
-            end
+
+            location = get_header(datum, 'Location')
             uri = uri_parser.parse(location)
 
-            _, cookie = datum[:response][:headers].detect do |key, value|
-              key.casecmp('Set-Cookie') == 0
-            end
+            cookie = get_header(datum, 'Set-Cookie')
 
             cookie = extract_cookies_from_set_cookie(cookie) if cookie
 
