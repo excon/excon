@@ -78,3 +78,20 @@ Shindo.tests("Excon redirecting post request") do
 
   env_restore
 end
+
+Shindo.tests("Excon redirecting with cookie preserved") do
+  env_init
+
+  with_rackup('redirecting_with_cookie.ru') do
+    tests('second request will send cookies set by the first').returns('ok') do
+      Excon.defaults[:redirect_with_cookies] = true
+      Excon.get(
+        'http://127.0.0.1:9292',
+        :path         => '/sets_cookie',
+        :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+      ).body
+    end
+  end
+
+  env_restore
+end
