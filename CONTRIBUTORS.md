@@ -12,6 +12,7 @@
 * Carl Hörberg <carl.hoerberg@gmail.com>
 * Carlos Sanchez <csanchez@maestrodev.com>
 * Claudio Poli <masterkain@gmail.com>
+* Colin Dean <colindean@us.ibm.com>
 * Damien Mathieu <damien@heroku.com>
 * Dan Hensgen <dan@methodhead.com>
 * Dan Peterson <dpiddy@gmail.com>
