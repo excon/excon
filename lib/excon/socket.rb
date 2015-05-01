@@ -241,7 +241,7 @@ module Excon
           # I wish that this API accepted a start position, then we wouldn't
           # have to slice data when there is a short write.
           written = @socket.write_nonblock(data)
-        rescue Errno::EFAULT
+        rescue Errno::EFAULT => error
           if OpenSSL.const_defined?(:OPENSSL_LIBRARY_VERSION) && OpenSSL::OPENSSL_LIBRARY_VERSION.split(' ')[1] == '1.0.2'
             msg = "The version of OpenSSL this ruby is built against (1.0.2) has a vulnerability
                    which causes a fault. For more, see https://github.com/excon/excon/issues/467"
