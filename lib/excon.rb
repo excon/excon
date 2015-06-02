@@ -145,7 +145,7 @@ module Excon
         if uri.user || uri.password
           request_params[:headers] ||= {}
           user, pass = Utils.unescape_form(uri.user.to_s), Utils.unescape_form(uri.password.to_s)
-          request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << user << ':' << pass].pack('m0')
+          request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
         end
       end
       if request_params.has_key?(:headers)

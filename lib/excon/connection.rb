@@ -72,7 +72,7 @@ module Excon
       # Use Basic Auth if url contains a login
       if @data[:user] || @data[:password]
         user, pass = Utils.unescape_form(@data[:user].to_s), Utils.unescape_form(@data[:password].to_s)
-        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m0')
+        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
       end
 
       @socket_key = '' << @data[:scheme]
@@ -459,7 +459,7 @@ module Excon
           # https credentials happen in handshake
           if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
             user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-            auth = ['' << user << ':' << pass].pack('m0')
+            auth = ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
             @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
           end
         end

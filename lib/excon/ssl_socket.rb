@@ -90,7 +90,7 @@ module Excon
         request << 'Host: ' << @data[:host] << port_string(@data) << Excon::CR_NL
 
         if @data[:proxy][:password] || @data[:proxy][:user]
-          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m0')
+          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
           request << 'Proxy-Authorization: Basic ' << auth << Excon::CR_NL
         end
 
