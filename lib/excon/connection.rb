@@ -422,6 +422,8 @@ module Excon
         case @data[:proxy]
         when nil
           @data.delete(:proxy)
+        when ''
+          @data.delete(:proxy)
         when Hash
           # no processing needed
         when String, URI

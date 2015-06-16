@@ -10,6 +10,13 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
+    tests('empty proxy') do
+      tests('connection.data[:proxy]').returns(nil) do
+        connection = Excon.new('http://foo.com', :proxy => '')
+        connection.data[:proxy]
+      end
+    end
+
     tests('with fully-specified proxy: https://myproxy.net:8080') do
       connection = nil
 
