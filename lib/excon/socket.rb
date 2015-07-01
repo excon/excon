@@ -50,8 +50,8 @@ module Excon
         else
           retry
         end
-      rescue OpenSSL::SSL::SSLError => e
-        if e.message == 'read would block'
+      rescue OpenSSL::SSL::SSLError => error
+        if error.message == 'read would block'
           if timeout_reached('read')
             raise_timeout_error('read')
           else
