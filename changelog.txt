@@ -1,3 +1,9 @@
+0.45.4 07/13/2015
+=================
+
+fix undefined errors in error handling
+ignore empty proxy values
+
 0.45.3 04/21/2015
 =================
 
