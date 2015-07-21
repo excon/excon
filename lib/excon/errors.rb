@@ -8,7 +8,7 @@ module Excon
     class SocketError < Error
       attr_reader :socket_error
 
-      def initialize(socket_error=Excon::Error.new)
+      def initialize(socket_error=Excon::Errors::Error.new)
         if socket_error.message =~ /certificate verify failed/
           super("Unable to verify certificate, please set `Excon.defaults[:ssl_ca_path] = path_to_certs`, `ENV['SSL_CERT_DIR'] = path_to_certs`, `Excon.defaults[:ssl_ca_file] = path_to_file`, `ENV['SSL_CERT_FILE'] = path_to_file`, `Excon.defaults[:ssl_verify_callback] = callback` (see OpenSSL::SSL::SSLContext#verify_callback), or `Excon.defaults[:ssl_verify_peer] = false` (less secure).")
         else
