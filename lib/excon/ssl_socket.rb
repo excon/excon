@@ -4,6 +4,8 @@ module Excon
       OpenSSL::SSL::SSLSocket.public_method_defined?(m)
     end
 
+    VERIFY_ENV_VAR = 'EXCON_SSL_VERIFY_PEER'
+
     def initialize(data = {})
       super
 
@@ -26,7 +28,9 @@ module Excon
         ssl_context.ssl_version = @data[:ssl_version]
       end
 
-      if @data[:ssl_verify_peer]
+      env_verify_peer = ENV.has_key?(VERIFY_ENV_VAR) && (ENV[VERIFY_ENV_VAR] && ENV[VERIFY_ENV_VAR] != 'false')
+
+      if @data[:ssl_verify_peer] && env_verify_peer
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
@@ -133,7 +137,7 @@ module Excon
       end
 
       # verify connection
-      if @data[:ssl_verify_peer]
+      if @data[:ssl_verify_peer] && env_verify_peer
         @socket.post_connection_check(@data[:ssl_verify_peer_host] || @data[:host])
       end
 
