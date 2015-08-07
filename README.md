@@ -132,9 +132,6 @@ connection.request(:write_timeout => 360)
 #
 connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
 
-# opt-in to omitting port from http:80 and https:443
-connection = Excon.new('http://geemus.com/', :omit_default_port => true)
-
 # set longer connect_timeout (default is 60 seconds)
 connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 
@@ -149,6 +146,20 @@ connection = Excon.new('http://secure.geemus.com',
 # use custom uri parser
 require 'addressable/uri'
 connection = Excon.new('http://geemus.com/', uri_parser: Addressable::URI)
+```
+
+Compared to web browsers and other http client libraries, e.g. curl, Excon is a bit more low-level and doesn't assume much by default. If you are seeing different results compared to other clients, the following options might help:
+
+```ruby
+# opt-in to omitting port from http:80 and https:443
+connection = Excon.new('http://geemus.com/', :omit_default_port => true)
+
+# accept gzip encoding
+connection = Excon.new('http://geemus.com/', :headers => { "Accept" => "gzip" })
+
+# turn off peer verification (less secure)
+Excon.defaults[:ssl_verify_peer] = false
+connection = Excon.new('https://...')
 ```
 
 ## Chunked Requests
