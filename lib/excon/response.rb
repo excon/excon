@@ -160,7 +160,7 @@ module Excon
 
     def self.parse_headers(socket, datum)
       last_key = nil
-      until (data = socket.readline.chomp!).empty?
+      until (data = socket.readline.chomp).empty?
         if !data.lstrip!.nil?
           raise Excon::Errors::ResponseParseError, 'malformed header' unless last_key
           # append to last_key's last value
