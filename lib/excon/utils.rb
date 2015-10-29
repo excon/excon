@@ -40,11 +40,12 @@ module Excon
       when Hash
         str << '?'
         datum[:query].sort_by {|k,_| k.to_s }.each do |key, values|
+          key = CGI.escape(key.to_s)
           if values.nil?
-            str << key.to_s << '&'
+            str << key << '&'
           else
             [values].flatten.each do |value|
-              str << key.to_s << '=' << CGI.escape(value.to_s) << '&'
+              str << key << '=' << CGI.escape(value.to_s) << '&'
             end
           end
         end
