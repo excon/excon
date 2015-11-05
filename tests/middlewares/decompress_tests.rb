@@ -29,6 +29,11 @@ Shindo.tests('Excon Decompress Middleware') do
       tests('removes processed encoding from header').returns('') do
         resp[:headers]['Content-Encoding']
       end
+
+      tests('empty response body').returns('') do
+        resp = @connection.request(:body => '')
+        resp[:body]
+      end
     end
 
     tests('deflate') do

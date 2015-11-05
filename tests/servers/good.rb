@@ -55,9 +55,14 @@ module GoodServer
 
         case encoding
         when 'gzip'
-          io = (Zlib::GzipWriter.new(StringIO.new) << request[:body]).finish
-          io.rewind
-          body = io.read
+          body = request[:body]
+          if(body.nil? || body.empty?)
+            body = ''
+          else
+            io = (Zlib::GzipWriter.new(StringIO.new) << request[:body]).finish
+            io.rewind
+            body = io.read
+          end
         when 'deflate'
           # drops the zlib header
           deflator = Zlib::Deflate.new(nil, -Zlib::MAX_WBITS)
