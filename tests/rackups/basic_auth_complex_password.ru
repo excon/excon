@@ -11,4 +11,4 @@ class BasicAuthComplexPassword < Basic
   end
 end
 
-run BasicAuth
+run BasicAuthComplexPassword
