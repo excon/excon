@@ -96,6 +96,14 @@ Shindo.tests('Excon basics (Basic Auth Pass)') do
       response.status
     end
   end
+
+  with_rackup('basic_auth_complex_password.ru') do
+    tests('with special characters in password').returns(200) do
+      connection = Excon.new('http://127.0.0.1:9292', :user => 'test_user', :password => 'test%FFpassword+plus' )
+      response = connection.request(:method => :get, :path => '/content-length/100')
+      response.status
+    end
+  end
 end
 
 Shindo.tests('Excon basics (Basic Auth Fail)') do
