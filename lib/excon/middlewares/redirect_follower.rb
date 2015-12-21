@@ -1,15 +1,30 @@
 module Excon
   module Middleware
     class RedirectFollower < Excon::Middleware::Base
+
+      def extract_cookies_from_set_cookie(set_cookie)
+        set_cookie.split(',').map { |full| full.split(';').first.strip }.join('; ')
+      end
+
+      def get_header(datum, header)
+        _, header_value = datum[:response][:headers].detect do |key, value|
+          key.casecmp(header) == 0
+        end
+        header_value
+      end
+
       def response_call(datum)
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
-            _, location = datum[:response][:headers].detect do |key, value|
-              key.casecmp('Location') == 0
-            end
+
+            location = get_header(datum, 'Location')
             uri = uri_parser.parse(location)
+
+            cookie = get_header(datum, 'Set-Cookie')
+
+            cookie = extract_cookies_from_set_cookie(cookie) if cookie
 
             # delete old/redirect response
             response = datum.delete(:response)
@@ -41,6 +56,8 @@ module Excon
 
             params.merge!(:user => Utils.unescape_uri(uri.user)) if uri.user
             params.merge!(:password => Utils.unescape_uri(uri.password)) if uri.password
+
+            params[:headers]["Cookie"] = cookie if Excon.defaults[:redirect_with_cookies]
 
             response = Excon::Connection.new(params).request
             datum.merge!({:response => response.data})
