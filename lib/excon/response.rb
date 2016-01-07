@@ -16,17 +16,20 @@ module Excon
     def headers
       @data[:headers]
     end
-    def status=(new_status)
-      @data[:status] = new_status
+    def host
+      @data[:host]
     end
-    def status
-      @data[:status]
+    def local_address
+      @data[:local_address]
     end
-    def status_line
-      @data[:status_line]
+    def local_port
+      @data[:local_port]
     end
-    def status_line=(new_status_line)
-      @data[:status_line] = new_status_line
+    def path
+      @data[:path]
+    end
+    def port
+      @data[:port]
     end
     def reason_phrase=(new_reason_phrase)
       @data[:reason_phrase] = new_reason_phrase
@@ -40,11 +43,17 @@ module Excon
     def remote_ip
       @data[:remote_ip]
     end
-    def local_port
-      @data[:local_port]
+    def status=(new_status)
+      @data[:status] = new_status
     end
-    def local_address
-      @data[:local_address]
+    def status
+      @data[:status]
+    end
+    def status_line
+      @data[:status_line]
+    end
+    def status_line=(new_status_line)
+      @data[:status_line] = new_status_line
     end
 
     def self.parse(socket, datum)
@@ -57,7 +66,10 @@ module Excon
 
       datum[:response] = {
         :body          => '',
+        :host          => datum[:host],
         :headers       => Excon::Headers.new,
+        :path          => datum[:path],
+        :port          => datum[:port],
         :status        => status,
         :status_line   => line,
         :reason_phrase => reason_phrase
