@@ -12,3 +12,4 @@ rvm:
   - ree
 
 script: "bundle exec shindont"
+sudo: false
