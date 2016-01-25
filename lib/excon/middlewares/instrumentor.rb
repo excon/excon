@@ -24,10 +24,13 @@ module Excon
       end
 
       def response_call(datum)
+        datum = @stack.response_call(datum)
+
         if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response])
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum)
         end
-        @stack.response_call(datum)
+
+        datum
       end
     end
   end
