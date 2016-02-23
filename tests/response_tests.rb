@@ -151,6 +151,15 @@ Shindo.tests('Excon Response Parsing') do
 
     end
 
+    tests('cookies') do
+
+      tests('parses cookies into array').returns(['one, two', 'three, four']) do
+        resp = Excon.get('http://127.0.0.1:9292/unknown/cookies')
+        resp[:cookies]
+      end
+
+    end
+
     tests('header continuation') do
 
       tests('proper continuation').returns('one, two, three, four, five, six') do
