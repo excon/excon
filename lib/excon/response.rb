@@ -112,25 +112,27 @@ module Excon
           if response_block
             while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
               while chunk_size > 0
-                chunk = socket.read(chunk_size)
+                chunk = socket.read(chunk_size) || raise(EOFError)
                 chunk_size -= chunk.bytesize
                 response_block.call(chunk, nil, nil)
               end
               new_line_size = 2 # 2 == "\r\n".length
               while new_line_size > 0
-                new_line_size -= socket.read(new_line_size).length
+                chunk = socket.read(new_line_size) || raise(EOFError)
+                new_line_size -= chunk.length
               end
             end
           else
             while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
               while chunk_size > 0
-                chunk = socket.read(chunk_size)
+                chunk = socket.read(chunk_size) || raise(EOFError)
                 chunk_size -= chunk.bytesize
                 datum[:response][:body] << chunk
               end
               new_line_size = 2 # 2 == "\r\n".length
               while new_line_size > 0
-                new_line_size -= socket.read(new_line_size).length
+                chunk = socket.read(new_line_size) || raise(EOFError)
+                new_line_size -= chunk.length
               end
             end
           end
@@ -143,13 +145,13 @@ module Excon
           if remaining = content_length
             if response_block
               while remaining > 0
-                chunk = socket.read([datum[:chunk_size], remaining].min)
+                chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
                 response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
                 remaining -= chunk.bytesize
               end
             else
               while remaining > 0
-                chunk = socket.read([datum[:chunk_size], remaining].min)
+                chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
                 datum[:response][:body] << chunk
                 remaining -= chunk.bytesize
               end
