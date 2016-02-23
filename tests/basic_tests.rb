@@ -1,3 +1,5 @@
+require 'json'
+
 Shindo.tests('Excon basics') do
   with_rackup('basic.ru') do
     basic_tests
@@ -244,6 +246,19 @@ Shindo.tests('Excon basics (Unix socket)') do
         })
         response = connection.request(:method => :get, :path => '/content-length/100')
         response[:status]
+      end
+    end
+
+    tests('http Host header is empty') do
+      tests('GET /headers').returns("") do
+        connection = Excon::Connection.new({
+          :socket           => file_name,
+          :nonblock         => false,
+          :scheme           => 'unix',
+          :ssl_verify_peer  => false
+        })
+        response = connection.request(:method => :get, :path => '/headers')
+        JSON.parse(response.body)['HTTP_HOST']
       end
     end
   end
