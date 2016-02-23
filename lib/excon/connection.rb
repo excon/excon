@@ -207,7 +207,7 @@ module Excon
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       if datum[:scheme] == UNIX
-        datum[:headers]['Host']   ||= '' << datum[:socket]
+        datum[:headers]['Host']   = ''
       else
         datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
       end
