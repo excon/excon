@@ -3,12 +3,18 @@ require 'securerandom'
 
 class SimpleInstrumentor
   class << self
-    attr_accessor :events
+    attr_accessor :events, :blocks
 
     def instrument(name, params = {}, &block)
-      @events ||= []
       @events << name
+      @blocks << name if block_given?
+
       yield if block_given?
+    end
+
+    def reset!
+      @events = []
+      @blocks = []
     end
   end
 end
@@ -24,6 +30,10 @@ Shindo.tests('Excon instrumentation') do
     ActiveSupport::Notifications.unsubscribe("gug")
     Delorean.back_to_the_present
     Excon.stubs.clear
+  end
+
+  before do
+    SimpleInstrumentor.reset!
   end
 
   def subscribe(match)
@@ -236,6 +246,19 @@ Shindo.tests('Excon instrumentation') do
     end
 
     SimpleInstrumentor.events
+  end
+
+  tests('always passes the block').returns(
+      ['excon.request', 'excon.response']) do
+    stub_success
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      :instrumentor => SimpleInstrumentor,
+      :mock         => true
+    )
+    connection.get(:idempotent => true)
+
+    SimpleInstrumentor.blocks
   end
 
   tests('does not generate events when not provided').returns(0) do

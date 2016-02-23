@@ -3,9 +3,12 @@ module Excon
     class Instrumentor < Excon::Middleware::Base
       def error_call(datum)
         if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error])
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error]) do
+            @stack.error_call(datum)
+          end
+        else
+          @stack.error_call(datum)
         end
-        @stack.error_call(datum)
       end
 
       def request_call(datum)
@@ -25,9 +28,12 @@ module Excon
 
       def response_call(datum)
         if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response])
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response]) do
+            @stack.response_call(datum)
+          end
+        else
+          @stack.response_call(datum)
         end
-        @stack.response_call(datum)
       end
     end
   end
