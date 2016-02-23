@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'json'
 require File.join(File.dirname(__FILE__), 'webrick_patch')
 
 class Basic < Sinatra::Base
@@ -8,6 +9,11 @@ class Basic < Sinatra::Base
   get('/content-length/:value') do |value|
     headers("Custom" => "Foo: bar")
     'x' * value.to_i
+  end
+
+  get('/headers') do
+    content_type :json
+    request.env.select{|key, _| key.start_with? 'HTTP_'}.to_json
   end
 
   post('/body-sink') do
