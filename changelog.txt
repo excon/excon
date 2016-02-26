@@ -1,3 +1,15 @@
+0.46.0 02/26/2016
+
+empty host header for unix sockets
+raise EOFError on unexpectedly read nil
+add host/path/port to response
+keep cookies through redirects
+fix to skip decompressing empty bodies
+fix escaping for query string
+README improvements
+fix SocketError initializer
+fix incorrect error class usage
+
 0.45.4 07/13/2015
 =================
 
