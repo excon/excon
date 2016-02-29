@@ -138,7 +138,7 @@ desc "update bundled certs"
 task :update_certs do
   require File.join(File.dirname(__FILE__), 'lib', 'excon')
   File.open(File.join(File.dirname(__FILE__), 'data', 'cacert.pem'), 'w') do |file|
-    data = Excon.get("http://curl.haxx.se/ca/cacert.pem").body
+    data = Excon.get("https://curl.haxx.se/ca/cacert.pem").body
     file.write(data)
   end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    excon (0.45.4)
+    excon (0.46.0)
 
 GEM
   remote: http://rubygems.org/
@@ -280,3 +280,6 @@ DEPENDENCIES
   sinatra
   sinatra-contrib
   unicorn
+
+BUNDLED WITH
+   1.11.2
