@@ -252,5 +252,26 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
+  tests("thread-local stubs") do
+    q1, q2 = Queue.new, Queue.new
+    connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+    Excon.stub({}, {:body => '1'})
+    t = Thread.new do
+      Excon.stub({}, {:body => '2'})
+      q1.push nil
+      q2.pop
+      connection.request(:method => :get).body
+    end
+    q1.pop
+    tests("get on a different thread").returns('1') do
+      connection.request(:method => :get).body
+    end
+    q2.push nil
+    tests("get on a different thread").returns('2') do
+      t.join.value
+    end
+    Excon.stubs.clear
+  end
+
   env_restore
 end
