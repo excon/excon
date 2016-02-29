@@ -383,7 +383,7 @@ module Excon
       unix_proxy = @data[:proxy] ? @data[:proxy][:scheme] == UNIX : false
       sockets[@socket_key] ||= if @data[:scheme] == UNIX || unix_proxy
         Excon::UnixSocket.new(@data)
-      elsif @data[:scheme] == HTTPS
+      elsif @data[:ssl_uri_schemes].include?(@data[:scheme])
         Excon::SSLSocket.new(@data)
       else
         Excon::Socket.new(@data)

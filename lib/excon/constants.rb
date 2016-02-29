@@ -132,6 +132,7 @@ module Excon
     :read_timeout         => 60,
     :retry_limit          => DEFAULT_RETRY_LIMIT,
     :ssl_verify_peer      => true,
+    :ssl_uri_schemes      => [HTTPS],
     :tcp_nodelay          => false,
     :thread_safe_sockets  => true,
     :uri_parser           => URI,
