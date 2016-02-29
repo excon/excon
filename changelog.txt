@@ -1,4 +1,11 @@
+0.47.0 02/29/2016
+=================
+
+fix bundled certs
+fix instrumentors to allow recording timings
+
 0.46.0 02/26/2016
+=================
 
 empty host header for unix sockets
 raise EOFError on unexpectedly read nil
