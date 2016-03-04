@@ -140,9 +140,10 @@ module Excon
 
           # add additional "\r\n" to indicate end of headers
           request << CR_NL
-          socket.write(request) # write out request + headers
 
           if datum.has_key?(:request_block)
+            socket.write(request) # write out request + headers
+
             while true # write out body with chunked encoding
               chunk = datum[:request_block].call
               if FORCE_ENC
@@ -155,13 +156,37 @@ module Excon
                 break
               end
             end
-          elsif !body.nil? # write out body
+          elsif body.nil?
+            socket.write(request)
+          else
             if body.respond_to?(:binmode)
               body.binmode
             end
             if body.respond_to?(:rewind)
               body.rewind  rescue nil
             end
+            chunk = nil
+            if body.respond_to?(:read_nonblock)
+              begin
+                chunk = body.read_nonblock(datum[:chunk_size])
+              rescue IO::WaitReadable, EOFError
+              end
+            end
+            if chunk
+              if FORCE_ENC
+                request.force_encoding('BINARY')
+                chunk.force_encoding('BINARY')
+              end
+              # Write the request + headers + first chunk as a single
+              # write. If the total fits into a single TCP packet this
+              # will save a packet on the wire, and also avoids
+              # triggering unnecessary delays due to the poor
+              # interaction of Nagle's algorithm and TCP delayed ACKs.
+              socket.write(request << chunk)
+            else
+              socket.write(request)
+            end
+
             while chunk = body.read(datum[:chunk_size])
               socket.write(chunk)
             end
