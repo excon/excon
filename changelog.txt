@@ -1,3 +1,8 @@
+0.48.0 03/07/2016
+=================
+
+optimize by writing part of body with headers when it fits in a chunk
+
 0.47.0 02/29/2016
 =================
 
