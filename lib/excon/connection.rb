@@ -170,10 +170,14 @@ module Excon
               request.force_encoding('BINARY')
             end
             chunk = body.read([datum[:chunk_size] - request.length, 0].max)
-            if FORCE_ENC
-              chunk.force_encoding('BINARY')
+            if chunk
+              if FORCE_ENC
+                chunk.force_encoding('BINARY')
+              end
+              socket.write(request << chunk)
+            else
+              socket.write(request) # write out request + headers
             end
-            socket.write(request << chunk)
 
             while chunk = body.read(datum[:chunk_size])
               socket.write(chunk)
