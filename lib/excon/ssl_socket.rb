@@ -119,11 +119,9 @@ module Excon
           begin
             @socket.connect_nonblock
           rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-            IO.select([@socket])
-            retry
+            select_with_timeout(@socket, :connect_read) && retry
           rescue IO::WaitWritable
-            IO.select(nil, [@socket])
-            retry
+            select_with_timeout(@socket, :connect_write) && retry
           end
         else
           @socket.connect

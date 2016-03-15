@@ -45,18 +45,10 @@ module Excon
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-        if timeout_reached('read')
-          raise_timeout_error('read')
-        else
-          retry
-        end
+        select_with_timeout(@socket, :read) && retry
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
-          if timeout_reached('read')
-            raise_timeout_error('read')
-          else
-            retry
-          end
+          select_with_timeout(@socket, :read) && retry
         else
           raise(error)
         end
@@ -135,9 +127,7 @@ module Excon
           end
           @socket = socket
         rescue Errno::EINPROGRESS
-          unless IO.select(nil, [socket], nil, @data[:connect_timeout])
-            raise(Excon::Errors::Timeout.new('connect timeout reached'))
-          end
+          select_with_timeout(socket, :connect_write)
           begin
             socket.connect_nonblock(sockaddr)
             @socket = socket
@@ -174,22 +164,14 @@ module Excon
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
-          if timeout_reached('read'
-            raise_timeout_error('read')
-          else 
-            retry
-          end
+          select_with_timeout(@socket, :read) && retry
         else
           raise(error)
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if @read_buffer.empty?
           # if we didn't read anything, try again...
-          if timeout_reached('read')
-            raise_timeout_error('read')
-          else
-            retry
-          end
+          select_with_timeout(@socket, :read) && retry
         end
       rescue EOFError
         @eof = true
@@ -211,21 +193,13 @@ module Excon
       @socket.read(max_length)
     rescue OpenSSL::SSL::SSLError => error
       if error.message == 'read would block'
-        if timeout_reached('read')
-          raise_timeout_error('read')
-        else
-          retry
-        end
+        select_with_timeout(@socket, :read) && retry
       else
         raise(error)
       end
     rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
       if @read_buffer.empty?
-        if timeout_reached('read')
-          raise_timeout_error('read')
-        else
-          retry
-        end
+        select_with_timeout(@socket, :read) && retry
       end
     rescue EOFError
       @eof = true
@@ -253,11 +227,7 @@ module Excon
           if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
             raise error
           else
-            if timeout_reached('write')
-              raise_timeout_error('write')
-            else
-              retry
-            end
+            select_with_timeout(@socket, :write) && retry
           end
         end
 
@@ -278,25 +248,22 @@ module Excon
       if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
         raise error
       else
-        if timeout_reached('write')
-          raise_timeout_error('write')
-        else
-          retry
-        end
+        select_with_timeout(@socket, :write) && retry
       end
     end
 
-    def timeout_reached(type)
-      if type == 'read'
-        args = [[@socket], nil, nil, @data[:read_timeout]]
-      else
-        args = [nil, [@socket], nil, @data[:write_timeout]]
+    def select_with_timeout(socket, type)
+      select = case type
+      when :connect_read
+        IO.select([socket], nil, nil, @data[:connect_timeout])
+      when :connect_write
+        IO.select(nil, [socket], nil, @data[:connect_timeout])
+      when :read
+        IO.select([socket], nil, nil, @data[:read_timeout])
+      when :write
+        IO.select(nil, [socket], nil, @data[:write_timeout])
       end
-      IO.select(*args) ? nil : true
-    end
-
-    def raise_timeout_error(type)
-      fail Excon::Errors::Timeout.new("#{type} timeout reached")
+      select || raise(Excon::Errors::Timeout.new("#{type} timeout reached"))
     end
 
     def unpacked_sockaddr
