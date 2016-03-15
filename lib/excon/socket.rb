@@ -44,7 +44,7 @@ module Excon
       begin
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable 
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if timeout_reached('read')
           raise_timeout_error('read')
         else
@@ -174,8 +174,8 @@ module Excon
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
-          if timeout_reached('read')  
-            raise_timeout_error('read') 
+          if timeout_reached('read'
+            raise_timeout_error('read')
           else 
             retry
           end
@@ -185,8 +185,8 @@ module Excon
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
         if @read_buffer.empty?
           # if we didn't read anything, try again...
-          if timeout_reached('read') 
-            raise_timeout_error('read') 
+          if timeout_reached('read')
+            raise_timeout_error('read')
           else
             retry
           end
@@ -211,8 +211,8 @@ module Excon
       @socket.read(max_length)
     rescue OpenSSL::SSL::SSLError => error
       if error.message == 'read would block'
-        if timeout_reached('read') 
-          raise_timeout_error('read') 
+        if timeout_reached('read')
+          raise_timeout_error('read')
         else
           retry
         end
@@ -221,8 +221,8 @@ module Excon
       end
     rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
       if @read_buffer.empty?
-        if timeout_reached('read') 
-          raise_timeout_error('read') 
+        if timeout_reached('read')
+          raise_timeout_error('read')
         else
           retry
         end
@@ -253,9 +253,9 @@ module Excon
           if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
             raise error
           else
-            if timeout_reached('write') 
-              raise_timeout_error('write') 
-            else 
+            if timeout_reached('write')
+              raise_timeout_error('write')
+            else
               retry
             end
           end
@@ -278,8 +278,8 @@ module Excon
       if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
         raise error
       else
-        if timeout_reached('write') 
-          raise_timeout_error('write') 
+        if timeout_reached('write')
+          raise_timeout_error('write')
         else
           retry
         end
