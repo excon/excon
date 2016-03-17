@@ -189,7 +189,7 @@ module Excon
         when Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
         else
-          raise(Excon::Errors::SocketError.new(error))
+          raise_socket_error(error)
         end
       end
 
@@ -392,7 +392,7 @@ module Excon
       when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout
         raise(error)
       else
-        raise(Excon::Errors::SocketError.new(error))
+        raise_socket_error(error)
       end
     end
 
@@ -412,6 +412,14 @@ module Excon
         Thread.current[:_excon_sockets] ||= {}
       else
         @_excon_sockets ||= {}
+      end
+    end
+
+    def raise_socket_error(error)
+      if error.message =~ /certificate verify failed/
+        raise(Excon::Errors::CertificateError.new(error))
+      else
+        raise(Excon::Errors::SocketError.new(error))
       end
     end
 

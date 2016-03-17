@@ -390,7 +390,7 @@ connection = Excon.new('https://example.com',
 
 ## HTTPS/SSL Issues
 
-By default excon will try to verify peer certificates when using SSL for HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::SocketError: SSL_connect returned=1 ...`
+By default excon will try to verify peer certificates when using HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::CertificateError: SSL_connect returned=1 ...`
 
 If you have the misfortune of running into this problem you have a couple options. If you have certificates but they aren't being auto-discovered, you can specify the path to your certificates:
 
