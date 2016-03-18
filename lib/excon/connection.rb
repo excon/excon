@@ -157,7 +157,7 @@ module Excon
             end
           elsif body.nil?
             socket.write(request) # write out request + headers
-          elsif !body.nil? # write out body
+          else # write out body
             if body.respond_to?(:binmode)
               body.binmode
             end
