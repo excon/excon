@@ -137,6 +137,22 @@ Shindo.tests('Excon ssl verify peer (ssl)') do
 
       response.status
     end
+
+    tests('EXCON_SSL_VERIFY_PEER = "false" response.status').returns(200) do
+      ENV['EXCON_SSL_VERIFY_PEER'] = 'false'
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true )
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      response.status
+    end
+
+    tests('EXCON_SSL_VERIFY_PEER = truthy GET /content-length/100').raises(Excon::Errors::SocketError) do
+      ENV['EXCON_SSL_VERIFY_PEER'] = 'foo'
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true )
+      response = connection.request(:method => :get, :path => '/content-length/100')
+
+      response.status
+    end
   end
 
   with_rackup('ssl_mismatched_cn.ru') do
