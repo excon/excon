@@ -210,9 +210,14 @@ module Excon
       nil
     end
 
-    # get a list of defined stubs for the current thread
+    # get a list of defined stubs
     def stubs
-      Thread.current[:_excon_stubs] ||= []
+      case Excon.defaults[:stubs]
+      when :global
+        @stubs ||= []
+      else
+        Thread.current[:_excon_stubs] ||= []
+      end
     end
 
     # remove first/oldest stub matching request_params
