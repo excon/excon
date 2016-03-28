@@ -308,6 +308,8 @@ config.before(:all) do
 end
 ```
 
+By default stubs are shared globally, to make stubs unique to each thread, use `Excon.defaults[:stubs] = :local`.
+
 ## Instrumentation
 
 Excon calls can be timed using the [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) API.
