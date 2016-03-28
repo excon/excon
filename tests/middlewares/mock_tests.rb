@@ -262,11 +262,11 @@ Shindo.tests('Excon stubs') do
       Excon.stub({}, {:body => '2'})
       connection.request(:method => :get).body
     end
-    tests("get on main thread").returns('2') do
-      connection.request(:method => :get).body
-    end
     tests("get on a different thread").returns('2') do
       t.join.value
+    end
+    tests("get on main thread").returns('2') do
+      connection.request(:method => :get).body
     end
     Excon.stubs.clear
 
@@ -280,11 +280,11 @@ Shindo.tests('Excon stubs') do
       Excon.stub({}, {:body => '2'})
       connection.request(:method => :get).body
     end
-    tests("get on main thread").returns('1') do
-      connection.request(:method => :get).body
-    end
     tests("get on a different thread").returns('2') do
       t.join.value
+    end
+    tests("get on main thread").returns('1') do
+      connection.request(:method => :get).body
     end
     Excon.stubs.clear
   end
