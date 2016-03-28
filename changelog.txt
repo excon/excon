@@ -1,3 +1,13 @@
+0.49.0 03/28/2016
+=================
+
+fix nonblock ssl socket connect timeout handling
+fix README debug example
+make unique class for certificate errors
+connection logic cleanup
+change stubs back to global (with local option via defaults)
+specific handling for set-cookie header exceptions
+
 0.48.0 03/07/2016
 =================
 
