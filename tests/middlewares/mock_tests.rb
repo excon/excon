@@ -253,9 +253,6 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("global stubs") do
-    original_stubs_value = Excon.defaults[:stubs]
-    Excon.defaults[:stubs] = :global
-
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => '1'})
     t = Thread.new do
@@ -269,11 +266,12 @@ Shindo.tests('Excon stubs') do
       connection.request(:method => :get).body
     end
     Excon.stubs.clear
-
-    Excon.defaults[:stubs] = original_stubs_value
   end
 
   tests("thread-local stubs") do
+    original_stubs_value = Excon.defaults[:stubs]
+    Excon.defaults[:stubs] = :local
+
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => '1'})
     t = Thread.new do
@@ -287,6 +285,8 @@ Shindo.tests('Excon stubs') do
       connection.request(:method => :get).body
     end
     Excon.stubs.clear
+
+    Excon.defaults[:stubs] = original_stubs_value
   end
 
   env_restore

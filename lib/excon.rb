@@ -215,7 +215,7 @@ module Excon
       case Excon.defaults[:stubs]
       when :global
         @stubs ||= []
-      else
+      when :local
         Thread.current[:_excon_stubs] ||= []
       end
     end

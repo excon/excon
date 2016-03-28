@@ -133,6 +133,7 @@ module Excon
     :retry_limit          => DEFAULT_RETRY_LIMIT,
     :ssl_verify_peer      => true,
     :ssl_uri_schemes      => [HTTPS],
+    :stubs                => :global,
     :tcp_nodelay          => false,
     :thread_safe_sockets  => true,
     :uri_parser           => URI,
