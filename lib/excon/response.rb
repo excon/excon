@@ -66,6 +66,7 @@ module Excon
 
       datum[:response] = {
         :body          => '',
+        :cookies       => [],
         :host          => datum[:host],
         :headers       => Excon::Headers.new,
         :path          => datum[:path],
@@ -184,6 +185,9 @@ module Excon
           raise Excon::Errors::ResponseParseError, 'malformed header' unless value
           # add key/value or append value to existing values
           datum[:response][:headers][key] = ([datum[:response][:headers][key]] << value.strip).compact.join(', ')
+          if key.casecmp('Set-Cookie') == 0
+            datum[:response][:cookies] << value.strip
+          end
           last_key = key
         end
       end

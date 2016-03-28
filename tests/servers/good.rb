@@ -139,6 +139,13 @@ module GoodServer
 
     when 'unknown'
       case path
+      when 'cookies'
+        start_response(:persistent => false)
+        send_data "Set-Cookie: one, two\r\n"
+        send_data "Set-Cookie: three, four\r\n"
+        send_data "\r\n"
+        send_data "hello world"
+
       when 'simple'
         start_response(:persistent => false)
         send_data "\r\n"
