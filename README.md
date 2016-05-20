@@ -417,6 +417,27 @@ Either of these should allow you to work around the socket error and continue wi
 
 Please refer to [CONTRIBUTING.md](https://github.com/excon/excon/blob/master/CONTRIBUTING.md).
 
+# Plugins and Middlewares
+
+Using Excon's [Middleware system][middleware], you can easily extend Excon's
+functionality with your own. The following plugins extend Excon in their own
+way:
+
+* [excon-addressable](https://github.com/JeanMertz/excon-addressable)
+
+  Set [addressable](https://github.com/sporkmonger/addressable) as the default
+  URI parser, and add support for [URI templating][templating].
+
+* [excon-hypermedia](https://github.com/JeanMertz/excon-hypermedia)
+
+  Teaches Excon to talk with [HyperMedia APIs][hypermedia]. Allowing you to use
+  all of Excon's functionality, while traversing APIs in an easy and
+  self-discovering way.
+
 ## License
 
 Please refer to [LICENSE.md](https://github.com/excon/excon/blob/master/LICENSE.md).
+
+[middleware]: lib/excon/middlewares/base.rb
+[hypermedia]: https://en.wikipedia.org/wiki/HATEOAS
+[templating]: https://www.rfc-editor.org/rfc/rfc6570.txt
