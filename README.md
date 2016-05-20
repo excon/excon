@@ -9,6 +9,23 @@ Excon was designed to be simple, fast and performant. It works great as a genera
 [![Gem Version](https://badge.fury.io/rb/excon.svg)](http://badge.fury.io/rb/excon)
 [![Gittip](http://img.shields.io/gittip/geemus.svg)](https://www.gittip.com/geemus/)
 
+* [Getting Started](#getting-started)
+* [Options](#options)
+* [Chunked Requests](#chunked-requests)
+* [Pipelining Requests](#pipelining-requests)
+* [Streaming Responses](#streaming-responses)
+* [Proxy Support](#proxy-support)
+* [Reusable ports](#reusable-ports)
+* [Unix Socket Support](#unix-socket-support)
+* [Stubs](#stubs)
+* [Instrumentation](#instrumentation)
+* [HTTPS client certificate](#https-client-certificate)
+* [HTTPS/SSL Issues](#httpsssl-issues)
+* [Getting Help](#getting-help)
+* [Contributing](#contributing)
+* [Plugins and Middlewares](#plugins-and-middlewares)
+* [License](#license)
+
 ## Getting Started
 
 Install the gem.
