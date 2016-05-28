@@ -24,7 +24,7 @@ require 'excon/constants'
 require 'excon/utils'
 
 require 'excon/connection'
-require 'excon/errors'
+require 'excon/error'
 require 'excon/headers'
 require 'excon/response'
 require 'excon/middlewares/decompress'

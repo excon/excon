@@ -1,11 +1,65 @@
 Shindo.tests('HTTPStatusError request/response debugging') do
 
+  tests('new returns an Error').returns(true) do
+    Excon::Error.new('bar').class == Excon::Error
+  end
+
   tests('new raises errors for bad URIs').returns(true) do
     begin
       Excon.new('foo')
       false
     rescue => err
       err.to_s.include? 'foo'
+    end
+  end
+
+  tests('can raise standard error and catch standard error').returns(true) do
+    begin 
+      raise Excon::Error::Client.new('foo')
+    rescue Excon::Error => e
+      true
+    end
+  end
+
+  tests('can raise legacy errors and catch legacy errors').returns(true) do
+    begin
+      raise Excon::Errors::Error.new('bar')
+    rescue Excon::Errors::Error => e
+      true
+    end
+  end
+
+  tests('can raise with status_error() and catch with standard error').returns(true) do
+    begin
+      raise Excon::Error.status_error({expects: 200}, {status: 400})
+    rescue Excon::Error
+      true
+    end
+  end
+
+
+  tests('can raise with  status_error() and catch with legacy error').returns(true) do
+    begin
+      raise Excon::Error.status_error({expects: 200}, {status: 400})
+    rescue Excon::Errors::BadRequest
+      true
+    end
+  end
+
+  tests('can raise with legacy status_error() and catch with legacy').returns(true) do
+    begin
+      raise Excon::Errors.status_error({expects: 200}, {status: 400})
+    rescue Excon::Errors::BadRequest
+      true
+    end
+  end
+
+
+  tests('can raise with legacy status_error() and catch with standard').returns(true) do
+    begin
+      raise Excon::Errors.status_error({expects: 200}, {status: 400})
+    rescue Excon::Error
+      true
     end
   end
 
@@ -53,6 +107,5 @@ Shindo.tests('HTTPStatusError request/response debugging') do
           err.message.include?('excon.error.response')
       end
     end
-
   end
 end
