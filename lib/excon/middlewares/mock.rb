@@ -35,7 +35,7 @@ module Excon
             if stub_datum.has_key?(:headers)
               datum[:response][:headers].merge!(stub_datum[:headers])
             end
-          else
+          elsif datum[:allow_unstubbed_requests] != true
             # if we reach here no stubs matched
             message = StringIO.new
             message.puts('no stubs matched')
