@@ -153,6 +153,17 @@ Shindo.tests('Excon stubs') do
     Excon.get('http://127.0.0.1:9292/', :mock => true)
   end
 
+  with_server('good') do
+    tests('allow mismatched stub').returns(200) do
+      Excon.stub({:path => '/echo/request_count'}, {:body => 'body'})
+      Excon.get(
+        'http://127.0.0.1:9292/echo/request',
+        :mock => true,
+        :allow_unstubbed_requests => true
+      ).status
+    end
+  end
+
   Excon.stubs.clear
 
   tests("stub({}, {:body => 'x' * (Excon::DEFAULT_CHUNK_SIZE + 1)})") do
