@@ -7,6 +7,7 @@
 * Brandur <brandur@mutelight.org>
 * Brian D. Burns <iosctr@gmail.com>
 * Brian Hartsock <brian.hartsock@gmail.com>
+* Bryan Paxton <starbelly@pobox.com>
 * Caio Chassot <dev@caiochassot.com>
 * Caius Durling <dev@caius.name>
 * Carl Hörberg <carl.hoerberg@gmail.com>
