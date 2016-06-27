@@ -13,6 +13,15 @@ Shindo.tests('HTTPStatusError request/response debugging') do
     end
   end
 
+  tests('new raises errors for bad paths').returns(true) do
+    begin
+      Excon.new('http://localhost', path: "foo\r\nbar: baz")
+      false
+    rescue => err
+      err.to_s.include? "foo\r\nbar: baz"
+    end
+  end
+
   tests('can raise standard error and catch standard error').returns(true) do
     begin 
       raise Excon::Error::Client.new('foo')
