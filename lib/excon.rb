@@ -111,7 +111,7 @@ module Excon
         raise ArgumentError.new("Invalid URI: #{uri}")
       end
       if params.has_key?(:path)
-        uri = uri_parser.join(uri, params[:path] || '')
+        uri = uri_parser.join(url, params[:path] || '')
       end
       params = {
         :host       => uri.host,
