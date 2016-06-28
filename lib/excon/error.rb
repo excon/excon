@@ -201,7 +201,9 @@ or:
 
     klasses.each do |klass|
       class_name = klass.to_s
-      class_name = klass.to_s + 'Error' if class_name =~ legacy_re
+      unless class_name =~ /Error\Z/ 
+        class_name = klass.to_s + 'Error' if class_name =~ legacy_re
+      end
       Excon::Errors.const_set(class_name, Excon::Error.const_get(klass))
     end
 
