@@ -103,7 +103,7 @@ or:
     class ExpectationFailed < Client; end                # 417
     class UnprocessableEntity < Client; end              # 422
     class TooManyRequests < Client; end                  # 429
-    class InternalServer < Server; end                   # 500
+    class InternalServerError < Server; end              # 500
     class NotImplemented < Server; end                   # 501
     class BadGateway < Server; end                       # 502
     class ServiceUnavailable < Server; end               # 503
