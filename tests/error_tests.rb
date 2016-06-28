@@ -1,4 +1,21 @@
+
+
 Shindo.tests('HTTPStatusError request/response debugging') do
+
+  # Regression against e300458f2d9330cb265baeb8973120d08c665d9
+  tests('Excon::Error knows about pertinent errors') do
+    expected = [
+      100, 
+      101, 
+      (200..206).to_a, 
+      (300..307).to_a, 
+      (400..417).to_a, 
+      422, 
+       429, 
+      (500..504).to_a
+    ]
+    expected.flatten == Excon::Error.status_errors.keys
+  end
 
   tests('new returns an Error').returns(true) do
     Excon::Error.new('bar').class == Excon::Error
