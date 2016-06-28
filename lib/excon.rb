@@ -107,11 +107,11 @@ module Excon
     def new(url, params = {})
       uri_parser = params[:uri_parser] || defaults[:uri_parser]
       uri = uri_parser.parse(url)
+      if params[:path]
+        uri_parser.parse(params[:path])
+      end
       unless uri.scheme
         raise ArgumentError.new("Invalid URI: #{uri}")
-      end
-      if params[:path]
-        uri = uri_parser.join(url, params[:path])
       end
       params = {
         :host       => uri.host,
