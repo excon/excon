@@ -1,3 +1,11 @@
+0.50.0 06/28/2016
+=================
+
+expand readme
+refactor errors for consistancy
+optionally allow unstubbed requests
+parse/verify path as well as host for connection
+
 0.49.0 03/28/2016
 =================
 
