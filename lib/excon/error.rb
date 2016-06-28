@@ -140,7 +140,18 @@ or:
         410 => [Excon::Error::Gone, 'Gone'],
         411 => [Excon::Error::LengthRequired, 'Length Required'],
         412 => [Excon::Error::PreconditionFailed, 'Precondition Failed'],
-        413 => [Excon::Error::RequestEntityTooLarge, 'Request Entity Too Large']
+        413 => [Excon::Error::RequestEntityTooLarge, 'Request Entity Too Large'],
+        414 => [Excon::Error::RequestURITooLong, 'Request-URI Too Long'],
+        415 => [Excon::Error::UnsupportedMediaType, 'Unsupported Media Type'],
+        416 => [Excon::Error::RequestedRangeNotSatisfiable, 'Request Range Not Satisfiable'],
+        417 => [Excon::Error::ExpectationFailed, 'Expectation Failed'],
+        422 => [Excon::Error::UnprocessableEntity, 'Unprocessable Entity'],
+        429 => [Excon::Error::TooManyRequests, 'Too Many Requests'],
+        500 => [Excon::Error::InternalServerError, 'InternalServerError'],
+        501 => [Excon::Error::NotImplemented, 'Not Implemented'],
+        502 => [Excon::Error::BadGateway, 'Bad Gateway'],
+        503 => [Excon::Error::ServiceUnavailable, 'Service Unavailable'],
+        504 => [Excon::Error::GatewayTimeout, 'Gateway Timeout']
       }
     end
 
