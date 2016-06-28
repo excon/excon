@@ -1,3 +1,8 @@
+0.50.1 06/28/2016
+=================
+
+re-add some missing errors from refactoring
+
 0.50.0 06/28/2016
 =================
 
