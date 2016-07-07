@@ -55,6 +55,14 @@ Shindo.tests('HTTPStatusError request/response debugging') do
     end
   end
 
+  tests('can raise standard error and catch legacy errors').returns(true) do
+    begin
+      raise Excon::Error::NotFound.new('bar')
+    rescue Excon::Errors::Error => e
+      true
+    end
+  end
+
   tests('can raise with status_error() and catch with standard error').returns(true) do
     begin
       raise Excon::Error.status_error({expects: 200}, {status: 400})

@@ -182,7 +182,7 @@ or:
 
   # Legacy
   module Errors
-    class Error < Excon::Error; end
+    Excon::Errors::Error = Excon::Error
 
     legacy_re = /
       \A
