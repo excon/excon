@@ -1,3 +1,7 @@
+0.51.0 07/08/2016
+
+tweak new errors to be an alias rather than inherit
+
 0.50.1 06/28/2016
 =================
 
