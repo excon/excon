@@ -3,13 +3,10 @@ before_install:
 language: ruby
 matrix:
   allow_failures:
-    - rvm: 1.8.7
     - rvm: rbx-3.2
     - rvm: ree
   fast_finish: true
 rvm:
-  - 1.8.7
-  - 1.9.2
   - 1.9.3
   - 2.0
   - 2.1
