@@ -44,9 +44,18 @@ end
 #############################################################################
 
 require 'shindo/rake'
+require "rspec/core/rake_task"
+
+RSpec::Core::RakeTask.new do |t|
+    t.rspec_opts = ["-c", "-f progress", "-r ./spec/spec_helper.rb"]
+    t.pattern = 'spec/**/*_spec.rb'
+end
+
+
 Shindo::Rake.new
 
-task :default => :tests
+task :default => [ :tests, :test]
+task :test => :spec
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
