@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
   # s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
+  s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
   s.add_development_dependency('eventmachine', '>= 1.0.4')
