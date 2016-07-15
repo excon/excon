@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # TODO: Remove this monkey patch once ruby 1.9.3+ is the minimum supported version.
 #
 # This patch backports URI#hostname to ruby 1.9.2 and older.

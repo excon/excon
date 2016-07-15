@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   class Socket
     include Utils
@@ -23,7 +24,7 @@ module Excon
     def initialize(data = {})
       @data = data
       @nonblock = data[:nonblock]
-      @read_buffer = ''
+      @read_buffer = String.new
       @eof = false
       connect
     end
@@ -40,7 +41,7 @@ module Excon
 
     def readline
       return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
-      buffer = ''
+      buffer = String.new
       begin
         buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
         buffer

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   class Connection
     include Utils
@@ -72,10 +73,10 @@ module Excon
       # Use Basic Auth if url contains a login
       if @data[:user] || @data[:password]
         user, pass = Utils.unescape_form(@data[:user].to_s), Utils.unescape_form(@data[:password].to_s)
-        @data[:headers]['Authorization'] ||= 'Basic ' << ['' << user.to_s << ':' << pass.to_s].pack('m').delete(Excon::CR_NL)
+        @data[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = '' << @data[:scheme]
+      @socket_key = @data[:scheme].dup
       if @data[:scheme] == UNIX
         if @data[:host]
           raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
@@ -83,10 +84,10 @@ module Excon
         elsif !@data[:socket]
           raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
         else
-          @socket_key << '://' << @data[:socket]
+          @socket_key = @socket_key + '://' + @data[:socket]
         end
       else
-        @socket_key << '://' << @data[:host] << port_string(@data)
+        @socket_key = @socket_key + '://' + @data[:host] + port_string(@data)
       end
       reset
     end
@@ -105,7 +106,7 @@ module Excon
         else
           socket.data = datum
           # start with "METHOD /path"
-          request = datum[:method].to_s.upcase << ' '
+          request = datum[:method].to_s.upcase + ' '
           if datum[:proxy] && datum[:scheme] != HTTPS
             request << datum[:scheme] << '://' << datum[:host] << port_string(datum)
           end
@@ -151,7 +152,7 @@ module Excon
               if chunk.length > 0
                 socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
               else
-                socket.write('0' << CR_NL << CR_NL)
+                socket.write(String.new("0#{CR_NL}#{CR_NL}"))
                 break
               end
             end
@@ -226,7 +227,7 @@ module Excon
       if datum[:scheme] == UNIX
         datum[:headers]['Host']   = ''
       else
-        datum[:headers]['Host']   ||= '' << datum[:host] << port_string(datum)
+        datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
       end
       datum[:retries_remaining] ||= datum[:retry_limit]
 
@@ -340,11 +341,11 @@ module Excon
         vars[:'@data'][:password] = REDACTED
       end
       inspection = '#<Excon::Connection:'
-      inspection << (object_id << 1).to_s(16)
+      inspection += (object_id << 1).to_s(16)
       vars.each do |key, value|
-        inspection << ' ' << key.to_s << '=' << value.inspect
+        inspection += " #{key}=#{value.inspect}"
       end
-      inspection << '>'
+      inspection += '>'
       inspection
     end
 
@@ -486,8 +487,8 @@ module Excon
           # https credentials happen in handshake
           if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
             user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-            auth = ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
-            @data[:headers]['Proxy-Authorization'] = 'Basic ' << auth
+            auth = ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
+            @data[:headers]['Proxy-Authorization'] = 'Basic ' + auth
           end
         end
       end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   module Utils
     extend self
@@ -14,26 +15,26 @@ module Excon
         raise ArgumentError, '`datum` must be given unless called on a Connection'
       end
       if datum[:scheme] == UNIX
-        '' << datum[:scheme] << '://' << datum[:socket]
+        "#{datum[:scheme]}://#{datum[:socket]}"
       else
-        '' << datum[:scheme] << '://' << datum[:host] << port_string(datum)
+        "#{datum[:scheme]}://#{datum[:host]}#{port_string(datum)}"
       end
     end
 
     def request_uri(datum)
-      connection_uri(datum) << datum[:path] << query_string(datum)
+      connection_uri(datum) + datum[:path] + query_string(datum)
     end
 
     def port_string(datum)
       if datum[:port].nil? || (datum[:omit_default_port] && ((datum[:scheme].casecmp('http') == 0 && datum[:port] == 80) || (datum[:scheme].casecmp('https') == 0 && datum[:port] == 443)))
         ''
       else
-        ':' << datum[:port].to_s
+        ':' + datum[:port].to_s
       end
     end
 
     def query_string(datum)
-      str = ''
+      str = String.new
       case datum[:query]
       when String
         str << '?' << datum[:query]
