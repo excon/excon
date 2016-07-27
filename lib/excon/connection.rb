@@ -76,7 +76,6 @@ module Excon
         @data[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
-      @socket_key = @data[:scheme].dup
       if @data[:scheme] == UNIX
         if @data[:host]
           raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
@@ -84,10 +83,10 @@ module Excon
         elsif !@data[:socket]
           raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
         else
-          @socket_key = @socket_key + '://' + @data[:socket]
+          @socket_key = "#{@data[:scheme]}://#{@data[:socket]}"
         end
       else
-        @socket_key = @socket_key + '://' + @data[:host] + port_string(@data)
+        @socket_key = "#{@data[:scheme]}://#{@data[:host]}#{port_string(@data)}"
       end
       reset
     end
