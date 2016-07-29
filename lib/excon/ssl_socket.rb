@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   class SSLSocket < Socket
     HAVE_NONBLOCK = [:connect_nonblock, :read_nonblock, :write_nonblock].all? do |m|
@@ -47,7 +48,7 @@ module Excon
 
           # workaround issue #257 (JRUBY-6970)
           ca_file = DEFAULT_CA_FILE
-          ca_file.gsub!(/^jar:/, '') if ca_file =~ /^jar:file:\//
+          ca_file = ca_file.gsub(/^jar:/, '') if ca_file =~ /^jar:file:\//
 
           begin
             ssl_context.cert_store.add_file(ca_file)
@@ -86,17 +87,17 @@ module Excon
       end
 
       if @data[:proxy]
-        request = 'CONNECT ' << @data[:host] << port_string(@data.merge(:omit_default_port => false)) << Excon::HTTP_1_1
-        request << 'Host: ' << @data[:host] << port_string(@data) << Excon::CR_NL
+        request = "CONNECT #{@data[:host]}#{port_string(@data.merge(:omit_default_port => false))}#{Excon::HTTP_1_1}" +
+                  "Host: #{@data[:host]}#{port_string(@data)}#{Excon::CR_NL}"
 
         if @data[:proxy][:password] || @data[:proxy][:user]
-          auth = ['' << @data[:proxy][:user].to_s << ':' << @data[:proxy][:password].to_s].pack('m').delete(Excon::CR_NL)
-          request << 'Proxy-Authorization: Basic ' << auth << Excon::CR_NL
+          auth = ["#{@data[:proxy][:user]}:#{@data[:proxy][:password]}"].pack('m').delete(Excon::CR_NL)
+          request += "Proxy-Authorization: Basic #{auth}#{Excon::CR_NL}"
         end
 
-        request << 'Proxy-Connection: Keep-Alive' << Excon::CR_NL
+        request += "Proxy-Connection: Keep-Alive#{Excon::CR_NL}"
 
-        request << Excon::CR_NL
+        request += Excon::CR_NL
 
         # write out the proxy setup request
         @socket.write(request)

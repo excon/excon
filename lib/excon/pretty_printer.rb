@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   class PrettyPrinter
     def self.pp(io, datum, indent=0)

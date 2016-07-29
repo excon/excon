@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
@@ -55,7 +56,7 @@ module Excon
     def display_warning(warning)
       # Show warning if $VERBOSE or ENV['EXCON_DEBUG'] is set
       if $VERBOSE || ENV['EXCON_DEBUG']
-        $stderr.puts '[excon][WARNING] ' << warning << "\n#{ caller.join("\n") }"
+        $stderr.puts "[excon][WARNING] #{warning}\n#{ caller.join("\n") }"
       end
     end
 
@@ -149,7 +150,7 @@ module Excon
         if uri.user || uri.password
           request_params[:headers] ||= {}
           user, pass = Utils.unescape_form(uri.user.to_s), Utils.unescape_form(uri.password.to_s)
-          request_params[:headers]['Authorization'] ||= 'Basic ' << ['' << user << ':' << pass].pack('m').delete(Excon::CR_NL)
+          request_params[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
         end
       end
       if request_params.has_key?(:headers)

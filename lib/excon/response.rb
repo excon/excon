@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   class Response
 
@@ -65,7 +66,7 @@ module Excon
       reason_phrase = line[13..-3] # -3 strips the trailing "\r\n"
 
       datum[:response] = {
-        :body          => '',
+        :body          => String.new,
         :cookies       => [],
         :host          => datum[:host],
         :headers       => Excon::Headers.new,

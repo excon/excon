@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
   # Excon exception classes
   class Error < StandardError
@@ -36,8 +37,8 @@ Unable to verify certificate. This may be an issue with the remote host or with 
 or:
             `Excon.defaults[:ssl_verify_peer] = false` (less secure).
         EOL
-        full_message = "#{socket_error.message} (#{socket_error.class})"
-        full_message << ' ' + msg
+        full_message = "#{socket_error.message} (#{socket_error.class})" +
+                       ' ' + msg
         super(full_message)
         set_backtrace(socket_error.backtrace)
         @socket_error = socket_error
@@ -163,8 +164,8 @@ or:
         error_class, error_message = [default_class, 'Unknown']
       end
       message = StringIO.new
-      str = "Expected(#{request[:expects].inspect}) <=>"
-      str << " Actual(#{response[:status]} #{error_message})"
+      str = "Expected(#{request[:expects].inspect}) <=>" +
+            " Actual(#{response[:status]} #{error_message})"
       message.puts(str)
       if request[:debug_request]
         message.puts('excon.error.request')
@@ -201,7 +202,7 @@ or:
 
     klasses.each do |klass|
       class_name = klass.to_s
-      unless class_name =~ /Error\Z/ 
+      unless class_name =~ /Error\Z/
         class_name = klass.to_s + 'Error' if class_name =~ legacy_re
       end
       Excon::Errors.const_set(class_name, Excon::Error.const_get(klass))

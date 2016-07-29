@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Excon
 
   VERSION = '0.51.0'
@@ -29,9 +30,9 @@ module Excon
 
   UNIX = 'unix'
 
-  USER_AGENT = 'excon/' << VERSION
+  USER_AGENT = "excon/#{VERSION}"
 
-  VERSIONS = USER_AGENT + ' (' << RUBY_PLATFORM << ') ruby/' << RUBY_VERSION
+  VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 
   VALID_REQUEST_KEYS = [
     :body,
