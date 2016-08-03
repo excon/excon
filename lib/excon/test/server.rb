@@ -1,6 +1,10 @@
 require 'open4'
 require 'excon'
-require 'excon/test/plugin/server/rackup'
+require 'excon/test/plugin/server/webrick'
+require 'excon/test/plugin/server/unicorn'
+require 'excon/test/plugin/server/puma'
+require 'excon/test/plugin/server/exec'
+
 
 module Excon
   module Test
@@ -19,7 +23,10 @@ module Excon
         # TODO: Validate these args
         @server = args.keys.first
         @app = args[server]
-        @bind = args[:bind]
+        args[:bind] ||= 'tcp://127.0.0.1:9292'
+        @bind = URI.parse(args[:bind])
+        @is_unix_socket = (@bind.scheme == 'unix')
+        @bind.host = @bind.host.gsub(/[\[\]]/, '') unless @is_unix_socket
         if args[:timeout]
           @timeout = args[:timeout]
         else
@@ -27,17 +34,9 @@ module Excon
           @timeout = RUBY_PLATFORM == "java" ? 20 : 10
         end
         name = @server.to_s.split('_').collect(&:capitalize).join
-        plug = "Excon::Test::Plugin::Server::#{name}"
-        self.extend Kernel.const_get plug
+        plug = nested_const_get("Excon::Test::Plugin::Server::#{name}")
+        self.extend plug
         check_implementation(plug)
-      end
-
-      private def check_implementation(plug)
-        INSTANCE_REQUIRES.each do |m|
-          unless self.respond_to? m
-            raise "FATAL: #{plug} does not implement ##{m}"
-          end
-        end
       end
 
       def open_process(*args)
@@ -62,6 +61,12 @@ module Excon
           GC.enable if RUBY_VERSION < '1.9'
           Process.wait(pid)
         end
+
+        if @is_unix_socket
+          socket = @bind.path
+          File.delete(socket) if File.exist?(socket)
+        end
+
         # TODO: Ensure process is really dead
         dump_errors
         true
@@ -79,6 +84,22 @@ module Excon
               in_err = false
             end
           puts line if in_err
+        end
+      end
+
+      private
+
+      def nested_const_get(namespace)
+        namespace.split('::').inject(Object) do |mod, klass|
+          mod.const_get(klass)
+        end
+      end
+
+      def check_implementation(plug)
+        INSTANCE_REQUIRES.each do |m|
+          unless self.respond_to? m
+            raise "FATAL: #{plug} does not implement ##{m}"
+          end
         end
       end
     end

@@ -17,5 +17,8 @@ rvm:
   - jruby
   - rbx-3.2
   - ree
-script: "bundle exec shindont"
+script: 
+  - "bundle exec shindont"
+  - "bundle exec rake spec[progress]"
+
 sudo: false
