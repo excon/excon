@@ -106,12 +106,21 @@ RSpec.configure do |config|
 
 end
 
-def rackup_path(*parts)
-  File.join(File.expand_path('../..', __FILE__), 'tests', 'rackups', *parts)
+# Todo: s/tests/specs when migration is complete
+def get_abs_path(*parts)
+  File.join(File.expand_path('../..', __FILE__), 'tests', *parts)
 end
 
-# TODO: Delete above method and uncommend this one when rackup tests are
-# ported
-#def rackup_path(*parts)
-#    File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
-#end
+def rackup_path(*parts)
+  get_abs_path('rackups', *parts)
+end
+
+def webrick_path(*parts) rackup_path(*parts); end
+
+def unicorn_path(*parts) rackup_path(*parts); end
+
+def puma_path(*parts) rackup_path(*parts); end
+
+def exec_path(*parts)
+  get_abs_path('servers', *parts)
+end

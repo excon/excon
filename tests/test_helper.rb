@@ -234,9 +234,9 @@ end
 def with_rackup(name, host="127.0.0.1")
   unless RUBY_PLATFORM == 'java'
     GC.disable if RUBY_VERSION < '1.9'
-    pid, w, r, e = Open4.popen4("rackup", "--host", host, rackup_path(name))
+    pid, w, r, e = Open4.popen4("rackup", "-s", "webrick", "--host", host, rackup_path(name))
   else
-    pid, w, r, e = IO.popen4("rackup", "--host", host, rackup_path(name))
+    pid, w, r, e = IO.popen4("rackup", "-s", "webrick", "--host", host, rackup_path(name))
   end
   until e.gets =~ /HTTPServer#start:/; end
   yield
