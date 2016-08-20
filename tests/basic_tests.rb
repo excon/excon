@@ -91,10 +91,17 @@ end
 Shindo.tests('Excon basics (Basic Auth Pass)') do
   with_rackup('basic_auth.ru') do
     basic_tests('http://test_user:test_password@127.0.0.1:9292')
+
     tests('with frozen args').returns(200) do
       user, pass, uri = ['test_user', 'test_password', 'http://127.0.0.1:9292'].map(&:freeze)
       connection = Excon.new(uri, :user => user, :password => pass )
       response = connection.request(:method => :get, :path => '/content-length/100')
+      response.status
+    end
+
+    tests('with persistent connection').returns(200) do
+      connection = Excon.new('http://127.0.0.1:9292', :persistent => true, :method => :get, :path => '/content-length/100')
+      response = connection.request(user: 'test_user', password: 'test_password')
       response.status
     end
   end
