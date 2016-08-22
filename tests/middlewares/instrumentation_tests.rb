@@ -173,6 +173,8 @@ Shindo.tests('Excon instrumentation') do
 
     tests('authorization header REDACT') do
 
+      @auth_header = 'Basic dXNlcjpwYXNz'
+
       begin
         original_stderr = $stderr
         $stderr = @captured_stderr = StringIO.new
@@ -180,6 +182,9 @@ Shindo.tests('Excon instrumentation') do
         raises(Excon::Errors::SocketError) do
           @connection = Excon.new(
             'http://user:pass@127.0.0.1:9292',
+            :headers      => {
+              'Authorization' => @auth_header
+            },
             :instrumentor => Excon::StandardInstrumentor,
             :mock         => true
           )
@@ -188,8 +193,6 @@ Shindo.tests('Excon instrumentation') do
       ensure
         $stderr = original_stderr
       end
-
-      @auth_header = 'Basic dXNlcjpwYXNz'
 
       test('does not appear in response') do
         !@captured_stderr.string.include?(@auth_header)
