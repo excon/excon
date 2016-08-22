@@ -70,12 +70,6 @@ module Excon
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
-      # Use Basic Auth if url contains a login
-      if @data[:user] || @data[:password]
-        user, pass = Utils.unescape_form(@data[:user].to_s), Utils.unescape_form(@data[:password].to_s)
-        @data[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
-      end
-
       if @data[:scheme] == UNIX
         if @data[:host]
           raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
@@ -222,6 +216,11 @@ module Excon
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
+
+      if datum[:user] || datum[:password]
+        user, pass = Utils.unescape_form(datum[:user].to_s), Utils.unescape_form(datum[:password].to_s)
+        datum[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
+      end
 
       if datum[:scheme] == UNIX
         datum[:headers]['Host']   = ''
