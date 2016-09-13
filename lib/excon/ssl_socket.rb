@@ -66,16 +66,20 @@ module Excon
       end
 
       # maintain existing API
-      certificate_path = @data[:client_cert] || @data[:certificate_path]
-      private_key_path = @data[:client_key] || @data[:private_key_path]
+      certificate_data = @data[:client_cert] || @data[:certificate_path]
+      private_key_data = @data[:client_key] || @data[:private_key_path]
       private_key_pass = @data[:client_key_pass] || @data[:private_key_pass]
 
-      if certificate_path && private_key_path
-        ssl_context.cert = OpenSSL::X509::Certificate.new(File.read(certificate_path))
+      if certificate_data && private_key_data
+        # Allow clients to pass in already loaded certs and private keys.
+        certificate_data = File.read certificate_data unless certificate_data.gsub(/\n|\r/, '') =~ /-----BEGIN CERTIFICATE.*END CERTIFICATE-----/
+        private_key_data = File.read private_key_data unless private_key_data.gsub(/\n|\r/, '') =~ /-----BEGIN.*PRIVATE KEY.*END.*PRIVATE KEY-----/
+
+        ssl_context.cert = OpenSSL::X509::Certificate.new certificate_data
         if OpenSSL::PKey.respond_to? :read
-          ssl_context.key = OpenSSL::PKey.read(File.read(private_key_path), private_key_pass)
+          ssl_context.key = OpenSSL::PKey.read(private_key_data, private_key_pass)
         else
-          ssl_context.key = OpenSSL::PKey::RSA.new(File.read(private_key_path), private_key_pass)
+          ssl_context.key = OpenSSL::PKey::RSA.new(private_key_data, private_key_pass)
         end
       elsif @data.key?(:certificate) && @data.key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
