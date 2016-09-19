@@ -413,6 +413,20 @@ connection = Excon.new('https://example.com',
 
 `client_key_pass` is optional.
 
+If you already have loaded the certificate and key into memory, then pass it through like:
+
+```ruby
+client_cert_data = File.load 'mycert.pem'
+client_key_data = File.load 'mycert.key'
+
+connection = Excon.new('https://example.com',
+                       client_cert_data: client_cert_data,
+                       client_key_data: client_key_data)
+```
+
+This can be useful if your program has already loaded the assets through
+another mechanism (E.g. a remote API call to a secure K:V system like Vault).
+
 ## HTTPS/SSL Issues
 
 By default excon will try to verify peer certificates when using HTTPS. Unfortunately on some operating systems the defaults will not work. This will likely manifest itself as something like `Excon::Errors::CertificateError: SSL_connect returned=1 ...`
