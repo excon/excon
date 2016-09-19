@@ -208,7 +208,7 @@ Shindo.tests('Excon basics (ssl file)',['focus']) do
 
     cert_key_data = File.read cert_key_path
     cert_crt_data = File.read cert_crt_path
-    basic_tests('https://127.0.0.1:8443', private_key_data: cert_key_data, client_cert_data: cert_crt_data)
+    basic_tests('https://127.0.0.1:8443', client_key_data: cert_key_data, client_cert_data: cert_crt_data)
   end
 end
 

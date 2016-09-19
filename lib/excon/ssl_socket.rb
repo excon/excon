@@ -65,34 +65,19 @@ module Excon
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
-      # maintain existing API
-      client_cert_data = if cert_data = @data[:client_cert_data]
-                           cert_data
-                         elsif path = (@data[:client_cert] || @data[:certificate_path])
-                           File.read path
-                         end
-
-      private_key_data = if key_data = @data[:private_key_data]
-                           key_data
-                         elsif path = (@data[:client_key] || @data[:private_key_path])
-                           File.read path
-                         end
-
-      private_key_pass = @data[:client_key_pass] || @data[:private_key_pass]
-
-      if client_cert_data && private_key_data
+      if client_cert_data && client_key_data
         ssl_context.cert = OpenSSL::X509::Certificate.new client_cert_data
         if OpenSSL::PKey.respond_to? :read
-          ssl_context.key = OpenSSL::PKey.read(private_key_data, private_key_pass)
+          ssl_context.key = OpenSSL::PKey.read(client_key_data, client_key_pass)
         else
-          ssl_context.key = OpenSSL::PKey::RSA.new(private_key_data, private_key_pass)
+          ssl_context.key = OpenSSL::PKey::RSA.new(client_key_data, client_key_pass)
         end
       elsif @data.key?(:certificate) && @data.key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
         if OpenSSL::PKey.respond_to? :read
-          ssl_context.key = OpenSSL::PKey.read(@data[:private_key], private_key_pass)
+          ssl_context.key = OpenSSL::PKey.read(@data[:private_key], client_key_pass)
         else
-          ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], private_key_pass)
+          ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], client_key_pass)
         end
       end
 
@@ -151,10 +136,37 @@ module Excon
 
     private
 
+    def client_cert_data
+      @client_cert_data ||= if ccd = @data[:client_cert_data]
+                              ccd
+                            elsif path = @data[:client_cert]
+                              File.read path
+                            elsif path = @data[:certificate_path]
+                              warn ":certificate_path is no longer supported and will be deprecated. Please use :client_cert or :client_cert_data"
+                              File.read path
+                            end
+    end
+
     def connect
       # backwards compatability for things lacking nonblock
       @nonblock = HAVE_NONBLOCK && @nonblock
       super
     end
+
+    def client_key_data
+      @client_key_data ||= if ckd = @data[:client_key_data]
+                             ckd
+                           elsif path = @data[:client_key]
+                             File.read path
+                           elsif path = @data[:private_key_path]
+                             warn ":private_key_path is no longer supported and will be deprecated. Please use :client_key or :client_key_data"
+                             File.read path
+                           end
+    end
+
+    def client_key_pass
+      @data[:client_key_pass] || @data[:private_key_pass]
+    end
+
   end
 end
