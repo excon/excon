@@ -4,7 +4,6 @@ module Excon
       module Server
         module Puma
           def start(app_str = app, bind_uri = bind)
-            bind.host = bind_uri.host.gsub(/[\[\]]/, '')
             open_process('puma', '-b', bind_uri.to_s, app_str)
             line = ''
             until line =~ /Use Ctrl-C to stop/

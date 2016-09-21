@@ -2,8 +2,7 @@ source "http://rubygems.org"
 
 gemspec
 
-gem 'jruby-openssl', :platform => :jruby
-gem 'puma', :groups => [:development, :test]
+gem 'jruby-openssl', '~> 0.9', :platform => :jruby
 gem 'unicorn', :platforms => [:mri, :rbx], :groups => [:development, :test]
 gem 'rubysl', '~> 2.0', :platform => :rbx
 gem 'rack', '~> 1.6'

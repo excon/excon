@@ -30,8 +30,7 @@ module Excon
         if args[:timeout]
           @timeout = args[:timeout]
         else
-          # Double the default timeout if jruby because of the startup cost
-          @timeout = RUBY_PLATFORM == "java" ? 20 : 10
+          @timeout = 20
         end
         name = @server.to_s.split('_').collect(&:capitalize).join
         plug = nested_const_get("Excon::Test::Plugin::Server::#{name}")
@@ -72,7 +71,7 @@ module Excon
         true
       end
       def dump_errors
-        lines = error.read.split($INPUT_RECORD_SEPARATOR)
+        lines = error.read.split($/)
         while line = lines.shift
           case line
             when /(ERROR|Error)/

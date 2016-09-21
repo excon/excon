@@ -65,7 +65,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra')
   s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('json', '>= 1.8.2')
-
+  if RUBY_VERSION.to_f >= 1.9
+      s.add_development_dependency 'puma'
+  end
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
   ## THE MANIFEST COMMENTS, they are used as delimiters by the task.
@@ -128,7 +130,6 @@ Gem::Specification.new do |s|
     lib/excon/unix_socket.rb
     lib/excon/utils.rb
     spec/excon_spec.rb
-    spec/excon_test_server_spec.rb
     spec/spec_helper.rb
     tests/authorization_header_tests.rb
     tests/bad_tests.rb
