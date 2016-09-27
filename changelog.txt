@@ -1,3 +1,10 @@
+0.32.0 09/27/2016
+=================
+
+add ability to pass ssl options as strings
+progress towards rspec
+update bundled certs
+
 0.52.0 08/22/2016
 =================
 
