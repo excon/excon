@@ -152,3 +152,10 @@ task :update_certs do
     file.write(data)
   end
 end
+
+desc "check ssl settings"
+task :hows_my_ssl do
+  require File.join(File.dirname(__FILE__), 'lib', 'excon')
+  data = Excon.get("https://www.howsmyssl.com/a/check").body
+  puts data
+end
