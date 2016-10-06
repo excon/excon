@@ -1,4 +1,4 @@
-0.32.0 09/27/2016
+0.53.0 09/27/2016
 =================
 
 add ability to pass ssl options as strings
