@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Excon
 
-  VERSION = '0.53.0'
+  VERSION = '0.54.0'
 
   CR_NL = "\r\n"
 

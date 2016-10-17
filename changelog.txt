@@ -1,3 +1,10 @@
+0.54.0 10/17/2016
+=================
+
+add howsmyssl rake task for sanity checking
+update default ciphers to mozilla intermediate list
+fix typo in changelog
+
 0.53.0 09/27/2016
 =================
 
