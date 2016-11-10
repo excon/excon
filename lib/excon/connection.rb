@@ -473,11 +473,12 @@ module Excon
             end
           else
             unless uri.host && uri.port && uri.scheme
-              raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+              uriconcat = "scheme: #{uri.scheme}\nhost: #{uri.host}\nport: #{uri.port}"
+              raise Excon::Errors::ProxyParse, "Proxy is invalid.  Value you passed was:\n#{uriconcat}\n"
             end
           end
         else
-          raise Excon::Errors::ProxyParseError, "Proxy is invalid"
+          raise Excon::Errors::ProxyParse, "Proxy is invalid."
         end
 
         if @data.has_key?(:proxy) && @data[:scheme] == 'http'
