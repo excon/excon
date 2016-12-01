@@ -172,7 +172,7 @@ Compared to web browsers and other http client libraries, e.g. curl, Excon is a 
 connection = Excon.new('http://geemus.com/', :omit_default_port => true)
 
 # accept gzip encoding
-connection = Excon.new('http://geemus.com/', :headers => { "Accept" => "gzip" })
+connection = Excon.new('http://geemus.com/', :headers => { "Accept-Encoding" => "gzip" })
 
 # turn off peer verification (less secure)
 Excon.defaults[:ssl_verify_peer] = false
