@@ -156,7 +156,7 @@ Shindo.tests('Excon ssl verify peer (ssl)') do
     connection = nil
     test do
       ssl_ca_file = File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
-      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true, :ssl_ca_file => ssl_ca_file, :ssl_verify_peer_host => 'Excon' )
+      connection = Excon.new('https://127.0.0.1:9443', :ssl_verify_peer => true, :ssl_ca_file => ssl_ca_file, :ssl_verify_peer_host => 'excon' )
       true
     end
 
