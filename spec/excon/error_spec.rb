@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe Excon::Error do
   # Regression against e300458f2d9330cb265baeb8973120d08c665d9
   describe '#status_errors' do
