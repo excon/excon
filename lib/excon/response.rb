@@ -178,12 +178,12 @@ module Excon
       last_key = nil
       until (data = socket.readline.chomp).empty?
         if !data.lstrip!.nil?
-          raise Excon::Errors::ResponseParseError, 'malformed header' unless last_key
+          raise Excon::Error::ResponseParse, 'malformed header' unless last_key
           # append to last_key's last value
           datum[:response][:headers][last_key] << ' ' << data.rstrip
         else
           key, value = data.split(':', 2)
-          raise Excon::Errors::ResponseParseError, 'malformed header' unless value
+          raise Excon::Error::ResponseParse, 'malformed header' unless value
           # add key/value or append value to existing values
           datum[:response][:headers][key] = ([datum[:response][:headers][key]] << value.strip).compact.join(', ')
           if key.casecmp('Set-Cookie') == 0
