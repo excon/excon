@@ -218,7 +218,7 @@ module Excon
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       if datum[:user] || datum[:password]
-        user, pass = Utils.unescape_form(datum[:user].to_s), Utils.unescape_form(datum[:password].to_s)
+        user, pass = Utils.unescape_uri(datum[:user].to_s), Utils.unescape_uri(datum[:password].to_s)
         datum[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
