@@ -6,7 +6,7 @@ Excon was designed to be simple, fast and performant. It works great as a genera
 
 [![Build Status](https://travis-ci.org/excon/excon.svg?branch=master)](https://travis-ci.org/excon/excon)
 [![Dependency Status](https://gemnasium.com/excon/excon.svg)](https://gemnasium.com/excon/excon)
-[![Gem Version](https://badge.fury.io/rb/excon.svg)](http://badge.fury.io/rb/excon)
+[![Gem Version](https://badge.fury.io/rb/excon.svg)](https://badge.fury.io/rb/excon)
 [![Gittip](http://img.shields.io/gittip/geemus.svg)](https://www.gittip.com/geemus/)
 
 * [Getting Started](#getting-started)
