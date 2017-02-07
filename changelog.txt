@@ -1,3 +1,20 @@
+0.55.0 02/07/2017
+=================
+
+fix minor readme error
+update bundled certs
+update self-signed certs
+update to test with ruby 2.3.3
+fix unitialized ResponseParseError error
+add missing 'spec_helper' require in tests
+add missing 'time' require in tests
+use unescape_uri for user/pass in Authorization header
+use secure rubygems source uri
+update gemnasium badge
+update fury badge
+update travis badge
+update gittip badge
+
 0.54.0 10/17/2016
 =================
 
