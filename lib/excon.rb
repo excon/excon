@@ -128,7 +128,12 @@ module Excon
       if uri.user
         params[:user] = Utils.unescape_uri(uri.user)
       end
-      Excon::Connection.new(params)
+      begin
+          con = Excon::Connection.new(params)
+      rescue Exception => ex
+          print "Unable to establish Excon connection.\nException detail:\n#{ex}\nDid you set your proxy environment variable correctly?\n\n"
+          raise
+      end
     end
 
     # push an additional stub onto the list to check for mock requests
