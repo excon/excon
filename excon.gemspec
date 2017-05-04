@@ -64,7 +64,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
   s.add_development_dependency('sinatra-contrib')
-  s.add_development_dependency('json', '>= 1.8.2')
+  s.add_development_dependency('json', '>= 1.8.5')
   if RUBY_VERSION.to_f >= 1.9
       s.add_development_dependency 'puma'
   end
