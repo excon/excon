@@ -1,3 +1,9 @@
+0.56.0 05/31/2017
+=================
+
+fix proxy parse errors
+fix url-escaped proxy creds for ssl
+
 0.55.0 02/07/2017
 =================
 
@@ -485,7 +491,8 @@ fix logic error in dropping default ports
 0.22.0 05/17/2013
 =================
 
-remove request/response info from default error messages to avoid credential leaks
+remove request/response info from default error messages to avoid
+credential leaks
 add option to omit default ports (http:80 and https:443)
 add examples for form encoding
 updates to facilitate streaming responses from middleware responses
@@ -551,7 +558,8 @@ move uri parsing to Excon.new
 allow for configurable URI parser (ie Addressable vs URI)
 move VALID_CONNECTION_KEYS to constants
 move idempotent tests to middleware directory
-fix output of expects middleware to pass response objects instead of hashes
+fix output of expects middleware to pass response objects instead of
+hashes
 
 0.18.5 02/22/2013
 =================
@@ -677,7 +685,7 @@ update readme to describe nonblock and idempotent options
 
 consolidate proxy handling
 proxy settings should pull from connection instead of params (allows
-Excon.defaults[:proxy])
+		Excon.defaults[:proxy])
 properly raise connect timeout errors
 change recommended standard instrumentor ENV to EXCON_DEBUG
 remove readline nonblock protections (they didn't fix the windows issue)
@@ -689,7 +697,8 @@ use Excon::Response#parse to read https proxy response
 0.15.4 07/16/12
 ===============
 
-rescue/retry nonblock errors from readline (even though they shouldn't occur)
+rescue/retry nonblock errors from readline (even though they shouldn't
+		occur)
 
 0.15.3 07/16/12
 ===============
@@ -736,7 +745,8 @@ respect upper case env vars
 0.14.0 05/31/12
 ===============
 
-make stubs LIFO for ease of use/understanding, updated README to explain
+make stubs LIFO for ease of use/understanding, updated README to
+explain
 simplify https proxy logic
 add instrumentation for responses
 add StandardInstrumentor (events got to stderr)
@@ -755,7 +765,8 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 0.13.2 03/26/12
 ===============
 
-* fix to avoid issues when Tempfile is not required/defined. Thanks nextmat
+* fix to avoid issues when Tempfile is not required/defined. Thanks
+nextmat
 
 0.13.1 03/26/12
 ===============
@@ -788,7 +799,8 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 0.10.0 03/01/12
 ===============
 
-* avoid setting/passing Content-Length headers for GET requests with no body
+* avoid setting/passing Content-Length headers for GET requests with
+no body
 * remove rcov from tasks/bundle in development
 * automatically parse and use basic auth when passed as part of a uri
 * fix for erroneous recursion in Excon.defaults=
@@ -942,14 +954,16 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 * add block support to mocks. thanks dmeiz
 * fixes for stub matching. thanks dmeiz
 * don't do post_connection_check if verify mode is off
-* check excon state for verify mode instead of checking OpenSSL constants
+* check excon state for verify mode instead of checking OpenSSL
+constants
 * use RbConfig to find OS. thanks trym
 * fixes for idempotent/retry. thanks lstoll
 
 0.6.3 05/02/11
 ==============
 
-* fixes for header parsing to allow whitespace after :. thanks myronmarston
+* fixes for header parsing to allow whitespace after :. thanks
+myronmarston
 * get_header optimization. thanks nextmat
 * rewind body on retry. thanks pweldon
 
@@ -962,8 +976,10 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 ==============
 
 * add support for HTTPS proxies. thanks mrowe
-* add support for http_proxy and https_proxy ENV variables. thanks mrowe
-* fix progress for requests with blocks that are chunked or connection close
+* add support for http_proxy and https_proxy ENV variables. thanks
+mrowe
+* fix progress for requests with blocks that are chunked or connection
+close
 
 0.6.0 03/30/11
 ==============
@@ -975,8 +991,10 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 0.5.8 03/24/11
 ==============
 
-* fix regression where nil values in queries were ignored in 1.9. thanks mattsa
-* fix regression causing EOFError when making many connections in one thread
+* fix regression where nil values in queries were ignored in 1.9.
+thanks mattsa
+* fix regression causing EOFError when making many connections in one
+thread
 * added tests to prevent both of the former from recurring
 
 0.5.7 03/21/11
@@ -986,21 +1004,25 @@ EXCON_STANDARD_INSTRUMENTOR=true sets StandardInstrumentor as default
 * add rough first pass at stubbing
 * minor optimizations
 * ssl client certification support. thanks thommay
-* skip figuring out/setting Content-Length if one is supplied. Thanks pweldon
+* skip figuring out/setting Content-Length if one is supplied. Thanks
+pweldon
 * do not try to parse body for 205 and 304. Thanks seancribbs
 
 0.5.6 02/19/11
 ==============
 
-* only split headers by first ':' to allow for values with ':'. Thanks mtodd!
-* check a string instance for force_encoding, not class. Thanks seancribbs!
+* only split headers by first ':' to allow for values with ':'. Thanks
+mtodd!
+* check a string instance for force_encoding, not class. Thanks
+seancribbs!
 * add benchmarks related to for vs each for enumerable. Thanks caius!
 * fix default rake task to run tests
 
 0.5.5 02/18/11
 ==============
 
-* use local variables in response parsing, prevents keeping state across requests
+* use local variables in response parsing, prevents keeping state
+across requests
 
 0.5.4 02/18/11
 ==============
