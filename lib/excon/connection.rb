@@ -223,7 +223,7 @@ module Excon
       end
 
       if datum[:scheme] == UNIX
-        datum[:headers]['Host']   = ''
+        datum[:headers]['Host']   ||= ''
       else
         datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
       end
