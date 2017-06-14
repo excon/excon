@@ -1,3 +1,9 @@
+0.57.0 06/14/2017
+=================
+
+add client_key_data and client_cert_data to valid keys
+allow passing explicit host to unix sockets
+
 0.56.0 05/31/2017
 =================
 
