@@ -1,3 +1,8 @@
+0.57.1 06/30/2017
+=================
+
+fix remote-ip setting to prevent off-by-one issue
+
 0.57.0 06/14/2017
 =================
 
