@@ -101,12 +101,12 @@ module Excon
       addrinfo = ::Socket.getaddrinfo(*args)
 
       addrinfo.each do |_, port, _, ip, a_family, s_type|
-        @remote_ip = ip
-
         # already succeeded on previous addrinfo
         if @socket
           break
         end
+        
+        @remote_ip = ip
 
         # nonblocking connect
         begin
