@@ -48,7 +48,6 @@ or:
     class Timeout < Error; end
     class ResponseParse < Error; end
     class ProxyParse < Error; end
-    class ProxyConnection < Error; end
 
     # Base class for HTTP Error classes
     class HTTPStatus < Error
