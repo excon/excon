@@ -128,4 +128,37 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
+  tests("Retry limit and sleep in constructor with socket erroring first 2 times").returns(200) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 2 # First 5 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+
+    # NOTE: A short :retry_interval will avoid slowing down the tests.
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 3, :retry_interval => 0.1)
+    response.status
+  end
+
+  tests("Retry limit and sleep in constructor with socket erroring first 2 times").raises(Excon::Errors::SocketError) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 2 # First 5 calls fail.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    # NOTE: A short :retry_interval will avoid slowing down the tests.
+    response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 2, :retry_interval => 0.1)
+    response.status
+  end
+
 end

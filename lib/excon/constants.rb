@@ -57,6 +57,7 @@ module Excon
     :response_block,
     :retries_remaining, # used internally
     :retry_limit,
+    :retry_interval,
     :versions,
     :write_timeout
   ]

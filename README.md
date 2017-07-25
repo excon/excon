@@ -136,6 +136,10 @@ connection.request(:idempotent => true)
 # this request can be repeated safely, retry up to 6 times
 connection.request(:idempotent => true, :retry_limit => 6)
 
+# this request can be repeated safely, retry up to 6 times and sleep 5 seconds
+# in between each retry
+connection.request(:idempotent => true, :retry_limit => 6, :retry_interval => 5)
+
 # set longer read_timeout (default is 60 seconds)
 connection.request(:read_timeout => 360)
 

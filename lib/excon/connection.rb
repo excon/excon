@@ -46,6 +46,7 @@ module Excon
     #     @option params [String] :ciphers Only use the specified SSL/TLS cipher suites; use OpenSSL cipher spec format e.g. 'HIGH:!aNULL:!3DES' or 'AES256-SHA:DES-CBC3-SHA'
     #     @option params [String] :proxy Proxy server; e.g. 'http://myproxy.com:8888'
     #     @option params [Fixnum] :retry_limit Set how many times we'll retry a failed request.  (Default 4)
+    #     @option params [Fixnum] :retry_interval Set how long to wait between retries. (Default 0)
     #     @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     #     @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})

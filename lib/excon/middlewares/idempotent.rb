@@ -20,6 +20,9 @@ module Excon
 
         if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
             Excon::Errors::HTTPStatusError].any? {|ex| datum[:error].kind_of?(ex) } && datum[:retries_remaining] > 1
+
+          sleep(datum[:retry_interval]) if datum[:retry_interval]
+
           # reduces remaining retries, reset connection, and restart request_call
           datum[:retries_remaining] -= 1
           connection = datum.delete(:connection)
