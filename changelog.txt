@@ -1,3 +1,9 @@
+0.58.0 08/01/2017
+=================
+
+remove unused error
+add retry_interval and related settings for backoff
+
 0.57.1 06/30/2017
 =================
 
