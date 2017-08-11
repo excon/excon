@@ -31,7 +31,7 @@ Unable to verify certificate. This may be an issue with the remote host or with 
             `Excon.defaults[:ssl_ca_path] = path_to_certs`
             `ENV['SSL_CERT_DIR'] = path_to_certs`
             `Excon.defaults[:ssl_ca_file] = path_to_file`
-            `ENV['SSL_CERT_FILE'] = path_to_file'
+            `ENV['SSL_CERT_FILE'] = path_to_file`
             `Excon.defaults[:ssl_verify_callback] = callback`
                 (see OpenSSL::SSL::SSLContext#verify_callback)
 or:
