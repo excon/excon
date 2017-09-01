@@ -1,6 +1,8 @@
 require 'json'
 
 Shindo.tests('Excon basics') do
+  env_init
+
   with_rackup('basic.ru') do
     basic_tests
 
