@@ -1,3 +1,10 @@
+0.59.0 2017-09-05
+=================
+
+fix backtick vs quote in error message
+fix socket pooling to be per-connection instead of per thread
+fix tests to ignore proxy env settings
+
 0.58.0 08/01/2017
 =================
 
