@@ -301,6 +301,21 @@ module Excon
       responses
     end
 
+    # Sends the supplied requests to the destination host using pipelining in
+    # batches of @limit [Numeric] requests. This is your soft file descriptor
+    # limit by default, typically 256.
+    #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
+    def batch_requests(pipeline_params, limit = nil)
+      limit ||= Process.respond_to?(:getrlimit) ? Process.getrlimit(:NOFILE).first : 256
+      responses = []
+
+      pipeline_params.each_slice(limit) do |params|
+        responses.concat(requests(params))
+      end
+
+      responses
+    end
+
     def reset
       if old_socket = sockets.delete(@socket_key)
         old_socket.close rescue nil

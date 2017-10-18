@@ -215,6 +215,13 @@ connection.requests([{:method => :get}, {:method => :get}])
 By default, each call to `requests` will use a separate persistent socket connection. To make multiple `requests` calls
 using a single persistent connection, set `:persistent => true` when establishing the connection.
 
+For large numbers of simultaneous requests please consider using the `batch_requests` method. This will automatically slice up the requests into batches based on the file descriptor limit of your operating system. The results are the same as the `requests` method, but using this method can help prevent timeout errors.
+
+```ruby
+large_array_of_requests = [{:method => :get, :path => 'some_path'}, { ... }] # Hundreds of items
+connection.batch_requests(large_array_of_requests)
+```
+
 ## Streaming Responses
 
 You can stream responses by passing a block that will receive each chunk.
