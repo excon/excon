@@ -13,7 +13,7 @@ def name
 end
 
 def version
-  line = File.read("lib/#{name}/constants.rb")[/^\s*VERSION\s*=\s*.*/]
+  line = File.read("lib/#{name}/version.rb")[/^\s*VERSION\s*=\s*.*/]
   line.match(/.*VERSION\s*=\s*['"](.*)['"]/)[1]
 end
 
