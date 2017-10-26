@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 module Excon
 
-  VERSION = '0.59.0'
-
   CR_NL = "\r\n"
 
   DEFAULT_CA_FILE = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "cacert.pem"))

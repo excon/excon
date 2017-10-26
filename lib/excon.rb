@@ -12,6 +12,8 @@ require 'uri'
 require 'zlib'
 require 'stringio'
 
+require 'excon/version'
+
 require 'excon/extensions/uri'
 
 require 'excon/middlewares/base'
