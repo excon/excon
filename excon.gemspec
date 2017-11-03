@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.test_files       = s.files.select { |path| path =~ /^[spec|tests]\/.*_[spec|tests]\.rb/ }
 
   s.add_development_dependency('rspec', '>= 3.5.0')
+  s.add_development_dependency('cucumber', '>= 3.0.1')
   s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
   s.add_development_dependency('eventmachine', '>= 1.0.4')
