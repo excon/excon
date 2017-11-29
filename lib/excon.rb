@@ -37,7 +37,7 @@ require 'excon/middlewares/capture_cookies'
 require 'excon/pretty_printer'
 require 'excon/socket'
 require 'excon/ssl_socket'
-require 'excon/standard_instrumentor'
+require 'excon/instrumentors/standard_instrumentor'
 require 'excon/unix_socket'
 
 # Define defaults first so they will be available to other files
