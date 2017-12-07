@@ -32,12 +32,12 @@ module Excon
       @data[:proxy] = new_proxy
     end
 
-    def log
+    def logger
       if @data[:instrumentor] && @data[:instrumentor].respond_to?(:logger)
         @data[:instrumentor].logger
       end
     end
-    def log=(logger)
+    def logger=(logger)
       Excon::LoggingInstrumentor.logger = logger
       @data[:instrumentor] = Excon::LoggingInstrumentor
     end

@@ -36,7 +36,13 @@ module Excon
         info = "request: " + params[:scheme] + "://" + File.join(params[:host], params[:path])
 
         if params[:query]
-          info += "?" + params[:query]
+          info << "?"
+
+          if params[:query].is_a?(Hash)
+            info << params.to_a.map{ |key,value| "#{key}=#{value}" }.join('&')
+          else
+            info << params[:query]
+          end
         end
       else
         response_type = name.split('.').last
