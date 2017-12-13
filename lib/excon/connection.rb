@@ -32,6 +32,16 @@ module Excon
       @data[:proxy] = new_proxy
     end
 
+    def logger
+      if @data[:instrumentor] && @data[:instrumentor].respond_to?(:logger)
+        @data[:instrumentor].logger
+      end
+    end
+    def logger=(logger)
+      Excon::LoggingInstrumentor.logger = logger
+      @data[:instrumentor] = Excon::LoggingInstrumentor
+    end
+
     # Initializes a new Connection instance
     #   @param [Hash<Symbol, >] params One or more optional params
     #     @option params [String] :body Default text to be sent over a socket. Only used if :body absent in Connection#request params
