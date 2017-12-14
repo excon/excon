@@ -161,4 +161,46 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
+  class Block
+    attr_reader :rewound
+    def initialize
+      @rewound = false
+    end
+    def call(_)
+    end
+    def rewind
+      @rewound = true
+    end
+  end
+
+  tests("request_block rewound").returns(true) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 1 # First call fails.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+    request_block = Block.new
+    @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :request_block => request_block, :retry_limit => 2, :retry_interval => 0.1)
+    request_block.rewound
+  end
+
+  tests("response_block rewound").returns(true) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 1 # First call fails.
+        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+    response_block = Block.new
+    @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :response_block => response_block, :retry_limit => 2, :retry_interval => 0.1)
+    response_block.rewound
+  end
+
 end

@@ -12,6 +12,9 @@ module Excon
               datum[:idempotent] = false
             end
           end
+          if datum.has_key?(:response_block) && datum[:response_block].respond_to?(:rewind)
+            datum[:response_block].rewind
+          end
           if datum.has_key?(:pipeline)
             Excon.display_warning("Excon requests can not be :idempotent when pipelining.")
             datum[:idempotent] = false

@@ -203,7 +203,7 @@ module Excon
 
     def response_call(datum)
       # ensure response_block is yielded to and body is empty from middlewares
-      if datum.has_key?(:response_block) && !datum[:response][:body].empty?
+      if datum.has_key?(:response_block) && !(datum[:response][:body].nil? || datum[:response][:body].empty?)
         response_body = datum[:response][:body].dup
         datum[:response][:body] = ''
         content_length = remaining = response_body.bytesize
