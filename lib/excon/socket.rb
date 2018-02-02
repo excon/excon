@@ -24,6 +24,7 @@ module Excon
     def initialize(data = {})
       @data = data
       @nonblock = data[:nonblock]
+      @port ||= @data[:port] || 80
       @read_buffer = String.new
       @eof = false
       connect
@@ -93,7 +94,7 @@ module Excon
         args = [@data[:proxy][:hostname], @data[:proxy][:port], family, ::Socket::Constants::SOCK_STREAM]
       else
         family = @data[:family] || ::Socket::Constants::AF_UNSPEC
-        args = [@data[:hostname], @data[:port], family, ::Socket::Constants::SOCK_STREAM]
+        args = [@data[:hostname], @port, family, ::Socket::Constants::SOCK_STREAM]
       end
       if RUBY_VERSION >= '1.9.2' && defined?(RUBY_ENGINE) && RUBY_ENGINE == 'ruby'
         args << nil << nil << false # no reverse lookup

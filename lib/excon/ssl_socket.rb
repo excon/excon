@@ -6,6 +6,7 @@ module Excon
     end
 
     def initialize(data = {})
+      @port = data[:port] || 443
       super
 
       # create ssl context
