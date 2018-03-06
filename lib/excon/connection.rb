@@ -38,8 +38,8 @@ module Excon
       end
     end
     def logger=(logger)
-      Excon::LoggingInstrumentor.logger = logger
       @data[:instrumentor] = Excon::LoggingInstrumentor
+      @data[:logger] = logger
     end
 
     # Initializes a new Connection instance

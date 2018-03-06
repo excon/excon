@@ -2,22 +2,11 @@ require 'logger'
 
 module Excon
   class LoggingInstrumentor
-    # Returns the Logger object for the LoggingInstrumentor. If one doesn't
-    # already exist, then one will be created using $stderr as the output
-    # stream.
-    #
-    def self.logger
-      @logger ||= Logger.new($stderr)
-    end
-
-    # Sets the logger object for the LoggingInstrumentor.
-    #
-    def self.logger=(logger)
-      @logger = logger
-    end
 
     def self.instrument(name, params = {}, &block)
       params = params.dup
+
+      logger = params[:logger] || Logger.new($stderr)
 
       # reduce duplication/noise of output
       params.delete(:connection)
@@ -51,7 +40,7 @@ module Excon
         end
       end
 
-      self.logger.log(logger.level, info) if info
+      logger.log(logger.level, info) if info
 
       yield if block_given?
     end
