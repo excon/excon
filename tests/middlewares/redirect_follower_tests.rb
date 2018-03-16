@@ -62,6 +62,38 @@ Shindo.tests('Excon redirect support for relative Location headers') do
   env_restore
 end
 
+Shindo.tests('Excon redirect support for relative Location headers with dot segments') do
+  env_init
+
+  tests("request(:method => :get, :path => '/foo/baz/').body").returns('/foo/bar/') do
+    Excon.stub(
+      { :path => '/foo/baz/' },
+      {
+        :headers  => { 'Location' => '../bar/' },
+        :body     => '/foo/baz/',
+        :status   => 301
+      }
+    )
+
+    Excon.stub(
+      { :path => '/foo/bar/' },
+      {
+        :body     => '/foo/bar/',
+        :status   => 200
+      }
+    )
+
+    Excon.get(
+      'http://127.0.0.1:9292',
+      :path         => '/foo/baz/',
+      :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+      :mock         => true
+    ).body
+  end
+
+  env_restore
+end
+
 Shindo.tests("Excon redirecting post request") do
   env_init
 

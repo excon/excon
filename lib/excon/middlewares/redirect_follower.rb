@@ -17,7 +17,8 @@ module Excon
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
 
             location = get_header(datum, 'Location')
-            uri = uri_parser.parse(location)
+            base_uri = Excon::Utils.request_uri(datum)
+            uri = uri_parser.join(base_uri, location)
 
             # delete old/redirect response
             response = datum.delete(:response)
