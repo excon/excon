@@ -1,3 +1,10 @@
+0.61.0 2018-03-16
+=================
+
+use default ports for sockets if none specified
+add ruby 2.4 and 2.5 to ci testing
+follow relative location redirects
+
 0.60.0 2017-12-15
 =================
 
