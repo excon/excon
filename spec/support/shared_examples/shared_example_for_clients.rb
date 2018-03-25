@@ -163,6 +163,15 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
             end
 
             context 'when a string is the body paramter' do
+              it 'does not change the econding of the body' do
+                skip unless RUBY_VERSION >= '1.9'
+
+                string_body = '¥£€'
+                expect do
+                  conn.request(method: :post, path: '/echo', body: string_body)
+                end.to_not change { string_body.encoding }
+              end
+
               context 'without request_block' do
                 describe Excon::Response do
                   it "#body equals 'x' * 100)" do
