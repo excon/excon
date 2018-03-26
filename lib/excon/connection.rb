@@ -163,7 +163,7 @@ module Excon
           elsif body.nil?
             socket.write(request) # write out request + headers
           else # write out body
-            if body.respond_to?(:binmode)
+            if body.respond_to?(:binmode) && !body.is_a?(StringIO)
               body.binmode
             end
             if body.respond_to?(:rewind)
