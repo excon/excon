@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Excon
   class Connection
     include Utils
@@ -9,6 +10,7 @@ module Excon
       Excon.display_warning('Excon::Connection#connection is deprecated use Excon::Connection#data instead.')
       @data
     end
+
     def connection=(new_params)
       Excon.display_warning('Excon::Connection#connection= is deprecated. Use of this method may cause unexpected results.')
       @data = new_params
@@ -18,6 +20,7 @@ module Excon
       Excon.display_warning('Excon::Connection#params is deprecated use Excon::Connection#data instead.')
       @data
     end
+
     def params=(new_params)
       Excon.display_warning('Excon::Connection#params= is deprecated. Use of this method may cause unexpected results.')
       @data = new_params
@@ -27,19 +30,19 @@ module Excon
       Excon.display_warning('Excon::Connection#proxy is deprecated use Excon::Connection#data[:proxy] instead.')
       @data[:proxy]
     end
+
     def proxy=(new_proxy)
       Excon.display_warning('Excon::Connection#proxy= is deprecated. Use of this method may cause unexpected results.')
       @data[:proxy] = new_proxy
     end
 
     def logger
-      if @data[:instrumentor] && @data[:instrumentor].respond_to?(:logger)
-        @data[:instrumentor].logger
-      end
+      @data[:instrumentor].logger if @data[:instrumentor]&.respond_to?(:logger)
     end
+
     def logger=(logger)
       Excon::LoggingInstrumentor.logger = logger
-      @data[:instrumentor] = Excon::LoggingInstrumentor
+      @data[:instrumentor]              = Excon::LoggingInstrumentor
     end
 
     # Initializes a new Connection instance
@@ -72,19 +75,19 @@ module Excon
 
       setup_proxy
 
-      if  ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
+      if ENV.key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
-      if @data[:debug] || ENV.has_key?('EXCON_DEBUG')
+      if @data[:debug] || ENV.key?('EXCON_DEBUG')
         @data[:debug_request] = @data[:debug_response] = true
-        @data[:instrumentor] = Excon::StandardInstrumentor
+        @data[:instrumentor]  = Excon::StandardInstrumentor
       end
 
       if @data[:scheme] == UNIX
         if @data[:host]
-          raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
-                               "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
+          raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" \
+                               'When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`.'
         elsif !@data[:socket]
           raise ArgumentError, 'You must provide a `:socket` for `unix://` connections'
         else
@@ -97,14 +100,12 @@ module Excon
     end
 
     def error_call(datum)
-      if datum[:error]
-        raise(datum[:error])
-      end
+      raise(datum[:error]) if datum[:error]
     end
 
     def request_call(datum)
       begin
-        if datum.has_key?(:response)
+        if datum.key?(:response)
           # we already have data from a middleware, so bail
           return datum
         else
@@ -122,7 +123,7 @@ module Excon
           # finish first line with "HTTP/1.1\r\n"
           request << HTTP_1_1
 
-          if datum.has_key?(:request_block)
+          if datum.key?(:request_block)
             datum[:headers]['Transfer-Encoding'] = 'chunked'
           else
             body = datum[:body].is_a?(String) ? StringIO.new(datum[:body]) : datum[:body]
@@ -130,7 +131,7 @@ module Excon
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
             unless datum[:method].to_s.casecmp('GET') == 0 && body.nil?
-              unless datum[:headers].has_key?('Content-Length')
+              unless datum[:headers].key?('Content-Length')
                 datum[:headers]['Content-Length'] = detect_content_length(body)
               end
             end
@@ -146,14 +147,15 @@ module Excon
           # add additional "\r\n" to indicate end of headers
           request << CR_NL
 
-          if datum.has_key?(:request_block)
+          # add parsed request to datum
+          datum[:parsed_request] = request if datum[:keep_parsed_request]
+
+          if datum.key?(:request_block)
             socket.write(request) # write out request + headers
-            while true # write out body with chunked encoding
+            loop do # write out body with chunked encoding
               chunk = datum[:request_block].call
-              if FORCE_ENC
-                chunk.force_encoding('BINARY')
-              end
-              if chunk.length > 0
+              chunk.force_encoding('BINARY') if FORCE_ENC
+              if !chunk.empty?
                 socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
               else
                 socket.write(String.new("0#{CR_NL}#{CR_NL}"))
@@ -163,22 +165,20 @@ module Excon
           elsif body.nil?
             socket.write(request) # write out request + headers
           else # write out body
-            if body.respond_to?(:binmode) && !body.is_a?(StringIO)
-              body.binmode
-            end
+            body.binmode if body.respond_to?(:binmode) && !body.is_a?(StringIO)
             if body.respond_to?(:rewind)
-              body.rewind  rescue nil
+              begin
+                body.rewind
+              rescue StandardError
+                nil
+              end
             end
 
             # if request + headers is less than chunk size, fill with body
-            if FORCE_ENC
-              request.force_encoding('BINARY')
-            end
+            request.force_encoding('BINARY') if FORCE_ENC
             chunk = body.read([datum[:chunk_size] - request.length, 0].max)
             if chunk
-              if FORCE_ENC
-                chunk.force_encoding('BINARY')
-              end
+              chunk.force_encoding('BINARY') if FORCE_ENC
               socket.write(request << chunk)
             else
               socket.write(request) # write out request + headers
@@ -189,7 +189,7 @@ module Excon
             end
           end
         end
-      rescue => error
+      rescue StandardError => error
         case error
         when Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
@@ -203,10 +203,10 @@ module Excon
 
     def response_call(datum)
       # ensure response_block is yielded to and body is empty from middlewares
-      if datum.has_key?(:response_block) && !(datum[:response][:body].nil? || datum[:response][:body].empty?)
-        response_body = datum[:response][:body].dup
+      if datum.key?(:response_block) && !(datum[:response][:body].nil? || datum[:response][:body].empty?)
+        response_body           = datum[:response][:body].dup
         datum[:response][:body] = ''
-        content_length = remaining = response_body.bytesize
+        content_length          = remaining = response_body.bytesize
         while remaining > 0
           datum[:response_block].call(response_body.slice!(0, [datum[:chunk_size], remaining].min), [remaining - datum[:chunk_size], 0].max, content_length)
           remaining -= datum[:chunk_size]
@@ -222,22 +222,23 @@ module Excon
     #     @option params [Hash<Symbol, String>] :headers The default headers to supply in a request
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
-    def request(params={}, &block)
+    def request(params = {})
       params = validate_params(:request, params)
       # @data has defaults, merge in new params to override
-      datum = @data.merge(params)
+      datum           = @data.merge(params)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       if datum[:user] || datum[:password]
-        user, pass = Utils.unescape_uri(datum[:user].to_s), Utils.unescape_uri(datum[:password].to_s)
+        user = Utils.unescape_uri(datum[:user].to_s)
+        pass = Utils.unescape_uri(datum[:password].to_s)
         datum[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
-      if datum[:scheme] == UNIX
-        datum[:headers]['Host']   ||= ''
-      else
-        datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
-      end
+      datum[:headers]['Host'] ||= if datum[:scheme] == UNIX
+                                    ''
+                                  else
+                                    datum[:host] + port_string(datum)
+                                  end
       datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
@@ -253,30 +254,28 @@ module Excon
       datum[:connection] = self
 
       datum[:stack] = datum[:middlewares].map do |middleware|
-        lambda {|stack| middleware.new(stack)}
+        ->(stack) { middleware.new(stack) }
       end.reverse.inject(self) do |middlewares, middleware|
         middleware.call(middlewares)
       end
       datum = datum[:stack].request_call(datum)
 
-      unless datum[:pipeline]
+      if datum[:pipeline]
+        datum
+      else
         datum = response(datum)
 
         if datum[:persistent]
-          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-            if datum[:response][:headers][key].casecmp('close') == 0
-              reset
-            end
+          if key = datum[:response][:headers].keys.detect { |k| k.casecmp('Connection') == 0 }
+            reset if datum[:response][:headers][key].casecmp('close') == 0
           end
         else
           reset
         end
 
         Excon::Response.new(datum[:response])
-      else
-        datum
       end
-    rescue => error
+    rescue StandardError => error
       reset
       datum[:error] = error
       if datum[:stack]
@@ -289,8 +288,8 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining.
     #   @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
-      pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
-      pipeline_params.last.merge!(:persistent => @data[:persistent])
+      pipeline_params.each { |params| params.merge!(pipeline: true, persistent: true) }
+      pipeline_params.last[:persistent] = @data[:persistent]
 
       responses = pipeline_params.map do |params|
         request(params)
@@ -299,10 +298,8 @@ module Excon
       end
 
       if @data[:persistent]
-        if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
-          if responses.last[:headers][key].casecmp('close') == 0
-            reset
-          end
+        if key = responses.last[:headers].keys.detect { |k| k.casecmp('Connection') == 0 }
+          reset if responses.last[:headers][key].casecmp('close') == 0
         end
       else
         reset
@@ -328,7 +325,11 @@ module Excon
 
     def reset
       if old_socket = sockets.delete(@socket_key)
-        old_socket.close rescue nil
+        begin
+          old_socket.close
+        rescue StandardError
+          nil
+        end
       end
     end
 
@@ -355,13 +356,13 @@ module Excon
       vars = instance_variables.inject({}) do |accum, var|
         accum.merge!(var.to_sym => instance_variable_get(var))
       end
-      if vars[:'@data'][:headers].has_key?('Authorization')
-        vars[:'@data'] = vars[:'@data'].dup
-        vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
+      if vars[:'@data'][:headers].key?('Authorization')
+        vars[:'@data']                            = vars[:'@data'].dup
+        vars[:'@data'][:headers]                  = vars[:'@data'][:headers].dup
         vars[:'@data'][:headers]['Authorization'] = REDACTED
       end
       if vars[:'@data'][:password]
-        vars[:'@data'] = vars[:'@data'].dup
+        vars[:'@data']            = vars[:'@data'].dup
         vars[:'@data'][:password] = REDACTED
       end
       inspection = '#<Excon::Connection:'
@@ -388,18 +389,18 @@ module Excon
     end
 
     def validate_params(validation, params)
-      valid_keys = case validation
-      when :connection
-        Excon::VALID_CONNECTION_KEYS
-      when :request
-        Excon::VALID_REQUEST_KEYS
-      end
+      valid_keys   = case validation
+                     when :connection
+                       Excon::VALID_CONNECTION_KEYS
+                     when :request
+                       Excon::VALID_REQUEST_KEYS
+                     end
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}")
         # FIXME: for now, just warn, don't mutate, give things (ie fog) a chance to catch up
-        #params = params.dup
-        #invalid_keys.each {|key| params.delete(key) }
+        # params = params.dup
+        # invalid_keys.each {|key| params.delete(key) }
       end
 
       if validation == :connection && params.key?(:host) && !params.key?(:hostname)
@@ -410,9 +411,9 @@ module Excon
       params
     end
 
-    def response(datum={})
+    def response(datum = {})
       datum[:stack].response_call(datum)
-    rescue => error
+    rescue StandardError => error
       case error
       when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout
         raise(error)
@@ -424,12 +425,12 @@ module Excon
     def socket
       unix_proxy = @data[:proxy] ? @data[:proxy][:scheme] == UNIX : false
       sockets[@socket_key] ||= if @data[:scheme] == UNIX || unix_proxy
-        Excon::UnixSocket.new(@data)
-      elsif @data[:ssl_uri_schemes].include?(@data[:scheme])
-        Excon::SSLSocket.new(@data)
-      else
-        Excon::Socket.new(@data)
-      end
+                                 Excon::UnixSocket.new(@data)
+                               elsif @data[:ssl_uri_schemes].include?(@data[:scheme])
+                                 Excon::SSLSocket.new(@data)
+                               else
+                                 Excon::Socket.new(@data)
+                               end
     end
 
     def sockets
@@ -448,29 +449,29 @@ module Excon
 
     def raise_socket_error(error)
       if error.message =~ /certificate verify failed/
-        raise(Excon::Errors::CertificateError.new(error))
+        raise Excon::Errors::CertificateError, error
       else
-        raise(Excon::Errors::SocketError.new(error))
+        raise Excon::Errors::SocketError, error
       end
     end
 
     def setup_proxy
       if @data[:disable_proxy]
         if @data[:proxy]
-          raise ArgumentError, "`:disable_proxy` parameter and `:proxy` parameter cannot both be set at the same time."
+          raise ArgumentError, '`:disable_proxy` parameter and `:proxy` parameter cannot both be set at the same time.'
         end
         return
       end
 
       unless @data[:scheme] == UNIX
-        if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
+        if no_proxy_env = ENV['no_proxy'] || ENV['NO_PROXY']
           no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
         end
 
         unless no_proxy_env && no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
-          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+          if @data[:scheme] == HTTPS && (ENV.key?('https_proxy') || ENV.key?('HTTPS_PROXY'))
             @data[:proxy] = ENV['https_proxy'] || ENV['HTTPS_PROXY']
-          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+          elsif ENV.key?('http_proxy') || ENV.key?('HTTP_PROXY')
             @data[:proxy] = ENV['http_proxy'] || ENV['HTTP_PROXY']
           end
         end
@@ -483,41 +484,38 @@ module Excon
         when Hash
           # no processing needed
         when String, URI
-          uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
+          uri           = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
           @data[:proxy] = {
-            :host       => uri.host,
-            :hostname   => uri.hostname,
+            host: uri.host,
+            hostname: uri.hostname,
             # path is only sensible for a Unix socket proxy
-            :path       => uri.scheme == UNIX ? uri.path : nil,
-            :port       => uri.port,
-            :scheme     => uri.scheme,
+            path: uri.scheme == UNIX ? uri.path : nil,
+            port: uri.port,
+            scheme: uri.scheme
           }
-          if uri.password
-            @data[:proxy][:password] = uri.password
-          end
-          if uri.user
-            @data[:proxy][:user] = uri.user
-          end
+          @data[:proxy][:password] = uri.password if uri.password
+          @data[:proxy][:user] = uri.user if uri.user
           if @data[:proxy][:scheme] == UNIX
             if @data[:proxy][:host]
-              raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
-                                   "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
+              raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" \
+                                   'When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`.'
             end
           else
             unless uri.host && uri.port && uri.scheme
-              raise Excon::Errors::ProxyParse, "Proxy is invalid"
+              raise Excon::Errors::ProxyParse, 'Proxy is invalid'
             end
           end
         else
-          raise Excon::Errors::ProxyParse, "Proxy is invalid"
+          raise Excon::Errors::ProxyParse, 'Proxy is invalid'
         end
 
-        if @data.has_key?(:proxy) && @data[:scheme] == 'http'
+        if @data.key?(:proxy) && @data[:scheme] == 'http'
           @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
           # https credentials happen in handshake
-          if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
-            user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-            auth = ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
+          if @data[:proxy].key?(:user) || @data[:proxy].key?(:password)
+            user = Utils.unescape_form(@data[:proxy][:user].to_s)
+            pass = Utils.unescape_form(@data[:proxy][:password].to_s)
+            auth                                   = ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
             @data[:headers]['Proxy-Authorization'] = 'Basic ' + auth
           end
         end

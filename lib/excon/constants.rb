@@ -141,7 +141,8 @@ module Excon
     :thread_safe_sockets  => true,
     :uri_parser           => URI,
     :versions             => VERSIONS,
-    :write_timeout        => 60
+    :write_timeout        => 60,
+    :keep_parsed_request  => false
   }
 
 end
