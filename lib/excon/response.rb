@@ -86,10 +86,6 @@ module Excon
         )
       end
 
-      if datum.has_key?(:logger)
-        datum[:response][:logger] = datum[:logger]
-      end
-
       parse_headers(socket, datum)
 
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
