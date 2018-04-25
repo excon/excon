@@ -27,6 +27,13 @@ module Excon
       if @data[:ssl_version]
         ssl_context.ssl_version = @data[:ssl_version]
       end
+      if @data[:ssl_min_version]
+        ssl_context.min_version = @data[:ssl_min_version]
+      end
+      if @data[:ssl_max_version]
+        ssl_context.max_version = @data[:ssl_max_version]
+      end
+
 
       if @data[:ssl_verify_peer]
         # turn verification on
