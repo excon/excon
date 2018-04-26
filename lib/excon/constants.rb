@@ -91,6 +91,8 @@ module Excon
     :ssl_verify_peer,
     :ssl_verify_peer_host,
     :ssl_version,
+    :ssl_min_version,
+    :ssl_max_version,
     :tcp_nodelay,
     :thread_safe_sockets,
     :uri_parser,
