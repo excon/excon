@@ -22,8 +22,9 @@ rvm:
   - jruby
   - rbx-3.2
   - ree
-script: 
+script:
   - "bundle exec shindont"
   - "bundle exec rake spec[progress]"
-
+after_script:
+  - "kill $(jobs -p)"
 sudo: false
