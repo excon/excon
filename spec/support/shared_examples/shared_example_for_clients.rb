@@ -164,7 +164,7 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
 
             context 'when a string is the body paramter' do
               it 'does not change the enconding of the body' do
-                skip unless RUBY_VERSION > '1.9'
+                skip unless RUBY_VERSION >= '2.0'
 
                 string_body = '¥£€'
                 expect do
