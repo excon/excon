@@ -1,5 +1,10 @@
 before_install:
   - gem install bundler
+before_script:
+  # enable ipv6 see: https://github.com/travis-ci/travis-ci/issues/8361#issuecomment-350497804
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
+    fi
 language: ruby
 matrix:
   allow_failures:
@@ -25,5 +30,4 @@ rvm:
 script: 
   - "bundle exec shindont"
   - "bundle exec rake spec[progress]"
-
 sudo: false
