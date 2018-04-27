@@ -153,7 +153,7 @@ Shindo.tests('Excon stubs') do
     Excon.get('http://127.0.0.1:9292/', :mock => true)
   end
 
-  with_server('good') do
+  with_server('good_ipv4') do
     tests('allow mismatched stub').returns(200) do
       Excon.stub({:path => '/echo/request_count'}, {:body => 'body'})
       Excon.get(

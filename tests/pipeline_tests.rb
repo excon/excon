@@ -1,5 +1,5 @@
 Shindo.tests('Pipelined Requests') do
-  with_server('good') do
+  with_server('good_ipv4') do
 
     tests('with default :persistent => true') do
       returns(%w{ 1 2 3 4 }, 'connection is persistent') do

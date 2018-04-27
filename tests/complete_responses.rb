@@ -1,7 +1,7 @@
 Shindo.tests('Excon Response Validation') do
   env_init
 
-  with_server('good') do
+  with_server('good_ipv4') do
     tests('good responses with complete headers') do
         100.times do
           res = Excon.get('http://127.0.0.1:9292/chunked/simple')

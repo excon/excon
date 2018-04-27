@@ -1,7 +1,7 @@
 require 'shindo'
 
 Shindo.tests('Batch Requests') do
-  with_server('good') do
+  with_server('good_ipv4') do
     tests('with batch request size 2') do
       returns(%w{ 1 2 1 2 }, 'batch request size 2') do
         connection = Excon.new('http://127.0.0.1:9292')

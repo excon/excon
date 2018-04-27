@@ -294,7 +294,7 @@ def server_path(*parts)
 end
 
 def with_server(name)
-  pid, w, r, e = launch_process(server_path("#{name}.rb"))
+  pid, w, r, e = launch_process("ruby", server_path("#{name}.rb"))
   until e.gets =~ /ready/; end
   yield
 ensure
