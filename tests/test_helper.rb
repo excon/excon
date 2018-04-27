@@ -227,25 +227,34 @@ def capture_response_block
   captures
 end
 
-def rackup_path(*parts)
-  File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
-end
-
-def with_rackup(name, host="127.0.0.1")
+def launch_process(*args)
   unless RUBY_PLATFORM == 'java'
     GC.disable if RUBY_VERSION < '1.9'
-    pid, w, r, e = Open4.popen4("rackup", "-s", "webrick", "--host", host, rackup_path(name))
+    pid, w, r, e = Open4.popen4(*args)
   else
-    pid, w, r, e = IO.popen4("rackup", "-s", "webrick", "--host", host, rackup_path(name))
+    pid, w, r, e = IO.popen4(*args)
   end
-  until e.gets =~ /HTTPServer#start:/; end
-  yield
-ensure
+  return pid, w, r, e
+end
+
+def cleanup_process(pid)
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
     GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
+end
+
+def rackup_path(*parts)
+  File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
+end
+
+def with_rackup(name, host="127.0.0.1")
+  pid, w, r, e = launch_process("rackup", "-s", "webrick", "--host", host, rackup_path(name))
+  until e.gets =~ /HTTPServer#start:/; end
+  yield
+ensure
+  cleanup_process(pid)
 
   # dump server errors
   lines = e.read.split($/)
@@ -265,20 +274,16 @@ end
 
 def with_unicorn(name, listen='127.0.0.1:9292')
   unless RUBY_PLATFORM == 'java'
-    GC.disable if RUBY_VERSION < '1.9'
     unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
-    pid, w, r, e = Open4.popen4("unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
+    pid, w, r, e = launch_process("unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
     until e.gets =~ /worker=0 ready/; end
   else
     # need to find suitable server for jruby
   end
   yield
 ensure
-  unless RUBY_PLATFORM == 'java'
-    Process.kill(9, pid)
-    GC.enable if RUBY_VERSION < '1.9'
-    Process.wait(pid)
-  end
+  cleanup_process(pid)
+
   if not unix_socket.nil? and File.exist?(unix_socket)
     File.delete(unix_socket)
   end
@@ -289,18 +294,9 @@ def server_path(*parts)
 end
 
 def with_server(name)
-  unless RUBY_PLATFORM == 'java'
-    GC.disable if RUBY_VERSION < '1.9'
-    pid, w, r, e = Open4.popen4(server_path("#{name}.rb"))
-  else
-    pid, w, r, e = IO.popen4(server_path("#{name}.rb"))
-  end
+  pid, w, r, e = launch_process(server_path("#{name}.rb"))
   until e.gets =~ /ready/; end
   yield
 ensure
-  Process.kill(9, pid)
-  unless RUBY_PLATFORM == 'java'
-    GC.enable if RUBY_VERSION < '1.9'
-    Process.wait(pid)
-  end
+  cleanup_process(pid)
 end
