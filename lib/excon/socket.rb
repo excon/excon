@@ -220,9 +220,7 @@ module Excon
     end
 
     def write_nonblock(data)
-      if FORCE_ENC
-        data.force_encoding('BINARY')
-      end
+      binary_encode(data)
       loop do
         written = nil
         begin

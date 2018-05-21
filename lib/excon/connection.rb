@@ -150,9 +150,7 @@ module Excon
             socket.write(request) # write out request + headers
             while true # write out body with chunked encoding
               chunk = datum[:request_block].call
-              if FORCE_ENC
-                chunk.force_encoding('BINARY')
-              end
+              binary_encode(chunk)
               if chunk.length > 0
                 socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
               else
@@ -171,14 +169,10 @@ module Excon
             end
 
             # if request + headers is less than chunk size, fill with body
-            if FORCE_ENC
-              request.force_encoding('BINARY')
-            end
+            binary_encode(request)
             chunk = body.read([datum[:chunk_size] - request.length, 0].max)
             if chunk
-              if FORCE_ENC
-                chunk.force_encoding('BINARY')
-              end
+              binary_encode(chunk)
               socket.write(request << chunk)
             else
               socket.write(request) # write out request + headers
