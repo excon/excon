@@ -5,6 +5,11 @@ require "eventmachine"
 module BadServer
   def receive_data(data)
     case data
+    when %r{^GET /echo\s}
+      send_data "HTTP/1.1 200 OK\r\n"
+      send_data "\r\n"
+      send_data data
+      close_connection(true)
     when %r{^GET /eof/no_content_length_and_no_chunking\s}
       send_data "HTTP/1.1 200 OK\r\n"
       send_data "\r\n"

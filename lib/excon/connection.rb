@@ -139,7 +139,7 @@ module Excon
           # add headers to request
           datum[:headers].each do |key, values|
             [values].flatten.each do |value|
-              request << key.to_s << ': ' << value.to_s << CR_NL
+              request << key.to_s << ': ' << value.to_s.gsub(/\r\n/, ' ') << CR_NL
             end
           end
 
