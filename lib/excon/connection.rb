@@ -139,11 +139,11 @@ module Excon
           # add headers to request
           datum[:headers].each do |key, values|
             if key.to_s.match(/[\r\n]/)
-              raise Excon::Errors::InvalidHeaderKey.new('\r and \n are forbidden')
+              raise Excon::Errors::InvalidHeaderKey.new(key.to_s.inspect + ' contains forbidden "\r" or "\n"')
             end
             [values].flatten.each do |value|
               if value.to_s.match(/[\r\n]/)
-                raise Excon::Errors::InvalidHeaderValue.new('\r and \n are forbidden')
+                raise Excon::Errors::InvalidHeaderValue.new(value.to_s.inspect + ' contains forbidden "\r" or "\n"')
               end
               request << key.to_s << ': ' << value.to_s << CR_NL
             end
