@@ -138,6 +138,9 @@ module Excon
 
           # add headers to request
           datum[:headers].each do |key, values|
+            if key.to_s.match(/[\r\n]/)
+              raise Excon::Errors::InvalidHeaderKey.new('\r and \n are forbidden')
+            end
             [values].flatten.each do |value|
               if value.to_s.match(/[\r\n]/)
                 raise Excon::Errors::InvalidHeaderValue.new('\r and \n are forbidden')
@@ -188,7 +191,7 @@ module Excon
         end
       rescue => error
         case error
-        when Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
+        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
         else
           raise_socket_error(error)

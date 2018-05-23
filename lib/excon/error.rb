@@ -45,6 +45,7 @@ or:
       end
     end
 
+    class InvalidHeaderKey < Error; end
     class InvalidHeaderValue < Error; end
     class Timeout < Error; end
     class ResponseParse < Error; end
