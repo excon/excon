@@ -2,6 +2,28 @@ Shindo.tests('Excon bad server interaction') do
 
   with_server('bad') do
 
+    tests('header splitting') do
+
+      tests('prevents key splitting').raises(Excon::Errors::InvalidHeaderKey) do
+        connection = Excon.new('http://127.0.0.1:9292')
+        connection.request(
+          headers: { "Foo\r\nBar" => "baz" },
+          method:  :get,
+          path: '/echo'
+        )
+      end
+
+      tests('prevents value splitting').raises(Excon::Errors::InvalidHeaderValue) do
+        connection = Excon.new('http://127.0.0.1:9292')
+        connection.request(
+          headers: { Foo: "bar\r\nBaz: qux" },
+          method:  :get,
+          path: '/echo'
+        )
+      end
+
+    end
+
     tests('bad server: causes EOFError') do
 
       tests('with no content length and no chunking') do
