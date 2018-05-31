@@ -7,8 +7,13 @@ module Excon
 
     attr_accessor :data
 
-    # drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
-    READ_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWAITReadable) # Ruby >= 2.1
+    # read/write drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
+    CONNECT_RETRY_EXCEPTION_CLASSES = if defined?(IO::EINPROGRESSWaitWritable) # Ruby >= 2.1
+      [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable]
+    else # Ruby <= 2.0
+      [Errno::EINPROGRESS]
+    end
+    READ_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWaitReadable) # Ruby >= 2.1
       [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable, IO::EAGAINWaitReadable, IO::EWOULDBLOCKWaitReadable]
     else # Ruby <= 2.0
       [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable]
@@ -118,7 +123,7 @@ module Excon
         if @socket
           break
         end
-        
+
         @remote_ip = ip
 
         # nonblocking connect
@@ -140,7 +145,7 @@ module Excon
             socket.connect(sockaddr)
           end
           @socket = socket
-        rescue Errno::EINPROGRESS
+        rescue *CONNECT_RETRY_EXCEPTION_CLASSES
           select_with_timeout(socket, :connect_write)
           begin
             socket.connect_nonblock(sockaddr)
