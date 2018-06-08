@@ -161,6 +161,9 @@ connection = Excon.new('http://geemus.com/', :nonblock => false)
 
 # use basic authentication by supplying credentials in the URL or as parameters
 connection = Excon.new('http://username:password@secure.geemus.com')
+# Note: username & password is unescaped for request, so you should provide escaped values here
+# i. e. instead of `password: 'pa%%word'` you should use `password: Excon::Utils.escape_uri('pa%%word')`,
+# which return `pa%25%25word`
 connection = Excon.new('http://secure.geemus.com',
   :user => 'username', :password => 'password')
 
