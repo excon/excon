@@ -2,6 +2,12 @@
 module Excon
   module Middleware
     class Base
+      # Returns the list of parameters that this middleware uses that are valid
+      # as arguments to `Connection#request` or `Connection#new`.
+      def self.valid_parameter_keys
+        []
+      end
+
       def initialize(stack)
         @stack = stack
       end

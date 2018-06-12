@@ -35,19 +35,14 @@ module Excon
   VALID_REQUEST_KEYS = [
     :allow_unstubbed_requests,
     :body,
-    :captures,
     :chunk_size,
     :debug_request,
     :debug_response,
-    :expects,
     :headers,
-    :idempotent,
-    :instrumentor,
-    :instrumentor_name,
+    :instrumentor, # Used for setting logging within Connection
     :logger,
     :method,
     :middlewares,
-    :mock,
     :password,
     :path,
     :persistent,
@@ -56,9 +51,6 @@ module Excon
     :read_timeout,
     :request_block,
     :response_block,
-    :retries_remaining, # used internally
-    :retry_limit,
-    :retry_interval,
     :stubs,
     :user,
     :versions,
@@ -103,6 +95,17 @@ module Excon
     :thread_safe_sockets,
     :uri_parser,
   ]
+
+  DEPRECATED_VALID_REQUEST_KEYS = {
+    :captures => 'Mock',
+    :expects => 'Expects',
+    :idempotent => 'Idempotent',
+    :instrumentor_name => 'Instrumentor',
+    :mock => 'Mock',
+    :retries_remaining => 'Idempotent', # referenced in Instrumentor, but only relevant with Idempotent
+    :retry_limit => 'Idempotent', # referenced in Instrumentor, but only relevant with Idempotent
+    :retry_interval => 'Idempotent'
+  }
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO

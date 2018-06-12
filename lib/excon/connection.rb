@@ -67,7 +67,7 @@ module Excon
       # the same goes for :middlewares
       @data[:middlewares] = @data[:middlewares].dup
 
-      params = validate_params(:connection, params)
+      params = validate_params(:connection, params, @data.fetch(:middlewares, []))
       @data.merge!(params)
 
       setup_proxy
@@ -223,7 +223,7 @@ module Excon
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     def request(params={}, &block)
-      params = validate_params(:request, params)
+      params = validate_params(:request, params, params.fetch(:middlewares, @data[:middlewares]))
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
@@ -238,7 +238,6 @@ module Excon
       else
         datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
       end
-      datum[:retries_remaining] ||= datum[:retry_limit]
 
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
@@ -369,6 +368,10 @@ module Excon
       inspection
     end
 
+    def valid_request_keys(middlewares)
+      valid_middleware_keys(middlewares) + Excon::VALID_REQUEST_KEYS
+    end
+
     private
 
     def detect_content_length(body)
@@ -383,19 +386,42 @@ module Excon
       end
     end
 
-    def validate_params(validation, params)
+    def valid_middleware_keys(middlewares)
+      middlewares.flat_map do |middleware|
+        if middleware.respond_to?(:valid_parameter_keys)
+          middleware.valid_parameter_keys
+        else
+          []
+        end
+      end
+    end
+
+    def validate_params(validation, params, middlewares)
       valid_keys = case validation
       when :connection
-        Excon::VALID_CONNECTION_KEYS
+        valid_middleware_keys(middlewares) + Excon::VALID_CONNECTION_KEYS
       when :request
-        Excon::VALID_REQUEST_KEYS
+        valid_request_keys(middlewares)
+      else
+        raise ArgumentError.new("Invalid validation type '#{validation}'")
       end
+
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}")
         # FIXME: for now, just warn, don't mutate, give things (ie fog) a chance to catch up
         #params = params.dup
         #invalid_keys.each {|key| params.delete(key) }
+
+        if validation == :request
+          deprecated_keys = invalid_keys & Excon::DEPRECATED_VALID_REQUEST_KEYS.keys
+          mw_msg = deprecated_keys.map do |k|
+            "#{k}: #{Excon::DEPRECATED_VALID_REQUEST_KEYS[k]}"
+          end.join(', ')
+          Excon.display_warning(
+            "The following request keys are only valid with the associated middleware: #{mw_msg}"
+          )
+        end
       end
 
       if validation == :connection && params.key?(:host) && !params.key?(:hostname)
