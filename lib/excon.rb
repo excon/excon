@@ -61,6 +61,14 @@ module Excon
       if $VERBOSE || ENV['EXCON_DEBUG']
         $stderr.puts "[excon][WARNING] #{warning}\n#{ caller.join("\n") }"
       end
+
+      if @raise_on_warnings
+        raise warning
+      end
+    end
+
+    def set_raise_on_warnings!(should_raise)
+      @raise_on_warnings = should_raise
     end
 
     # Status of mocking

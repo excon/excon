@@ -15,6 +15,8 @@ RSpec.configure do |config|
   if config.files_to_run.one?
     config.default_formatter = 'doc'
   end
+
+  Excon.set_raise_on_warnings!(true)
 end
 
 # Load helpers

@@ -91,8 +91,10 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
             data = []
             it 'yields with a chunk, remaining length, and total length' do
               expect do
-                conn.request(method: :get, path: '/content-length/100') do |chunk, remaining_length, total_length|
-                  data = [chunk, remaining_length, total_length]
+                silence_warnings do
+                  conn.request(method: :get, path: '/content-length/100') do |chunk, remaining_length, total_length|
+                    data = [chunk, remaining_length, total_length]
+                  end
                 end
               end.to_not raise_error
             end

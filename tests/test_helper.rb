@@ -9,6 +9,7 @@ Excon.defaults.merge!(
   :read_timeout     => 5,
   :write_timeout    => 5
 )
+Excon.set_raise_on_warnings!(true)
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
   ([true, false] * 2).combination(2).to_a.uniq.each do |nonblock, persistent|
@@ -214,9 +215,11 @@ end
 def silence_warnings
   orig_verbose = $VERBOSE
   $VERBOSE = nil
+  Excon.set_raise_on_warnings!(false)
   yield
 ensure
   $VERBOSE = orig_verbose
+  Excon.set_raise_on_warnings!(true)
 end
 
 def capture_response_block

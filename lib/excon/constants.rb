@@ -33,6 +33,7 @@ module Excon
   VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 
   VALID_REQUEST_KEYS = [
+    :allow_unstubbed_requests,
     :body,
     :captures,
     :chunk_size,
@@ -43,9 +44,11 @@ module Excon
     :idempotent,
     :instrumentor,
     :instrumentor_name,
+    :logger,
     :method,
     :middlewares,
     :mock,
+    :password,
     :path,
     :persistent,
     :pipeline,
@@ -56,6 +59,8 @@ module Excon
     :retries_remaining, # used internally
     :retry_limit,
     :retry_interval,
+    :stubs,
+    :user,
     :versions,
     :write_timeout
   ]
@@ -79,7 +84,6 @@ module Excon
     :omit_default_port,
     :nonblock,
     :reuseaddr,
-    :password,
     :port,
     :proxy,
     :scheme,
@@ -93,10 +97,10 @@ module Excon
     :ssl_version,
     :ssl_min_version,
     :ssl_max_version,
+    :ssl_uri_schemes,
     :tcp_nodelay,
     :thread_safe_sockets,
     :uri_parser,
-    :user
   ]
 
   unless ::IO.const_defined?(:WaitReadable)
