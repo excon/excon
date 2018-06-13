@@ -355,15 +355,7 @@ module Excon
       vars = instance_variables.inject({}) do |accum, var|
         accum.merge!(var.to_sym => instance_variable_get(var))
       end
-      if vars[:'@data'][:headers].has_key?('Authorization')
-        vars[:'@data'] = vars[:'@data'].dup
-        vars[:'@data'][:headers] = vars[:'@data'][:headers].dup
-        vars[:'@data'][:headers]['Authorization'] = REDACTED
-      end
-      if vars[:'@data'][:password]
-        vars[:'@data'] = vars[:'@data'].dup
-        vars[:'@data'][:password] = REDACTED
-      end
+      vars[:'@data'] = Utils.redact(vars[:'@data'])
       inspection = '#<Excon::Connection:'
       inspection += (object_id << 1).to_s(16)
       vars.each do |key, value|

@@ -27,6 +27,19 @@ module Excon
       end
     end
 
+    # Redact sensitive info from provided data
+    def redact(datum)
+      datum = datum.dup
+      if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
+        datum[:headers] = datum[:headers].dup
+        datum[:headers]['Authorization'] = REDACTED
+      end
+      if datum.has_key?(:password)
+        datum[:password] = REDACTED
+      end
+      datum
+    end
+
     def request_uri(datum)
       connection_uri(datum) + datum[:path] + query_string(datum)
     end

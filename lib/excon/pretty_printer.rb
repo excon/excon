@@ -9,14 +9,7 @@ module Excon
         datum.delete(:connection)
         datum.delete(:stack)
 
-        if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
-          datum[:headers] = datum[:headers].dup
-          datum[:headers]['Authorization'] = REDACTED
-        end
-
-        if datum.has_key?(:password)
-          datum[:password] = REDACTED
-        end
+        datum = Utils.redact(datum)
       end
 
       indent += 2
