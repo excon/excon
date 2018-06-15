@@ -4,6 +4,8 @@ require 'excon'
 require 'delorean'
 require 'open4'
 
+require './spec/helpers/warning_helpers.rb'
+
 Excon.defaults.merge!(
   :connect_timeout  => 5,
   :read_timeout     => 5,
@@ -210,16 +212,6 @@ end
 
 def env_stack
   @env_stack ||= []
-end
-
-def silence_warnings
-  orig_verbose = $VERBOSE
-  $VERBOSE = nil
-  Excon.set_raise_on_warnings!(false)
-  yield
-ensure
-  $VERBOSE = orig_verbose
-  Excon.set_raise_on_warnings!(true)
 end
 
 def capture_response_block
