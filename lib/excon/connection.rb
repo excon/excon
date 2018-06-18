@@ -278,6 +278,10 @@ module Excon
       end
     rescue => error
       reset
+
+      # If we didn't get far enough to initialize datum and the middleware stack, just raise
+      raise error if !datum
+
       datum[:error] = error
       if datum[:stack]
         datum[:stack].error_call(datum)
