@@ -67,8 +67,13 @@ module Excon
       # the same goes for :middlewares
       @data[:middlewares] = @data[:middlewares].dup
 
-      params = validate_params(:connection, params, @data.fetch(:middlewares, []))
       @data.merge!(params)
+      validate_params(:connection, @data, @data[:middlewares])
+
+      if @data.key?(:host) && !@data.key?(:hostname)
+        Excon.display_warning('hostname is missing! For IPv6 support, provide both host and hostname: Excon::Connection#new(:host => uri.host, :hostname => uri.hostname, ...).')
+        @data[:hostname] = @data[:host]
+      end
 
       setup_proxy
 
@@ -223,10 +228,16 @@ module Excon
     #     @option params [String] :path appears after 'scheme://host:port/'
     #     @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     def request(params={}, &block)
-      params = validate_params(:request, params, params.fetch(:middlewares, @data[:middlewares]))
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
+
+      validate_params(:request, params, datum[:middlewares])
+      # If the user passed in new middleware, we want to validate that the original connection parameters
+      # are still valid with the provided middleware.
+      if params[:middlewares]
+        validate_params(:connection, @data, datum[:middlewares])
+      end
 
       if datum[:user] || datum[:password]
         user, pass = Utils.unescape_uri(datum[:user].to_s), Utils.unescape_uri(datum[:password].to_s)
@@ -387,13 +398,7 @@ module Excon
     end
 
     def valid_middleware_keys(middlewares)
-      middlewares.flat_map do |middleware|
-        if middleware.respond_to?(:valid_parameter_keys)
-          middleware.valid_parameter_keys
-        else
-          []
-        end
-      end
+      middlewares.flat_map(&:valid_parameter_keys)
     end
 
     def validate_params(validation, params, middlewares)
@@ -409,9 +414,6 @@ module Excon
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}")
-        # FIXME: for now, just warn, don't mutate, give things (ie fog) a chance to catch up
-        #params = params.dup
-        #invalid_keys.each {|key| params.delete(key) }
 
         if validation == :request
           deprecated_keys = invalid_keys & Excon::DEPRECATED_VALID_REQUEST_KEYS.keys
@@ -423,13 +425,6 @@ module Excon
           )
         end
       end
-
-      if validation == :connection && params.key?(:host) && !params.key?(:hostname)
-        Excon.display_warning('hostname is missing! For IPv6 support, provide both host and hostname: Excon::Connection#new(:host => uri.host, :hostname => uri.hostname, ...).')
-        params[:hostname] = params[:host]
-      end
-
-      params
     end
 
     def response(datum={})
