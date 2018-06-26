@@ -6,6 +6,7 @@ module Excon
 
     class StubNotFound < Error; end
     class InvalidStub < Error; end
+    class Warning < Error; end
 
     # Socket related errors
     class Socket < Error

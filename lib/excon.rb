@@ -63,7 +63,7 @@ module Excon
       end
 
       if @raise_on_warnings
-        raise warning
+        raise Error::Warning.new(warning)
       end
     end
 
