@@ -175,6 +175,8 @@ module Excon
           @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPIDLE, @data[:keepalive][:time])
           @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPINTVL, @data[:keepalive][:intvl])
           @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPCNT, @data[:keepalive][:probes])
+        else
+          Excon.display_warning('Excon::Socket keepalive was set, but is not supported by Ruby version.')
         end
       end
     end
