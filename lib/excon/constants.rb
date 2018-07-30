@@ -150,6 +150,6 @@ module Excon
     :uri_parser           => URI,
     :versions             => VERSIONS,
     :write_timeout        => 60
-  }
+  }.freeze
 
 end
