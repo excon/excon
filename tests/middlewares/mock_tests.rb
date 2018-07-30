@@ -96,7 +96,7 @@ Shindo.tests('Excon stubs') do
       response.body
     end
 
-    tests('response.headers').returns({'Host' => '127.0.0.1:9292', 'User-Agent' => "excon/#{Excon::VERSION}"}) do
+    tests('response.headers').returns({'Accept' => '*/*', 'Host' => '127.0.0.1:9292', 'User-Agent' => "excon/#{Excon::VERSION}"}) do
       response.headers
     end
 
