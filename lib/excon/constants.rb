@@ -123,7 +123,8 @@ module Excon
     :debug_request        => false,
     :debug_response       => false,
     :headers              => {
-      'User-Agent' => USER_AGENT
+      'User-Agent' => USER_AGENT,
+      'Accept'     =>  '*/*'
     },
     :idempotent           => false,
     :instrumentor_name    => 'excon',
