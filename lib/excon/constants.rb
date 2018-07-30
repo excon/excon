@@ -79,6 +79,7 @@ module Excon
     :private_key_path,
     :connect_timeout,
     :family,
+    :keepalive,
     :host,
     :hostname,
     :omit_default_port,
