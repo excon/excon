@@ -2,6 +2,12 @@
 module Excon
   module Middleware
     class Expects < Excon::Middleware::Base
+      def self.valid_parameter_keys
+        [
+          :expects
+        ]
+      end
+
       def response_call(datum)
         if datum.has_key?(:expects) && ![*datum[:expects]].include?(datum[:response][:status])
           raise(

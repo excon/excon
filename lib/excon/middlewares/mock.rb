@@ -2,6 +2,14 @@
 module Excon
   module Middleware
     class Mock < Excon::Middleware::Base
+      def self.valid_parameter_keys
+        [
+          :allow_unstubbed_requests,
+          :captures,
+          :mock
+        ]
+      end
+
       def request_call(datum)
         if datum[:mock]
           # convert File/Tempfile body to string before matching:

@@ -2,6 +2,14 @@
 module Excon
   module Middleware
     class Instrumentor < Excon::Middleware::Base
+      def self.valid_parameter_keys
+        [
+          :logger,
+          :instrumentor,
+          :instrumentor_name
+        ]
+      end
+
       def error_call(datum)
         if datum.has_key?(:instrumentor)
           datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error]) do
