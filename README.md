@@ -128,7 +128,7 @@ connection.request(:method => 'GET')
 # expect one or more status codes, or raise an error
 connection.request(:expects => [200, 201], :method => :get)
 
-# this request can be repeated safely, so retry on errors up to 3 times
+# this request can be repeated safely, so retry on errors up to 4 times
 connection.request(:idempotent => true)
 
 # this request can be repeated safely, retry up to 6 times
