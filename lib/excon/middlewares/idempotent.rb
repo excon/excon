@@ -37,8 +37,8 @@ module Excon
           end
         end
 
-        if datum[:idempotent] && [Excon::Errors::Timeout, Excon::Errors::SocketError,
-            Excon::Errors::HTTPStatusError].any? {|ex| datum[:error].kind_of?(ex) } && datum[:retries_remaining] > 1
+        if datum[:idempotent] && [Excon::Error::Timeout, Excon::Error::Socket,
+            Excon::Error::HTTPStatus].any? {|ex| datum[:error].kind_of?(ex) } && datum[:retries_remaining] > 1
 
           sleep(datum[:retry_interval]) if datum[:retry_interval]
 
