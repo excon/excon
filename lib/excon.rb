@@ -23,11 +23,11 @@ require 'excon/middlewares/instrumentor'
 require 'excon/middlewares/mock'
 require 'excon/middlewares/response_parser'
 
+require 'excon/error'
 require 'excon/constants'
 require 'excon/utils'
 
 require 'excon/connection'
-require 'excon/error'
 require 'excon/headers'
 require 'excon/response'
 require 'excon/middlewares/decompress'

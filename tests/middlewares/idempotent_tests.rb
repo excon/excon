@@ -161,6 +161,36 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
+  tests("Idempotent request with custom error first 3 times").returns(200) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 3 # First 3 calls fail.
+        raise "oops"
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
+    response.status
+  end
+
+  tests("Idempotent request with custom error first 5 times").raises(RuntimeError) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 5 # First 5 calls fail.
+        raise "oops"
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
+    response.status
+  end
+
   class Block
     attr_reader :rewound
     def initialize
