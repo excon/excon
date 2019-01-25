@@ -191,6 +191,15 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
+  tests("Overriding default retry_errors").raises(Excon::Error::Socket) do
+    Excon.stub({:method => :get}) { |params|
+      raise Excon::Error::Socket.new(Exception.new "Mock Error")
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
+    response.status
+  end
+
   class Block
     attr_reader :rewound
     def initialize
