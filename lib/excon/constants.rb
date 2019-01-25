@@ -109,9 +109,9 @@ module Excon
     :instrumentor_name => 'Instrumentor',
     :mock => 'Mock',
     :retries_remaining => 'Idempotent', # referenced in Instrumentor, but only relevant with Idempotent
-    :retry_limit => 'Idempotent', # referenced in Instrumentor, but only relevant with Idempotent
+    :retry_errors => 'Idempotent',
     :retry_interval => 'Idempotent',
-    :retry_errors => 'Idempotent'
+    :retry_limit => 'Idempotent' # referenced in Instrumentor, but only relevant with Idempotent
   }
 
   unless ::IO.const_defined?(:WaitReadable)
@@ -152,8 +152,8 @@ module Excon
     :omit_default_port    => false,
     :persistent           => false,
     :read_timeout         => 60,
-    :retry_limit          => DEFAULT_RETRY_LIMIT,
     :retry_errors         => DEFAULT_RETRY_ERRORS,
+    :retry_limit          => DEFAULT_RETRY_LIMIT,
     :ssl_verify_peer      => true,
     :ssl_uri_schemes      => [HTTPS],
     :stubs                => :global,

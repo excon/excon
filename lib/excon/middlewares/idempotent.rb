@@ -8,9 +8,9 @@ module Excon
         [
           :idempotent,
           :retries_remaining,
+          :retry_errors,
           :retry_interval,
-          :retry_limit,
-          :retry_errors
+          :retry_limit
         ]
       end
 
