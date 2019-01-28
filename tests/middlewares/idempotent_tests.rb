@@ -9,12 +9,12 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stubs.clear
   end
 
-  tests("Non-idempotent call with an erroring socket").raises(Excon::Errors::SocketError) do
+  tests("Non-idempotent call with an erroring socket").raises(Excon::Error::Socket) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 3 # First 3 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -28,7 +28,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 3 # First 3 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -38,12 +38,12 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  tests("Idempotent request with socket erroring first 5 times").raises(Excon::Errors::SocketError) do
+  tests("Idempotent request with socket erroring first 5 times").raises(Excon::Error::Socket) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 5 # First 5 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -58,7 +58,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 1 # First call fails.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -68,12 +68,12 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  tests("Lowered retry limit with socket erroring first 3 times").raises(Excon::Errors::SocketError) do
+  tests("Lowered retry limit with socket erroring first 3 times").raises(Excon::Error::Socket) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 3 # First 3 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -88,7 +88,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 5 # First 5 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -98,12 +98,12 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  tests("Raised retry limit with socket erroring first 9 times").raises(Excon::Errors::SocketError) do
+  tests("Raised retry limit with socket erroring first 9 times").raises(Excon::Error::Socket) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 9 # First 9 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -118,7 +118,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 5 # First 5 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -133,7 +133,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 2 # First 5 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -145,12 +145,12 @@ Shindo.tests('Excon request idempotencey') do
     response.status
   end
 
-  tests("Retry limit and sleep in constructor with socket erroring first 2 times").raises(Excon::Errors::SocketError) do
+  tests("Retry limit and sleep in constructor with socket erroring first 2 times").raises(Excon::Error::Socket) do
     run_count = 0
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 2 # First 5 calls fail.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -158,6 +158,45 @@ Shindo.tests('Excon request idempotencey') do
 
     # NOTE: A short :retry_interval will avoid slowing down the tests.
     response = @connection.request(:method => :get, :idempotent => true, :path => '/some-path', :retry_limit => 2, :retry_interval => 0.1)
+    response.status
+  end
+
+  tests("Idempotent request with custom error first 3 times").returns(200) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 3 # First 3 calls fail.
+        raise "oops"
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
+    response.status
+  end
+
+  tests("Idempotent request with custom error first 5 times").raises(RuntimeError) do
+    run_count = 0
+    Excon.stub({:method => :get}) { |params|
+      run_count += 1
+      if run_count <= 5 # First 5 calls fail.
+        raise "oops"
+      else
+        {:body => params[:body], :headers => params[:headers], :status => 200}
+      end
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
+    response.status
+  end
+
+  tests("Overriding default retry_errors").raises(Excon::Error::Socket) do
+    Excon.stub({:method => :get}) { |params|
+      raise Excon::Error::Socket.new(Exception.new "Mock Error")
+    }
+
+    response = @connection.request(:method => :get, :idempotent => true, :retry_errors => [RuntimeError], :path => '/some-path')
     response.status
   end
 
@@ -178,7 +217,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 1 # First call fails.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
@@ -193,7 +232,7 @@ Shindo.tests('Excon request idempotencey') do
     Excon.stub({:method => :get}) { |params|
       run_count += 1
       if run_count <= 1 # First call fails.
-        raise Excon::Errors::SocketError.new(Exception.new "Mock Error")
+        raise Excon::Error::Socket.new(Exception.new "Mock Error")
       else
         {:body => params[:body], :headers => params[:headers], :status => 200}
       end
