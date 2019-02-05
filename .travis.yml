@@ -6,16 +6,12 @@ before_script:
       sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
     fi
 language: ruby
-matrix:
-  allow_failures:
-    - rvm: 2.6
-  fast_finish: true
 rvm:
   - 2.3
   - 2.4
   - 2.5
   - 2.6
-script: 
+script:
   - "bundle exec shindont"
   - "bundle exec rake spec[progress]"
 sudo: false
