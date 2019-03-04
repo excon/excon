@@ -26,4 +26,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('json', '>= 1.8.5')
   s.add_development_dependency('puma')
+
+  s.metadata = {
+    'homepage_uri'      => 'https://github.com/excon/excon',
+    'bug_tracker_uri'   => 'https://github.com/excon/excon/issues',
+    'changelog_uri'     => 'https://github.com/excon/excon/blob/master/changelog.txt',
+    'documentation_uri' => 'https://github.com/excon/excon/blob/master/README.md',
+    'source_code_uri'   => 'https://github.com/excon/excon',
+    'wiki_uri'          => 'https://github.com/excon/excon/wiki'
+  }
 end
