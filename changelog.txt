@@ -1,3 +1,28 @@
+0.63.0 2019-04-12
+=================
+
+allow setting min/max ssl versions
+add additional nonblocking ruby error classes
+set logger via datum, instead of class variables
+misc test/travis fixes
+consolidate binary encoding, avoid double encoding
+error or CR/LF instead of substitute
+guard against invalid header keys
+also retry blocked connect with newer ruby errors
+clarify that username and password should be escaped
+better handling of warnings in tests
+add stalebot
+document NO_PROXY
+validate parameter keys based on middleware stack
+update default retry on error counts in readme
+Sweet32, DES deprioritization fixes to cipher suite
+allow overriding retry_errors count
+fix for URI escaping in Ruby 2.6
+update copyright notice
+add metadata to gemspec
+update certs
+
+
 0.62.0 2018-03-27
 =================
 
