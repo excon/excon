@@ -1,3 +1,8 @@
+0.64.0 2019-04-15
+=================
+
+warn, not error on undefined middlewares#valid_parameter keys
+
 0.63.0 2019-04-12
 =================
 
