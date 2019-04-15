@@ -398,7 +398,16 @@ module Excon
     end
 
     def valid_middleware_keys(middlewares)
-      middlewares.flat_map(&:valid_parameter_keys)
+      middlewares.flat_map do |middleware|
+        if middleware.respond_to?(:valid_parameter_keys)
+          middleware.valid_parameter_keys
+        else
+          Excon.display_warning(
+            "Excon middleware #{middleware} does not define #valid_parameter_keys"
+          )
+          []
+        end
+      end
     end
 
     def validate_params(validation, params, middlewares)
