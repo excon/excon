@@ -222,7 +222,7 @@ module Excon
     end
 
     # Retrieve a specific header value. Header names are treated case-insensitively.
-    #   @param [String] name Header name
+    # @param [String] name Header name
     def get_header(name)
       headers[name]
     end

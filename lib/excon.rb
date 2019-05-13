@@ -113,9 +113,9 @@ module Excon
 
     # @see Connection#initialize
     # Initializes a new keep-alive session for a given remote host
-    #   @param [String] url The destination URL
-    #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
-    #   @return [Connection] A new Excon::Connection instance
+    # @param [String] url The destination URL
+    # @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
+    # @return [Connection] A new Excon::Connection instance
     def new(url, params = {})
       uri_parser = params[:uri_parser] || defaults[:uri_parser]
       uri = uri_parser.parse(url)
@@ -143,8 +143,8 @@ module Excon
     end
 
     # push an additional stub onto the list to check for mock requests
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @param response_params [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params = {}, response_params = nil)
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
@@ -187,8 +187,8 @@ module Excon
     end
 
     # get a stub matching params or nil
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @return [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @return [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub_for(request_params={})
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
@@ -236,8 +236,8 @@ module Excon
     end
 
     # remove first/oldest stub matching request_params
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @return [Hash<Symbol, >] response params from deleted stub
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @return [Hash<Symbol, >] response params from deleted stub
     def unstub(request_params = {})
       stub = stub_for(request_params)
       Excon.stubs.delete_at(Excon.stubs.index(stub))
