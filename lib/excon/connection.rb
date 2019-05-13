@@ -301,7 +301,7 @@ module Excon
     end
 
     # Sends the supplied requests to the destination host using pipelining.
-    # @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
+    # @param pipeline_params [Array<Hash>] An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
       pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
       pipeline_params.last.merge!(:persistent => @data[:persistent])
@@ -328,7 +328,7 @@ module Excon
     # Sends the supplied requests to the destination host using pipelining in
     # batches of @limit [Numeric] requests. This is your soft file descriptor
     # limit by default, typically 256.
-    # @pipeline_params [Array<Hash>] pipeline_params An array of one or more optional params, override defaults set in Connection.new, see #request for details
+    # @param pipeline_params [Array<Hash>] An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def batch_requests(pipeline_params, limit = nil)
       limit ||= Process.respond_to?(:getrlimit) ? Process.getrlimit(:NOFILE).first : 256
       responses = []

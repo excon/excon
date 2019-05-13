@@ -143,8 +143,8 @@ module Excon
     end
 
     # push an additional stub onto the list to check for mock requests
-    # @param [Hash<Symbol, >] request params to match against, omitted params match all
-    # @param [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @param response_params [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params = {}, response_params = nil)
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
@@ -187,7 +187,7 @@ module Excon
     end
 
     # get a stub matching params or nil
-    # @param [Hash<Symbol, >] request params to match against, omitted params match all
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @return [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub_for(request_params={})
       if method = request_params.delete(:method)
@@ -236,7 +236,7 @@ module Excon
     end
 
     # remove first/oldest stub matching request_params
-    # @param [Hash<Symbol, >] request params to match against, omitted params match all
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @return [Hash<Symbol, >] response params from deleted stub
     def unstub(request_params = {})
       stub = stub_for(request_params)
