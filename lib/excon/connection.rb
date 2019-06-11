@@ -257,7 +257,7 @@ module Excon
 
       if block_given?
         Excon.display_warning('Excon requests with a block are deprecated, pass :response_block instead.')
-        datum[:response_block] = Proc.new
+        datum[:response_block] = block
       end
 
       datum[:connection] = self
