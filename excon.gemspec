@@ -11,8 +11,13 @@ Gem::Specification.new do |s|
   s.license          = 'MIT'
   s.rdoc_options     = ["--charset=UTF-8"]
   s.extra_rdoc_files = %w[README.md CONTRIBUTORS.md CONTRIBUTING.md]
-  s.files            = `git ls-files -z`.split("\x0")
-  s.test_files       = s.files.select { |path| path =~ /^[spec|tests]\/.*_[spec|tests]\.rb/ }
+  s.files            = `git ls-files -- lib/*`.split("\n") + [
+    "CONTRIBUTING.md",
+    "CONTRIBUTORS.md",
+    "LICENSE.md",
+    "README.md",
+    "excon.gemspec"
+  ]
 
   s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('activesupport')
