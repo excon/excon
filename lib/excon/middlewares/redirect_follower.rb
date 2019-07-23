@@ -20,8 +20,9 @@ module Excon
             base_uri = Excon::Utils.request_uri(datum)
             uri = uri_parser.join(base_uri, location)
 
-            # delete old/redirect response
+            # delete old/redirect response and remote_ip
             response = datum.delete(:response)
+            datum.delete(:remote_ip)
 
             params = datum.dup
             params.delete(:connection)
@@ -52,7 +53,10 @@ module Excon
             params.merge!(:password => Utils.unescape_uri(uri.password)) if uri.password
 
             response = Excon::Connection.new(params).request
-            datum.merge!({:response => response.data})
+            datum.merge!({
+              :remote_ip  => response.remote_ip,
+              :response   => response.data
+            })
           else
             @stack.response_call(datum)
           end

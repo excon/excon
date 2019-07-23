@@ -125,6 +125,7 @@ module Excon
         end
 
         @remote_ip = ip
+        @data[:remote_ip] = ip
 
         # nonblocking connect
         begin
