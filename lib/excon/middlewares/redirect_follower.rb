@@ -2,6 +2,18 @@
 module Excon
   module Middleware
     class RedirectFollower < Excon::Middleware::Base
+      def self.valid_parameter_keys
+        [
+          :redirects_remaining,
+          :redirect_limit
+        ]
+      end
+
+      def request_call(datum)
+        datum[:redirects_remaining] ||= datum[:redirect_limit] ||
+                                        Excon::DEFAULT_REDIRECT_LIMIT
+        @stack.request_call(datum)
+      end
 
       def get_header(datum, header)
         _, header_value = datum[:response][:headers].detect do |key, value|
@@ -11,9 +23,15 @@ module Excon
       end
 
       def response_call(datum)
+        if datum[:redirects_remaining] <= 0
+          return @stack.response_call(datum)
+        end
+
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
+            datum[:redirects_remaining] -= 1
+
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
 
             location = get_header(datum, 'Location')
