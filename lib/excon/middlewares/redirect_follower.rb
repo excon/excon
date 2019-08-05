@@ -23,13 +23,13 @@ module Excon
       end
 
       def response_call(datum)
-        if datum[:redirects_remaining] <= 0
-          return @stack.response_call(datum)
-        end
-
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
+            if datum[:redirects_remaining] <= 0
+              raise Excon::Errors::TooManyRedirects
+            end
+
             datum[:redirects_remaining] -= 1
 
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]

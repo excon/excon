@@ -51,6 +51,7 @@ or:
     class Timeout < Error; end
     class ResponseParse < Error; end
     class ProxyParse < Error; end
+    class TooManyRedirects < Error; end
 
     # Base class for HTTP Error classes
     class HTTPStatus < Error

@@ -33,18 +33,9 @@ end
 Shindo.tests('Excon redirector support with redirect loop') do
   env_init
 
-  tests("request(:method => :get, :path => '/old').body").returns('redirecting') do
+  tests("request(:method => :get, :path => '/old')").raises(Excon::Errors::TooManyRedirects) do
     Excon.stub(
       { :path => '/old' },
-      {
-        :headers  => { 'Location' => 'http://127.0.0.1:9292/new' },
-        :body     => 'redirecting',
-        :status   => 301
-      }
-    )
-
-    Excon.stub(
-      { :path => '/new' },
       {
         :headers  => { 'Location' => 'http://127.0.0.1:9292/old' },
         :body     => 'redirecting',
@@ -57,7 +48,7 @@ Shindo.tests('Excon redirector support with redirect loop') do
       :path         => '/old',
       :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
       :mock         => true
-    ).body
+    )
   end
 
   env_restore

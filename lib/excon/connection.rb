@@ -440,7 +440,7 @@ module Excon
       datum[:stack].response_call(datum)
     rescue => error
       case error
-      when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout
+      when Excon::Errors::HTTPStatusError, Excon::Errors::Timeout, Excon::Errors::TooManyRedirects
         raise(error)
       else
         raise_socket_error(error)
