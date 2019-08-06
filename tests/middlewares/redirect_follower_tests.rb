@@ -51,6 +51,7 @@ Shindo.tests('Excon redirector support with redirect loop') do
     )
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
