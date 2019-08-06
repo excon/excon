@@ -25,4 +25,7 @@ Shindo.tests('logging instrumentor') do
       "response: body\n"
     ]
   end
+
+  Excon.stubs.clear
+  env_restore
 end
