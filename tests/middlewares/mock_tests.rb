@@ -50,7 +50,6 @@ Shindo.tests('Excon stubs') do
     end
 
     Excon.stubs.clear
-
   end
 
   tests("stub({:path => %r{/tests/(\S+)}}, {:body => $1, :status => 200})") do
@@ -80,7 +79,6 @@ Shindo.tests('Excon stubs') do
     end
 
     Excon.stubs.clear
-
   end
 
   tests("stub({:body => 'body', :method => :get}) {|params| {:body => params[:body], :headers => params[:headers], :status => 200}}") do
@@ -119,11 +117,9 @@ Shindo.tests('Excon stubs') do
     end
 
     Excon.stubs.clear
-
   end
 
   tests("stub({:body => File.open(...), :method => :get}, { :status => 200 })") do
-
     tests('response.status').returns(200) do
       file_path = File.join(File.dirname(__FILE__), '..', 'data', 'xs')
 
@@ -139,18 +135,19 @@ Shindo.tests('Excon stubs') do
     end
 
     Excon.stubs.clear
-
   end
 
   tests("invalid stub response").raises(Excon::Errors::InvalidStub) do
     Excon.stub({:body => 42, :method => :get}, {:status => 200})
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     connection.request(:body => 42, :method => :get, :path => '/').status
+    Excon.stubs.clear
   end
 
   tests("mismatched stub").raises(Excon::Errors::StubNotFound) do
     Excon.stub({:method => :post}, {:body => 'body'})
     Excon.get('http://127.0.0.1:9292/', :mock => true)
+    Excon.stubs.clear
   end
 
   with_server('good_ipv4') do
@@ -232,7 +229,6 @@ Shindo.tests('Excon stubs') do
     end
 
     Excon.stubs.clear
-
   end
 
   tests("stub_for({})") do
