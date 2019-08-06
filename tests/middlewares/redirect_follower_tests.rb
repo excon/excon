@@ -27,6 +27,7 @@ Shindo.tests('Excon redirector support') do
     ).body
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
@@ -84,6 +85,7 @@ Shindo.tests('Excon redirect support for relative Location headers') do
     ).body
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
@@ -116,6 +118,7 @@ Shindo.tests('Excon redirect support for relative Location headers with dot segm
     ).body
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
@@ -133,5 +136,6 @@ Shindo.tests("Excon redirecting post request") do
     end
   end
 
+  Excon.stubs.clear
   env_restore
 end
