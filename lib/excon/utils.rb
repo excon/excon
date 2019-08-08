@@ -30,12 +30,23 @@ module Excon
     # Redact sensitive info from provided data
     def redact(datum)
       datum = datum.dup
-      if datum.has_key?(:headers) && datum[:headers].has_key?('Authorization')
-        datum[:headers] = datum[:headers].dup
-        datum[:headers]['Authorization'] = REDACTED
+      if datum.has_key?(:headers)
+        if datum[:headers].has_key?('Authorization') || datum[:headers].has_key?('Proxy-Authorization')
+          datum[:headers] = datum[:headers].dup
+        end
+        if datum[:headers].has_key?('Authorization')
+          datum[:headers]['Authorization'] = REDACTED
+        end
+        if datum[:headers].has_key?('Proxy-Authorization')
+          datum[:headers]['Proxy-Authorization'] = REDACTED
+        end
       end
       if datum.has_key?(:password)
         datum[:password] = REDACTED
+      end
+      if datum.has_key?(:proxy) && datum[:proxy].has_key?(:password)
+        datum[:proxy] = datum[:proxy].dup
+        datum[:proxy][:password] = REDACTED
       end
       datum
     end

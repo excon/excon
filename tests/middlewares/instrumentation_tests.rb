@@ -234,6 +234,37 @@ Shindo.tests('Excon instrumentation') do
 
     end
 
+    tests('proxy password REDACT') do
+
+      begin
+        original_stderr = $stderr
+        $stderr = @captured_stderr = StringIO.new
+        stub_failure
+        raises(Excon::Errors::SocketError) do
+          @connection = Excon.new(
+            'http://user:pass@127.0.0.1:9292',
+            :instrumentor => Excon::StandardInstrumentor,
+            :mock         => true,
+            :proxy => { :password => "pass" }
+            )
+          @connection.get(:idempotent => true)
+        end
+      ensure
+        $stderr = original_stderr
+      end
+
+      @proxy_password_param = '"pass"'
+
+      test('does not appear in response') do
+        !@captured_stderr.string.include?(@password_param)
+      end
+
+      test('does not mutate password value') do
+        @connection.data[:proxy][:password] == "pass"
+      end
+
+    end
+
   end
 
   tests('use our own instrumentor').returns(
