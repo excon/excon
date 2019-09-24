@@ -1,3 +1,9 @@
+0.67.0 2019-09-24
+=================
+
+Properly redact user/pass info from proxy credentials
+Update bundled certs
+
 0.66.0 2019-08-06
 =================
 
