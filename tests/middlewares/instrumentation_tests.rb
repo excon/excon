@@ -28,6 +28,10 @@ Shindo.tests('Excon instrumentation') do
     ActiveSupport::Notifications.unsubscribe("excon.retry")
     ActiveSupport::Notifications.unsubscribe("excon.error")
     ActiveSupport::Notifications.unsubscribe("gug")
+    ActiveSupport::Notifications.unsubscribe("gug.request")
+    ActiveSupport::Notifications.unsubscribe("gug.response")
+    ActiveSupport::Notifications.unsubscribe("gug.retry")
+    ActiveSupport::Notifications.unsubscribe("gug.error")
     Delorean.back_to_the_present
     Excon.stubs.clear
   end
