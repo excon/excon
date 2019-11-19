@@ -107,7 +107,10 @@ module Excon
         @socket.write(request)
 
         # eat the proxy's connection response
-        Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
+        response = Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
+        if response[:status] != 200
+          raise(Excon::Errors::ProxyConnectionError.new("proxy connection is not exstablished"))
+        end
       end
 
       # convert Socket to OpenSSL::SSL::SSLSocket
