@@ -50,6 +50,7 @@ or:
     class InvalidHeaderValue < Error; end
     class Timeout < Error; end
     class ResponseParse < Error; end
+    class ProxyConnectionError < Error; end
     class ProxyParse < Error; end
     class TooManyRedirects < Error; end
 
