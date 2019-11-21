@@ -1,3 +1,8 @@
+0.69.1 2019-11-21
+=================
+
+Fix mistake in proxy connection error handling
+
 0.69.0 2019-11-21
 =================
 
