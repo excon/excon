@@ -14,6 +14,29 @@ Shindo.tests('Excon Connection') do
       connection.send(:socket) # creates/connects socket
       connection.data[:remote_ip]
     end
+
+    tests("persistent connections") do
+      connection = Excon.new('http://127.0.0.1:9292', persistent: true)
+
+      response_body = connection.request(path: '/foo', method: 'get').body
+      test("successful uninterrupted request") do
+        connection.request(path: '/foo', method: 'get').body == 'foo'
+      end
+
+      begin
+        # simulate an interrupted connection which leaves data behind
+        Timeout::timeout(0.0000000001) do
+          connection.request(path: '/foo', method: 'get')
+        end
+      rescue Timeout::Error
+        nil
+      end
+
+      test("resets connection after interrupt") do
+        response = connection.request(path: '/bar', method: 'get')
+        response.body == 'bar'
+      end
+    end
   end
 
   tests("inspect redaction") do

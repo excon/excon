@@ -32,6 +32,14 @@ class Basic < Sinatra::Base
     echo
   end
 
+  get('/foo') do
+    'foo'
+  end
+
+  get('/bar') do
+    'bar'
+  end
+
   private
 
   def echo

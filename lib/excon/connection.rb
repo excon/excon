@@ -262,6 +262,11 @@ module Excon
 
       datum[:connection] = self
 
+      # cleanup data left behind on persistent connection after interrupt
+      if datum[:persistent] && !@persistent_socket_reusable
+        reset
+      end
+
       datum[:stack] = datum[:middlewares].map do |middleware|
         lambda {|stack| middleware.new(stack)}
       end.reverse.inject(self) do |middlewares, middleware|
@@ -270,7 +275,9 @@ module Excon
       datum = datum[:stack].request_call(datum)
 
       unless datum[:pipeline]
+        @persistent_socket_reusable = false
         datum = response(datum)
+        @persistent_socket_reusable = true
 
         if datum[:persistent]
           if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
@@ -344,6 +351,7 @@ module Excon
       if old_socket = sockets.delete(@socket_key)
         old_socket.close rescue nil
       end
+      @persistent_socket_reusable = true
     end
 
     # Generate HTTP request verb methods
