@@ -1,3 +1,8 @@
+0.71.1 2019-12-18
+=================
+
+fix frozen chunks through dup prior to binary_encode
+
 0.71.0 2019-12-12
 =================
 
