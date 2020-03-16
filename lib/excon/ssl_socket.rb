@@ -109,7 +109,7 @@ module Excon
         # eat the proxy's connection response
         response = Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
         if response[:response][:status] != 200
-          raise(Excon::Errors::ProxyConnectionError.new("proxy connection is not exstablished"))
+          raise(Excon::Errors::ProxyConnectionError.new("proxy connection could not be established", response))
         end
       end
 
