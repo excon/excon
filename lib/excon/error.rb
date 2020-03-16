@@ -52,11 +52,12 @@ or:
     class ResponseParse < Error; end
 
     class ProxyConnectionError < Error
-      attr_reader :proxy_response
+      attr_reader :request, :response
 
-      def initialize(msg, proxy_response = nil)
+      def initialize(msg, request = nil, response = nil)
         super(msg)
-        @proxy_response = proxy_response
+        @request = request
+        @response = response
       end
     end
 
