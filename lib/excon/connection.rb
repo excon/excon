@@ -488,6 +488,47 @@ module Excon
       end
     end
 
+    def proxy_match_host_port(host, port)
+        host_match = if host.is_a? IPAddr
+                       begin
+                         host.include? @data[:host]
+                       rescue IPAddr::Error
+                         false
+                       end
+                     else
+                       /(^|\.)#{host}$/.match(@data[:host])
+                     end
+        host_match && (port.nil? || port.to_i == @data[:port])
+    end
+
+    def proxy_from_env
+      if (no_proxy_env = ENV['no_proxy'] || ENV['NO_PROXY'])
+        no_proxy_list = no_proxy_env.scan(/\s*(?:\[([\dA-Fa-f:\/]+)\]|\*?\.?([^\s,:]+))(?::(\d+))?\s*/i).map { |e|
+          if e[0]
+            begin
+              [IPAddr.new(e[0]), e[2]]
+            rescue IPAddr::Error
+              nil
+            end
+          else
+            begin
+              [IPAddr.new(e[1]), e[2]]
+            rescue IPAddr::Error
+              [e[1], e[2]]
+            end
+          end
+        }.reject { |e| e.nil? || e[0].nil? }
+      end
+
+      unless no_proxy_env && no_proxy_list.index { |h| proxy_match_host_port(h[0], h[1]) }
+        if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
+          @data[:proxy] = ENV['https_proxy'] || ENV['HTTPS_PROXY']
+        elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
+          @data[:proxy] = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        end
+      end
+    end
+
     def setup_proxy
       if @data[:disable_proxy]
         if @data[:proxy]
@@ -496,64 +537,54 @@ module Excon
         return
       end
 
-      unless @data[:scheme] == UNIX
-        if no_proxy_env = ENV["no_proxy"] || ENV["NO_PROXY"]
-          no_proxy_list = no_proxy_env.scan(/\*?\.?([^\s,:]+)(?::(\d+))?/i).map { |s| [s[0], s[1]] }
-        end
+      return if @data[:scheme] == UNIX
 
-        unless no_proxy_env && no_proxy_list.index { |h| /(^|\.)#{h[0]}$/.match(@data[:host]) && (h[1].nil? || h[1].to_i == @data[:port]) }
-          if @data[:scheme] == HTTPS && (ENV.has_key?('https_proxy') || ENV.has_key?('HTTPS_PROXY'))
-            @data[:proxy] = ENV['https_proxy'] || ENV['HTTPS_PROXY']
-          elsif (ENV.has_key?('http_proxy') || ENV.has_key?('HTTP_PROXY'))
-            @data[:proxy] = ENV['http_proxy'] || ENV['HTTP_PROXY']
-          end
-        end
+      proxy_from_env
 
-        case @data[:proxy]
-        when nil
-          @data.delete(:proxy)
-        when ''
-          @data.delete(:proxy)
-        when Hash
-          # no processing needed
-        when String, URI
-          uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
-          @data[:proxy] = {
-            :host       => uri.host,
-            :hostname   => uri.hostname,
-            # path is only sensible for a Unix socket proxy
-            :path       => uri.scheme == UNIX ? uri.path : nil,
-            :port       => uri.port,
-            :scheme     => uri.scheme,
-          }
-          if uri.password
-            @data[:proxy][:password] = uri.password
-          end
-          if uri.user
-            @data[:proxy][:user] = uri.user
-          end
-          if @data[:proxy][:scheme] == UNIX
-            if @data[:proxy][:host]
-              raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
-                                   "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
-            end
-          else
-            unless uri.host && uri.port && uri.scheme
-              raise Excon::Errors::ProxyParse, "Proxy is invalid"
-            end
+      case @data[:proxy]
+      when nil
+        @data.delete(:proxy)
+      when ''
+        @data.delete(:proxy)
+      when Hash
+        # no processing needed
+      when String, URI
+        uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
+        @data[:proxy] = {
+          :host       => uri.host,
+          :hostname   => uri.hostname,
+          # path is only sensible for a Unix socket proxy
+          :path       => uri.scheme == UNIX ? uri.path : nil,
+          :port       => uri.port,
+          :scheme     => uri.scheme,
+        }
+        if uri.password
+          @data[:proxy][:password] = uri.password
+        end
+        if uri.user
+          @data[:proxy][:user] = uri.user
+        end
+        if @data[:proxy][:scheme] == UNIX
+          if @data[:proxy][:host]
+            raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
+                                 "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
           end
         else
-          raise Excon::Errors::ProxyParse, "Proxy is invalid"
-        end
-
-        if @data.has_key?(:proxy) && @data[:scheme] == 'http'
-          @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
-          # https credentials happen in handshake
-          if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
-            user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
-            auth = ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
-            @data[:headers]['Proxy-Authorization'] = 'Basic ' + auth
+          unless uri.host && uri.port && uri.scheme
+            raise Excon::Errors::ProxyParse, "Proxy is invalid"
           end
+        end
+      else
+        raise Excon::Errors::ProxyParse, "Proxy is invalid"
+      end
+
+      if @data.has_key?(:proxy) && @data[:scheme] == 'http'
+        @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
+        # https credentials happen in handshake
+        if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
+          user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
+          auth = ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
+          @data[:headers]['Proxy-Authorization'] = 'Basic ' + auth
         end
       end
     end
