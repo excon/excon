@@ -34,7 +34,7 @@ task :update_certs do
       comment = false if line == "## -----END CERTIFICATE-----"
       line
     end.join("\n")
-    file.write(cacert_pem)
+    file.write(cacert_pem + "\n")
   end
 
   # update self-signed certs for tests
