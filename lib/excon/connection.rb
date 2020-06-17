@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'ipaddr'
+
 module Excon
   class Connection
     include Utils
