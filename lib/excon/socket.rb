@@ -60,18 +60,8 @@ module Excon
     def readline
       return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
       buffer = String.new
-      begin
-        buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
-        buffer
-      rescue *READ_RETRY_EXCEPTION_CLASSES
-        select_with_timeout(@socket, :read) && retry
-      rescue OpenSSL::SSL::SSLError => error
-        if error.message == 'read would block'
-          select_with_timeout(@socket, :read) && retry
-        else
-          raise(error)
-        end
-      end
+      buffer << read_nonblock(1) while buffer[-1] != "\n"
+      buffer
     end
 
     def legacy_readline
