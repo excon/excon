@@ -95,6 +95,7 @@ module Excon
     :ssl_verify_callback,
     :ssl_verify_peer,
     :ssl_verify_peer_host,
+    :ssl_verify_hostname,
     :ssl_version,
     :ssl_min_version,
     :ssl_max_version,
