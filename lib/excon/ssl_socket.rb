@@ -73,6 +73,9 @@ module Excon
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
+      # Verify certificate hostname if supported (ruby >= 2.4.0)
+      ssl_context.verify_hostname = @data[:ssl_verify_hostname] if ssl_context.respond_to?(:verify_hostname=)
+
       if client_cert_data && client_key_data
         ssl_context.cert = OpenSSL::X509::Certificate.new client_cert_data
         if OpenSSL::PKey.respond_to? :read
