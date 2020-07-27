@@ -1,3 +1,11 @@
+0.76.0 2020-07-27
+=================
+
+remove AddTrust bundled cert hack (no longer needed)
+update bundled certs
+add support for ssl_verify_hostname parameter
+use buffered reads for Excon::Socket.readline
+
 0.75.0 2020-06-17
 =================
 
