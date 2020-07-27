@@ -20,21 +20,7 @@ task :update_certs do
   require File.join(File.dirname(__FILE__), 'lib', 'excon')
   File.open(File.join(File.dirname(__FILE__), 'data', 'cacert.pem'), 'w') do |file|
     data = Excon.get("https://curl.haxx.se/ca/cacert.pem").body
-    # comment out AddTrust External Root
-    # see: https://support.sectigo.com/Com_KnowledgeDetailPage?Id=kA03l00000117LT
-    comment = false
-    lines = data.split("\n")
-    cacert_pem = lines.map do |line|
-      comment = true if line == "AddTrust External Root"
-      if comment
-        line = "## " + line
-      else
-        line
-      end
-      comment = false if line == "## -----END CERTIFICATE-----"
-      line
-    end.join("\n")
-    file.write(cacert_pem + "\n")
+    file.write(data)
   end
 
   # update self-signed certs for tests
