@@ -252,6 +252,10 @@ module Excon
         datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
       end
 
+      if host = datum[:headers].delete('Host')
+        datum[:headers] = { 'Host' => host }.merge(datum[:headers])
+      end
+
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
         datum[:path] = datum[:path].dup.insert(0, '/')
