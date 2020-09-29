@@ -12,7 +12,7 @@ module Excon
 
       def error_call(datum)
         if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error]) do
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.error", :error => datum[:error], **(datum[:response] || {})) do
             @stack.error_call(datum)
           end
         else
