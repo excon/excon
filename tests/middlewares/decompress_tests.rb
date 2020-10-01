@@ -1,7 +1,7 @@
 Shindo.tests('Excon Decompress Middleware') do
   env_init
 
-  with_server('good') do
+  with_server('good_ipv4') do
 
     before do
       @connection ||= Excon.new(

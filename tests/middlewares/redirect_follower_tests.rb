@@ -27,6 +27,32 @@ Shindo.tests('Excon redirector support') do
     ).body
   end
 
+  Excon.stubs.clear
+  env_restore
+end
+
+Shindo.tests('Excon redirector support with redirect loop') do
+  env_init
+
+  tests("request(:method => :get, :path => '/old')").raises(Excon::Errors::TooManyRedirects) do
+    Excon.stub(
+      { :path => '/old' },
+      {
+        :headers  => { 'Location' => 'http://127.0.0.1:9292/old' },
+        :body     => 'redirecting',
+        :status   => 301
+      }
+    )
+
+    Excon.get(
+      'http://127.0.0.1:9292',
+      :path         => '/old',
+      :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+      :mock         => true
+    )
+  end
+
+  Excon.stubs.clear
   env_restore
 end
 
@@ -59,6 +85,7 @@ Shindo.tests('Excon redirect support for relative Location headers') do
     ).body
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
@@ -91,6 +118,7 @@ Shindo.tests('Excon redirect support for relative Location headers with dot segm
     ).body
   end
 
+  Excon.stubs.clear
   env_restore
 end
 
@@ -108,5 +136,6 @@ Shindo.tests("Excon redirecting post request") do
     end
   end
 
+  Excon.stubs.clear
   env_restore
 end

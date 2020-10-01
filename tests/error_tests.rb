@@ -35,7 +35,7 @@ Shindo.tests('HTTPStatusError request/response debugging') do
       Excon.new('http://localhost', path: "foo\r\nbar: baz")
       false
     rescue => err
-      err.to_s.include? "foo\r\nbar: baz"
+      err.to_s.include?(RUBY_VERSION >= '2.6.0' ? 'foo\r\nbar: baz' : "foo\r\nbar: baz")
     end
   end
 

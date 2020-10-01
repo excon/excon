@@ -5,9 +5,7 @@ Usable, fast, simple Ruby HTTP 1.1
 Excon was designed to be simple, fast and performant. It works great as a general HTTP(s) client and is particularly well suited to usage in API clients.
 
 [![Build Status](https://travis-ci.org/excon/excon.svg?branch=master)](https://travis-ci.org/excon/excon)
-[![Dependency Status](https://gemnasium.com/excon/excon.svg)](https://gemnasium.com/excon/excon)
 [![Gem Version](https://badge.fury.io/rb/excon.svg)](https://badge.fury.io/rb/excon)
-[![Gittip](https://img.shields.io/gittip/geemus.svg)](https://www.gittip.com/geemus/)
 
 * [Getting Started](#getting-started)
 * [Options](#options)
@@ -130,7 +128,7 @@ connection.request(:method => 'GET')
 # expect one or more status codes, or raise an error
 connection.request(:expects => [200, 201], :method => :get)
 
-# this request can be repeated safely, so retry on errors up to 3 times
+# this request can be repeated safely, so retry on errors up to 4 times
 connection.request(:idempotent => true)
 
 # this request can be repeated safely, retry up to 6 times
@@ -161,6 +159,9 @@ connection = Excon.new('http://geemus.com/', :nonblock => false)
 
 # use basic authentication by supplying credentials in the URL or as parameters
 connection = Excon.new('http://username:password@secure.geemus.com')
+# Note: username & password is unescaped for request, so you should provide escaped values here
+# i. e. instead of `password: 'pa%%word'` you should use `password: Excon::Utils.escape_uri('pa%%word')`,
+# which return `pa%25%25word`
 connection = Excon.new('http://secure.geemus.com',
   :user => 'username', :password => 'password')
 
@@ -252,7 +253,7 @@ The proxy URL must be fully specified, including scheme (e.g. "http://") and por
 
 Proxy support must be set when establishing a connection object and cannot be overridden in individual requests.
 
-NOTE: Excon will use the environment variables `http_proxy` and `https_proxy` if they are present. If these variables are set they will take precedence over a :proxy option specified in code. If "https_proxy" is not set, the value of "http_proxy" will be used for both HTTP and HTTPS connections.
+NOTE: Excon will use `HTTP_PROXY` and `HTTPS_PROXY` environment variables. If set they will take precedence over any :proxy option specified in code. If "HTTPS_PROXY" is not set, "HTTP_PROXY" will be used for both HTTP and HTTPS connections. To disable this behavior, set the `NO_PROXY` environment variable and other environment variable proxy settings will be disregarded.
 
 ## Reusable ports
 

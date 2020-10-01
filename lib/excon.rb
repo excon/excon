@@ -23,11 +23,11 @@ require 'excon/middlewares/instrumentor'
 require 'excon/middlewares/mock'
 require 'excon/middlewares/response_parser'
 
+require 'excon/error'
 require 'excon/constants'
 require 'excon/utils'
 
 require 'excon/connection'
-require 'excon/error'
 require 'excon/headers'
 require 'excon/response'
 require 'excon/middlewares/decompress'
@@ -61,6 +61,14 @@ module Excon
       if $VERBOSE || ENV['EXCON_DEBUG']
         $stderr.puts "[excon][WARNING] #{warning}\n#{ caller.join("\n") }"
       end
+
+      if @raise_on_warnings
+        raise Error::Warning.new(warning)
+      end
+    end
+
+    def set_raise_on_warnings!(should_raise)
+      @raise_on_warnings = should_raise
     end
 
     # Status of mocking
@@ -105,9 +113,9 @@ module Excon
 
     # @see Connection#initialize
     # Initializes a new keep-alive session for a given remote host
-    #   @param [String] url The destination URL
-    #   @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
-    #   @return [Connection] A new Excon::Connection instance
+    # @param [String] url The destination URL
+    # @param [Hash<Symbol, >] params One or more option params to set on the Connection instance
+    # @return [Connection] A new Excon::Connection instance
     def new(url, params = {})
       uri_parser = params[:uri_parser] || defaults[:uri_parser]
       uri = uri_parser.parse(url)
@@ -135,9 +143,9 @@ module Excon
     end
 
     # push an additional stub onto the list to check for mock requests
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @param [Hash<Symbol, >] response params to return from matched request or block to call with params
-    def stub(request_params = {}, response_params = nil)
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @param response_params [Hash<Symbol, >] response params to return from matched request or block to call with params
+    def stub(request_params = {}, response_params = nil, &block)
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
       end
@@ -167,7 +175,7 @@ module Excon
         if response_params
           raise(ArgumentError.new("stub requires either response_params OR a block"))
         else
-          stub = [request_params, Proc.new]
+          stub = [request_params, block]
         end
       elsif response_params
         stub = [request_params, response_params]
@@ -179,8 +187,8 @@ module Excon
     end
 
     # get a stub matching params or nil
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @return [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @return [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub_for(request_params={})
       if method = request_params.delete(:method)
         request_params[:method] = method.to_s.downcase.to_sym
@@ -228,8 +236,8 @@ module Excon
     end
 
     # remove first/oldest stub matching request_params
-    #   @param [Hash<Symbol, >] request params to match against, omitted params match all
-    #   @return [Hash<Symbol, >] response params from deleted stub
+    # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
+    # @return [Hash<Symbol, >] response params from deleted stub
     def unstub(request_params = {})
       stub = stub_for(request_params)
       Excon.stubs.delete_at(Excon.stubs.index(stub))

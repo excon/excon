@@ -28,6 +28,10 @@ Shindo.tests('Excon instrumentation') do
     ActiveSupport::Notifications.unsubscribe("excon.retry")
     ActiveSupport::Notifications.unsubscribe("excon.error")
     ActiveSupport::Notifications.unsubscribe("gug")
+    ActiveSupport::Notifications.unsubscribe("gug.request")
+    ActiveSupport::Notifications.unsubscribe("gug.response")
+    ActiveSupport::Notifications.unsubscribe("gug.retry")
+    ActiveSupport::Notifications.unsubscribe("gug.error")
     Delorean.back_to_the_present
     Excon.stubs.clear
   end
@@ -43,15 +47,12 @@ Shindo.tests('Excon instrumentation') do
     end
   end
 
-  def make_request(idempotent = false, params = {})
+  def make_request(params = {})
     connection = Excon.new(
       'http://127.0.0.1:9292',
       :instrumentor => ActiveSupport::Notifications,
       :mock         => true
     )
-    if idempotent
-      params[:idempotent] = :true
-    end
     connection.get(params)
   end
 
@@ -98,14 +99,14 @@ Shindo.tests('Excon instrumentation') do
   tests('params in request overwrite those in constructor').returns('/cheezburger') do
     subscribe(/excon/)
     stub_success
-    make_request(false, :path => '/cheezburger')
+    make_request(:path => '/cheezburger')
     @events.first.payload[:path]
   end
 
   tests('notify on retry').returns(3) do
     subscribe(/excon/)
     stub_retries
-    make_request(true)
+    make_request(idempotent: true)
     @events.count{|e| e.name =~ /retry/}
   end
 
@@ -124,7 +125,7 @@ Shindo.tests('Excon instrumentation') do
     subscribe(/excon.error/)
     stub_failure
     raises(Excon::Errors::SocketError) do
-      make_request(true)
+      make_request(idempotent: true)
     end
 
     @events.map(&:name)
@@ -134,7 +135,7 @@ Shindo.tests('Excon instrumentation') do
     subscribe(/excon.retry/)
     stub_failure
     raises(Excon::Errors::SocketError) do
-      make_request(true)
+      make_request(idempotent: true)
     end
 
     @events.map(&:name)
@@ -234,6 +235,37 @@ Shindo.tests('Excon instrumentation') do
 
     end
 
+    tests('proxy password REDACT') do
+
+      begin
+        original_stderr = $stderr
+        $stderr = @captured_stderr = StringIO.new
+        stub_failure
+        raises(Excon::Errors::SocketError) do
+          @connection = Excon.new(
+            'http://user:pass@127.0.0.1:9292',
+            :instrumentor => Excon::StandardInstrumentor,
+            :mock         => true,
+            :proxy => { :password => "pass" }
+            )
+          @connection.get(:idempotent => true)
+        end
+      ensure
+        $stderr = original_stderr
+      end
+
+      @proxy_password_param = '"pass"'
+
+      test('does not appear in response') do
+        !@captured_stderr.string.include?(@password_param)
+      end
+
+      test('does not mutate password value') do
+        @connection.data[:proxy][:password] == "pass"
+      end
+
+    end
+
   end
 
   tests('use our own instrumentor').returns(
@@ -276,30 +308,18 @@ Shindo.tests('Excon instrumentation') do
       ['gug.request', 'gug.retry', 'gug.retry','gug.retry', 'gug.error']) do
     subscribe(/gug/)
     stub_failure
-    connection = Excon.new(
-      'http://127.0.0.1:9292',
-      :instrumentor       => ActiveSupport::Notifications,
-      :instrumentor_name  => 'gug',
-      :mock               => true
-    )
     raises(Excon::Errors::SocketError) do
-      connection.get(:idempotent => true)
+      make_request(idempotent: true, instrumentor_name: 'gug')
     end
     @events.map(&:name)
   end
 
-  tests('allows setting the prefix when not idempotent', 'foo').returns(
+  tests('allows setting the prefix when not idempotent').returns(
     ['gug.request', 'gug.error']) do
     subscribe(/gug/)
     stub_failure
-    connection = Excon.new(
-      'http://127.0.0.1:9292',
-      :instrumentor       => ActiveSupport::Notifications,
-      :instrumentor_name  => 'gug',
-      :mock               => true
-    )
     raises(Excon::Errors::SocketError) do
-      connection.get()
+      make_request(instrumentor_name: 'gug')
     end
     @events.map(&:name)
   end
@@ -307,7 +327,7 @@ Shindo.tests('Excon instrumentation') do
   with_rackup('basic.ru') do
     tests('works unmocked').returns(['excon.request', 'excon.response']) do
       subscribe(/excon/)
-      make_request(false, :mock => false)
+      make_request(:mock => false)
       @events.map(&:name)
     end
   end

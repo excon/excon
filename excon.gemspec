@@ -11,8 +11,13 @@ Gem::Specification.new do |s|
   s.license          = 'MIT'
   s.rdoc_options     = ["--charset=UTF-8"]
   s.extra_rdoc_files = %w[README.md CONTRIBUTORS.md CONTRIBUTING.md]
-  s.files            = `git ls-files -z`.split("\x0")
-  s.test_files       = s.files.select { |path| path =~ /^[spec|tests]\/.*_[spec|tests]\.rb/ }
+  s.files            = `git ls-files -- {data,lib}/*`.split("\n") + [
+    "CONTRIBUTING.md",
+    "CONTRIBUTORS.md",
+    "LICENSE.md",
+    "README.md",
+    "excon.gemspec"
+  ]
 
   s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('activesupport')
@@ -26,4 +31,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('json', '>= 1.8.5')
   s.add_development_dependency('puma')
+
+  s.metadata = {
+    'homepage_uri'      => 'https://github.com/excon/excon',
+    'bug_tracker_uri'   => 'https://github.com/excon/excon/issues',
+    'changelog_uri'     => 'https://github.com/excon/excon/blob/master/changelog.txt',
+    'documentation_uri' => 'https://github.com/excon/excon/blob/master/README.md',
+    'source_code_uri'   => 'https://github.com/excon/excon',
+    'wiki_uri'          => 'https://github.com/excon/excon/wiki'
+  }
 end

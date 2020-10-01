@@ -12,7 +12,15 @@ module Excon
     CHUNK_SIZE = DEFAULT_CHUNK_SIZE
   end
 
+  DEFAULT_REDIRECT_LIMIT = 10
+
   DEFAULT_RETRY_LIMIT = 4
+
+  DEFAULT_RETRY_ERRORS = [
+    Excon::Error::Timeout,
+    Excon::Error::Socket,
+    Excon::Error::HTTPStatus
+  ]
 
   FORCE_ENC = CR_NL.respond_to?(:force_encoding)
 
@@ -33,19 +41,17 @@ module Excon
   VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 
   VALID_REQUEST_KEYS = [
+    :allow_unstubbed_requests,
     :body,
-    :captures,
     :chunk_size,
     :debug_request,
     :debug_response,
-    :expects,
     :headers,
-    :idempotent,
-    :instrumentor,
-    :instrumentor_name,
+    :instrumentor, # Used for setting logging within Connection
+    :logger,
     :method,
     :middlewares,
-    :mock,
+    :password,
     :path,
     :persistent,
     :pipeline,
@@ -53,11 +59,11 @@ module Excon
     :read_timeout,
     :request_block,
     :response_block,
-    :retries_remaining, # used internally
-    :retry_limit,
-    :retry_interval,
+    :stubs,
+    :user,
     :versions,
-    :write_timeout
+    :write_timeout,
+    :keep_parsed_request
   ]
 
   VALID_CONNECTION_KEYS = VALID_REQUEST_KEYS + [
@@ -74,12 +80,12 @@ module Excon
     :private_key_path,
     :connect_timeout,
     :family,
+    :keepalive,
     :host,
     :hostname,
     :omit_default_port,
     :nonblock,
     :reuseaddr,
-    :password,
     :port,
     :proxy,
     :scheme,
@@ -90,12 +96,27 @@ module Excon
     :ssl_verify_callback,
     :ssl_verify_peer,
     :ssl_verify_peer_host,
+    :ssl_verify_hostname,
     :ssl_version,
+    :ssl_min_version,
+    :ssl_max_version,
+    :ssl_uri_schemes,
     :tcp_nodelay,
     :thread_safe_sockets,
     :uri_parser,
-    :user
   ]
+
+  DEPRECATED_VALID_REQUEST_KEYS = {
+    :captures => 'Mock',
+    :expects => 'Expects',
+    :idempotent => 'Idempotent',
+    :instrumentor_name => 'Instrumentor',
+    :mock => 'Mock',
+    :retries_remaining => 'Idempotent', # referenced in Instrumentor, but only relevant with Idempotent
+    :retry_errors => 'Idempotent',
+    :retry_interval => 'Idempotent',
+    :retry_limit => 'Idempotent' # referenced in Instrumentor, but only relevant with Idempotent
+  }
 
   unless ::IO.const_defined?(:WaitReadable)
     class ::IO
@@ -112,12 +133,14 @@ module Excon
   DEFAULTS = {
     :chunk_size           => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
     # see https://wiki.mozilla.org/Security/Server_Side_TLS#Intermediate_compatibility_.28default.29
-    :ciphers              => 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS',
+    # list provided then had DES related things sorted to the end
+    :ciphers              => 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!DSS',
     :connect_timeout      => 60,
     :debug_request        => false,
     :debug_response       => false,
     :headers              => {
-      'User-Agent' => USER_AGENT
+      'User-Agent' => USER_AGENT,
+      'Accept'     =>  '*/*'
     },
     :idempotent           => false,
     :instrumentor_name    => 'excon',
@@ -133,6 +156,7 @@ module Excon
     :omit_default_port    => false,
     :persistent           => false,
     :read_timeout         => 60,
+    :retry_errors         => DEFAULT_RETRY_ERRORS,
     :retry_limit          => DEFAULT_RETRY_LIMIT,
     :ssl_verify_peer      => true,
     :ssl_uri_schemes      => [HTTPS],
@@ -141,8 +165,7 @@ module Excon
     :thread_safe_sockets  => true,
     :uri_parser           => URI,
     :versions             => VERSIONS,
-    :write_timeout        => 60,
-    :keep_parsed_request  => false
+    :write_timeout        => 60
   }
 
 end

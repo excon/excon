@@ -1,7 +1,7 @@
 Shindo.tests('Excon Response Parsing') do
   env_init
 
-  with_server('good') do
+  with_server('good_ipv4') do
 
     tests('responses with chunked transfer-encoding') do
 

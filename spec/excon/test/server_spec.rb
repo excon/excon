@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Excon::Test::Server do
-  
+
   context 'when the web server is webrick' do
     it_should_behave_like "a excon test server", :webrick, 'basic.ru'
   end
@@ -23,6 +23,6 @@ describe Excon::Test::Server do
   end
 
   context 'when the web server is a executable' do
-    it_should_behave_like "a excon test server", :exec, 'good.rb'
+    it_should_behave_like "a excon test server", :exec, 'good_ipv4.rb'
   end
 end

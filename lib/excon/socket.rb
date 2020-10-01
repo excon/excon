@@ -7,6 +7,23 @@ module Excon
 
     attr_accessor :data
 
+    # read/write drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
+    CONNECT_RETRY_EXCEPTION_CLASSES = if defined?(IO::EINPROGRESSWaitWritable) # Ruby >= 2.1
+      [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable]
+    else # Ruby <= 2.0
+      [Errno::EINPROGRESS]
+    end
+    READ_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWaitReadable) # Ruby >= 2.1
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable, IO::EAGAINWaitReadable, IO::EWOULDBLOCKWaitReadable]
+    else # Ruby <= 2.0
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable]
+    end
+    WRITE_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWaitWritable) # Ruby >= 2.1
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable, IO::EAGAINWaitWritable, IO::EWOULDBLOCKWaitWritable]
+    else # Ruby <= 2.0
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable]
+    end
+
     def params
       Excon.display_warning('Excon::Socket#params is deprecated use Excon::Socket#data instead.')
       @data
@@ -43,18 +60,8 @@ module Excon
     def readline
       return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
       buffer = String.new
-      begin
-        buffer << @socket.read_nonblock(1) while buffer[-1] != "\n"
-        buffer
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
-        select_with_timeout(@socket, :read) && retry
-      rescue OpenSSL::SSL::SSLError => error
-        if error.message == 'read would block'
-          select_with_timeout(@socket, :read) && retry
-        else
-          raise(error)
-        end
-      end
+      buffer << read_nonblock(1) while buffer[-1] != "\n"
+      buffer
     end
 
     def legacy_readline
@@ -106,8 +113,9 @@ module Excon
         if @socket
           break
         end
-        
+
         @remote_ip = ip
+        @data[:remote_ip] = ip
 
         # nonblocking connect
         begin
@@ -128,7 +136,7 @@ module Excon
             socket.connect(sockaddr)
           end
           @socket = socket
-        rescue Errno::EINPROGRESS
+        rescue *CONNECT_RETRY_EXCEPTION_CLASSES
           select_with_timeout(socket, :connect_write)
           begin
             socket.connect_nonblock(sockaddr)
@@ -151,6 +159,17 @@ module Excon
                            ::Socket::TCP_NODELAY,
                            true)
       end
+
+      if @data[:keepalive]
+        if [:SOL_SOCKET, :SO_KEEPALIVE, :SOL_TCP, :TCP_KEEPIDLE, :TCP_KEEPINTVL, :TCP_KEEPCNT].all?{|c| ::Socket.const_defined? c}
+          @socket.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_KEEPALIVE, true)
+          @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPIDLE, @data[:keepalive][:time])
+          @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPINTVL, @data[:keepalive][:intvl])
+          @socket.setsockopt(::Socket::SOL_TCP, ::Socket::TCP_KEEPCNT, @data[:keepalive][:probes])
+        else
+          Excon.display_warning('Excon::Socket keepalive was set, but is not supported by Ruby version.')
+        end
+      end
     end
 
     def read_nonblock(max_length)
@@ -170,7 +189,7 @@ module Excon
         else
           raise(error)
         end
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
+      rescue *READ_RETRY_EXCEPTION_CLASSES
         if @read_buffer.empty?
           # if we didn't read anything, try again...
           select_with_timeout(@socket, :read) && retry
@@ -199,7 +218,7 @@ module Excon
       else
         raise(error)
       end
-    rescue Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable
+    rescue *READ_RETRY_EXCEPTION_CLASSES
       if @read_buffer.empty?
         select_with_timeout(@socket, :read) && retry
       end
@@ -208,9 +227,7 @@ module Excon
     end
 
     def write_nonblock(data)
-      if FORCE_ENC
-        data.force_encoding('BINARY')
-      end
+      data = binary_encode(data)
       loop do
         written = nil
         begin
@@ -225,7 +242,7 @@ module Excon
           else
             raise error
           end
-        rescue OpenSSL::SSL::SSLError, Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable => error
+        rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
           if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
             raise error
           else
@@ -246,7 +263,7 @@ module Excon
 
     def write_block(data)
       @socket.write(data)
-    rescue OpenSSL::SSL::SSLError, Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable => error
+    rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
       if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
         raise error
       else

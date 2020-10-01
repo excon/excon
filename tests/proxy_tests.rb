@@ -151,7 +151,7 @@ Shindo.tests('Excon proxy support') do
       env = {
         'http_proxy' => 'http://myproxy:8080',
         'https_proxy' => 'http://mysecureproxy:8081',
-        'no_proxy' => 'noproxy, subdomain.noproxy2'
+        'no_proxy' => 'noproxy, subdomain.noproxy2, [fc00::1], 10.0.0.1'
       }
       tests('lowercase') { env_proxy_tests(env) }
       upperenv = {}

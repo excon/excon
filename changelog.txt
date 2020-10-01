@@ -1,3 +1,115 @@
+0.76.0 2020-07-27
+=================
+
+remove AddTrust bundled cert hack (no longer needed)
+update bundled certs
+add support for ssl_verify_hostname parameter
+use buffered reads for Excon::Socket.readline
+
+0.75.0 2020-06-17
+=================
+
+explicitly require ipaddr
+
+0.74.0 2020-06-12
+=================
+
+add ipv6 support to no-proxy handling
+comment out add trust cert from bundle (due to expiry)
+
+0.73.0 2020-03-17
+=================
+
+add request/response data to proxy errors
+
+0.72.0 2020-01-27
+=================
+
+update bundled certificates
+
+0.71.1 2019-12-18
+=================
+
+fix frozen chunks through dup prior to binary_encode
+
+0.71.0 2019-12-12
+=================
+
+fix for leftover data with interrupted persistent connections
+
+0.70.0 2019-12-02
+=================
+
+Update bundled certificates
+
+
+0.69.1 2019-11-21
+=================
+
+Fix mistake in proxy connection error handling
+
+0.69.0 2019-11-21
+=================
+
+Raise better proxy connection errors
+
+0.68.0 2019-10-25
+=================
+
+Updated bundled certs
+
+0.67.0 2019-09-24
+=================
+
+Properly redact user/pass info from proxy credentials
+Update bundled certs
+
+0.66.0 2019-08-06
+=================
+
+Add remote_ip to datum, enabling usage in middleware
+redirect follower now raises after following too many redirects (default 10)
+fixed stub clearing in tests to avoid race conditions
+
+0.65.0 2019-07-22
+=================
+
+fix yardoc formatting
+fix creating Proc without a block
+reduce/refine gem file contents
+update bundled certs
+readd bundled certs to gem file contents
+
+0.64.0 2019-04-15
+=================
+
+warn, not error on undefined middlewares#valid_parameter keys
+
+0.63.0 2019-04-12
+=================
+
+allow setting min/max ssl versions
+add additional nonblocking ruby error classes
+set logger via datum, instead of class variables
+misc test/travis fixes
+consolidate binary encoding, avoid double encoding
+error or CR/LF instead of substitute
+guard against invalid header keys
+also retry blocked connect with newer ruby errors
+clarify that username and password should be escaped
+better handling of warnings in tests
+add stalebot
+document NO_PROXY
+validate parameter keys based on middleware stack
+update default retry on error counts in readme
+Sweet32, DES deprioritization fixes to cipher suite
+allow overriding retry_errors count
+fix for URI escaping in Ruby 2.6
+update copyright notice
+add metadata to gemspec
+update certs
+
+
 0.62.0 2018-03-27
 =================
 

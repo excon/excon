@@ -2,6 +2,14 @@
 module Excon
   module Middleware
     class Mock < Excon::Middleware::Base
+      def self.valid_parameter_keys
+        [
+          :allow_unstubbed_requests,
+          :captures,
+          :mock
+        ]
+      end
+
       def request_call(datum)
         if datum[:mock]
           # convert File/Tempfile body to string before matching:
@@ -18,11 +26,12 @@ module Excon
           end
 
           if stub = Excon.stub_for(datum)
+            datum[:remote_ip] ||= '127.0.0.1'
             datum[:response] = {
               :body       => '',
               :headers    => {},
               :status     => 200,
-              :remote_ip  => '127.0.0.1'
+              :remote_ip  => datum[:remote_ip]
             }
 
             stub_datum = case stub.last

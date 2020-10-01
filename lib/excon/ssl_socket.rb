@@ -27,6 +27,13 @@ module Excon
       if @data[:ssl_version]
         ssl_context.ssl_version = @data[:ssl_version]
       end
+      if @data[:ssl_min_version]
+        ssl_context.min_version = @data[:ssl_min_version]
+      end
+      if @data[:ssl_max_version]
+        ssl_context.max_version = @data[:ssl_max_version]
+      end
+
 
       if @data[:ssl_verify_peer]
         # turn verification on
@@ -66,6 +73,9 @@ module Excon
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
+      # Verify certificate hostname if supported (ruby >= 2.4.0)
+      ssl_context.verify_hostname = @data[:ssl_verify_hostname] if ssl_context.respond_to?(:verify_hostname=)
+
       if client_cert_data && client_key_data
         ssl_context.cert = OpenSSL::X509::Certificate.new client_cert_data
         if OpenSSL::PKey.respond_to? :read
@@ -100,7 +110,10 @@ module Excon
         @socket.write(request)
 
         # eat the proxy's connection response
-        Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
+        response = Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
+        if response[:response][:status] != 200
+          raise(Excon::Errors::ProxyConnectionError.new("proxy connection could not be established", request, response))
+        end
       end
 
       # convert Socket to OpenSSL::SSL::SSLSocket
