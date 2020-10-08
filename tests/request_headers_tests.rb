@@ -16,6 +16,14 @@ Shindo.tests('Excon request methods') do
 
     end
 
+    tests('header order') do
+      tests('host is the first sent header by default').returns('host: localhost:9292') do
+        response = Excon.post('http://localhost:9292/')
+
+        response.body.lines.first.chomp
+      end
+    end
+
   end
 
 end
