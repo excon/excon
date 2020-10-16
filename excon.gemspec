@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.license          = 'MIT'
   s.rdoc_options     = ["--charset=UTF-8"]
   s.extra_rdoc_files = %w[README.md CONTRIBUTORS.md CONTRIBUTING.md]
-  s.files            = `git ls-files -- {data,lib}/*`.split("\n") + [
+  s.files            = `git ls-files -- data/* lib/*`.split("\n") + [
     "CONTRIBUTING.md",
     "CONTRIBUTORS.md",
     "LICENSE.md",
