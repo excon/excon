@@ -252,6 +252,12 @@ module Excon
         datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
       end
 
+      # RFC 7230, section 5.4, states that the Host header SHOULD be the first one # to be present.
+      # Some web servers will reject the request if it comes too late, so let's hoist it to the top.
+      if host = datum[:headers].delete('Host')
+        datum[:headers] = { 'Host' => host }.merge(datum[:headers])
+      end
+
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
         datum[:path] = datum[:path].dup.insert(0, '/')
