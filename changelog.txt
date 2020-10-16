@@ -1,4 +1,9 @@
-0.76.0 2020-10-16
+0.78.0 2020-10-16
+=================
+
+Fix bash-specific gemspec expansion which caused files to be missing in zsh
+
+0.77.0 2020-10-16
 =================
 
 Ensure host is first request header, see: RFC 7230 Section 5.4
