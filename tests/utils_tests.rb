@@ -94,4 +94,11 @@ Shindo.tests('Excon::Utils') do
     Excon::Utils.split_header_value("foo/bar;key=\"A,B,C\"")
   end
 
+  tests('#split_header_value').returns([]) do
+    # previous implementation would hang on this, so test is here to prevent regression
+    Timeout.timeout(0.1) do
+      Excon::Utils.split_header_value("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu\",")
+    end
+  end
+
 end
