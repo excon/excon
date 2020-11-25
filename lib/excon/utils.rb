@@ -96,7 +96,7 @@ module Excon
       return [] if str.nil?
       str = str.dup.strip
       str = binary_encode(str)
-      str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",]+)+)
+      str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",])+)
                     (?:,\s*|\Z)'xn).flatten
     end
 

@@ -78,4 +78,20 @@ Shindo.tests('Excon::Utils') do
     Excon::Utils.unescape_form('message=We+love+excon!')
   end
 
+  tests('#split_header_value').returns(["value"]) do
+    Excon::Utils.split_header_value("value")
+  end
+
+  tests('#split_header_value').returns(["value1", "value2"]) do
+    Excon::Utils.split_header_value("value1, value2")
+  end
+
+  tests('#split_header_value').returns(["text/html;q=0.5", "application/json; version=1"]) do
+    Excon::Utils.split_header_value("text/html;q=0.5, application/json; version=1")
+  end
+
+  tests('#split_header_value').returns(["foo/bar;key=\"A,B,C\""]) do
+    Excon::Utils.split_header_value("foo/bar;key=\"A,B,C\"")
+  end
+
 end
