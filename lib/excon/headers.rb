@@ -29,11 +29,11 @@ module Excon
       @downcased[key.to_s.downcase]
     end
 
-    alias_method :[]=, :store
     def []=(key, value)
       raw_writer(key, value)
       @downcased[key.to_s.downcase] = value
     end
+    alias_method :store, :[]=
 
     if SENTINEL.respond_to? :assoc
       def assoc(obj)
@@ -54,11 +54,11 @@ module Excon
       end
     end
 
-    alias_method :has_key?, :key?
-    alias_method :has_key?, :member?
     def has_key?(key)
       raw_key?(key) || @downcased.has_key?(key.to_s.downcase)
     end
+    alias_method :key?, :has_key?
+    alias_method :member?, :has_key?
 
     def merge(other_hash)
       self.dup.merge!(other_hash)
