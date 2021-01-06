@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('json', '>= 1.8.5')
   s.add_development_dependency('puma')
+  s.add_development_dependency('webrick')
 
   s.metadata = {
     'homepage_uri'      => 'https://github.com/excon/excon',
