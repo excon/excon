@@ -13,6 +13,7 @@ rvm:
   - 2.4
   - 2.5
   - 2.6
+  - 3.0
   - ruby-head
 script:
   - "bundle exec shindont"
@@ -21,4 +22,5 @@ sudo: false
 
 matrix:
   allow_failures:
+  - rvm: 3.0
   - rvm: ruby-head
