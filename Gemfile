@@ -2,10 +2,10 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'jruby-openssl', '~> 0.9', :platform => :jruby
+gem 'jruby-openssl', '~> 0.10.5', :platform => :jruby
 gem 'unicorn', :platforms => [:mri, :rbx], :groups => [:development, :test]
-gem 'rubysl', '~> 2.0', :platform => :rbx
-gem 'rack', '>= 2.1.4'
+gem 'rubysl', '~> 2.2.0', :platform => :rbx
+gem 'rack', '>= 2.2.3'
 
 # group :benchmark do
 #   gem 'em-http-request'
