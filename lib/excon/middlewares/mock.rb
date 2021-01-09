@@ -41,7 +41,7 @@ module Excon
               stub.last
             end
 
-            datum[:response].merge!(stub_datum.reject {|key,value| key == :headers})
+            datum[:response].merge!(stub_datum.reject {|key,_| key == :headers})
             if stub_datum.has_key?(:headers)
               datum[:response][:headers].merge!(stub_datum[:headers])
             end
