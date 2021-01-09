@@ -20,6 +20,7 @@ module Excon
           begin
             @socket.connect_nonblock(sockaddr)
           rescue Errno::EISCONN
+            0 # same return as connect_nonblock success
           end
         end
       else
