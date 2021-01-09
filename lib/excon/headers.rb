@@ -22,6 +22,7 @@ module Excon
     alias_method :raw_values_at, :values_at
 
     def initialize
+      super
       @downcased = {}
     end
 
