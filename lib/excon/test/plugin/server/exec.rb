@@ -3,7 +3,7 @@ module Excon
     module Plugin
       module Server
         module Exec
-          def start(app_str = app)
+          def start(app)
             line = ''
             open_process(app)
             until line =~ /\Aready\Z/

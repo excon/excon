@@ -3,7 +3,7 @@ require 'logger'
 module Excon
   class LoggingInstrumentor
 
-    def self.instrument(name, params = {}, &block)
+    def self.instrument(name, params = {})
       params = params.dup
 
       logger = params[:logger] || Logger.new($stderr)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Excon
   class StandardInstrumentor
-    def self.instrument(name, params = {}, &block)
+    def self.instrument(name, params = {})
       params = params.dup
 
       # reduce duplication/noise of output
