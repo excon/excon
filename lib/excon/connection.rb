@@ -476,13 +476,14 @@ module Excon
 
     def sockets
       @_excon_sockets ||= {}
+      @_excon_sockets.compare_by_identity
 
       if @data[:thread_safe_sockets]
         # In a multi-threaded world, if the same connection is used by multiple
         # threads at the same time to connect to the same destination, they may
         # stomp on each other's sockets.  This ensures every thread gets their
         # own socket cache, within the context of a single connection.
-        @_excon_sockets[Thread.current.object_id] ||= {}
+        @_excon_sockets[Thread.current] ||= {}
       else
         @_excon_sockets
       end
