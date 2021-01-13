@@ -79,7 +79,7 @@ module Excon
 
       setup_proxy
 
-      if  ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
+      if ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
@@ -191,7 +191,7 @@ module Excon
               socket.write(request) # write out request + headers
             end
 
-            while chunk = body.read(datum[:chunk_size])
+            while (chunk = body.read(datum[:chunk_size]))
               socket.write(chunk)
             end
           end
@@ -254,7 +254,7 @@ module Excon
 
       # RFC 7230, section 5.4, states that the Host header SHOULD be the first one # to be present.
       # Some web servers will reject the request if it comes too late, so let's hoist it to the top.
-      if host = datum[:headers].delete('Host')
+      if (host = datum[:headers].delete('Host'))
         datum[:headers] = { 'Host' => host }.merge(datum[:headers])
       end
 
@@ -288,7 +288,7 @@ module Excon
         @persistent_socket_reusable = true
 
         if datum[:persistent]
-          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 })
             if datum[:response][:headers][key].casecmp('close') == 0
               reset
             end
@@ -328,7 +328,7 @@ module Excon
       end
 
       if @data[:persistent]
-        if key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 }
+        if (key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 })
           if responses.last[:headers][key].casecmp('close') == 0
             reset
           end
@@ -356,7 +356,7 @@ module Excon
     end
 
     def reset
-      if old_socket = sockets.delete(@socket_key)
+      if (old_socket = sockets.delete(@socket_key))
         old_socket.close rescue nil
       end
       @persistent_socket_reusable = true

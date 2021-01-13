@@ -90,7 +90,7 @@ module Excon
 
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
-        if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Transfer-Encoding') == 0 }
+        if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Transfer-Encoding') == 0 })
           encodings = Utils.split_header_value(datum[:response][:headers][key])
           if (encoding = encodings.last) && encoding.casecmp('chunked') == 0
             transfer_encoding_chunked = true
@@ -103,7 +103,7 @@ module Excon
         end
 
         # use :response_block unless :expects would fail
-        if response_block = datum[:response_block]
+        if (response_block = datum[:response_block])
           if datum[:middlewares].include?(Excon::Middleware::Expects) && datum[:expects] &&
                                 !Array(datum[:expects]).include?(datum[:response][:status])
             response_block = nil
@@ -140,11 +140,11 @@ module Excon
           end
           parse_headers(socket, datum) # merge trailers into headers
         else
-          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 }
+          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 })
             content_length = datum[:response][:headers][key].to_i
           end
 
-          if remaining = content_length
+          if (remaining = content_length)
             if response_block
               while remaining > 0
                 chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
@@ -160,11 +160,11 @@ module Excon
             end
           else
             if response_block
-              while chunk = socket.read(datum[:chunk_size])
+              while (chunk = socket.read(datum[:chunk_size]))
                 response_block.call(chunk, nil, nil)
               end
             else
-              while chunk = socket.read(datum[:chunk_size])
+              while (chunk = socket.read(datum[:chunk_size]))
                 datum[:response][:body] << chunk
               end
             end

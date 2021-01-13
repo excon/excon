@@ -146,10 +146,10 @@ module Excon
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @param response_params [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub(request_params = {}, response_params = nil, &block)
-      if method = request_params.delete(:method)
+      if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
       end
-      if url = request_params.delete(:url)
+      if (url = request_params.delete(:url))
         uri = URI.parse(url)
         request_params = {
           :host              => uri.host,
@@ -190,7 +190,7 @@ module Excon
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @return [Hash<Symbol, >] response params to return from matched request or block to call with params
     def stub_for(request_params={})
-      if method = request_params.delete(:method)
+      if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
       end
       Excon.stubs.each do |stub, response_params|
@@ -198,7 +198,7 @@ module Excon
         headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
-            if match = value.match(request_params[:headers][key])
+            if (match = value.match(request_params[:headers][key]))
               captures[:headers][key] = match.captures
             end
             match
@@ -209,7 +209,7 @@ module Excon
         non_headers_match = (stub.keys - [:headers]).all? do |key|
           case value = stub[key]
           when Regexp
-            if match = value.match(request_params[key])
+            if (match = value.match(request_params[key]))
               captures[key] = match.captures
             end
             match

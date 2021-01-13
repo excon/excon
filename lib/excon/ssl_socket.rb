@@ -39,13 +39,13 @@ module Excon
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if ca_file = @data[:ssl_ca_file] || ENV['SSL_CERT_FILE']
+        if (ca_file = @data[:ssl_ca_file] || ENV['SSL_CERT_FILE'])
           ssl_context.ca_file = ca_file
         end
-        if ca_path = @data[:ssl_ca_path] || ENV['SSL_CERT_DIR']
+        if (ca_path = @data[:ssl_ca_path] || ENV['SSL_CERT_DIR'])
           ssl_context.ca_path = ca_path
         end
-        if cert_store = @data[:ssl_cert_store]
+        if (cert_store = @data[:ssl_cert_store])
           ssl_context.cert_store = cert_store
         end
 
@@ -65,7 +65,7 @@ module Excon
           end
         end
 
-        if verify_callback = @data[:ssl_verify_callback]
+        if (verify_callback = @data[:ssl_verify_callback])
           ssl_context.verify_callback = verify_callback
         end
       else
@@ -150,11 +150,11 @@ module Excon
     private
 
     def client_cert_data
-      @client_cert_data ||= if ccd = @data[:client_cert_data]
+      @client_cert_data ||= if (ccd = @data[:client_cert_data])
                               ccd
-                            elsif path = @data[:client_cert]
+                            elsif (path = @data[:client_cert])
                               File.read path
-                            elsif path = @data[:certificate_path]
+                            elsif (path = @data[:certificate_path])
                               warn ":certificate_path is no longer supported and will be deprecated. Please use :client_cert or :client_cert_data"
                               File.read path
                             end
@@ -167,11 +167,11 @@ module Excon
     end
 
     def client_key_data
-      @client_key_data ||= if ckd = @data[:client_key_data]
+      @client_key_data ||= if (ckd = @data[:client_key_data])
                              ckd
-                           elsif path = @data[:client_key]
+                           elsif (path = @data[:client_key])
                              File.read path
-                           elsif path = @data[:private_key_path]
+                           elsif (path = @data[:private_key_path])
                              warn ":private_key_path is no longer supported and will be deprecated. Please use :client_key or :client_key_data"
                              File.read path
                            end

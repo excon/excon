@@ -72,7 +72,7 @@ module Excon
       end
       def dump_errors
         lines = error.read.split($/)
-        while line = lines.shift
+        while (line = lines.shift)
           case line
             when /(ERROR|Error)/
               unless line =~ /(null cert chain|did not return a certificate|SSL_read:: internal error)/

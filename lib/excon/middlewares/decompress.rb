@@ -15,9 +15,9 @@ module Excon
       def response_call(datum)
         body = datum[:response][:body]
         unless datum.has_key?(:response_block) || body.nil? || body.empty?
-          if key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Encoding') == 0 }
+          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Encoding') == 0 })
             encodings = Utils.split_header_value(datum[:response][:headers][key])
-            if encoding = encodings.last
+            if (encoding = encodings.last)
               if encoding.casecmp('deflate') == 0
                 # assume inflate omits header
                 datum[:response][:body] = Zlib::Inflate.new(-Zlib::MAX_WBITS).inflate(body)
