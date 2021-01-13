@@ -61,7 +61,7 @@ module Excon
       # this will discard any trailing lines from the previous response if any.
       begin
         line = socket.readline
-      end until status = line[9, 3].to_i
+      end until (status = line[9, 3].to_i) != 0
 
       reason_phrase = line[13..-3] # -3 strips the trailing "\r\n"
 
