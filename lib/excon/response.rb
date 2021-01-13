@@ -59,10 +59,13 @@ module Excon
 
     def self.parse(socket, datum)
       # this will discard any trailing lines from the previous response if any.
-      begin
+      line = nil
+      loop do
         line = socket.readline
-      end until (status = line[9, 3].to_i) != 0
+        break if line[9,3].to_i != 0
+      end
 
+      status = line[9, 3].to_i
       reason_phrase = line[13..-3] # -3 strips the trailing "\r\n"
 
       datum[:response] = {
