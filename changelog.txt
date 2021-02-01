@@ -1,3 +1,11 @@
+0.79.0 2021-02-01
+=================
+
+update bundled certificates
+fix warnings in lib
+fix aliases in headers
+updated test dependencies
+
 0.78.1 2020-12-04
 =================
 
