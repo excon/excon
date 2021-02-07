@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__), 'lib', 'excon', 'version')
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+require 'excon/version'
 
 Gem::Specification.new do |s|
   s.name             = 'excon'
