@@ -245,7 +245,7 @@ def rackup_path(*parts)
 end
 
 def with_rackup(name, host="127.0.0.1")
-  pid, w, r, e = launch_process("rackup", "-s", "webrick", "--host", host, rackup_path(name))
+  pid, w, r, e = launch_process("rackup", "-d", "-s", "webrick", "--host", host, rackup_path(name))
   until e.gets =~ /HTTPServer#start:/; end
   yield
 ensure
