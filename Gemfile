@@ -4,7 +4,7 @@ gemspec
 
 gem 'jruby-openssl', '~> 0.10.5', :platforms => :jruby
 gem 'unicorn', :platforms => [:mri, :rbx], :groups => [:development, :test]
-gem 'rubysl', '~> 2.2.0', :platforms => :rbx
+#gem 'rubysl', '~> 2.2.0', :platforms => :rbx
 gem 'rack', '>= 2.2.3'
 gem 'rubocop'
 
