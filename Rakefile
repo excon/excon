@@ -14,6 +14,32 @@ end
 task :default => [:tests, :test]
 task :test => :spec
 
+desc "test if bundled certs are up to date"
+task :test_certs do
+  # test curl bundle for end-users
+  require File.join(File.dirname(__FILE__), 'lib', 'excon')
+  require 'tempfile'
+  local = File.read(File.join(File.dirname(__FILE__), 'data', 'cacert.pem'))
+  data = Excon.get("https://curl.se/ca/cacert.pem").body
+  # Not sure why, but comparing local to data directly fails.
+  # Writing to a tempfile, reading, and then testing works as expected.
+  tempfile = Tempfile.new('cacert.pem')
+  tempfile.write(data)
+  tempfile.rewind
+  remote = tempfile.read
+  tempfile.close
+  tempfile.unlink
+  if local == remote
+    puts "Bundled default cert is up to date."
+    exit(true)
+  else
+    puts "! Bundled default cert is out of date!"
+    exit(false)
+  end
+
+  # TODO: test expiry of self-signed certs
+end
+
 desc "update bundled certs"
 task :update_certs do
   # update curl bundle for end-users
