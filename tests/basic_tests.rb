@@ -330,7 +330,7 @@ Shindo.tests('Excon basics (reusable local port)') do
     end
 
     def self.find_alternate_ip(ip)
-      ip_address_list.detect {|a| a != ip } || '127.0.0.1'
+      ip_address_list.detect {|a| a != ip }
     end
   end
 
@@ -346,6 +346,9 @@ Shindo.tests('Excon basics (reusable local port)') do
     end
 
     tests('local port can be re-bound').returns('x' * 10) do
+      # skip if no alternatives, ie in a container with disabled networking
+      pending unless CustomSocket.find_alternate_ip(response.local_address)
+
       # create a socket with address/port reuse enabled
       s = CustomSocket.new
 
