@@ -16,7 +16,7 @@ on:
 jobs:
   test:
 
-    continue-on-error: ${{ matrix.ruby == '3.0' }}
+    continue-on-error: ${{ matrix.ruby-version == '3.0' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
