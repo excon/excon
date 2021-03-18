@@ -11,8 +11,8 @@ on:
   - cron: "30 1 * * *"
 
 jobs:
-  test:
-
+  certs:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
