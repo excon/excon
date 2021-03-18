@@ -9,6 +9,7 @@ name: Check for updated cert bundle
 on:
   schedule:
   - cron: "30 1 * * *"
+  workflow_dispatch
 
 jobs:
   certs:
