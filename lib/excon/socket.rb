@@ -60,7 +60,7 @@ module Excon
     def readline
       return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
       buffer = String.new
-      buffer << read_nonblock(1) while buffer[-1] != "\n"
+      buffer << (read_nonblock(1) || raise(EOFError)) while buffer[-1] != "\n"
       buffer
     end
 
