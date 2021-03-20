@@ -107,7 +107,7 @@ module Excon
         family = @data[:proxy][:family]
       end
 
-      ::Resolv.each_address(hostname) do |ip|
+      Resolv.each_address(hostname) do |ip|
         # already succeeded on previous addrinfo
         if @socket
           break
@@ -149,6 +149,8 @@ module Excon
           socket.close rescue nil if socket
         end
       end
+
+      exception ||= Resolv::ResolvError.new("no address for #{hostname}")
 
       # this will be our last encountered exception
       fail exception unless @socket
