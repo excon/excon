@@ -567,17 +567,14 @@ module Excon
           :port       => uri.port,
           :scheme     => uri.scheme,
         }
-        if @data[:ssl_proxy_headers]
-          if !@data[:ssl_uri_schemes].include?(@data[:scheme])
-            raise ArgumentError, "The `:ssl_proxy_headers` parameter should only be used with HTTPS requests."
-          end
-          @data[:proxy][:headers] = @data.delete(:ssl_proxy_headers)
-        end
         if uri.password
           @data[:proxy][:password] = uri.password
         end
         if uri.user
           @data[:proxy][:user] = uri.user
+        end
+        if @data[:ssl_proxy_headers] && !@data[:ssl_uri_schemes].include?(@data[:scheme])
+          raise ArgumentError, "The `:ssl_proxy_headers` parameter should only be used with HTTPS requests."
         end
         if @data[:proxy][:scheme] == UNIX
           if @data[:proxy][:host]
