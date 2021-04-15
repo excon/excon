@@ -50,7 +50,7 @@ module Excon
       if datum.has_key?(:password)
         datum[:password] = REDACTED
       end
-      if datum.has_key?(:proxy) && datum[:proxy]&.has_key?(:password)
+      if datum.has_key?(:proxy) && datum[:proxy] && datum[:proxy].has_key?(:password)
         datum[:proxy] = datum[:proxy].dup
         datum[:proxy][:password] = REDACTED
       end
