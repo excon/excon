@@ -1,3 +1,13 @@
+0.80.0 2021-04-15
+=================
+
+fix test usage of hashes for compatibility with Rack 2.2+
+numerous github actions and dependencies setup and tweaks
+use Ruby Resolv for hostname lookup
+fix case where Socket raised nil conversion TypeError instead of EOFError
+fix error where proxy key exists but data is nil
+update bundled certificates
+
 0.79.0 2021-02-01
 =================
 
