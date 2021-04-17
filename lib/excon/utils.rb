@@ -121,5 +121,22 @@ module Excon
       str.gsub!(/\+/, ' ')
       str.gsub(ESCAPED) { $1.hex.chr }
     end
+
+    # Performs validation on the passed header hash and returns a string representation of the headers
+    def headers_hash_to_s(headers)
+      headers_str = String.new
+      headers.each do |key, values|
+        if key.to_s.match(/[\r\n]/)
+          raise Excon::Errors::InvalidHeaderKey.new(key.to_s.inspect + ' contains forbidden "\r" or "\n"')
+        end
+        [values].flatten.each do |value|
+          if value.to_s.match(/[\r\n]/)
+            raise Excon::Errors::InvalidHeaderValue.new(value.to_s.inspect + ' contains forbidden "\r" or "\n"')
+          end
+          headers_str << key.to_s << ': ' << value.to_s << CR_NL
+        end
+      end
+      headers_str
+    end
   end
 end

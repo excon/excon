@@ -105,9 +105,7 @@ module Excon
         request += "Proxy-Connection: Keep-Alive#{Excon::CR_NL}"
 
         if @data[:ssl_proxy_headers]
-          @data[:ssl_proxy_headers].each do |key, value|
-            request << key.to_s << ': ' << value.to_s << Excon::CR_NL
-          end
+          request << Utils.headers_hash_to_s(@data[:ssl_proxy_headers])
         end
 
         request += Excon::CR_NL
