@@ -88,7 +88,7 @@ Shindo.tests('Excon proxy support') do
         connection = nil
 
         tests('connection.data[:proxy][:host]').returns('mysecureproxy') do
-          connection = Excon.new('https://secret.com', :ssl_proxy_headers => {'x-proxy-id': 'abc123' })
+          connection = Excon.new('https://secret.com')
           connection.data[:proxy][:host]
         end
 
@@ -98,10 +98,6 @@ Shindo.tests('Excon proxy support') do
 
         tests('connection.data[:proxy][:scheme]').returns('http') do
           connection.data[:proxy][:scheme]
-        end
-
-        tests('connection.data[:proxy][:headers]').returns({ 'x-proxy-id': 'abc123' }) do
-          connection.data[:proxy][:headers]
         end
 
         tests('with disable_proxy set') do
