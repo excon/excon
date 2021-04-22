@@ -88,7 +88,7 @@ Shindo.tests('Excon proxy support') do
         connection = nil
 
         tests('connection.data[:proxy][:host]').returns('mysecureproxy') do
-          connection = Excon.new('https://secret.com')
+          connection = Excon.new('https://secret.com', :ssl_proxy_headers => {'x-proxy-id': 'abc123' })
           connection.data[:proxy][:host]
         end
 
@@ -98,6 +98,10 @@ Shindo.tests('Excon proxy support') do
 
         tests('connection.data[:proxy][:scheme]').returns('http') do
           connection.data[:proxy][:scheme]
+        end
+
+        tests('connection.data[:proxy][:headers]').returns({ 'x-proxy-id': 'abc123' }) do
+          connection.data[:proxy][:headers]
         end
 
         tests('with disable_proxy set') do
@@ -273,37 +277,6 @@ Shindo.tests('Excon proxy support') do
       end
     end
 
-    tests('https proxying: https://foo.com:8080') do
-      response = nil
-
-      tests('response.status').returns(200) do
-        connection = Excon.new('https://foo.com:8080', :proxy => 'http://127.0.0.1:9292', :ssl_proxy_headers => {'X-Proxy-Id': 'abc123'})
-        response = connection.request(:method => :get, :path => '/bar', :query => {:alpha => 'kappa'})
-
-        response.status
-      end
-
-      # must be absolute form for proxy requests
-      tests('sent Request URI').returns('http://foo.com:8080/bar?alpha=kappa') do
-        response.headers['Sent-Request-Uri']
-      end
-
-      tests('sent Sent-Host header').returns('foo.com:8080') do
-        response.headers['Sent-Host']
-      end
-
-      tests('sent Proxy-Connection header').returns('Keep-Alive') do
-        response.headers['Sent-Proxy-Connection']
-      end
-
-      tests('response.body (proxied content)').returns('proxied content') do
-        response.body
-      end
-
-      tests('sent ssl proxy header').returns('abc123') do
-        response.headers['X-Proxy-Id']
-      end
-    end
   end
 
   with_unicorn('proxy.ru', 'unix:///tmp/myproxy.sock') do
