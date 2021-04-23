@@ -115,7 +115,7 @@ module Excon
           # we already have data from a middleware, so bail
           return datum
         else
-          socket.data = datum
+          socket(datum)
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase + ' '
           if datum[:proxy] && datum[:scheme] != HTTPS
@@ -150,19 +150,19 @@ module Excon
           request << CR_NL
 
           if datum.has_key?(:request_block)
-            socket.write(request) # write out request + headers
+            socket(datum).write(request) # write out request + headers
             while true # write out body with chunked encoding
               chunk = datum[:request_block].call
               chunk = binary_encode(chunk)
               if chunk.length > 0
-                socket.write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
+                socket(datum).write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
               else
-                socket.write(String.new("0#{CR_NL}#{CR_NL}"))
+                socket(datum).write(String.new("0#{CR_NL}#{CR_NL}"))
                 break
               end
             end
           elsif body.nil?
-            socket.write(request) # write out request + headers
+            socket(datum).write(request) # write out request + headers
           else # write out body
             if body.respond_to?(:binmode) && !body.is_a?(StringIO)
               body.binmode
@@ -176,13 +176,13 @@ module Excon
             chunk = body.read([datum[:chunk_size] - request.length, 0].max)
             if chunk
               chunk = binary_encode(chunk)
-              socket.write(request << chunk)
+              socket(datum).write(request << chunk)
             else
-              socket.write(request) # write out request + headers
+              socket(datum).write(request) # write out request + headers
             end
 
             while (chunk = body.read(datum[:chunk_size]))
-              socket.write(chunk)
+              socket(datum).write(chunk)
             end
           end
         end
@@ -453,14 +453,14 @@ module Excon
       end
     end
 
-    def socket
-      unix_proxy = @data[:proxy] ? @data[:proxy][:scheme] == UNIX : false
-      sockets[@socket_key] ||= if @data[:scheme] == UNIX || unix_proxy
-        Excon::UnixSocket.new(@data)
-      elsif @data[:ssl_uri_schemes].include?(@data[:scheme])
-        Excon::SSLSocket.new(@data)
+    def socket(datum = @data)
+      unix_proxy = datum[:proxy] ? datum[:proxy][:scheme] == UNIX : false
+      sockets[@socket_key] ||= if datum[:scheme] == UNIX || unix_proxy
+        Excon::UnixSocket.new(datum)
+      elsif datum[:ssl_uri_schemes].include?(datum[:scheme])
+        Excon::SSLSocket.new(datum)
       else
-        Excon::Socket.new(@data)
+        Excon::Socket.new(datum)
       end
     end
 
