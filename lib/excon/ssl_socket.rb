@@ -104,6 +104,10 @@ module Excon
 
         request += "Proxy-Connection: Keep-Alive#{Excon::CR_NL}"
 
+        if @data[:ssl_proxy_headers]
+          request << Utils.headers_hash_to_s(@data[:ssl_proxy_headers])
+        end
+
         request += Excon::CR_NL
 
         # write out the proxy setup request
