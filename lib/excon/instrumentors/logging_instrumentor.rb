@@ -40,7 +40,7 @@ module Excon
         end
       end
 
-      logger.log(Logger::INFO, info) if info
+      logger.info(info) if info
 
       yield if block_given?
     end
