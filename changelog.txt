@@ -1,3 +1,12 @@
+0.81.0 2021-04-28
+=================
+
+add helper for converting headers to strings
+add ssl_proxy_headers datum key and usage
+pass datum to socket
+tweak logging middleware to allow Syslog::logger usage
+remove ruby 3 from allowed failures
+
 0.80.1 2021-04-15
 =================
 
