@@ -12,6 +12,11 @@ module Excon
       # create ssl context
       ssl_context = OpenSSL::SSL::SSLContext.new
 
+      # set the security level before setting other parameters affected by it
+      if @data[:ssl_security_level]
+        ssl_context.security_level = @data[:ssl_security_level]
+      end
+
       # disable less secure options, when supported
       ssl_context_options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
       if defined?(OpenSSL::SSL::OP_DONT_INSERT_EMPTY_FRAGMENTS)
