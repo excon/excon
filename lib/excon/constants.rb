@@ -99,6 +99,7 @@ module Excon
     :ssl_version,
     :ssl_min_version,
     :ssl_max_version,
+    :ssl_security_level,
     :ssl_proxy_headers,
     :ssl_uri_schemes,
     :tcp_nodelay,
