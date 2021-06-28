@@ -1,3 +1,8 @@
+0.83.0 2021-06-28
+=================
+
+add ssl_security_level option with pass through to ssl_context
+
 0.82.0 2021-05-27
 =================
 
