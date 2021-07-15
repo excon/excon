@@ -115,7 +115,7 @@ module Excon
           # we already have data from a middleware, so bail
           return datum
         else
-          socket(datum)
+          socket(datum).data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase + ' '
           if datum[:proxy] && datum[:scheme] != HTTPS
