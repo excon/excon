@@ -8,9 +8,12 @@ module Excon
             host = bind_uri.host.gsub(/[\[\]]/, '')
             port = bind_uri.port.to_s
             open_process('rackup', '-s', 'webrick', '--host', host, '--port', port, app_str)
+            process_stderr = ""
             line = ''
             until line =~ /HTTPServer#start/
               line = error.gets
+              raise process_stderr if line.nil?
+              process_stderr << line
               fatal_time = elapsed_time > timeout
               raise 'webrick server has taken too long to start' if fatal_time
             end
