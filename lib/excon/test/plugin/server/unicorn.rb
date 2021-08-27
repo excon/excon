@@ -20,9 +20,12 @@ module Excon
               app_str
             ]
             open_process(*args)
+            process_stderr = ''
             line = ''
             until line =~ /worker\=0 ready/
               line = error.gets
+              raise process_stderr if line.nil?
+              process_stderr << line
               fatal_time = elapsed_time > timeout
               raise 'unicorn server has taken too long to start' if fatal_time
             end
