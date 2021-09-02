@@ -27,7 +27,7 @@ Shindo.tests('logging instrumentor') do
   end
 
   tests("connection logger with query as hash").returns(true) do
-    Excon.stub({:method => :get}, {body: 'body'}, status: 200})
+    Excon.stub({:method => :get}, {body: 'body', status: 200})
 
     log_path = "/tmp/excon_#{Time.now.to_i}.txt"
     logger = Logger.new(log_path)
