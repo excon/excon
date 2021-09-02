@@ -28,7 +28,7 @@ module Excon
           info << "?"
 
           if params[:query].is_a?(Hash)
-            info << params.to_a.map{ |key,value| "#{key}=#{value}" }.join('&')
+            info << params[:query].to_a.map { |key,value| "#{key}=#{value}" }.join('&')
           else
             info << params[:query]
           end
