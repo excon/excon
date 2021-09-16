@@ -190,6 +190,11 @@ module Excon
         case error
         when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
+        when Errno::EPIPE
+          # Read whatever remains in the pipe to aid in debugging
+          response = socket.read
+          error = Excon::Error.new(response + error.message)
+          raise_socket_error(error)
         else
           raise_socket_error(error)
         end
