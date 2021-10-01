@@ -1,3 +1,11 @@
+0.86.0 2021-10-01
+=================
+
+prevent test suite stall on test server failure
+fix logging behavior for query hashes
+improve debbuging by reading server response during EPIPE errors
+update bundled certs
+
 0.85.0 2021-07-16
 =================
 
