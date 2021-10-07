@@ -131,7 +131,8 @@ module Excon
         end
         [values].flatten.each do |value|
           if value.to_s.match(/[\r\n]/)
-            raise Excon::Errors::InvalidHeaderValue.new(value.to_s.inspect + ' contains forbidden "\r" or "\n"')
+            # Don't include the potentially sensitive header value (i.e. authorization token) in the message
+            raise Excon::Errors::InvalidHeaderValue.new(key.to_s + ' header value contains forbidden "\r" or "\n"')
           end
           headers_str << key.to_s << ': ' << value.to_s << CR_NL
         end
