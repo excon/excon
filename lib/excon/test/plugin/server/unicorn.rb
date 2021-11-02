@@ -13,6 +13,8 @@ module Excon
               bind_str = "#{host}:#{bind_uri.port}"
             end
             args = [ 
+              RbConfig.ruby,
+              '-S',
               'unicorn', 
               '--no-default-middleware', 
               '-l',

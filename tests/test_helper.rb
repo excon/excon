@@ -245,7 +245,7 @@ def rackup_path(*parts)
 end
 
 def with_rackup(name, host="127.0.0.1")
-  pid, w, r, e = launch_process("rackup", "-s", "webrick", "--host", host, rackup_path(name))
+  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
   process_stderr = ""
   until (line = e.gets) =~ /HTTPServer#start:/
     raise process_stderr if line.nil?
@@ -274,7 +274,7 @@ end
 def with_unicorn(name, listen='127.0.0.1:9292')
   unless RUBY_PLATFORM == 'java'
     unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
-    pid, w, r, e = launch_process("unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
+    pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
     process_stderr = ""
     until (line = e.gets) =~ /worker=0 ready/
       raise process_stderr if line.nil?
@@ -297,7 +297,7 @@ def server_path(*parts)
 end
 
 def with_server(name)
-  pid, w, r, e = launch_process("ruby", server_path("#{name}.rb"))
+  pid, w, r, e = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
   process_stderr = ""
   until (line = e.gets) =~ /ready/
     raise process_stderr if line.nil?
