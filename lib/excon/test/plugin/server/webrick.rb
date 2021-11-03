@@ -7,7 +7,7 @@ module Excon
             bind_uri = URI.parse(bind_uri) unless bind_uri.is_a? URI::Generic
             host = bind_uri.host.gsub(/[\[\]]/, '')
             port = bind_uri.port.to_s
-            open_process('rackup', '-s', 'webrick', '--host', host, '--port', port, app_str)
+            open_process(RbConfig.ruby, '-S', 'rackup', '-s', 'webrick', '--host', host, '--port', port, app_str)
             process_stderr = ""
             line = ''
             until line =~ /HTTPServer#start/
