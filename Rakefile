@@ -50,8 +50,8 @@ task :update_certs do
   end
 
   # update self-signed certs for tests
-  sh "openssl req -subj '/CN=excon/O=excon' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout tests/data/excon.cert.key -out tests/data/excon.cert.crt"
-  sh "openssl req -subj '/CN=127.0.0.1/O=excon' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout tests/data/127.0.0.1.cert.key -out tests/data/127.0.0.1.cert.crt"
+  sh "openssl req -subj '/CN=excon/O=excon' -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -keyout tests/data/excon.cert.key -out tests/data/excon.cert.crt"
+  sh "openssl req -subj '/CN=127.0.0.1/O=excon' -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -keyout tests/data/127.0.0.1.cert.key -out tests/data/127.0.0.1.cert.crt"
 end
 
 desc "Open an irb session preloaded with this library"
