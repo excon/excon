@@ -2,6 +2,10 @@
 module Excon
   module Middleware
     class Decompress < Excon::Middleware::Base
+
+      INFLATE_ZLIB_OR_GZIP  = 47 # Zlib::MAX_WBITS + 32
+      INFLATE_RAW           = -15 # Zlib::MAX_WBITS * -1
+
       def request_call(datum)
         unless datum.has_key?(:response_block)
           key = datum[:headers].keys.detect {|k| k.to_s.casecmp('Accept-Encoding') == 0 } || 'Accept-Encoding'
@@ -19,8 +23,11 @@ module Excon
             encodings = Utils.split_header_value(datum[:response][:headers][key])
             if (encoding = encodings.last)
               if encoding.casecmp('deflate') == 0
-                # assume inflate omits header
-                datum[:response][:body] = Zlib::Inflate.new(-Zlib::MAX_WBITS).inflate(body)
+                datum[:response][:body] = begin
+                  Zlib::Inflate.new(INFLATE_ZLIB_OR_GZIP).inflate(body)
+                rescue Zlib::DataError # fallback to raw on error
+                  Zlib::Inflate.new(INFLATE_RAW).inflate(body)
+                end
                 encodings.pop
               elsif encoding.casecmp('gzip') == 0 || encoding.casecmp('x-gzip') == 0
                 datum[:response][:body] = Zlib::GzipReader.new(StringIO.new(body)).read

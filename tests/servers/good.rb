@@ -48,7 +48,7 @@ module GoodServer
 
         encodings = parse_encodings(request[:headers][accept_header])
         while encoding = encodings.pop
-          break if ['gzip', 'deflate'].include?(encoding)
+          break if ['gzip', 'deflate', 'deflate-raw'].include?(encoding)
         end
 
         case encoding
@@ -62,10 +62,15 @@ module GoodServer
             body = io.read
           end
         when 'deflate'
+          deflator = Zlib::Deflate.new(nil)
+          body = deflator.deflate(request[:body], Zlib::FINISH)
+          deflator.close
+        when 'deflate-raw'
           # drops the zlib header
           deflator = Zlib::Deflate.new(nil, -Zlib::MAX_WBITS)
           body = deflator.deflate(request[:body], Zlib::FINISH)
           deflator.close
+          encoding = 'deflate' # treat as deflate other than dropping header
         else
           body = request[:body]
         end
