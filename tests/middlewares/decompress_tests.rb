@@ -55,6 +55,25 @@ Shindo.tests('Excon Decompress Middleware') do
       end
     end
 
+    tests('deflate-raw') do
+      resp = nil
+
+      tests('response body decompressed').returns('hello world') do
+        resp = @connection.request(
+          :headers => { 'Accept-Encoding' => 'deflate-raw' }
+        )
+        resp[:body]
+      end
+
+      tests('server sent content-encoding').returns('deflate') do
+        resp[:headers]['Content-Encoding-Sent']
+      end
+
+      tests('removes processed encoding from header').returns('') do
+        resp[:headers]['Content-Encoding']
+      end
+    end
+
     tests('with pre-encoding') do
       resp = nil
 
