@@ -19,5 +19,4 @@ New contributors are always welcome, when it doubt please ask questions. We stri
 * Write and help edit [documentation](https://github.com/excon/excon.github.com).
 * Translate [documentation](https://github.com/excon/excon.github.com) in to other languages.
 * Organize or volunteer at events.
-* [Donate](https://www.gittip.com/geemus/)!
 * Discuss other ideas for contribution with [geemus](mailto:geemus+excon@gmail.com).
