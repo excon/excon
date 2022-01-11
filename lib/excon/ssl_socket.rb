@@ -39,15 +39,14 @@ module Excon
         ssl_context.max_version = @data[:ssl_max_version]
       end
 
-
       if @data[:ssl_verify_peer]
         # turn verification on
         ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-        if (ca_file = @data[:ssl_ca_file] || ENV['SSL_CERT_FILE'])
+        if (ca_file = @data[:ssl_ca_file] || ENV['SSL_CERT_FILE'] || use_if_readable(OpenSSL::X509::DEFAULT_CERT_FILE))
           ssl_context.ca_file = ca_file
         end
-        if (ca_path = @data[:ssl_ca_path] || ENV['SSL_CERT_DIR'])
+        if (ca_path = @data[:ssl_ca_path] || ENV['SSL_CERT_DIR'] || use_if_readable(OpenSSL::X509::DEFAULT_CERT_DIR))
           ssl_context.ca_path = ca_path
         end
         if (cert_store = @data[:ssl_cert_store])
@@ -190,5 +189,10 @@ module Excon
       @data[:client_key_pass] || @data[:private_key_pass]
     end
 
+    def use_if_readable(filename)
+      return filename if File.readable?(filename)
+
+      nil
+    end
   end
 end
