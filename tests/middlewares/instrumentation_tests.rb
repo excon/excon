@@ -1,4 +1,4 @@
-require 'active_support/notifications'
+require 'active_support'
 require 'securerandom'
 
 class SimpleInstrumentor
