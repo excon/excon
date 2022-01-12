@@ -1,3 +1,9 @@
+0.90.0 2022-01-12
+=================
+
+fix activesupport requires in tests
+always set_default_paths for SSL to avoid edge case problems
+
 0.89.0 2021-12-07
 =================
 
