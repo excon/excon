@@ -154,7 +154,7 @@ module Excon
     ],
     :mock                 => false,
     :nonblock             => true,
-    :omit_default_port    => false,
+    :omit_default_port    => true,
     :persistent           => false,
     :read_timeout         => 60,
     :retry_errors         => DEFAULT_RETRY_ERRORS,
