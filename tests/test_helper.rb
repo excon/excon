@@ -24,6 +24,28 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
 
     tests("nonblock => #{nonblock}, persistent => #{persistent}") do
 
+      tests('method and path defaults') do
+        tests('request().body').returns('GET /') do
+          response = connection.request(:path => '/')
+          response.body
+        end
+
+        tests('request(:method => :get).body').returns('GET /') do
+          response = connection.request(:method => :get)
+          response.body
+        end
+
+        tests("request(:path => '/').body").returns('GET /') do
+          response = connection.request(:path => '/')
+          response.body
+        end
+
+        tests("request(:method => :get, :path => '/').body").returns('GET /') do
+          response = connection.request(:method => :get, :path => '/')
+          response.body
+        end
+      end
+
       tests('GET /content-length/100') do
         response = nil
 

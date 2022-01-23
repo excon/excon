@@ -253,6 +253,11 @@ module Excon
         datum[:headers] = { 'Host' => host }.merge(datum[:headers])
       end
 
+      # default to GET if no method specified
+      unless datum[:method]
+        datum[:method] = :get
+      end
+
       # if path is empty or doesn't start with '/', insert one
       unless datum[:path][0, 1] == '/'
         datum[:path] = datum[:path].dup.insert(0, '/')
