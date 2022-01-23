@@ -79,12 +79,11 @@ module Excon
 
       setup_proxy
 
-      if ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
-        @data[:instrumentor] = Excon::StandardInstrumentor
-      end
-
       if @data[:debug] || ENV.has_key?('EXCON_DEBUG')
         @data[:debug_request] = @data[:debug_response] = true
+      end
+
+      if @data[:debug_request] || @data[:debug_response] || ENV.has_key?('EXCON_STANDARD_INSTRUMENTOR')
         @data[:instrumentor] = Excon::StandardInstrumentor
       end
 
