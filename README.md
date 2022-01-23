@@ -101,7 +101,7 @@ Here are a few common examples:
 
 ```ruby
 # Output debug info, similar to ENV['EXCON_DEBUG']
-connection = Excon.new('http://geemus.com/', :debug_request => true, :debug_response => true)
+connection = Excon.new('http://geemus.com/', :debug => true)
 
 # Custom headers
 Excon.get('http://geemus.com', :headers => {'Authorization' => 'Basic 0123456789ABCDEF'})
