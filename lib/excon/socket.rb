@@ -60,19 +60,18 @@ module Excon
     end
 
     def readline
-      return legacy_readline if RUBY_VERSION.to_f <= 1.8_7
-      buffer = String.new
-      buffer << (read_nonblock(1) || raise(EOFError)) while buffer[-1] != "\n"
-      buffer
-    end
-
-    def legacy_readline
-      begin
-        Timeout.timeout(@data[:read_timeout]) do
-          @socket.readline
+      if @nonblock && RUBY_VERSION.to_f > 1.8_7
+        buffer = String.new
+        buffer << (read_nonblock(1) || raise(EOFError)) while buffer[-1] != "\n"
+        buffer
+      else # nonblock/legacy
+        begin
+          Timeout.timeout(@data[:read_timeout]) do
+            @socket.readline
+          end
+        rescue Timeout::Error
+          raise Excon::Errors::Timeout.new('read timeout reached')
         end
-      rescue Timeout::Error
-        raise Excon::Errors::Timeout.new('read timeout reached')
       end
     end
 
