@@ -1,3 +1,9 @@
+0.92.0 2022-03-13
+=================
+
+bump actions/checkout
+fix readline to respect nonblock: false setting
+
 0.91.0 2022-01-12
 =================
 
