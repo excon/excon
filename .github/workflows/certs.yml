@@ -11,6 +11,9 @@ on:
     - cron: "30 1 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   certs:
     runs-on: ubuntu-latest
