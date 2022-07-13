@@ -308,7 +308,19 @@ Excon.stub({}, {:body => 'body', :status => 200})
 Excon.stub({}, lambda {|request_params| {:body => request_params[:body], :status => 200}})
 ```
 
-Omitted attributes are assumed to match, so this stub will match _any_ request and return an Excon::Response with a body of 'body' and status of 200. You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an `Excon::Errors::StubNotFound` error to let you know.
+Omitted attributes are assumed to match, so this stub will match _any_ request and return an Excon::Response with a body of 'body' and status of 200.
+
+```ruby
+Excon.stub({ :scheme => 'https', :host => 'example.com', :path => /\/examples\/\d+/, :port => 443 }, { body: 'body', status: 200 })
+```
+
+The above code will stub this:
+
+```ruby
+Excon.get('https://example.com/examples/123', mock: true)
+```
+
+You can add whatever stubs you might like this way and they will be checked against in the order they were added, if none of them match then excon will raise an `Excon::Errors::StubNotFound` error to let you know.
 
 If you want to allow unstubbed requests without raising `StubNotFound`, set the `allow_unstubbed_requests` option either globally or per request.
 
