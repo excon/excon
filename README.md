@@ -127,35 +127,6 @@ connection.request(:method => 'GET')
 # expect one or more status codes, or raise an error
 connection.request(:expects => [200, 201], :method => :get)
 
-# this request can be repeated safely, so retry on errors up to 4 times
-connection.request(:idempotent => true)
-
-# this request can be repeated safely, retry up to 6 times
-connection.request(:idempotent => true, :retry_limit => 6)
-
-# this request can be repeated safely, retry up to 6 times and sleep 5 seconds
-# in between each retry
-connection.request(:idempotent => true, :retry_limit => 6, :retry_interval => 5)
-
-# set longer read_timeout (default is 60 seconds)
-connection.request(:read_timeout => 360)
-
-# set longer write_timeout (default is 60 seconds)
-connection.request(:write_timeout => 360)
-
-# Enable the socket option TCP_NODELAY on the underlying socket.
-#
-# This can improve response time when sending frequent short
-# requests in time-sensitive scenarios.
-#
-connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
-
-# set longer connect_timeout (default is 60 seconds)
-connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
-
-# opt-out of nonblocking operations for performance and/or as a workaround
-connection = Excon.new('http://geemus.com/', :nonblock => false)
-
 # use basic authentication by supplying credentials in the URL or as parameters
 connection = Excon.new('http://username:password@secure.geemus.com')
 # Note: username & password is unescaped for request, so you should provide escaped values here
@@ -181,6 +152,45 @@ connection = Excon.new('http://geemus.com/', :headers => { "Accept-Encoding" => 
 # turn off peer verification (less secure)
 Excon.defaults[:ssl_verify_peer] = false
 connection = Excon.new('https://...')
+```
+
+## Timeouts and Retries
+
+You can modify timeouts and define whether and how many (blocking) retries Excon should attempt if errors occur.
+
+```ruby
+# this request can be repeated safely, so retry on errors up to 4 times
+connection.request(:idempotent => true)
+
+# this request can be repeated safely, retry up to 6 times
+connection.request(:idempotent => true, :retry_limit => 6)
+
+# this request can be repeated safely, retry up to 6 times and sleep 5 seconds
+# in between each retry
+connection.request(:idempotent => true, :retry_limit => 6, :retry_interval => 5)
+
+# specify the errors on which to retry (default Timeout, Socket, HTTPStatus)
+# only retry on timeouts
+connection.request(:idempotent => true, :retry_limit => 6, :retry_interval => 5, :retry_errors => [Excon::Error::Timeout] )
+
+# set longer read_timeout (default is 60 seconds)
+connection.request(:read_timeout => 360)
+
+# set longer write_timeout (default is 60 seconds)
+connection.request(:write_timeout => 360)
+
+# Enable the socket option TCP_NODELAY on the underlying socket.
+#
+# This can improve response time when sending frequent short
+# requests in time-sensitive scenarios.
+#
+connection = Excon.new('http://geemus.com/', :tcp_nodelay => true)
+
+# set longer connect_timeout (default is 60 seconds)
+connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
+
+# opt-out of nonblocking operations for performance and/or as a workaround
+connection = Excon.new('http://geemus.com/', :nonblock => false)
 ```
 
 ## Chunked Requests
