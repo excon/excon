@@ -1,3 +1,9 @@
+0.92.5 2022-09-22
+=================
+
+update error retry examples in README
+update bundled certs
+
 0.92.4 2022-07-20
 =================
 
