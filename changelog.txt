@@ -1,3 +1,9 @@
+0.93.0 2022-09-22
+=================
+
+update actions/stale
+also use ssl_verify_peer_host value for SNI when specified
+
 0.92.5 2022-09-22
 =================
 
