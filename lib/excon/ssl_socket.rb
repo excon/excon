@@ -133,7 +133,7 @@ module Excon
 
       # Server Name Indication (SNI) RFC 3546
       if @socket.respond_to?(:hostname=)
-        @socket.hostname = @data[:host]
+        @socket.hostname = @data[:ssl_verify_peer_host] || @data[:host]
       end
 
       begin
