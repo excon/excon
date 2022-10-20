@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   test:
-
+    continue-on-error: ${{ matrix.ruby-version == 'head' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
