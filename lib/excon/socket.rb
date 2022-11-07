@@ -40,12 +40,14 @@ module Excon
 
     def_delegators(:@socket, :close)
 
+
     def initialize(data = {})
       @data = data
       @nonblock = data[:nonblock]
       @port ||= @data[:port] || 80
       @read_buffer = String.new
       @eof = false
+      @backend_eof = false
       connect
     end
 
@@ -61,9 +63,22 @@ module Excon
 
     def readline
       if @nonblock && RUBY_VERSION.to_f > 1.8_7
-        buffer = String.new
-        buffer << (read_nonblock(1) || raise(EOFError)) while buffer[-1] != "\n"
-        buffer
+        result = String.new
+        block = @read_buffer
+        @read_buffer = String.new
+
+        loop do
+          idx = block.index("\n")
+          if idx.nil?
+            result << block
+          else
+            add_to_read_buffer(block.slice!(idx+1, block.length))
+            result << block
+            break
+          end
+          block = read_nonblock(@data[:chunk_size]) || raise(EOFError)
+        end
+        result
       else # nonblock/legacy
         begin
           Timeout.timeout(@data[:read_timeout]) do
@@ -172,20 +187,21 @@ module Excon
       end
     end
 
+    def add_to_read_buffer(str)
+      @read_buffer << str
+      @eof = false
+    end
+
     def read_nonblock(max_length)
       begin
-        if max_length
-          until @read_buffer.length >= max_length
-            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
-          end
-        else
-          loop do
-            @read_buffer << @socket.read_nonblock(@data[:chunk_size])
-          end
+        while !@backend_eof && (!max_length || @read_buffer.length < max_length)
+          @read_buffer << @socket.read_nonblock(@data[:chunk_size])
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
-          select_with_timeout(@socket, :read) && retry
+          if @read_buffer.empty?
+            select_with_timeout(@socket, :read) && retry
+          end
         else
           raise(error)
         end
@@ -195,10 +211,10 @@ module Excon
           select_with_timeout(@socket, :read) && retry
         end
       rescue EOFError
-        @eof = true
+        @backend_eof = true
       end
 
-      if max_length
+      ret = if max_length
         if @read_buffer.empty?
           nil # EOF met at beginning
         else
@@ -208,6 +224,8 @@ module Excon
         # read until EOFError, so return everything
         @read_buffer.slice!(0, @read_buffer.length)
       end
+      @eof = @backend_eof && @read_buffer.empty?
+      ret
     end
 
     def read_block(max_length)
@@ -219,9 +237,7 @@ module Excon
         raise(error)
       end
     rescue *READ_RETRY_EXCEPTION_CLASSES
-      if @read_buffer.empty?
-        select_with_timeout(@socket, :read) && retry
-      end
+      select_with_timeout(@socket, :read) && retry
     rescue EOFError
       @eof = true
     end
