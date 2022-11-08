@@ -221,9 +221,7 @@ module Excon
         raise(error)
       end
     rescue *READ_RETRY_EXCEPTION_CLASSES
-      if @read_buffer.empty?
-        select_with_timeout(@socket, :read) && retry
-      end
+      select_with_timeout(@socket, :read) && retry
     rescue EOFError
       @eof = true
     end
