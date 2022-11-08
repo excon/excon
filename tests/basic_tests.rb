@@ -23,69 +23,6 @@ Shindo.tests('Excon basics') do
   end
 end
 
-# expected values: the response, in pieces, and a timeout after each piece
-STREAMING_PIECES = %w{Hello streamy world}
-STREAMING_TIMEOUT = 0.1
-
-def streaming_tests
-  # expect the full response as a string
-  # and expect it to take a (timeout * pieces) seconds
-  tests('simple blocking request on streaming endpoint').returns([STREAMING_PIECES.join(''),'response time ok']) do
-    start = Time.now
-    ret = Excon.get('http://127.0.0.1:9292/streamed/simple').body
-
-    if Time.now - start <= STREAMING_TIMEOUT*3
-      [ret, 'streaming response came too quickly']
-    else
-      [ret, 'response time ok']
-    end
-  end
-
-  # expect the full response as a string and expect it to
-  # take a (timeout * pieces) seconds (with fixed Content-Length header)
-  tests('simple blocking request on streaming endpoint with fixed length').returns([STREAMING_PIECES.join(''),'response time ok']) do
-    start = Time.now
-    ret = Excon.get('http://127.0.0.1:9292/streamed/fixed_length').body
-
-    if Time.now - start <= STREAMING_TIMEOUT*3
-      [ret, 'streaming response came too quickly']
-    else
-      [ret, 'response time ok']
-    end
-  end
-
-  # expect each response piece to arrive to the body right away
-  # and wait for timeout until next one arrives
-  def timed_streaming_test(endpoint, timeout)
-    ret = []
-    timing = 'response times ok'
-    start = Time.now
-    Excon.get(endpoint, :response_block => lambda do |c,r,t|
-      # add the response
-      ret.push(c)
-      # check if the timing is ok
-      # each response arrives after timeout and before timeout + 1
-      cur_time = Time.now - start
-      if cur_time < ret.length * timeout or cur_time > (ret.length+1) * timeout
-        timing = 'response time not ok!'
-      end
-    end)
-    # validate the final timing
-    if Time.now - start <= timeout*3
-      timing = 'final timing was not ok!'
-    end
-    [ret, timing]
-  end
-
-  tests('simple request with response_block on streaming endpoint').returns([STREAMING_PIECES,'response times ok']) do
-    timed_streaming_test('http://127.0.0.1:9292/streamed/simple', STREAMING_TIMEOUT)
-  end
-
-  tests('simple request with response_block on streaming endpoint with fixed length').returns([STREAMING_PIECES,'response times ok']) do
-    timed_streaming_test('http://127.0.0.1:9292/streamed/fixed_length', STREAMING_TIMEOUT)
-  end
-end
-
 Shindo.tests('Excon streaming basics') do
   pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
   with_unicorn('streaming.ru') do
