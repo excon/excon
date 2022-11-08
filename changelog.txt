@@ -1,3 +1,11 @@
+0.94.0 2022-11-08
+=================
+
+reduce allocations/syscalls for readline
+refactor streaming tests and add for https
+fix guards around selects in nonblocking read
+remove an extraneous guard in blocking read
+
 0.93.1 2022-09-22
 =================
 
