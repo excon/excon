@@ -24,9 +24,16 @@ Shindo.tests('Excon basics') do
 end
 
 Shindo.tests('Excon streaming basics') do
-  pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
-  with_unicorn('streaming.ru') do
-    streaming_tests
+  tests('http') do
+    pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
+    with_unicorn('streaming.ru') do
+      streaming_tests('http')
+    end
+  end
+  tests('https') do
+    with_ssl_streaming(9292, STREAMING_PIECES, STREAMING_TIMEOUT) do
+      streaming_tests('https')
+    end
   end
 end
 

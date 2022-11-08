@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'excon'
 require 'delorean'
 require 'open4'
+require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
 
@@ -217,12 +218,18 @@ end
 STREAMING_PIECES = %w{Hello streamy world}
 STREAMING_TIMEOUT = 0.1
 
-def streaming_tests
+def streaming_tests(protocol)
+  conn = nil
+  test do
+    conn = Excon.new("#{protocol}://127.0.0.1:9292/", :ssl_verify_peer => false)
+    true
+  end
+
   # expect the full response as a string
   # and expect it to take a (timeout * pieces) seconds
   tests('simple blocking request on streaming endpoint').returns([STREAMING_PIECES.join(''),'response time ok']) do
     start = Time.now
-    ret = Excon.get('http://127.0.0.1:9292/streamed/simple').body
+    ret = conn.request(:method => :get, :path => '/streamed/simple').body
 
     if Time.now - start <= STREAMING_TIMEOUT*3
       [ret, 'streaming response came too quickly']
@@ -235,7 +242,7 @@ def streaming_tests
   # take a (timeout * pieces) seconds (with fixed Content-Length header)
   tests('simple blocking request on streaming endpoint with fixed length').returns([STREAMING_PIECES.join(''),'response time ok']) do
     start = Time.now
-    ret = Excon.get('http://127.0.0.1:9292/streamed/fixed_length').body
+    ret = conn.request(:method => :get, :path => '/streamed/fixed_length').body
 
     if Time.now - start <= STREAMING_TIMEOUT*3
       [ret, 'streaming response came too quickly']
@@ -246,11 +253,11 @@ def streaming_tests
 
   # expect each response piece to arrive to the body right away
   # and wait for timeout until next one arrives
-  def timed_streaming_test(endpoint, timeout)
+  def timed_streaming_test(conn, path, timeout)
     ret = []
     timing = 'response times ok'
     start = Time.now
-    Excon.get(endpoint, :response_block => lambda do |c,r,t|
+    conn.request(:method => :get, :path => path, :response_block => lambda do |c,r,t|
       # add the response
       ret.push(c)
       # check if the timing is ok
@@ -268,11 +275,11 @@ def streaming_tests
   end
 
   tests('simple request with response_block on streaming endpoint').returns([STREAMING_PIECES,'response times ok']) do
-    timed_streaming_test('http://127.0.0.1:9292/streamed/simple', STREAMING_TIMEOUT)
+    timed_streaming_test(conn, '/streamed/simple', STREAMING_TIMEOUT)
   end
 
   tests('simple request with response_block on streaming endpoint with fixed length').returns([STREAMING_PIECES,'response times ok']) do
-    timed_streaming_test('http://127.0.0.1:9292/streamed/fixed_length', STREAMING_TIMEOUT)
+    timed_streaming_test(conn, '/streamed/fixed_length', STREAMING_TIMEOUT)
   end
 end
 
@@ -392,4 +399,52 @@ def with_server(name)
   yield
 ensure
   cleanup_process(pid)
+end
+
+# A tiny fake SSL streaming server
+def with_ssl_streaming(port, pieces, delay)
+  key_file = File.join(File.dirname(__FILE__), 'data', '127.0.0.1.cert.key')
+  cert_file = File.join(File.dirname(__FILE__), 'data', '127.0.0.1.cert.crt')
+
+  ctx = OpenSSL::SSL::SSLContext.new
+  ctx.key = OpenSSL::PKey::RSA.new(File.read(key_file))
+  ctx.cert = OpenSSL::X509::Certificate.new(File.read(cert_file))
+
+  tcp = TCPServer.new(port)
+  ssl = OpenSSL::SSL::SSLServer.new(tcp, ctx)
+
+  Thread.new do
+    loop do
+      begin
+        conn = ssl.accept
+      rescue IOError => e
+        # we're closing the socket from another thread, which makes `accept` complain
+        break if /stream closed/ =~ e.to_s
+        raise
+      end
+
+      Thread.new do
+        begin
+          req = WEBrick::HTTPRequest.new(WEBrick::Config::HTTP)
+          req.parse(conn)
+
+          conn << "HTTP/1.1 200 OK\r\n\r\n"
+          if req.path == "streamed/fixed_length"
+            conn << "Content-Length: #{pieces.join.length}\r\n"
+          end
+          conn.flush
+
+          pieces.each do |piece|
+            sleep(delay)
+            conn.write(piece)
+            conn.flush
+          end
+        ensure
+          conn.close
+        end
+      end
+    end
+  end
+  yield
+  ssl.close
 end
