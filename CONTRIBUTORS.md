@@ -1,6 +1,5 @@
 * Aaron Stone <aaron@serendipity.cx>
 * Adam Esterline <adam@esterlines.com>
-* Alexander Sandström <alexander@skovik.com>
 * Andrew Katz <andrew.katz@outright.com>
 * Andy Delcambre <adelcambre@gmail.com>
 * Anshul Khandelwal <anshul@anshulkhandelwal.com>
