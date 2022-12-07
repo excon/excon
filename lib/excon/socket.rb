@@ -72,8 +72,8 @@ module Excon
           if idx.nil?
             result << block
           else
-            add_to_read_buffer(block.slice!(idx+1, block.length))
-            result << block
+            result << block.slice!(0, idx+1)
+            add_to_read_buffer(block)
             break
           end
           block = read_nonblock(@data[:chunk_size]) || raise(EOFError)
