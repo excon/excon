@@ -194,8 +194,14 @@ module Excon
 
     def read_nonblock(max_length)
       begin
-        while !@backend_eof && (!max_length || @read_buffer.length < max_length)
-          @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+        if max_length
+          until @backend_eof || @read_buffer.length >= max_length
+            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+          end
+        else
+          while !@backend_eof
+            @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+          end
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
