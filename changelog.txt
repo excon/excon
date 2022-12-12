@@ -1,3 +1,11 @@
+0.95.0 2022-12-12
+=================
+
+tweak readline code style
+change read_nonblock to again limit to max_length
+update bundled (test) certs
+remove rdoc dependency to fix CI
+
 0.94.0 2022-11-08
 =================
 
