@@ -20,6 +20,9 @@ module Excon
     def host
       @data[:host]
     end
+    def scheme
+      @data[:scheme]
+    end
     def local_address
       @data[:local_address]
     end
@@ -72,6 +75,7 @@ module Excon
         :body          => String.new,
         :cookies       => [],
         :host          => datum[:host],
+        :scheme          => datum[:scheme],
         :headers       => Excon::Headers.new,
         :path          => datum[:path],
         :port          => datum[:port],
