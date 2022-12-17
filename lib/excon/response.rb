@@ -29,6 +29,9 @@ module Excon
     def local_port
       @data[:local_port]
     end
+    def http_method # can't be named "method"
+      @data[:method]
+    end
     def path
       @data[:path]
     end
@@ -79,6 +82,7 @@ module Excon
         :cookies       => [],
         :host          => datum[:host],
         :scheme          => datum[:scheme],
+        :method          => datum[:method],
         :headers       => Excon::Headers.new,
         :path          => datum[:path],
         :query          => datum[:query],
