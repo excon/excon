@@ -32,6 +32,9 @@ module Excon
     def path
       @data[:path]
     end
+    def query
+      @data[:query]
+    end
     def port
       @data[:port]
     end
@@ -78,6 +81,7 @@ module Excon
         :scheme          => datum[:scheme],
         :headers       => Excon::Headers.new,
         :path          => datum[:path],
+        :query          => datum[:query],
         :port          => datum[:port],
         :status        => status,
         :status_line   => line,
