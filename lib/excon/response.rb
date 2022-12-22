@@ -20,14 +20,23 @@ module Excon
     def host
       @data[:host]
     end
+    def scheme
+      @data[:scheme]
+    end
     def local_address
       @data[:local_address]
     end
     def local_port
       @data[:local_port]
     end
+    def http_method # can't be named "method"
+      @data[:method]
+    end
     def path
       @data[:path]
+    end
+    def query
+      @data[:query]
     end
     def port
       @data[:port]
@@ -72,8 +81,11 @@ module Excon
         :body          => String.new,
         :cookies       => [],
         :host          => datum[:host],
+        :scheme          => datum[:scheme],
+        :method          => datum[:method],
         :headers       => Excon::Headers.new,
         :path          => datum[:path],
+        :query          => datum[:query],
         :port          => datum[:port],
         :status        => status,
         :status_line   => line,
