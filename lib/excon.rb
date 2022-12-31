@@ -126,7 +126,10 @@ module Excon
         raise ArgumentError.new("Invalid URI: #{uri}")
       end
       params = {
-        :host       => uri.host,
+        # 'uri' >= v0.12.0 returns an empty string instead of nil for no host.
+        # Convert it back here so the rest of the code doesn't have to care about
+        # handling different versions of 'uri'.
+        :host       => (uri.host && !uri.host.empty?) ? uri.host : nil,
         :hostname   => uri.hostname,
         :path       => uri.path,
         :port       => uri.port,
@@ -152,7 +155,10 @@ module Excon
       if (url = request_params.delete(:url))
         uri = URI.parse(url)
         request_params = {
-          :host              => uri.host,
+          # 'uri' >= v0.12.0 returns an empty string instead of nil for no host.
+          # Convert it back here so the rest of the code doesn't have to care about
+          # handling different versions of 'uri'.
+          :host              => (uri.host && !uri.host.empty?) ? uri.host : nil,
           :path              => uri.path,
           :port              => uri.port,
           :query             => uri.query,

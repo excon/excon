@@ -3,6 +3,17 @@ require "spec_helper"
 describe Excon::Connection do
   include_context('stubs')
   context "when speaking to a UNIX socket" do
+    # Excon.new does some extra URL parsing, which makes
+    # it a bit special compared to bare `Excon::Connection.new`.
+    context "via Excon.new" do
+      # Version 0.12.0 of the 'uri' gem changed
+      # from returning `nil` for no host to returning
+      # an empty string.
+      it "accepts the unix:/ URL" do
+        Excon.new('unix:///', {socket: '/tmp/foo'})
+      end
+    end
+
     context "Host header handling" do
       before do
         Excon.stub do |req|
