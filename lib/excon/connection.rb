@@ -89,7 +89,9 @@ module Excon
       end
 
       if @data[:scheme] == UNIX
-        if @data[:host]
+        # 'uri' >= v0.12.0 returns an empty string instead of nil for no host.
+        # So treat the parameter as present if and only if it is both non-nill and non-empty.
+        if @data[:host] && !@data[:host].empty?
           raise ArgumentError, "The `:host` parameter should not be set for `unix://` connections.\n" +
                                "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
         elsif !@data[:socket]
