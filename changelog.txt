@@ -1,3 +1,9 @@
+0.97.0 2023-01-09
+=================
+
+- fix for URI gem changes when host empty for unix urls
+- adjust testing ruby versions: drop 2.6, add 3.2
+
 0.96.0 2023-01-04
 =================
 
