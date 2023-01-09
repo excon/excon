@@ -579,6 +579,8 @@ module Excon
           raise ArgumentError, "The `:ssl_proxy_headers` parameter should only be used with HTTPS requests."
         end
         if @data[:proxy][:scheme] == UNIX
+          # URI.parse might return empty string for security reasons.
+          @data[:proxy][:host] = nil if @data[:proxy][:host] == ""
           if @data[:proxy][:host]
             raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
                                  "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
