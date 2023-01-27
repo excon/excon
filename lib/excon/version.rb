@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 module Excon
-  VERSION = '0.97.2'
+  VERSION = '0.98.0'
 end

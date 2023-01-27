@@ -1,3 +1,8 @@
+0.98.0 2023-01-27
+=================
+
+- add support for extra ssl client certificates
+
 0.97.2 2023-01-20
 =================
 
