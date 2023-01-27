@@ -446,7 +446,16 @@ connection = Excon.new('https://example.com',
 
 `client_key_pass` is optional.
 
-If you already have loaded the certificate and key into memory, then pass it through like:
+Optionally, you can also pass the whole chain by passing the extra certificates through `client_chain`:
+
+```ruby
+connection = Excon.new('https://example.com',
+                       client_cert: 'mycert.pem',
+                       client_chain: 'mychain.pem',
+                       client_key: 'mycert.key')
+```
+
+If you already have loaded the certificate, key and chain into memory, then pass it through like:
 
 ```ruby
 client_cert_data = File.load 'mycert.pem'
@@ -454,6 +463,7 @@ client_key_data = File.load 'mycert.key'
 
 connection = Excon.new('https://example.com',
                        client_cert_data: client_cert_data,
+                       client_chain_data: client_chain_data,
                        client_key_data: client_key_data)
 ```
 

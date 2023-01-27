@@ -72,6 +72,8 @@ module Excon
     :client_key_pass,
     :client_cert,
     :client_cert_data,
+    :client_chain,
+    :client_chain_data,
     :certificate,
     :certificate_path,
     :disable_proxy,

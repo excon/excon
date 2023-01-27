@@ -90,6 +90,14 @@ module Excon
         else
           ssl_context.key = OpenSSL::PKey::RSA.new(client_key_data, client_key_pass)
         end
+        if client_chain_data && OpenSSL::X509::Certificate.respond_to?(:load)
+          ssl_context.extra_chain_cert = OpenSSL::X509::Certificate.load(client_chain_data)
+        elsif client_chain_data
+          certs = client_chain_data.scan(/-----BEGIN CERTIFICATE-----(?:.|\n)+?-----END CERTIFICATE-----/)
+          ssl_context.extra_chain_cert = certs.map do |cert|
+            OpenSSL::X509::Certificate.new(cert)
+          end
+        end
       elsif @data.key?(:certificate) && @data.key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
         if OpenSSL::PKey.respond_to? :read
@@ -169,6 +177,14 @@ module Excon
                               warn ":certificate_path is no longer supported and will be deprecated. Please use :client_cert or :client_cert_data"
                               File.read path
                             end
+    end
+
+    def client_chain_data
+      @client_chain_data ||= if (ccd = @data[:client_chain_data])
+                               ccd
+                             elsif (path = @data[:client_chain])
+                               File.read path
+                             end
     end
 
     def connect
