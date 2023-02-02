@@ -62,6 +62,7 @@ module Excon
     # @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     # @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
     def initialize(params = {})
+      @pid = Process.pid
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -479,6 +480,11 @@ module Excon
     def sockets
       @_excon_sockets ||= {}
       @_excon_sockets.compare_by_identity
+
+      if @pid != Process.pid
+        @_excon_sockets.clear # GC will take care of closing sockets
+        @pid = Process.pid
+      end
 
       if @data[:thread_safe_sockets]
         # In a multi-threaded world, if the same connection is used by multiple

@@ -36,6 +36,22 @@ Shindo.tests('Excon Connection') do
         response = connection.request(path: '/bar', method: 'get')
         response.body == 'bar'
       end
+
+      if ::Process.respond_to?(:fork)
+        connection_id = connection.send(:socket).object_id
+        test("fork safety") do
+          read, write = IO.pipe
+          pid = fork do
+            connection_id = connection.send(:socket).object_id
+            write.write(Marshal.dump(connection_id))
+            write.close
+            exit!(0)
+          end
+          Process.waitpid(pid)
+          child_connection_id = Marshal.load(read)
+          child_connection_id != connection_id
+        end
+      end
     end
   end
 
