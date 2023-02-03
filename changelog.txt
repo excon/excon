@@ -1,3 +1,9 @@
+0.99.0 2023-02-03
+=================
+
+- add automatic fork safety by resetting sockets on PID change
+- add support for unstub with regex params
+
 0.98.0 2023-01-27
 =================
 
