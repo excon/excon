@@ -259,6 +259,20 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
+  tests("unstub({path: %r{/path}})") do
+    connection = nil
+
+    tests("unstub({path: %r{/path}})").returns([{path: %r{/path}, captures: {headers: {}}}, {}]) do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      request_params, response_params = { path: %r{/path} }, {}
+      Excon.stub(request_params, response_params)
+
+      Excon.unstub(request_params)
+    end
+
+    Excon.stubs.clear
+  end
+
   tests("global stubs") do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => '1'})
