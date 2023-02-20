@@ -273,6 +273,17 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
+  tests("unstub non-existent stub") do
+    connection = nil
+
+    tests("unstub({})").returns(nil) do
+      connection = Excon.new('http://127.0.0.1:9292', :mock => true)
+      Excon.unstub({})
+    end
+
+    Excon.stubs.clear
+  end
+
   tests("global stubs") do
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => '1'})

@@ -245,12 +245,13 @@ module Excon
       end
     end
 
-    # remove first/oldest stub matching request_params
+    # remove first/oldest stub matching request_params or nil if none match
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @return [Hash<Symbol, >] response params from deleted stub
     def unstub(request_params = {})
-      stub = stub_for(request_params)
-      Excon.stubs.delete_at(Excon.stubs.index(stub))
+      if (stub = stub_for(request_params))
+        Excon.stubs.delete_at(Excon.stubs.index(stub))
+      end
     end
 
     # Generic non-persistent HTTP methods
