@@ -11,3 +11,4 @@ doc
 rdoc
 pkg
 Gemfile.lock
+.tool-versions

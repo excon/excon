@@ -62,6 +62,7 @@ module Excon
     :stubs,
     :user,
     :versions,
+    :write_timeout,
     :keep_parsed_request
   ]
 
