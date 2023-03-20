@@ -159,9 +159,6 @@ module Excon
           # add additional "\r\n" to indicate end of headers
           request << CR_NL
 
-          # add parsed request to datum
-          datum[:parsed_request] = request if datum[:keep_parsed_request]
-
           if datum.has_key?(:request_block)
             socket.write(request) # write out request + headers
             while true # write out body with chunked encoding
