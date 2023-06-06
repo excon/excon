@@ -244,16 +244,17 @@ module Excon
         datum[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
+      host_key = datum[:headers].keys.detect {|k| k.casecmp('Host') == 0 } || 'Host'
       if datum[:scheme] == UNIX
-        datum[:headers]['Host']   ||= ''
+        datum[:headers][host_key]   ||= ''
       else
-        datum[:headers]['Host']   ||= datum[:host] + port_string(datum)
+        datum[:headers][host_key]   ||= datum[:host] + port_string(datum)
       end
 
       # RFC 7230, section 5.4, states that the Host header SHOULD be the first one # to be present.
       # Some web servers will reject the request if it comes too late, so let's hoist it to the top.
-      if (host = datum[:headers].delete('Host'))
-        datum[:headers] = { 'Host' => host }.merge(datum[:headers])
+      if (host = datum[:headers].delete(host_key))
+        datum[:headers] = { host_key => host }.merge(datum[:headers])
       end
 
       # default to GET if no method specified
