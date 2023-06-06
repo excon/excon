@@ -31,6 +31,11 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           response.body
         end
 
+        tests("request(:headers => {'host' => '127.0.0.1'})").returns('GET /') do
+          response = connection.request(:headers => {'host' => '127.0.0.1'})
+          response.body
+        end
+
         tests('request(:method => :get).body').returns('GET /') do
           response = connection.request(:method => :get)
           response.body
