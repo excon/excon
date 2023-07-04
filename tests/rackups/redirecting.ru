@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'json'
-require File.join(File.dirname(__FILE__), 'webrick_patch')
 
 class App < Sinatra::Base
   set :environment, :production

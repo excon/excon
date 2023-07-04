@@ -1,7 +1,6 @@
 require 'sinatra'
 require 'sinatra/cookies'
 require 'json'
-require File.join(File.dirname(__FILE__), 'webrick_patch')
 
 class App < Sinatra::Base
   helpers Sinatra::Cookies
