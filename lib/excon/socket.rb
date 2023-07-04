@@ -62,7 +62,7 @@ module Excon
     end
 
     def readline
-      if @nonblock && RUBY_VERSION.to_f > 1.8_7
+      if @nonblock
         result = String.new
         block = @read_buffer
         @read_buffer = String.new

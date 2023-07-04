@@ -166,8 +166,6 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
 
             context 'when a string is the body paramter' do
               it 'does not change the enconding of the body' do
-                skip unless RUBY_VERSION >= '2.0'
-
                 string_body = '¥£€'
                 expect do
                   conn.request(method: :post, path: '/echo', body: string_body)
@@ -199,10 +197,8 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
               context('when a multi-byte string is the body paramter') do
                 body = "\xC3\xBC" * 100
                 headers = { 'Custom' => body.dup }
-                if RUBY_VERSION >= '1.9'
-                  body.force_encoding('BINARY')
-                  headers['Custom'].force_encoding('UTF-8')
-                end
+                body.force_encoding('BINARY')
+                headers['Custom'].force_encoding('UTF-8')
                 describe Excon::Response do
                   it '#body properly concatenates request+headers and body' do
                     response = conn.request(method: :post, path: '/echo',
