@@ -1,4 +1,3 @@
-require 'rubygems' if RUBY_VERSION < '1.9'
 require 'bundler/setup'
 require 'excon'
 require 'delorean'
@@ -156,10 +155,8 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         tests('with multi-byte strings') do
           body = "\xC3\xBC" * 100
           headers = { 'Custom' => body.dup }
-          if RUBY_VERSION >= '1.9'
-            body.force_encoding('BINARY')
-            headers['Custom'].force_encoding('UTF-8')
-          end
+          body.force_encoding('BINARY')
+          headers['Custom'].force_encoding('UTF-8')
 
           returns(body, 'properly concatenates request+headers and body') do
             response = connection.request(:method => :post, :path => '/echo', :headers => headers, :body => body)
@@ -194,10 +191,8 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         tests('with multi-byte strings') do
           body = "\xC3\xBC" * 100
           headers = { 'Custom' => body.dup }
-          if RUBY_VERSION >= '1.9'
-            body.force_encoding('BINARY')
-            headers['Custom'].force_encoding('UTF-8')
-          end
+          body.force_encoding('BINARY')
+          headers['Custom'].force_encoding('UTF-8')
 
           returns(body, 'properly concatenates request+headers and body') do
             response = connection.request(:method => :put, :path => '/echo', :headers => headers, :body => body)
@@ -322,7 +317,6 @@ end
 
 def launch_process(*args)
   unless RUBY_PLATFORM == 'java'
-    GC.disable if RUBY_VERSION < '1.9'
     pid, w, r, e = Open4.popen4(*args)
   else
     pid, w, r, e = IO.popen4(*args)
@@ -333,7 +327,6 @@ end
 def cleanup_process(pid)
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
-    GC.enable if RUBY_VERSION < '1.9'
     Process.wait(pid)
   end
 end

@@ -42,7 +42,6 @@ module Excon
         if RUBY_PLATFORM == 'java'
           @pid, @write, @read, @error = IO.popen4(*args)
         else
-          GC.disable if RUBY_VERSION < '1.9'
           @pid, @write, @read, @error = Open4.popen4(*args)
         end
         @started_at = Time.now
@@ -57,7 +56,6 @@ module Excon
           Process.kill('USR1', pid)
         else
           Process.kill(9, pid)
-          GC.enable if RUBY_VERSION < '1.9'
           Process.wait(pid)
         end
 
