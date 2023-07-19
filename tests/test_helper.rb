@@ -322,6 +322,7 @@ def launch_process(*args)
 end
 
 def cleanup_process(pid)
+  puts "* pid: #{pid}"
   Process.kill(9, pid)
   unless RUBY_PLATFORM == 'java'
     Process.wait(pid)
@@ -340,6 +341,8 @@ def with_rackup(name, host="127.0.0.1")
     process_stderr << line
   end
   yield
+rescue => e
+  p e
 ensure
   cleanup_process(pid)
 
@@ -372,6 +375,8 @@ def with_unicorn(name, listen='127.0.0.1:9292')
     # need to find suitable server for jruby
   end
   yield
+rescue => e
+  p e
 ensure
   cleanup_process(pid)
 
@@ -392,6 +397,8 @@ def with_server(name)
     process_stderr << line
   end
   yield
+rescue => e
+  p e
 ensure
   cleanup_process(pid)
 end
