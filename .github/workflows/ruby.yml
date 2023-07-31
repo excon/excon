@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   test:
-    continue-on-error: ${{ matrix.ruby-version == 'head' }}
+    continue-on-error: ${{ contains(fromJSON('["head", "jruby"]'), matrix.ruby-version) }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
