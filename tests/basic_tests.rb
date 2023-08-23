@@ -235,11 +235,11 @@ Shindo.tests('Excon basics (ssl file paths)',['focus']) do
       connection.request(:method => :get, :path => '/content-length/100')
     end
 
-    basic_tests('https://127.0.0.1:8443',
-                :private_key_path => File.join(File.dirname(__FILE__), 'data', 'excon.cert.key'),
-                :certificate_path => File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt')
-               )
-
+    basic_tests(
+      'https://127.0.0.1:8443',
+      client_cert: File.join(File.dirname(__FILE__), 'data', 'excon.cert.crt'),
+      client_key: File.join(File.dirname(__FILE__), 'data', 'excon.cert.key')
+    )
   end
 end
 
