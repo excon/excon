@@ -46,6 +46,7 @@ module Excon
     :chunk_size,
     :debug_request,
     :debug_response,
+    :dns_timeouts,
     :headers,
     :instrumentor, # Used for setting logging within Connection
     :logger,
@@ -134,41 +135,42 @@ module Excon
   end
   # these come last as they rely on the above
   DEFAULTS = {
-    :chunk_size           => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
+    :chunk_size          => CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
     # see https://wiki.mozilla.org/Security/Server_Side_TLS#Intermediate_compatibility_.28default.29
     # list provided then had DES related things sorted to the end
-    :ciphers              => 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!DSS',
-    :connect_timeout      => 60,
-    :debug_request        => false,
-    :debug_response       => false,
-    :headers              => {
+    :ciphers             => 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!DSS',
+    :connect_timeout     => 60,
+    :debug_request       => false,
+    :debug_response      => false,
+    :headers             => {
       'User-Agent' => USER_AGENT,
       'Accept'     =>  '*/*'
     },
-    :idempotent           => false,
-    :instrumentor_name    => 'excon',
-    :middlewares          => [
+    :idempotent          => false,
+    :instrumentor_name   => 'excon',
+    :middlewares         => [
       Excon::Middleware::ResponseParser,
       Excon::Middleware::Expects,
       Excon::Middleware::Idempotent,
       Excon::Middleware::Instrumentor,
       Excon::Middleware::Mock
     ],
-    :mock                 => false,
-    :nonblock             => true,
-    :omit_default_port    => false,
-    :persistent           => false,
-    :read_timeout         => 60,
-    :retry_errors         => DEFAULT_RETRY_ERRORS,
-    :retry_limit          => DEFAULT_RETRY_LIMIT,
-    :ssl_verify_peer      => true,
-    :ssl_uri_schemes      => [HTTPS],
-    :stubs                => :global,
-    :tcp_nodelay          => false,
-    :thread_safe_sockets  => true,
-    :uri_parser           => URI,
-    :versions             => VERSIONS,
-    :write_timeout        => 60
+    :mock                => false,
+    :nonblock            => true,
+    :omit_default_port   => false,
+    :persistent          => false,
+    :read_timeout        => 60,
+    :dns_timeouts.       => 60,
+    :retry_errors        => DEFAULT_RETRY_ERRORS,
+    :retry_limit         => DEFAULT_RETRY_LIMIT,
+    :ssl_verify_peer     => true,
+    :ssl_uri_schemes     => [HTTPS],
+    :stubs               => :global,
+    :tcp_nodelay         => false,
+    :thread_safe_sockets => true,
+    :uri_parser          => URI,
+    :versions            => VERSIONS,
+    :write_timeout       => 60
   }
 
 end

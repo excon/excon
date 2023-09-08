@@ -121,7 +121,10 @@ module Excon
         family = @data[:proxy][:family]
       end
 
-      Resolv.each_address(hostname) do |ip|
+      Resolv::DNS.open do |dns|
+        dns.timeouts = @data[:dns_timeouts]
+        dns.getaddresses(hostname).map(&:to_s)
+      end.each do |ip|
         # already succeeded on previous addrinfo
         if @socket
           break
