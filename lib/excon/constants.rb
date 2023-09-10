@@ -142,6 +142,7 @@ module Excon
     :connect_timeout     => 60,
     :debug_request       => false,
     :debug_response      => false,
+    :dns_timeouts        => 60,
     :headers             => {
       'User-Agent' => USER_AGENT,
       'Accept'     =>  '*/*'
@@ -160,7 +161,6 @@ module Excon
     :omit_default_port   => false,
     :persistent          => false,
     :read_timeout        => 60,
-    :dns_timeouts        => 60,
     :retry_errors        => DEFAULT_RETRY_ERRORS,
     :retry_limit         => DEFAULT_RETRY_LIMIT,
     :ssl_verify_peer     => true,
