@@ -142,7 +142,7 @@ module Excon
     :connect_timeout     => 60,
     :debug_request       => false,
     :debug_response      => false,
-    :dns_timeouts        => 60,
+    :dns_timeouts        => nil,
     :headers             => {
       'User-Agent' => USER_AGENT,
       'Accept'     =>  '*/*'
