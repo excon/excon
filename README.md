@@ -193,7 +193,8 @@ connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 connection = Excon.new('http://geemus.com/', :nonblock => false)
 
 # set shorter dns_timeouts for resolving addresses (default is 60 seconds)
-# it uses Resolv::DNS#timeouts (https://ruby-doc.org/3.2.2/stdlibs/resolv/Resolv/DNS.html#method-i-timeouts-3D)
+# it accepts an integer or an array of integers for retrying with different timeouts
+# see Resolv::DNS#timeouts for more details (https://ruby-doc.org/3.2.2/stdlibs/resolv/Resolv/DNS.html#method-i-timeouts-3D)
 connection = Excon.new('http://geemus.com/', :dns_timeouts => 3)
 ```
 
