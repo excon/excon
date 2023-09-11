@@ -8,7 +8,7 @@ describe Excon::Socket do
 
     before { allow(Resolv::DNS).to receive(:new).and_return(dns_resolver) }
 
-    it 'returns a Resolv::ResolvError' do
+    it 'returns a Excon::Error::Socket' do
       expect do
         connection = Excon.new('http://foo.com', dns_timeouts: 1)
         connection.request
