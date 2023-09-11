@@ -143,6 +143,7 @@ module Excon
     :debug_request       => false,
     :debug_response      => false,
     :dns_timeouts        => nil,
+    # nil allows Resolv::DNS to set its default timeouts value (see https://ruby-doc.org/3.2.2/stdlibs/resolv/Resolv/DNS.html#method-i-timeouts-3D)
     :headers             => {
       'User-Agent' => USER_AGENT,
       'Accept'     =>  '*/*'
