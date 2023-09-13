@@ -246,9 +246,9 @@ module Excon
 
       host_key = datum[:headers].keys.detect {|k| k.casecmp('Host') == 0 } || 'Host'
       if datum[:scheme] == UNIX
-        datum[:headers][host_key]   ||= ''
+        datum[:headers][host_key] ||= ''
       else
-        datum[:headers][host_key]   ||= datum[:host] + port_string(datum)
+        datum[:headers][host_key] ||= datum[:host] + port_string(datum)
       end
 
       # RFC 7230, section 5.4, states that the Host header SHOULD be the first one # to be present.
