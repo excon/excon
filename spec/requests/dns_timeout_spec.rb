@@ -13,7 +13,7 @@ describe Excon::Socket do
     expect(config_timeouts).to eql([1])
   end
 
-  context 'when the DNS server takes too long to resolve' do
+  context 'when the DNS server is unreachable' do
     let(:dns_resolver) { Resolv::DNS.new(nameserver: ['127.0.0.1', '127.0.0.1']) }
 
     it 'returns a Excon::Error::Socket' do
