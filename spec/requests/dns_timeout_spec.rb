@@ -14,9 +14,7 @@ describe Excon::Socket do
   end
 
   context 'when the DNS server takes too long to resolve' do
-    include_context('test server', :webrick, 'dns_timeout.ru', before: :start, after: :stop)
-
-    let(:dns_resolver) { Resolv::DNS.new(nameserver: '127.0.0.1') }
+    let(:dns_resolver) { Resolv::DNS.new(nameserver: ['127.0.0.1', '127.0.0.1']) }
 
     it 'returns a Excon::Error::Socket' do
       expect { connection.request }.to raise_error(Excon::Error::Socket)
