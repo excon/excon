@@ -1,4 +1,4 @@
-0.103.0 2023-09-23
+0.103.0 2023-09-13
 ==================
 
 - fix cert related warnings
@@ -6,12 +6,12 @@
 - add option to specify dns_timeout
 - update bundled default certs
 
-0.102.0 2023-09-23
+0.102.0 2023-08-23
 ==================
 
 - revert bundled cert update for now, as it is breaking tests
 
-0.101.0 2023-09-23
+0.101.0 2023-08-23
 ==================
 
 - remove old Ruby 1.9 related conditionals and code
