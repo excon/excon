@@ -4,7 +4,7 @@ describe Excon::Socket do
   let(:dns_resolver) { Resolv::DNS.new }
   let(:resolv_resolver) { Resolv.new([Resolv::Hosts.new, dns_resolver]) }
   let(:config_timeouts) { dns_resolver.instance_variable_get(:@config).instance_variable_get(:@timeouts) }
-  let(:connection) { Excon.new('http://foo.com', resolv_resolver:) }
+  let(:connection) { Excon.new('http://foo.com', resolv_resolver: resolv_resolver) }
 
   before do
     dns_resolver.timeouts = 1
