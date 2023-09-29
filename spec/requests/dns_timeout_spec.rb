@@ -8,9 +8,11 @@ describe Excon::Socket do
   before { allow(Resolv::DNS).to receive(:new).and_return(dns_resolver) }
 
   it 'passes the dns_timeouts to Resolv::DNS::Config' do
-    connection.request
+    silence_warnings do
+      connection.request
 
-    expect(config_timeouts).to eql([1])
+      expect(config_timeouts).to eql([1])
+    end
   end
 
   context 'when the DNS server is unreachable' do

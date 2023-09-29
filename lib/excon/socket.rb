@@ -125,6 +125,7 @@ module Excon
 
       # Deprecated
       if @data[:dns_timeouts]
+        Excon.display_warning('dns_timeouts is deprecated, use resolv_resolver instead.')
         dns_resolver = Resolv::DNS.new
         dns_resolver.timeouts = @data[:dns_timeouts]
         resolver = Resolv.new([Resolv::Hosts.new, dns_resolver])  
