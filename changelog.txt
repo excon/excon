@@ -1,3 +1,9 @@
+0.104.0 2023-09-29
+==================
+
+- fix dates in changelog
+- add resolv_resolver option and deprecate dns_timeout
+
 0.103.0 2023-09-13
 ==================
 
