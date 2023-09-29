@@ -2,17 +2,19 @@ require 'spec_helper'
 
 describe Excon::Socket do
   let(:dns_resolver) { Resolv::DNS.new }
+  let(:resolv_resolver) { Resolv.new([Resolv::Hosts.new, dns_resolver]) }
   let(:config_timeouts) { dns_resolver.instance_variable_get(:@config).instance_variable_get(:@timeouts) }
-  let(:connection) { Excon.new('http://foo.com', dns_timeouts: 1) }
+  let(:connection) { Excon.new('http://foo.com', resolv_resolver: resolv_resolver) }
 
-  before { allow(Resolv::DNS).to receive(:new).and_return(dns_resolver) }
+  before do
+    dns_resolver.timeouts = 1
+    allow(Resolv::DNS).to receive(:new).and_return(dns_resolver)
+  end
 
-  it 'passes the dns_timeouts to Resolv::DNS::Config' do
-    silence_warnings do
-      connection.request
+  it 'resolv_resolver config reaches Resolv::DNS::Config' do
+    connection.request
 
-      expect(config_timeouts).to eql([1])
-    end
+    expect(config_timeouts).to eql([1])
   end
 
   context 'when the DNS server is unreachable' do

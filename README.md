@@ -192,10 +192,20 @@ connection = Excon.new('http://geemus.com/', :connect_timeout => 360)
 # opt-out of nonblocking operations for performance and/or as a workaround
 connection = Excon.new('http://geemus.com/', :nonblock => false)
 
+# DEPRECATED in favour of `resolv_resolver` (see below)
 # set up desired dns_timeouts for resolving addresses (default is set by Resolv)
 # it accepts an integer or an array of integers for retrying with different timeouts
 # see Resolv::DNS#timeouts for more details (https://ruby-doc.org/3.2.2/stdlibs/resolv/Resolv/DNS.html#method-i-timeouts-3D)
 connection = Excon.new('http://geemus.com/', :dns_timeouts => 3)
+
+# set a custom resolver for Resolv
+# you can use custom nameservers and timeouts
+# `timeouts` accepts an integer or an array of integers for retrying with different timeouts
+# see Resolv::DNS#timeouts for more details (https://ruby-doc.org/3.2.2/stdlibs/resolv/Resolv/DNS.html#method-i-timeouts-3D)
+dns_resolver = Resolv::DNS.new(nameserver: ['127.0.0.1'])
+dns_resolver.timeouts = 3
+resolver = Resolv.new([Resolv::Hosts.new, dns_resolver])
+connection = Excon.new('http://geemus.com', :resolv_resolver => resolver)
 ```
 
 ## Chunked Requests
