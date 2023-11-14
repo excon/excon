@@ -9,6 +9,8 @@ module Excon
 
     attr_accessor :data
 
+    REQUEST_TIMEOUT_KIND = "request"
+
     # read/write drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
     CONNECT_RETRY_EXCEPTION_CLASSES = if defined?(IO::EINPROGRESSWaitWritable) # Ruby >= 2.1
       [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable]
@@ -245,7 +247,7 @@ module Excon
     end
 
     def read_block(max_length)
-      @socket.read(max_length)
+              @socket.read(max_length)
     rescue OpenSSL::SSL::SSLError => error
       if error.message == 'read would block'
         select_with_timeout(@socket, :read) && retry
@@ -294,7 +296,7 @@ module Excon
     end
 
     def write_block(data)
-      @socket.write(data)
+              @socket.write(data)
     rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
       if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
         raise error
@@ -304,17 +306,24 @@ module Excon
     end
 
     def select_with_timeout(socket, type)
+      timeout_kind = type
+
       select = case type
       when :connect_read
-        IO.select([socket], nil, nil, @data[:connect_timeout])
+        timeout_kind, timeout = check_deadline!(type, @data[:connect_timeout])
+        IO.select([socket], nil, nil, timeout)
       when :connect_write
-        IO.select(nil, [socket], nil, @data[:connect_timeout])
+        timeout_kind, timeout = check_deadline!(type, @data[:connect_timeout])
+        IO.select(nil, [socket], nil, timeout)
       when :read
-        IO.select([socket], nil, nil, @data[:read_timeout])
+        timeout_kind, timeout = check_deadline!(type, @data[:read_timeout])
+        IO.select([socket], nil, nil, timeout)
       when :write
-        IO.select(nil, [socket], nil, @data[:write_timeout])
+        timeout_kind, timeout = check_deadline!(type, @data[:write_timeout])
+        IO.select(nil, [socket], nil, timeout)
       end
-      select || raise(Excon::Errors::Timeout.new("#{type} timeout reached"))
+
+      select || raise(Excon::Errors::Timeout.new("#{timeout_kind} timeout reached"))
     end
 
     def unpacked_sockaddr
@@ -323,6 +332,19 @@ module Excon
       unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
         raise
       end
+    end
+
+    # Checks whether we have exceeded the request deadline.
+    # Returns the remaining time in seconds as Numeric.
+    def check_deadline!(type, timeout)
+      now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      deadline = @data[:deadline]
+      
+      raise raise(Excon::Errors::Timeout.new("request timeout reached")) if now >= deadline
+
+      remaining  = deadline - now
+
+      remaining < timeout ? [REQUEST_TIMEOUT_KIND, remaining] : [type, timeout]
     end
   end
 end

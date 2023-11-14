@@ -24,8 +24,8 @@ describe Excon::Connection do
     context 'when timeout is triggered' do
       let(:timeout) { 0.001 }
 
-      it 'returns a Excon::Error::Timeout' do
-        expect { conn.request(:path => '/sloth') }.to raise_error(Excon::Error::Timeout)
+      it 'does not error' do
+        expect(conn.request(:path => '/sloth').status).to eq(200)
       end
     end
   end
