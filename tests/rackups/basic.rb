@@ -43,6 +43,11 @@ class Basic < Sinatra::Base
     'bar'
   end
 
+  get('/sloth') do
+    sleep 0.005 # 5 milliseconds
+    'sloth'
+  end
+
   private
 
   def echo
