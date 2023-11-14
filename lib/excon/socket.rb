@@ -9,8 +9,6 @@ module Excon
 
     attr_accessor :data
 
-    REQUEST_TIMEOUT_KIND = "request"
-
     # read/write drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
     CONNECT_RETRY_EXCEPTION_CLASSES = if defined?(IO::EINPROGRESSWaitWritable) # Ruby >= 2.1
       [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable]
@@ -346,7 +344,7 @@ module Excon
 
       remaining  = deadline - now
 
-      remaining < timeout ? [REQUEST_TIMEOUT_KIND, remaining] : [type, timeout]
+      remaining < timeout ? [:request, remaining] : [type, timeout]
     end
   end
 end
