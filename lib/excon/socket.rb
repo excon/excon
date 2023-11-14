@@ -342,7 +342,7 @@ module Excon
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
       
-      raise raise(Excon::Errors::Timeout.new("request timeout reached")) if now >= deadline
+      raise raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
 
       remaining  = deadline - now
 
