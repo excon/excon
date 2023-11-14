@@ -337,6 +337,8 @@ module Excon
     # Checks whether we have exceeded the request deadline.
     # Returns the remaining time in seconds as Numeric.
     def check_deadline!(type, timeout)
+      return [type, timeout] unless @data.include?(:deadline)
+
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
       
