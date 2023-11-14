@@ -296,7 +296,7 @@ module Excon
     end
 
     def write_block(data)
-              @socket.write(data)
+      @socket.write(data)
     rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
       if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
         raise error
