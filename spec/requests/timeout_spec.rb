@@ -15,10 +15,20 @@ describe Excon::Connection do
   context "blocking connection" do
     let (:nonblock) { false }
 
-    context 'when timeout is not triggered' do 
-      let(:timeout) { 120 }
+    context 'when timeout is not set' do
+      let(:timeout) { nil }
+  
+      it 'does not error' do
+        expect(conn.request(:path => '/content-length/100').status).to eq(200)
+      end
+    end
 
-      include_examples 'a basic client'
+    context 'when timeout is not triggered' do 
+      let(:timeout) { 1 }
+
+      it 'does not error' do
+        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+      end
     end
   
     context 'when timeout is triggered' do
@@ -33,10 +43,20 @@ describe Excon::Connection do
   context "non-blocking connection" do
     let (:nonblock) { true }
 
-    context 'when timeout is not triggered' do
-      let(:timeout) { 120 }
+    context 'when timeout is not set' do
+      let(:timeout) { nil }
   
-      include_examples 'a basic client'
+      it 'does not error' do
+        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+      end
+    end
+
+    context 'when timeout is not triggered' do
+      let(:timeout) { 1 }
+  
+      it 'does not error' do
+        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+      end
     end
   
     context 'when timeout is triggered' do
