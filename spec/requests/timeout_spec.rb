@@ -1,15 +1,17 @@
 require 'spec_helper'
 
 describe Excon::Connection do
-  include_context('test server', :webrick, 'basic.ru', before: :start, after: :stop)
+  include_context('test server', :webrick, 'timeout.ru', before: :start, after: :stop)
 
+  let(:read_timeout) { 60 }
   let(:conn) do
     Excon::Connection.new(host: '127.0.0.1',
                           hostname: '127.0.0.1',
                           nonblock: nonblock,
                           port: 9292,
                           scheme: 'http',
-                          timeout: timeout)
+                          timeout: timeout,
+                          read_timeout: read_timeout)
   end
 
   context "blocking connection" do
@@ -19,23 +21,25 @@ describe Excon::Connection do
       let(:timeout) { nil }
   
       it 'does not error' do
-        expect(conn.request(:path => '/content-length/100').status).to eq(200)
+        expect(conn.request(:path => '/').status).to eq(200)
       end
     end
 
-    context 'when timeout is not triggered' do 
+    context 'when timeout is not triggered' do
       let(:timeout) { 1 }
 
       it 'does not error' do
-        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+        expect(conn.request(:path => '/').status).to eq(200)        
       end
     end
   
     context 'when timeout is triggered' do
+      let(:read_timeout) { 0.005 }
       let(:timeout) { 0.001 }
-
-      it 'does not error' do
-        expect(conn.request(:path => '/sloth').status).to eq(200)
+  
+      it 'does not raise' do
+        # raising a read timeout to keep tests fast
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'read timeout reached')
       end
     end
   end
@@ -47,7 +51,7 @@ describe Excon::Connection do
       let(:timeout) { nil }
   
       it 'does not error' do
-        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+        expect(conn.request(:path => '/').status).to eq(200)        
       end
     end
 
@@ -55,7 +59,7 @@ describe Excon::Connection do
       let(:timeout) { 1 }
   
       it 'does not error' do
-        expect(conn.request(:path => '/content-length/100').status).to eq(200)        
+        expect(conn.request(:path => '/').status).to eq(200)        
       end
     end
   
@@ -63,7 +67,16 @@ describe Excon::Connection do
       let(:timeout) { 0.001 }
   
       it 'returns a Excon::Error::Timeout' do
-        expect { conn.request(:path => '/sloth') }.to raise_error(Excon::Error::Timeout, 'request timeout reached')
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'request timeout reached')
+      end
+    end
+
+    context 'when read timeout is triggered' do
+      let(:read_timeout) { 0.001 }
+      let(:timeout) { 0.005 }
+  
+      it 'returns a Excon::Error::Timeout' do
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'read timeout reached')
       end
     end
   end
