@@ -172,7 +172,7 @@ module Excon
     :stubs               => :global,
     :tcp_nodelay         => false,
     :thread_safe_sockets => true,
-    :timeout             => 360,
+    :timeout             => nil,
     :uri_parser          => URI,
     :versions            => VERSIONS,
     :write_timeout       => 60
