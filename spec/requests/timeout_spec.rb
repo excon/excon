@@ -63,7 +63,7 @@ describe Excon::Connection do
       let(:timeout) { 0.001 }
   
       it 'returns a Excon::Error::Timeout' do
-        expect { conn.request(:path => '/sloth') }.to raise_error(Excon::Error::Timeout)
+        expect { conn.request(:path => '/sloth') }.to raise_error(Excon::Error::Timeout, 'request timeout reached')
       end
     end
   end
