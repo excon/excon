@@ -247,7 +247,7 @@ module Excon
     end
 
     def read_block(max_length)
-              @socket.read(max_length)
+      @socket.read(max_length)
     rescue OpenSSL::SSL::SSLError => error
       if error.message == 'read would block'
         select_with_timeout(@socket, :read) && retry
