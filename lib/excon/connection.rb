@@ -232,7 +232,9 @@ module Excon
       datum = @data.merge(params)
 
       # Set the deadline for the current request in order to determine when we have run out of time.
-      datum[:deadline] = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datum[:timeout]
+      if datum.include?(:timeout)
+        datum[:deadline] = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datum[:timeout]
+      end
 
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
