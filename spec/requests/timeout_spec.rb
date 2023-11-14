@@ -66,7 +66,7 @@ describe Excon::Connection do
     context 'when timeout is triggered' do
       let(:timeout) { 0.001 }
   
-      it 'returns a Excon::Error::Timeout' do
+      it 'returns a request Excon::Error::Timeout' do
         expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'request timeout reached')
       end
     end
@@ -75,7 +75,7 @@ describe Excon::Connection do
       let(:read_timeout) { 0.001 }
       let(:timeout) { 0.005 }
   
-      it 'returns a Excon::Error::Timeout' do
+      it 'returns a read Excon::Error::Timeout' do
         expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'read timeout reached')
       end
     end
