@@ -25,6 +25,13 @@ module Excon
     else # Ruby <= 2.0
       [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable]
     end
+    # Maps a socket operation to a timeout property.
+    OPERATION_TO_TIMEOUT = {
+      :connect_read => :connect_timeout,
+      :connect_write => :connect_timeout,
+      :read => :read_timeout,
+      :write => :write_timeout
+    }.freeze
 
     def params
       Excon.display_warning('Excon::Socket#params is deprecated use Excon::Socket#data instead.')
@@ -305,19 +312,20 @@ module Excon
 
     def select_with_timeout(socket, type)
       timeout_kind = type
+      timeout = @data[OPERATION_TO_TIMEOUT[type]]
+
+      if @data.include?(:deadline)
+        timeout_kind, timeout = check_deadline!(timeout_kind, timeout)
+      end
 
       select = case type
       when :connect_read
-        timeout_kind, timeout = check_deadline!(type, @data[:connect_timeout])
         IO.select([socket], nil, nil, timeout)
       when :connect_write
-        timeout_kind, timeout = check_deadline!(type, @data[:connect_timeout])
         IO.select(nil, [socket], nil, timeout)
       when :read
-        timeout_kind, timeout = check_deadline!(type, @data[:read_timeout])
         IO.select([socket], nil, nil, timeout)
       when :write
-        timeout_kind, timeout = check_deadline!(type, @data[:write_timeout])
         IO.select(nil, [socket], nil, timeout)
       end
 
@@ -333,14 +341,12 @@ module Excon
     end
 
     # Checks whether we have exceeded the request deadline.
-    # Returns the remaining time in seconds as Numeric.
+    # Returns the type of timeout and timeout duration.
     def check_deadline!(type, timeout)
-      return [type, timeout] unless @data.include?(:deadline)
-
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
       
-      raise raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
+      raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
 
       remaining  = deadline - now
 
