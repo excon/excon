@@ -179,6 +179,9 @@ connection.request(:read_timeout => 360)
 # set longer write_timeout (default is 60 seconds)
 connection.request(:write_timeout => 360)
 
+# set a request timeout in seconds (default is no timeout)
+connection.request(:timeout => 5)
+
 # Enable the socket option TCP_NODELAY on the underlying socket.
 #
 # This can improve response time when sending frequent short
