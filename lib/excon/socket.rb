@@ -315,7 +315,12 @@ module Excon
       timeout = @data[OPERATION_TO_TIMEOUT[type]]
 
       if @data.include?(:deadline)
-        timeout_kind, timeout = check_deadline!(timeout_kind, timeout)
+        remaining = check_deadline!(timeout_kind, timeout)
+        
+        if remaining < timeout
+          timeout_kind = :request
+          timeout = remaining
+        end
       end
 
       select = case type
@@ -348,9 +353,7 @@ module Excon
       
       raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
 
-      remaining  = deadline - now
-
-      remaining < timeout ? [:request, remaining] : [type, timeout]
+      deadline - now
     end
   end
 end
