@@ -314,12 +314,15 @@ module Excon
       timeout_kind = type
       timeout = @data[OPERATION_TO_TIMEOUT[type]]
 
+      # Check whether the request has a timeout configured.
       if @data.include?(:deadline)
-        remaining = request_time_remaining
+        request_timeout = request_time_remaining
 
-        if remaining < timeout
+        # If the time remaining until the request times out is less than the timeout for the type of select,
+        # use the time remaining as the timeout instead.
+        if request_timeout < timeout
           timeout_kind = :request
-          timeout = remaining
+          timeout = request_timeout
         end
       end
 
