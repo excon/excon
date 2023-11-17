@@ -315,7 +315,7 @@ module Excon
       timeout = @data[OPERATION_TO_TIMEOUT[type]]
 
       if @data.include?(:deadline)
-        remaining = check_deadline!
+        remaining = request_time_remaining
 
         if remaining < timeout
           timeout_kind = :request
@@ -345,9 +345,9 @@ module Excon
       end
     end
 
-    # Checks whether we have exceeded the request deadline.
-    # Returns the remaining time in seconds until we reach the deadline.
-    def check_deadline!
+    # Returns the remaining time in seconds until we reach the deadline for the request timeout.
+    # Raises an exception if we have exceeded the request timeout's deadline.
+    def request_time_remaining
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
       
