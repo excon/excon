@@ -21,7 +21,7 @@ describe Excon::Connection do
       let(:timeout) { nil }
   
       it 'does not error' do
-        expect(conn.request(:path => '/').status).to eq(200)
+        expect(conn.request(:path => '/no-timeout').status).to eq(200)
       end
     end
 
@@ -29,7 +29,7 @@ describe Excon::Connection do
       let(:timeout) { 1 }
 
       it 'does not error' do
-        expect(conn.request(:path => '/').status).to eq(200)        
+        expect(conn.request(:path => '/no-timeout').status).to eq(200)        
       end
     end
   
@@ -51,7 +51,7 @@ describe Excon::Connection do
       let(:timeout) { nil }
   
       it 'does not error' do
-        expect(conn.request(:path => '/').status).to eq(200)        
+        expect(conn.request(:path => '/no-timeout').status).to eq(200)        
       end
     end
 
@@ -59,7 +59,7 @@ describe Excon::Connection do
       let(:timeout) { 1 }
   
       it 'does not error' do
-        expect(conn.request(:path => '/').status).to eq(200)        
+        expect(conn.request(:path => '/no-timeout').status).to eq(200)        
       end
     end
   

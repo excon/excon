@@ -4,7 +4,7 @@ class App < Sinatra::Base
   set :environment, :production
   enable :dump_errors
 
-  get('/') do
+  get('/no-timeout') do
     ''
   end
 
