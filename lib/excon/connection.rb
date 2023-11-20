@@ -230,6 +230,13 @@ module Excon
     def request(params={}, &block)
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
+
+      # Set the deadline for the current request in order to determine when we have run out of time.
+      # Only set when a request timeout has been defined.
+      if datum[:timeout]
+        datum[:deadline] = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datum[:timeout]
+      end
+
       datum[:headers] = @data[:headers].merge(datum[:headers] || {})
 
       validate_params(:request, params, datum[:middlewares])

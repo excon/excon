@@ -62,6 +62,7 @@ module Excon
     :resolv_resolver,
     :response_block,
     :stubs,
+    :timeout,
     :user,
     :versions,
     :write_timeout
@@ -171,6 +172,7 @@ module Excon
     :stubs               => :global,
     :tcp_nodelay         => false,
     :thread_safe_sockets => true,
+    :timeout             => nil,
     :uri_parser          => URI,
     :versions            => VERSIONS,
     :write_timeout       => 60

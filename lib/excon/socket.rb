@@ -25,6 +25,13 @@ module Excon
     else # Ruby <= 2.0
       [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable]
     end
+    # Maps a socket operation to a timeout property.
+    OPERATION_TO_TIMEOUT = {
+      :connect_read => :connect_timeout,
+      :connect_write => :connect_timeout,
+      :read => :read_timeout,
+      :write => :write_timeout
+    }.freeze
 
     def params
       Excon.display_warning('Excon::Socket#params is deprecated use Excon::Socket#data instead.')
@@ -304,17 +311,33 @@ module Excon
     end
 
     def select_with_timeout(socket, type)
+      timeout_kind = type
+      timeout = @data[OPERATION_TO_TIMEOUT[type]]
+
+      # Check whether the request has a timeout configured.
+      if @data.include?(:deadline)
+        request_timeout = request_time_remaining
+
+        # If the time remaining until the request times out is less than the timeout for the type of select,
+        # use the time remaining as the timeout instead.
+        if request_timeout < timeout
+          timeout_kind = :request
+          timeout = request_timeout
+        end
+      end
+
       select = case type
       when :connect_read
-        IO.select([socket], nil, nil, @data[:connect_timeout])
+        IO.select([socket], nil, nil, timeout)
       when :connect_write
-        IO.select(nil, [socket], nil, @data[:connect_timeout])
+        IO.select(nil, [socket], nil, timeout)
       when :read
-        IO.select([socket], nil, nil, @data[:read_timeout])
+        IO.select([socket], nil, nil, timeout)
       when :write
-        IO.select(nil, [socket], nil, @data[:write_timeout])
+        IO.select(nil, [socket], nil, timeout)
       end
-      select || raise(Excon::Errors::Timeout.new("#{type} timeout reached"))
+
+      select || raise(Excon::Errors::Timeout.new("#{timeout_kind} timeout reached"))
     end
 
     def unpacked_sockaddr
@@ -323,6 +346,17 @@ module Excon
       unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
         raise
       end
+    end
+
+    # Returns the remaining time in seconds until we reach the deadline for the request timeout.
+    # Raises an exception if we have exceeded the request timeout's deadline.
+    def request_time_remaining
+      now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      deadline = @data[:deadline]
+      
+      raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
+
+      deadline - now
     end
   end
 end
