@@ -34,7 +34,7 @@ describe Excon::Connection do
     end
   
     context 'when timeout is triggered' do
-      let(:read_timeout) { 5 }
+      let(:read_timeout) { 0.005 }
       let(:timeout) { 0.001 }
   
       it 'does not raise' do
