@@ -97,7 +97,12 @@ module Excon
         result = String.new
 
         loop do
-          chunk = read(@data[:chunk_size]) || raise(EOFError)
+          if @eof
+            raise(EOFError)
+          end
+
+          chunk = read(@data[:chunk_size])
+
           idx = chunk.index("\n")
 
           if idx.nil?
