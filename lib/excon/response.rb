@@ -176,7 +176,7 @@ module Excon
             end
           else
             if response_block
-              while (chunk = socket.read_chunk(datum[:chunk_size]))
+              while (chunk = socket.read(datum[:chunk_size]))
                 response_block.call(chunk, nil, nil)
               end
             else
