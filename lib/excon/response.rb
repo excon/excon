@@ -163,7 +163,7 @@ module Excon
           if (remaining = content_length)
             if response_block
               while remaining > 0
-                chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
+                chunk = socket.read_chunk([datum[:chunk_size], remaining].min) || raise(EOFError)
                 response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
                 remaining -= chunk.bytesize
               end
@@ -176,7 +176,7 @@ module Excon
             end
           else
             if response_block
-              while (chunk = socket.read(datum[:chunk_size]))
+              while (chunk = socket.read_chunk(datum[:chunk_size]))
                 response_block.call(chunk, nil, nil)
               end
             else
