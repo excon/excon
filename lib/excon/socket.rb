@@ -47,7 +47,6 @@ module Excon
 
     def_delegators(:@socket, :close)
 
-
     def initialize(data = {})
       @data = data
       @nonblock = data[:nonblock]
