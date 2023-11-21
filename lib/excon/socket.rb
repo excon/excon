@@ -83,7 +83,8 @@ module Excon
           if idx.nil?
             result << chunk
           else
-            # seek the read buffer to just after the newline
+            # Seek the read buffer to just after the newline.
+            # The offset is moved back to the start of the current chunk and then forward until just after the newline's index.
             @read_offset = @read_offset - chunk.length + (idx + 1)
 
             result << chunk[..idx]
@@ -211,25 +212,30 @@ module Excon
       end
     end
 
+    # Drains the socket of any remaning bytes. This emulates the behavior of a blocking read with no max_length.
+    # Returns the read bytes.
     def drain
-      result = read_nonblock(@data[:chunk_size])
+      chunk_size = @data[:chunk_size]
+      result = String.new
       
-      until @eof
-        chunk = read_nonblock(@data[:chunk_size])
-        result << chunk if chunk
+      while chunk = read_nonblock(chunk_size)
+        result << chunk
       end
 
       result
     end
 
+    # Reads up to max_length bytes. Returns nil on end of file.
+    # Reads are buffered and no system calls will be made until the buffer is fully consumed.
     def read_nonblock(max_length)
       begin
         if @read_offset >= @read_buffer.length
+          # Clear the buffer so we can test for emptiness in the rescue blocks
           @read_buffer.clear
+          # Reset the offset so it matches the length of the buffer when empty.
+          @read_offset = 0
           
           @socket.read_nonblock(max_length, @read_buffer)
-          
-          @read_offset = 0
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
@@ -246,13 +252,22 @@ module Excon
         end
       rescue EOFError
         @eof = true
-        return
+      end
+
+      if @eof
+        return nil
       end
 
       start = @read_offset
+      bytes_to_read = @read_buffer.length - @read_offset
 
-      @read_offset += max_length
-      @read_offset = @read_buffer.length if @read_offset > @read_buffer.length
+      # Ensure that we can seek backwards when reading until a terminator string.
+      # The read offset must never point past the end of the read buffer.
+      if max_length > bytes_to_read
+        @read_offset += bytes_to_read
+      else
+        @read_offset += max_length
+      end
 
       @read_buffer[start...@read_offset]
     end
