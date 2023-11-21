@@ -75,12 +75,18 @@ module Excon
       result = String.new
       remaining = chunk_size
 
-      while remaining > 0 && chunk = read(remaining)
+      while remaining > 0
+        chunk = read(remaining)
+
+        if chunk.nil?
+          break
+        end
+
         remaining -= chunk.length
         result << chunk
       end
 
-      result
+      result.empty? ? nil : result
     end
 
     def readline
