@@ -237,14 +237,15 @@ module Excon
       end
     end
 
-    # Drains the socket of any remaning bytes. This emulates the behavior of a blocking read with no max_length.
+    # Drains the socket of any remaining bytes. This emulates the behavior of a blocking read with no max_length.
     # Returns the read bytes.
     def drain(block)
       chunk_size = @data[:chunk_size]
-      result = String.new
+      result = read_nonblock(chunk_size, block)
 
-      while chunk = read_nonblock(chunk_size, block)
-        result << chunk
+      until @eof
+        chunk = read_nonblock(chunk_size, block)
+        result << chunk if chunk
       end
 
       result
