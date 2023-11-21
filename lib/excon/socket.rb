@@ -75,12 +75,10 @@ module Excon
       result = String.new
       remaining = chunk_size
 
-      while remaining > 0
+      while remaining.positive?
         chunk = read(remaining)
 
-        if chunk.nil?
-          break
-        end
+        break if chunk.nil? || chunk.empty?
 
         remaining -= chunk.length
         result << chunk
