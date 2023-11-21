@@ -70,8 +70,7 @@ class MockNonblockRubySocket
 end
 
 Shindo.tests('socket') do
-  CHUNK_SIZES = [nil, 512]
-  CHUNK_SIZES.each do |chunk_size|
+  [nil, 512].each do |chunk_size|
     tests("chunk_size: #{chunk_size}") do
       socket_args = {chunk_size: chunk_size}
       tests('read_nonblock') do
