@@ -54,15 +54,17 @@ module Excon
       @read_buffer = ''.b
       @read_offset = 0
       @eof = false
-      
+
       connect
     end
 
     def read(max_length = nil)
       if @eof
         max_length ? nil : ''
-      elsif @nonblock
+      elsif @nonblock && max_length
         read_nonblock(max_length)
+      elsif @nonblock
+        drain
       else
         read_block(max_length)
       end
@@ -241,8 +243,6 @@ module Excon
     # Reads up to max_length bytes. Returns nil on end of file.
     # Reads are buffered and no system calls will be made until the buffer is fully consumed.
     def read_nonblock(max_length)
-      return drain unless max_length
-
       begin
         if @read_offset >= @read_buffer.length
           # Clear the buffer so we can test for emptiness in the rescue blocks
