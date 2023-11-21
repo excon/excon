@@ -71,6 +71,27 @@ module Excon
       end
     end
 
+    # Reads the socket in chunks. Waits until the given chunk size is avaialble or end of file is reached.
+    def read_chunk(chunk_size)
+      result = String.new
+      remaining = chunk_size
+
+      while remaining > 0 && chunk = read(chunk_size)
+        if chunk.length > remaining
+          # Seek the read buffer to just after the newline.
+          # The offset is moved back to the start of the current chunk and then forward until we consume the remaining bytes.
+          @read_offset = @read_offset - chunk.length + remaining
+
+          remaining = 0
+          result << chunk[..remaining]
+        else
+          remaining -= chunk.length
+          result << chunk
+        end
+      end
+
+      result
+    end
 
     def readline
       if @nonblock

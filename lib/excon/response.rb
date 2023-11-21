@@ -130,7 +130,7 @@ module Excon
           if response_block
             while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
               while chunk_size > 0
-                chunk = socket.read(chunk_size) || raise(EOFError)
+                chunk = socket.read_chunk(chunk_size) || raise(EOFError)
                 chunk_size -= chunk.bytesize
                 response_block.call(chunk, nil, nil)
               end
