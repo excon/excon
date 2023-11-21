@@ -60,11 +60,9 @@ module Excon
 
     def read(max_length = nil)
       if @eof
-        return max_length ? nil : ''
-      elsif @nonblock && max_length
-        read_nonblock(max_length)
+        max_length ? nil : ''
       elsif @nonblock
-        drain
+        read_nonblock(max_length)
       else
         read_block(max_length)
       end
@@ -232,7 +230,7 @@ module Excon
     def drain
       chunk_size = @data[:chunk_size]
       result = String.new
-      
+
       while chunk = read_nonblock(chunk_size)
         result << chunk
       end
@@ -243,13 +241,15 @@ module Excon
     # Reads up to max_length bytes. Returns nil on end of file.
     # Reads are buffered and no system calls will be made until the buffer is fully consumed.
     def read_nonblock(max_length)
+      return drain unless max_length
+
       begin
         if @read_offset >= @read_buffer.length
           # Clear the buffer so we can test for emptiness in the rescue blocks
           @read_buffer.clear
           # Reset the offset so it matches the length of the buffer when empty.
           @read_offset = 0
-          
+
           @socket.read_nonblock(max_length, @read_buffer)
         end
       rescue OpenSSL::SSL::SSLError => error
