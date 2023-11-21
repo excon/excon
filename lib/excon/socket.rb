@@ -58,25 +58,30 @@ module Excon
       connect
     end
 
-    def read(max_length = nil)
+    # Reads at most max_length bytes into a String buffer.
+    # When block is true, waits until bytes are available to return or end-of-file is reached.
+    # When block is false, returns nil or empty string.
+    def read(max_length = nil, block = true)
       if @eof
         max_length ? nil : ''
       elsif @nonblock && max_length
-        read_nonblock(max_length)
+        read_nonblock(max_length, block)
       elsif @nonblock
-        drain
+        drain(block)
       else
-        read_block(max_length)
+        read_block(max_length, block)
       end
     end
 
-    # Reads the socket in chunks. Waits until the given chunk size is avaialble or end of file is reached.
-    def read_chunk(chunk_size)
-      result = String.new
-      remaining = chunk_size
+    # Reads the socket in chunks.
+    # Returns either a non-empty chunk or nil (on end-of-file).
+    # When block is true, waits until the given chunk size is available or end of file is reached.
+    def read_chunk(chunk_size, block = true)
+      result = read(chunk_size, true)
+      remaining = chunk_size - result&.length.to_i
 
-      while remaining.positive?
-        chunk = read(remaining)
+      while !@eof && remaining.positive?
+        chunk = read(remaining, block)
 
         break if chunk.nil? || chunk.empty?
 
@@ -84,7 +89,7 @@ module Excon
         result << chunk
       end
 
-      result.empty? ? nil : result
+      result
     end
 
     def readline
@@ -92,9 +97,9 @@ module Excon
         result = String.new
 
         loop do
-          chunk = read_nonblock(@data[:chunk_size]) || raise(EOFError)
+          chunk = read(@data[:chunk_size]) || raise(EOFError)
           idx = chunk.index("\n")
-          
+
           if idx.nil?
             result << chunk
           else
@@ -229,11 +234,11 @@ module Excon
 
     # Drains the socket of any remaning bytes. This emulates the behavior of a blocking read with no max_length.
     # Returns the read bytes.
-    def drain
+    def drain(block)
       chunk_size = @data[:chunk_size]
       result = String.new
 
-      while chunk = read_nonblock(chunk_size)
+      while chunk = read_nonblock(chunk_size, block)
         result << chunk
       end
 
@@ -242,7 +247,7 @@ module Excon
 
     # Reads up to max_length bytes. Returns nil on end of file.
     # Reads are buffered and no system calls will be made until the buffer is fully consumed.
-    def read_nonblock(max_length)
+    def read_nonblock(max_length, block = true)
       begin
         if @read_offset >= @read_buffer.length
           # Clear the buffer so we can test for emptiness in the rescue blocks
@@ -254,14 +259,14 @@ module Excon
         end
       rescue OpenSSL::SSL::SSLError => error
         if error.message == 'read would block'
-          if @read_buffer.empty?
+          if block && @read_buffer.empty?
             select_with_timeout(@socket, :read) && retry
           end
         else
           raise(error)
         end
       rescue *READ_RETRY_EXCEPTION_CLASSES
-        if @read_buffer.empty?
+        if block && @read_buffer.empty?
           # if we didn't read anything, try again...
           select_with_timeout(@socket, :read) && retry
         end
@@ -278,25 +283,20 @@ module Excon
 
       # Ensure that we can seek backwards when reading until a terminator string.
       # The read offset must never point past the end of the read buffer.
-      if max_length > bytes_to_read
-        @read_offset += bytes_to_read
-      else
-        @read_offset += max_length
-      end
-
+      @read_offset += max_length.to_i > bytes_to_read ? bytes_to_read : max_length.to_i
       @read_buffer[start...@read_offset]
     end
 
-    def read_block(max_length)
+    def read_block(max_length, block = true)
       @socket.read(max_length)
     rescue OpenSSL::SSL::SSLError => error
-      if error.message == 'read would block'
+      if block && error.message == 'read would block'
         select_with_timeout(@socket, :read) && retry
       else
         raise(error)
       end
     rescue *READ_RETRY_EXCEPTION_CLASSES
-      select_with_timeout(@socket, :read) && retry
+      block && select_with_timeout(@socket, :read) && retry
     rescue EOFError
       @eof = true
     end
