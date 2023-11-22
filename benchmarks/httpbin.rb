@@ -1,6 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# This is a benchmark for HTTPS traffic.
+# To run against a local server:
+# docker run --rm --detach --name httpbin -v /tmp:/tmp -v $PWD/tests/data:/data -e HTTPS_CERT_FILE='/data/127.0.0.1.cert.crt' -e HTTPS_KEY_FILE='/data/127.0.0.1.cert.key' -e PORT='8443' -p 8443:8443 mccutchen/go-httpbin
+# Then, run the benchmark:
+# benchmarks/httpbin.rb --uri='https://localhost:8443/stream-bytes/102400?chunk_size=1024'
+# Finally, stop the server with:
+# docker kill httpbin
+
 require 'bundler/inline'
 
 gemfile do
@@ -94,7 +102,7 @@ end
 excerpt = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum']
 data = "#{(excerpt * 3).join('. ')}."
 
-client = ::Excon.new(options.uri.to_s, ssl_verify_peer: false, ssl_verify_peer_host: false, persistent: true)
+client = ::Excon.new(options.uri.to_s, ssl_verify_peer: false, ssl_verify_peer_host: false, persistent: true, retry_errors: [Excon::Error::Socket], idempotent: true)
 
 Benchmark.ips do |x|
   x.time = options.time
