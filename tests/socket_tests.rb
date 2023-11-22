@@ -32,7 +32,7 @@ class MockNonblockRubySocket
     @sequence = []
   end
 
-  def read_nonblock(maxlen)
+  def read_nonblock(maxlen, buffer = nil)
     if @nonblock_reads.empty?
       @sequence << 'EOF'
       raise EOFError
@@ -48,7 +48,14 @@ class MockNonblockRubySocket
       len = maxlen ? maxlen : @nonblock_reads.first.length
       ret = @nonblock_reads.first.slice!(0, len)
       @sequence << ret.length
-      ret
+
+      if buffer
+        buffer.clear
+        buffer << ret
+        buffer
+      else
+        ret
+      end
     end
   end
 

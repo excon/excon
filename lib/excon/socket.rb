@@ -213,11 +213,19 @@ module Excon
       begin
         if max_length
           until @backend_eof || @read_buffer.length >= max_length
-            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+            if @read_buffer.empty?
+              @read_buffer = @socket.read_nonblock(max_length, @read_buffer)
+            else
+              @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+            end
           end
         else
-          while !@backend_eof
-            @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+          until @backend_eof
+            if @read_buffer.empty?
+              @read_buffer = @socket.read_nonblock(@data[:chunk_size], @read_buffer)
+            else
+              @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+            end
           end
         end
       rescue OpenSSL::SSL::SSLError => error
