@@ -6,6 +6,7 @@ gemspec
 gem 'unicorn', :platforms => [:mri, :rbx], :groups => [:development, :test]
 #gem 'rubysl', '~> 2.2.0', :platforms => :rbx
 gem 'rack', '>= 2.2.3'
+gem 'rackup'
 gem 'rubocop'
 
 # group :benchmark do
