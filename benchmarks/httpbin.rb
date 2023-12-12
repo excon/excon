@@ -15,7 +15,7 @@ gemfile do
   source 'https://rubygems.org'
 
   gem 'benchmark-ips', require: 'benchmark/ips'
-  gem 'ruby-prof'
+  gem 'ruby-prof', '1.5.0'
   gem 'excon', path: '..'
 end
 
