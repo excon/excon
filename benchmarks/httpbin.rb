@@ -12,6 +12,8 @@
 require 'bundler/inline'
 
 gemfile do
+  source 'https://rubygems.org'
+
   gem 'benchmark-ips', require: 'benchmark/ips'
   gem 'ruby-prof'
   gem 'excon', path: '..'
