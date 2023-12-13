@@ -1,3 +1,10 @@
+0.106.0 2023-12-13
+==================
+
+- add rackup to Gemfile
+- bump actions/stale version
+- update bundled default certs
+
 0.105.0 2023-11-28
 ==================
 
