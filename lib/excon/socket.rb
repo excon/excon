@@ -234,12 +234,12 @@ module Excon
         end
 
         if max_length
-          until @backend_eof || buffer_length >= max_length
+          until @backend_eof || readable_bytes >= max_length
             if @read_buffer.empty?
               # Avoid allocating a new buffer string when the read buffer is empty
               @read_buffer = @socket.read_nonblock(max_length, @read_buffer)
             else
-              @read_buffer << @socket.read_nonblock(max_length - buffer_length)
+              @read_buffer << @socket.read_nonblock(max_length - readable_bytes)
             end
           end
         else
@@ -276,7 +276,6 @@ module Excon
           nil
         else
           start = @read_offset
-          readable_bytes = buffer_length
 
           # Ensure that we can seek backwards when reading until a terminator string.
           # The read offset must never point past the end of the read buffer.
@@ -294,7 +293,7 @@ module Excon
       end
     end
 
-    def buffer_length
+    def readable_bytes
       @read_buffer.length - @read_offset
     end
 
