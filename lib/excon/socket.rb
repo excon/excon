@@ -53,14 +53,16 @@ module Excon
       @nonblock = data[:nonblock]
       @port ||= @data[:port] || 80
       @read_buffer = String.new
+      @read_offset = 0
       @eof = false
       @backend_eof = false
+
       connect
     end
 
     def read(max_length = nil)
       if @eof
-        return max_length ? nil : ''
+        max_length ? nil : ''
       elsif @nonblock
         read_nonblock(max_length)
       else
@@ -71,20 +73,22 @@ module Excon
     def readline
       if @nonblock
         result = String.new
-        block = @read_buffer
-        @read_buffer = String.new
+        block = consume_read_buffer
 
         loop do
           idx = block.index("\n")
+
           if idx.nil?
             result << block
           else
-            result << block.slice!(0, idx+1)
-            add_to_read_buffer(block)
+            result << block[..idx]
+            rewind_read_buffer(block, idx)
             break
           end
+
           block = read_nonblock(@data[:chunk_size]) || raise(EOFError)
         end
+
         result
       else # nonblock/legacy
         begin
@@ -204,20 +208,48 @@ module Excon
       end
     end
 
-    def add_to_read_buffer(str)
-      @read_buffer << str
+    # Consume any bytes remaining in the read buffer before making a system call.
+    def consume_read_buffer
+      block = @read_buffer[@read_offset..]
+
+      @read_offset = @read_buffer.length
+
+      block
+    end
+
+    # Rewind the read buffer to just after the given index.
+    # The offset is moved back to the start of the current chunk and then forward until just after the index.
+    def rewind_read_buffer(chunk, idx)
+      @read_offset = @read_offset - chunk.length + (idx + 1)
       @eof = false
     end
 
     def read_nonblock(max_length)
       begin
+        if @read_offset != 0 && @read_offset >= @read_buffer.length
+          # Clear the buffer so we can test for emptiness below
+          @read_buffer.clear
+          # Reset the offset so it matches the length of the buffer when empty.
+          @read_offset = 0
+        end
+
         if max_length
-          until @backend_eof || @read_buffer.length >= max_length
-            @read_buffer << @socket.read_nonblock(max_length - @read_buffer.length)
+          until @backend_eof || readable_bytes >= max_length
+            if @read_buffer.empty?
+              # Avoid allocating a new buffer string when the read buffer is empty
+              @read_buffer = @socket.read_nonblock(max_length, @read_buffer)
+            else
+              @read_buffer << @socket.read_nonblock(max_length - readable_bytes)
+            end
           end
         else
-          while !@backend_eof
-            @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+          until @backend_eof
+            if @read_buffer.empty?
+              # Avoid allocating a new buffer string when the read buffer is empty
+              @read_buffer = @socket.read_nonblock(@data[:chunk_size], @read_buffer)
+            else
+              @read_buffer << @socket.read_nonblock(@data[:chunk_size])
+            end
           end
         end
       rescue OpenSSL::SSL::SSLError => error
@@ -237,18 +269,32 @@ module Excon
         @backend_eof = true
       end
 
-      ret = if max_length
+      if max_length
         if @read_buffer.empty?
-          nil # EOF met at beginning
+          # EOF met at beginning
+          @eof = @backend_eof
+          nil
         else
-          @read_buffer.slice!(0, max_length)
+          start = @read_offset
+
+          # Ensure that we can seek backwards when reading until a terminator string.
+          # The read offset must never point past the end of the read buffer.
+          @read_offset += max_length > readable_bytes ? readable_bytes : max_length
+          @read_buffer[start...@read_offset]
         end
       else
         # read until EOFError, so return everything
-        @read_buffer.slice!(0, @read_buffer.length)
+        start = @read_offset
+
+        @read_offset = @read_buffer.length
+        @eof = @backend_eof
+
+        @read_buffer[start..]
       end
-      @eof = @backend_eof && @read_buffer.empty?
-      ret
+    end
+
+    def readable_bytes
+      @read_buffer.length - @read_offset
     end
 
     def read_block(max_length)
@@ -353,7 +399,7 @@ module Excon
     def request_time_remaining
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
-      
+
       raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
 
       deadline - now
