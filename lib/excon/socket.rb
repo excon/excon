@@ -81,7 +81,7 @@ module Excon
           if idx.nil?
             result << block
           else
-            result << block[..idx]
+            result << block[0..idx]
             rewind_read_buffer(block, idx)
             break
           end
@@ -210,7 +210,7 @@ module Excon
 
     # Consume any bytes remaining in the read buffer before making a system call.
     def consume_read_buffer
-      block = @read_buffer[@read_offset..]
+      block = @read_buffer[@read_offset..-1]
 
       @read_offset = @read_buffer.length
 
@@ -289,7 +289,7 @@ module Excon
         @read_offset = @read_buffer.length
         @eof = @backend_eof
 
-        @read_buffer[start..]
+        @read_buffer[start..-1]
       end
     end
 
