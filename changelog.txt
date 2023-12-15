@@ -1,3 +1,8 @@
+0.107.0 2023-12-15
+==================
+
+- performance improvements for nonblocking sockets
+
 0.106.0 2023-12-13
 ==================
 
