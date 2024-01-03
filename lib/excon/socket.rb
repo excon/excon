@@ -132,14 +132,14 @@ module Excon
         family = @data[:proxy][:family]
       end
 
-      resolver = @data[:resolv_resolver] || Resolv.new
+      resolver = @data[:resolv_resolver] || Resolv::DefaultResolver
 
       # Deprecated
       if @data[:dns_timeouts]
         Excon.display_warning('dns_timeouts is deprecated, use resolv_resolver instead.')
         dns_resolver = Resolv::DNS.new
         dns_resolver.timeouts = @data[:dns_timeouts]
-        resolver = Resolv.new([Resolv::Hosts.new, dns_resolver])  
+        resolver = Resolv.new([Resolv::Hosts.new, dns_resolver])
       end
 
       resolver.each_address(hostname) do |ip|
