@@ -1,3 +1,8 @@
+0.109.0 2024-01-03
+==================
+
+- fix to properly utilize `Resolv::DefaultResolver.replace_resolvers` values
+
 0.108.0 2023-12-15
 ==================
 
