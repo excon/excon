@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
     "README.md",
     "excon.gemspec"
   ]
+  s.required_ruby_version = '>= 2.7.0'
 
   s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('activesupport')
