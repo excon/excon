@@ -1,7 +1,7 @@
 require 'bundler/setup'
 require 'excon'
 require 'delorean'
-require 'open4'
+require 'open3'
 require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
@@ -316,11 +316,8 @@ def capture_response_block
 end
 
 def launch_process(*args)
-  unless RUBY_PLATFORM == 'java'
-    pid, w, r, e = Open4.popen4(*args)
-  else
-    pid, w, r, e = IO.popen4(*args)
-  end
+  w, r, e, wait_thread = Open3.popen3(*args)
+  pid = wait_thread.pid
   return pid, w, r, e
 end
 

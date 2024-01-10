@@ -1,4 +1,4 @@
-require 'open4'
+require 'open3'
 require 'excon'
 require 'excon/test/plugin/server/webrick'
 require 'excon/test/plugin/server/unicorn'
@@ -39,11 +39,8 @@ module Excon
       end
 
       def open_process(*args)
-        if RUBY_PLATFORM == 'java'
-          @pid, @write, @read, @error = IO.popen4(*args)
-        else
-          @pid, @write, @read, @error = Open4.popen4(*args)
-        end
+        @write, @read, @error, wait_thread = Open3.popen3(*args)
+        @pid = wait_thread.pid
         @started_at = Time.now
       end
 
