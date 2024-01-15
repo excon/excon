@@ -4,7 +4,7 @@ Usable, fast, simple Ruby HTTP 1.1
 
 Excon was designed to be simple, fast and performant. It works great as a general HTTP(s) client and is particularly well suited to usage in API clients.
 
-[![Build Status](https://github.com/excon/excon/actions/workflows/ruby.yml/badge.svg)](https://github.com/excon/excon/actions/workflows/ruby.yml)
+[![Build Status](https://github.com/excon/excon/actions/workflows/ci.yml/badge.svg)](https://github.com/excon/excon/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/excon.svg)](https://badge.fury.io/rb/excon)
 
 - [Getting Started](#getting-started)
