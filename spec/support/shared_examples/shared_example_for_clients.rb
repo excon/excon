@@ -158,7 +158,12 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
               describe Excon::Response do
                 it '#body equals "x" * 100 + "\n"' do
                   file_path = data_path('xs')
-                  response = conn.request(method: :post, path: '/echo', body: File.open(file_path))
+                  response = conn.request(
+                    method: :post,
+                    path: '/echo',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: File.open(file_path)
+                  )
                   expect(response.body).to eq 'x' * 100 + "\n"
                 end
               end
@@ -168,14 +173,24 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
               it 'does not change the enconding of the body' do
                 string_body = '¥£€'
                 expect do
-                  conn.request(method: :post, path: '/echo', body: string_body)
+                  conn.request(
+                    method: :post,
+                    path: '/echo',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: string_body
+                  )
                 end.to_not change { string_body.encoding }
               end
 
               context 'without request_block' do
                 describe Excon::Response do
                   it "#body equals 'x' * 100)" do
-                    response = conn.request(method: :post, path: '/echo', body: 'x' * 100)
+                    response = conn.request(
+                      method: :post,
+                      path: '/echo',
+                      headers: { 'Content-Type': 'text/plain' },
+                      body: 'x' * 100
+                    )
                     expect(response.body).to eq 'x' * 100
                   end
                 end
@@ -188,7 +203,12 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
                     request_block = lambda do
                       data.shift.to_s
                     end
-                    response = conn.request(method: :post, path: '/echo', request_block: request_block)
+                    response = conn.request(
+                      method: :post,
+                      path: '/echo',
+                      headers: { 'Content-Type': 'text/plain' },
+                      request_block: request_block
+                    )
                     expect(response.body).to eq 'x' * 100
                   end
                 end
@@ -199,6 +219,8 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
                 headers = { 'Custom' => body.dup }
                 body.force_encoding('BINARY')
                 headers['Custom'].force_encoding('UTF-8')
+                headers['Content-Type'] = 'text/plain'
+
                 describe Excon::Response do
                   it '#body properly concatenates request+headers and body' do
                     response = conn.request(method: :post, path: '/echo',

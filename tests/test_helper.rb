@@ -131,15 +131,14 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
       end
 
       tests('POST /echo') do
-
         tests('with file').returns('x' * 100 + "\n") do
           file_path = File.join(File.dirname(__FILE__), "data", "xs")
-          response = connection.request(:method => :post, :path => '/echo', :body => File.open(file_path))
+          response = connection.request(:method => :post, :path => '/echo', :headers => { 'Content-Type' => 'text/plain' }, :body => File.open(file_path))
           response.body
         end
 
         tests('without request_block').returns('x' * 100) do
-          response = connection.request(:method => :post, :path => '/echo', :body => 'x' * 100)
+          response = connection.request(:method => :post, :path => '/echo', :headers => { 'Content-Type' => 'text/plain' }, :body => 'x' * 100)
           response.body
         end
 
@@ -148,7 +147,7 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           request_block = lambda do
             data.shift.to_s
           end
-          response = connection.request(:method => :post, :path => '/echo', :request_block => request_block)
+          response = connection.request(:method => :post, :path => '/echo', :headers => { 'Content-Type' => 'text/plain' }, :request_block => request_block)
           response.body
         end
 
@@ -157,13 +156,13 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
           headers = { 'Custom' => body.dup }
           body.force_encoding('BINARY')
           headers['Custom'].force_encoding('UTF-8')
+          headers['Content-Type'] = 'text/plain'
 
           returns(body, 'properly concatenates request+headers and body') do
             response = connection.request(:method => :post, :path => '/echo', :headers => headers, :body => body)
             response.body
           end
         end
-
       end
 
       tests('PUT /echo') do

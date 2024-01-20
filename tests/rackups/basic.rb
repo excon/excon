@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'json'
 
+# Basic server defines requests/responses for testing
 class Basic < Sinatra::Base
   set :environment, :production
   enable :dump_errors
@@ -10,13 +13,13 @@ class Basic < Sinatra::Base
   end
 
   get('/content-length/:value') do |value|
-    headers("Custom" => "Foo: bar")
+    headers('Custom' => 'Foo: bar')
     'x' * value.to_i
   end
 
   get('/headers') do
     content_type :json
-    request.env.select{|key, _| key.start_with? 'HTTP_'}.to_json
+    request.env.select { |key, _| key.start_with? 'HTTP_' }.to_json
   end
 
   post('/body-sink') do
