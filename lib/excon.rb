@@ -44,7 +44,6 @@ require 'excon/unix_socket'
 # Define defaults first so they will be available to other files
 module Excon
   class << self
-
     # @return [Hash] defaults for Excon connections
     def defaults
       @defaults ||= DEFAULTS
@@ -52,19 +51,15 @@ module Excon
 
     # Change defaults for Excon connections
     # @return [Hash] defaults for Excon connections
-    def defaults=(new_defaults)
-      @defaults = new_defaults
-    end
+    attr_writer :defaults
 
     def display_warning(warning)
       # Show warning if $VERBOSE or ENV['EXCON_DEBUG'] is set
-      if $VERBOSE || ENV['EXCON_DEBUG']
-        $stderr.puts "[excon][WARNING] #{warning}\n#{ caller.join("\n") }"
-      end
+      ($VERBOSE || ENV['EXCON_DEBUG']) && Warning.warn("[excon][WARNING] #{warning}\n#{caller.join("\n")}")
 
-      if @raise_on_warnings
-        raise Error::Warning.new(warning)
-      end
+      return unless @raise_on_warnings
+
+      raise(Error::Warning, warning)
     end
 
     def set_raise_on_warnings!(should_raise)
@@ -119,32 +114,25 @@ module Excon
     def new(url, params = {})
       uri_parser = params[:uri_parser] || defaults[:uri_parser]
       uri = uri_parser.parse(url)
-      if params[:path]
-        uri_parser.parse(params[:path])
-      end
-      unless uri.scheme
-        raise ArgumentError.new("Invalid URI: #{uri}")
-      end
+      params[:path] && uri_parser.parse(params[:path])
+      raise(ArgumentError, "Invalid URI: #{uri}") unless uri.scheme
+
       params = {
-        :host       => uri.host,
-        :hostname   => uri.hostname,
-        :path       => uri.path,
-        :port       => uri.port,
-        :query      => uri.query,
-        :scheme     => uri.scheme
+        host: uri.host,
+        hostname: uri.hostname,
+        path: uri.path,
+        port: uri.port,
+        query: uri.query,
+        scheme: uri.scheme
       }.merge(params)
-      if uri.password
-        params[:password] = Utils.unescape_uri(uri.password)
-      end
-      if uri.user
-        params[:user] = Utils.unescape_uri(uri.user)
-      end
+      uri.password && params[:password] = Utils.unescape_uri(uri.password)
+      uri.user && params[:user] = Utils.unescape_uri(uri.user)
       Excon::Connection.new(params)
     end
 
     # push an additional stub onto the list to check for mock requests
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
-    # @param response_params [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @param response_params [Hash<Symbol, >] response params to return or block to call with matched params
     def stub(request_params = {}, response_params = nil, &block)
       if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
@@ -152,19 +140,20 @@ module Excon
       if (url = request_params.delete(:url))
         uri = URI.parse(url)
         request_params = {
-          :host              => uri.host,
-          :path              => uri.path,
-          :port              => uri.port,
-          :query             => uri.query,
-          :scheme            => uri.scheme
+          host: uri.host,
+          path: uri.path,
+          port: uri.port,
+          query: uri.query,
+          scheme: uri.scheme
         }.merge!(request_params)
         if uri.user || uri.password
           request_params[:headers] ||= {}
-          user, pass = Utils.unescape_form(uri.user.to_s), Utils.unescape_form(uri.password.to_s)
+          user = Utils.unescape_form(uri.user.to_s)
+          pass = Utils.unescape_form(uri.password.to_s)
           request_params[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
         end
       end
-      if request_params.has_key?(:headers)
+      if request_params.key?(:headers)
         headers = Excon::Headers.new
         request_params[:headers].each do |key, value|
           headers[key] = value
@@ -172,15 +161,13 @@ module Excon
         request_params[:headers] = headers
       end
       if block_given?
-        if response_params
-          raise(ArgumentError.new("stub requires either response_params OR a block"))
-        else
-          stub = [request_params, block]
-        end
+        raise(ArgumentError, 'stub requires either response_params OR a block') if response_params
+
+        stub = [request_params, block]
       elsif response_params
         stub = [request_params, response_params]
       else
-        raise(ArgumentError.new("stub requires either response_params OR a block"))
+        raise(ArgumentError, 'stub requires either response_params OR a block')
       end
       stubs.unshift(stub)
       stub
@@ -194,8 +181,8 @@ module Excon
         request_params[:method] = method.to_s.downcase.to_sym
       end
       Excon.stubs.each do |stub, response_params|
-        captures = { :headers => {} }
-        headers_match = !stub.has_key?(:headers) || stub[:headers].keys.all? do |key|
+        captures = { headers: {} }
+        headers_match = !stub.key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
           when Regexp
             case request_params[:headers][key]
@@ -249,9 +236,9 @@ module Excon
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @return [Hash<Symbol, >] response params from deleted stub
     def unstub(request_params = {})
-      if (stub = stub_for(request_params))
-        Excon.stubs.delete_at(Excon.stubs.index(stub))
-      end
+      return unless (stub = stub_for(request_params))
+
+      Excon.stubs.delete_at(Excon.stubs.index(stub))
     end
 
     # Generic non-persistent HTTP methods
