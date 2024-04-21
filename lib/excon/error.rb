@@ -51,7 +51,7 @@ or:
     class ResponseParse < Error; end
 
     class Timeout < Error
-      def self.by_type(type, human_name)
+      def self.by_type(type, human_name = type)
         case type
         when :connect_read
           Excon::Errors::ConnectReadTimeout.described_as(human_name)
