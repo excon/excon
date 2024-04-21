@@ -64,8 +64,8 @@ or:
         end
       end
 
-      def self.described_as(timeout_kind)
-        new("#{timeout_kind.to_s.tr('_', ' ')} timeout reached")
+      def self.described_as(human_name)
+        new("#{human_name.to_s.tr('_', ' ')} timeout reached")
       end
     end
 
