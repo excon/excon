@@ -11,7 +11,7 @@ class App < Sinatra::Base
 
   get('/second') do
     post_body = request.body.read
-    if post_body == "" && request["CONTENT_LENGTH"].nil?
+    if post_body == "" && request.env["CONTENT_LENGTH"].nil?
       "ok"
     else
       JSON.pretty_generate(request.env)
