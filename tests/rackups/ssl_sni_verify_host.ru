@@ -8,7 +8,7 @@ cert_file = File.join(File.dirname(__FILE__), '..', 'data', 'excon.cert.crt')
 
 # Responds with generated certificate by default
 # Responds with `excon.cert` for when SNI is `excon`
-Rack::Handler::WEBrick.run(Basic,
+Rackup::Handler::WEBrick.run(Basic,
   :Port             => 9443,
   :SSLEnable        => true,
   :SSLCertName => [%w{CN example.com}],

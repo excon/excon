@@ -6,7 +6,7 @@ require File.join(File.dirname(__FILE__), 'basic')
 key_file = File.join(File.dirname(__FILE__), '..', 'data', 'excon_client.cert.key')
 cert_file = File.join(File.dirname(__FILE__), '..', 'data', 'excon_client.cert.crt')
 cacert_file = File.join(File.dirname(__FILE__), '..', 'data', 'excon.cert.crt')
-Rack::Handler::WEBrick.run(Basic,
+Rackup::Handler::WEBrick.run(Basic,
   :Port             => 8443,
   :SSLCertName      => [["CN", WEBrick::Utils::getservername]],
   :SSLEnable        => true,
