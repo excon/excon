@@ -14,7 +14,7 @@ module Excon
   DEFAULT_RETRY_LIMIT = 4
 
   DEFAULT_RETRY_ERRORS = [
-    Excon::Error::Timeout,
+    Excon::Error::ConnectTimeout,
     Excon::Error::Socket,
     Excon::Error::HTTPStatus
   ].freeze
