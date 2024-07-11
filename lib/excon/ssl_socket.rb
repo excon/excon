@@ -157,7 +157,7 @@ module Excon
           @socket.connect
         end
       rescue Errno::ETIMEDOUT, Timeout::Error
-        raise Excon::Errors::Timeout.new('connect timeout reached')
+        raise Excon::Errors::ConnectTimeout.described_as('connect')
       end
 
       # verify connection
