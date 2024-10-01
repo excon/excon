@@ -1,6 +1,11 @@
 0.111.0 2024-07-08
 ==================
 
+- update bundled certs
+
+0.111.0 2024-07-08
+==================
+
 - lint fixes
 - fixes related to rackup for testing
 - update bundled certs
