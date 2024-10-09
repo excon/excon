@@ -1,15 +1,14 @@
+# frozen_string_literal: true
+
 Shindo.tests('Excon::Utils') do
-
   tests('#connection_uri') do
-
     expected_uri = 'unix:///tmp/some.sock'
     tests('using UNIX scheme').returns(expected_uri) do
-      connection = Excon.new('unix:///some/path', :socket => '/tmp/some.sock')
+      connection = Excon.new('unix:///some/path', socket: '/tmp/some.sock')
       Excon::Utils.connection_uri(connection.data)
     end
 
     tests('using HTTP scheme') do
-
       expected_uri = 'http://foo.com'
       tests('without default port').returns(expected_uri) do
         connection = Excon.new('http://foo.com/some/path')
@@ -17,13 +16,23 @@ Shindo.tests('Excon::Utils') do
       end
 
       expected_uri = 'http://foo.com:80'
-      tests('without default port').returns(expected_uri) do
-        connection = Excon.new('http://foo.com/some/path', :include_default_port => true)
+      tests('include_default_port adds default port').returns(expected_uri) do
+        connection = Excon.new('http://foo.com/some/path', include_default_port: true)
         Excon::Utils.connection_uri(connection.data)
       end
 
-    end
+      expected_uri = 'http://foo.com'
+      tests('!include_default_port has no port value').returns(expected_uri) do
+        connection = Excon.new('http://foo.com/some/path', include_default_port: false)
+        Excon::Utils.connection_uri(connection.data)
+      end
 
+      expected_uri = 'http://foo.com'
+      tests('omit_default_port has no port value').returns(expected_uri) do
+        connection = Excon.new('http://foo.com/some/path', omit_default_port: true)
+        Excon::Utils.connection_uri(connection.data)
+      end
+    end
   end
 
   tests('#request_uri') do

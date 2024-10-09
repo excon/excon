@@ -160,7 +160,7 @@ module Excon
     mock: false,
     include_default_port: false,
     nonblock: true,
-    omit_default_port: false,
+    omit_default_port: true,
     persistent: false,
     read_timeout: 60,
     resolv_resolver: nil,
