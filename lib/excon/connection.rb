@@ -446,6 +446,12 @@ module Excon
         raise ArgumentError.new("Invalid validation type '#{validation}'")
       end
 
+      if validation == :connection && datum[:omit_default_port] != true
+        Excon.display_warning(
+          'The `omit_default_port` connection option is deprecated, please use `include_default_port` instead.'
+        )
+      end
+
       invalid_keys = params.keys - valid_keys
       unless invalid_keys.empty?
         Excon.display_warning("Invalid Excon #{validation} keys: #{invalid_keys.map(&:inspect).join(', ')}")
