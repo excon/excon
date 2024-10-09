@@ -52,6 +52,20 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
+  tests("stub(({ url: 'http://example.com' }, { body: 'body', status: 200 })") do
+    Excon.stub({ url: 'http://example.com' }, { body: 'body', status: 200 })
+
+    tests('request without slash matches stub without trailing slash') do
+      response = Excon.get('http://example.com', mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+
+    tests('request with trailing slash matches stub without trailing slash') do
+      response = Excon.get('http://example.com/', mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+  end
+
   tests("stub({:path => %r{/tests/(\S+)}}, {:body => $1, :status => 200})") do
     connection = nil
     response = nil

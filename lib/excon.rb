@@ -143,7 +143,7 @@ module Excon
         uri = URI.parse(url)
         request_params = {
           host: uri.host,
-          path: uri.path,
+          path: uri.path.empty? ? '/' : uri.path,
           port: uri.port,
           query: uri.query,
           scheme: uri.scheme
