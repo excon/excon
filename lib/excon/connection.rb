@@ -446,7 +446,7 @@ module Excon
         raise ArgumentError.new("Invalid validation type '#{validation}'")
       end
 
-      if validation == :connection && datum[:omit_default_port] != true
+      if validation == :connection && params[:omit_default_port] != true
         Excon.display_warning(
           'The `omit_default_port` connection option is deprecated, please use `include_default_port` instead.'
         )
