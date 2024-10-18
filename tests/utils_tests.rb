@@ -78,6 +78,14 @@ Shindo.tests('Excon::Utils') do
     Excon::Utils.unescape_form('message=We+love+excon!')
   end
 
+  tests("#parse_query_string('foo=bar')").returns({ 'foo' => 'bar' }) do
+    Excon::Utils.parse_query_string('foo=bar')
+  end
+
+  tests("#parse_query_string('foo=bar&foo=baz')").returns({ 'foo' => ['bar', 'baz'] }) do
+    Excon::Utils.parse_query_string('foo=bar&foo=baz')
+  end
+
   tests('#split_header_value').returns(["value"]) do
     Excon::Utils.split_header_value("value")
   end
