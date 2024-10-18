@@ -69,6 +69,23 @@ module Excon
       end
     end
 
+    # Used to normalize queries for stubs, based on Rack::Utils.parse_query
+    def parse_query_string(string)
+      params = {}
+
+      string.split(/[&;] */n).each do |pair|
+        key, value = pair.split('=', 2).map { |x| CGI.unescape(x) }
+
+        params[key] = if params[key]
+                        [params[key], value].flatten
+                      else
+                        value
+                      end
+      end
+
+      params
+    end
+
     def query_string(datum)
       str = String.new
       case datum[:query]

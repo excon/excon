@@ -52,7 +52,7 @@ Shindo.tests('Excon stubs') do
     Excon.stubs.clear
   end
 
-  tests("stub(({ url: 'http://example.com' }, { body: 'body', status: 200 })") do
+  tests("stub({ url: 'http://example.com' }, { body: 'body', status: 200 })") do
     Excon.stub({ url: 'http://example.com' }, { body: 'body', status: 200 })
 
     tests('request without slash matches stub without trailing slash') do
@@ -62,6 +62,20 @@ Shindo.tests('Excon stubs') do
 
     tests('request with trailing slash matches stub without trailing slash') do
       response = Excon.get('http://example.com/', mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+  end
+
+  tests("stub({ url: 'http://example.com?foo=bar' }, { body: 'body', status: 200 })") do
+    Excon.stub({ url: 'http://example.com?foo=bar' }, { body: 'body', status: 200 })
+
+    tests('query in url matches') do
+      response = Excon.get('http://example.com?foo=bar', mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+
+    tests('hash query matches') do
+      response = Excon.get('http://example.com', query: { 'foo' => 'bar' }, mock: true)
       response.status == 200 && response.body == 'body'
     end
   end
