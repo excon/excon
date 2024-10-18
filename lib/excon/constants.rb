@@ -151,6 +151,7 @@ module Excon
     instrumentor_name: 'excon',
     middlewares: [
       Excon::Middleware::ResponseParser,
+      Excon::Middleware::Decompress,
       Excon::Middleware::Expects,
       Excon::Middleware::Idempotent,
       Excon::Middleware::Instrumentor,
