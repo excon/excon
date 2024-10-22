@@ -48,8 +48,32 @@ or:
 
     class InvalidHeaderKey < Error; end
     class InvalidHeaderValue < Error; end
-    class Timeout < Error; end
     class ResponseParse < Error; end
+
+    class Timeout < Error
+      def self.by_type(type, human_name = type)
+        case type
+        when :connect_read
+          Excon::Errors::ConnectReadTimeout.described_as(human_name)
+        when :connect_write
+          Excon::Errors::ConnectWriteTimeout.described_as(human_name)
+        when :read
+          Excon::Errors::ReadTimeout.described_as(human_name)
+        when :write
+          Excon::Errors::WriteTimeout.described_as(human_name)
+        end
+      end
+
+      def self.described_as(human_name)
+        new("#{human_name.to_s.tr('_', ' ')} timeout reached")
+      end
+    end
+
+    class ReadTimeout < Timeout; end
+    class WriteTimeout < Timeout; end
+    class ConnectTimeout < Timeout; end
+    class ConnectReadTimeout < ConnectTimeout; end
+    class ConnectWriteTimeout < ConnectTimeout; end
 
     class ProxyConnectionError < Error
       attr_reader :request, :response

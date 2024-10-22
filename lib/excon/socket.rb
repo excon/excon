@@ -96,7 +96,7 @@ module Excon
             @socket.readline
           end
         rescue Timeout::Error
-          raise Excon::Errors::Timeout.new('read timeout reached')
+          raise Excon::Errors::ReadTimeout.described_as('read')
         end
       end
     end
@@ -364,6 +364,9 @@ module Excon
       if @data.include?(:deadline)
         request_timeout = request_time_remaining
 
+        # If request timeout is already reached, there's no need to proceed.
+        raise(Excon::Errors::Timeout.by_type(type, 'request')) if request_timeout <= 0
+
         # If the time remaining until the request times out is less than the timeout for the type of select,
         # use the time remaining as the timeout instead.
         if request_timeout < timeout
@@ -383,7 +386,7 @@ module Excon
         IO.select(nil, [socket], nil, timeout)
       end
 
-      select || raise(Excon::Errors::Timeout.new("#{timeout_kind} timeout reached"))
+      select || raise(Excon::Errors::Timeout.by_type(type, timeout_kind))
     end
 
     def unpacked_sockaddr
@@ -395,13 +398,9 @@ module Excon
     end
 
     # Returns the remaining time in seconds until we reach the deadline for the request timeout.
-    # Raises an exception if we have exceeded the request timeout's deadline.
     def request_time_remaining
       now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       deadline = @data[:deadline]
-
-      raise(Excon::Errors::Timeout.new('request timeout reached')) if now >= deadline
-
       deadline - now
     end
   end

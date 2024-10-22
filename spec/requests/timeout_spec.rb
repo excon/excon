@@ -39,7 +39,7 @@ describe Excon::Connection do
   
       it 'does not raise' do
         # raising a read timeout to keep tests fast
-        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'read timeout reached')
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::ReadTimeout, 'read timeout reached')
       end
     end
   end
@@ -67,7 +67,7 @@ describe Excon::Connection do
       let(:timeout) { 0.001 }
   
       it 'returns a request Excon::Error::Timeout' do
-        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'request timeout reached')
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::ReadTimeout, 'request timeout reached')
       end
     end
 
@@ -76,7 +76,7 @@ describe Excon::Connection do
       let(:timeout) { 5 }
   
       it 'returns a read Excon::Error::Timeout' do
-        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::Timeout, 'read timeout reached')
+        expect { conn.request(:path => '/timeout') }.to raise_error(Excon::Error::ReadTimeout, 'read timeout reached')
       end
     end
   end

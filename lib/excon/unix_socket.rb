@@ -15,7 +15,7 @@ module Excon
           @socket.connect_nonblock(sockaddr)
         rescue Errno::EINPROGRESS
           unless IO.select(nil, [@socket], nil, @data[:connect_timeout])
-            raise(Excon::Errors::Timeout.new("connect timeout reached"))
+            raise Excon::Errors::ConnectTimeout.described_as('connect')
           end
           begin
             @socket.connect_nonblock(sockaddr)
@@ -29,7 +29,7 @@ module Excon
             @socket.connect(sockaddr)
           end
         rescue Timeout::Error
-          raise Excon::Errors::Timeout.new('connect timeout reached')
+          raise Excon::Errors::ConnectTimeout.described_as('connect')
         end
       end
 
