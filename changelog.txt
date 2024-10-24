@@ -1,3 +1,11 @@
+1.0.0 2024-10-24
+==================
+
+- drop default ports by default
+- deprecate omit_default_port and add include_default_port option
+- remove most client errors from defaults to retry with idempotent
+- add decompress middleware to default middlewares
+
 0.112.0 2024-10-01
 ==================
 
