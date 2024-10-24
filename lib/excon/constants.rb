@@ -14,9 +14,11 @@ module Excon
   DEFAULT_RETRY_LIMIT = 4
 
   DEFAULT_RETRY_ERRORS = [
-    Excon::Error::Timeout,
+    Excon::Error::RequestTimeout,
+    Excon::Error::Server,
     Excon::Error::Socket,
-    Excon::Error::HTTPStatus
+    Excon::Error::Timeout,
+    Excon::Error::TooManyRequests
   ].freeze
 
   FORCE_ENC = CR_NL.respond_to?(:force_encoding)
