@@ -171,5 +171,17 @@ Shindo.tests('Excon Decompress Middleware') do
 
   end
 
+  tests('empty content-encoding') do
+    Excon.stub({ method: :get }, { body: 'body', headers: { 'Content-Encoding' => '' }, status: 200 })
+
+    tests('succeeds').returns('body') do
+      connection = Excon.new('http://example.com', mock: true)
+      resp = connection.request(method: :get)
+      resp[:body]
+    end
+
+    Excon.stubs.clear
+  end
+
   env_restore
 end

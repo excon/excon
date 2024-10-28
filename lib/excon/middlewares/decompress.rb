@@ -19,14 +19,14 @@ module Excon
         if !(datum.key?(:response_block) || body.nil? || body.empty?) &&
            (key = datum[:response][:headers].keys.detect { |k| k.casecmp('Content-Encoding').zero? })
           encodings = Utils.split_header_value(datum[:response][:headers][key])
-          if encodings.last.casecmp('deflate').zero?
+          if encodings&.last&.casecmp('deflate')&.zero?
             datum[:response][:body] = begin
               Zlib::Inflate.new(INFLATE_ZLIB_OR_GZIP).inflate(body)
             rescue Zlib::DataError # fallback to raw on error
               Zlib::Inflate.new(INFLATE_RAW).inflate(body)
             end
             encodings.pop
-          elsif encodings.last.casecmp('gzip').zero? || encodings.last.casecmp('x-gzip').zero?
+          elsif encodings&.last&.casecmp('gzip')&.zero? || encodings&.last&.casecmp('x-gzip')&.zero?
             datum[:response][:body] = Zlib::GzipReader.new(StringIO.new(body)).read
             encodings.pop
           end
