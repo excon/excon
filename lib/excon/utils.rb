@@ -74,13 +74,11 @@ module Excon
       params = {}
 
       string.split(/[&;] */n).each do |pair|
-        key, value = pair.split('=', 2).map { |x| CGI.unescape(x) }
+        key, value = pair.split('=', 2).map do |x|
+          URI.decode_www_form_component(x, string.encoding)
+        end
 
-        params[key] = if params[key]
-                        [params[key], value].flatten
-                      else
-                        value
-                      end
+        params[key] = params[key] ? [params[key], value].flatten : value
       end
 
       params
