@@ -1,3 +1,10 @@
+1.1.0 2024-10-29
+==================
+
+- handle empty content-encoding header in decompress middleware
+- use casecmp? instead of casecmp().zero? for ease of reading/usage
+- allow connections to be instantiated without parameters
+
 1.0.0 2024-10-24
 ==================
 
