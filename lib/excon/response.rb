@@ -106,9 +106,9 @@ module Excon
 
       unless (['HEAD', 'CONNECT'].include?(datum[:method].to_s.upcase)) || NO_ENTITY.include?(datum[:response][:status])
 
-        if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Transfer-Encoding') == 0 })
+        if (key = datum[:response][:headers].keys.detect {|k| k.casecmp?('Transfer-Encoding') })
           encodings = Utils.split_header_value(datum[:response][:headers][key])
-          if (encoding = encodings.last) && encoding.casecmp('chunked') == 0
+          if (encoding = encodings.last) && encoding.casecmp?('chunked')
             transfer_encoding_chunked = true
             if encodings.length == 1
               datum[:response][:headers].delete(key)
@@ -156,7 +156,7 @@ module Excon
           end
           parse_headers(socket, datum) # merge trailers into headers
         else
-          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Content-Length') == 0 })
+          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp?('Content-Length') })
             content_length = datum[:response][:headers][key].to_i
           end
 
@@ -202,7 +202,7 @@ module Excon
           raise Excon::Error::ResponseParse, 'malformed header' unless value
           # add key/value or append value to existing values
           datum[:response][:headers][key] = ([datum[:response][:headers][key]] << value.strip).compact.join(', ')
-          if key.casecmp('Set-Cookie') == 0
+          if key.casecmp?('Set-Cookie')
             datum[:response][:cookies] << value.strip
           end
           last_key = key

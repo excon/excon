@@ -138,7 +138,7 @@ module Excon
 
             # The HTTP spec isn't clear on it, but specifically, GET requests don't usually send bodies;
             # if they don't, sending Content-Length:0 can cause issues.
-            unless datum[:method].to_s.casecmp('GET') == 0 && body.nil?
+            unless datum[:method].to_s.casecmp?('GET') && body.nil?
               unless datum[:headers].has_key?('Content-Length')
                 datum[:headers]['Content-Length'] = detect_content_length(body)
               end
@@ -250,7 +250,7 @@ module Excon
         datum[:headers]['Authorization'] ||= 'Basic ' + ["#{user}:#{pass}"].pack('m').delete(Excon::CR_NL)
       end
 
-      host_key = datum[:headers].keys.detect {|k| k.casecmp('Host') == 0 } || 'Host'
+      host_key = datum[:headers].keys.detect {|k| k.casecmp?('Host') } || 'Host'
       if datum[:scheme] == UNIX
         datum[:headers][host_key] ||= ''
       else
@@ -298,8 +298,8 @@ module Excon
         @persistent_socket_reusable = true
 
         if datum[:persistent]
-          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp('Connection') == 0 })
-            if datum[:response][:headers][key].casecmp('close') == 0
+          if (key = datum[:response][:headers].keys.detect {|k| k.casecmp?('Connection') })
+            if datum[:response][:headers][key].casecmp?('close')
               reset
             end
           end
@@ -338,8 +338,8 @@ module Excon
       end
 
       if @data[:persistent]
-        if (key = responses.last[:headers].keys.detect {|k| k.casecmp('Connection') == 0 })
-          if responses.last[:headers][key].casecmp('close') == 0
+        if (key = responses.last[:headers].keys.detect {|k| k.casecmp?('Connection') })
+          if responses.last[:headers][key].casecmp?('close')
             reset
           end
         end

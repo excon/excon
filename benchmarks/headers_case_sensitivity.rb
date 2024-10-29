@@ -23,9 +23,9 @@ Formatador.indent do
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(': ')
         headers[key] = value
-        (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
-        (key.casecmp('Connection') == 0) && (value.casecmp('close') == 0)
-        (key.casecmp('Content-Length') == 0)
+        key.casecmp?('Transfer-Encoding') && value.casecmp?('chunked')
+        key.casecmp?('Connection') && value.casecmp?('close')
+        key.casecmp?('Content-Length')
       end
     end
 
@@ -35,8 +35,8 @@ Formatador.indent do
         key, value = data.split(': ')
         headers[key] = value
       end
-      headers.has_key?('Transfer-Encoding') && headers['Transfer-Encoding'].casecmp('chunked') == 0
-      headers.has_key?('Connection') && headers['Connection'].casecmp('close') == 0
+      headers.has_key?('Transfer-Encoding') && headers['Transfer-Encoding'].casecmp?('chunked')
+      headers.has_key?('Connection') && headers['Connection'].casecmp?('close')
       headers.has_key?('Content-Length')
     end
   end
@@ -63,9 +63,9 @@ Formatador.indent do
       until ((data = socket.readline).chop!).empty?
         key, value = data.split(': ')
         headers[key] = value
-        (key.casecmp('Transfer-Encoding') == 0) && (value.casecmp('chunked') == 0)
-        (key.casecmp('Connection') == 0) && (value.casecmp('close') == 0)
-        (key.casecmp('Content-Length') == 0)
+        key.casecmp?('Transfer-Encoding') && value.casecmp?('chunked')
+        key.casecmp?('Connection') && value.casecmp?('close')
+        key.casecmp?('Content-Length')
       end
     end
 
@@ -75,8 +75,8 @@ Formatador.indent do
         key, value = data.split(': ')
         headers[key] = value
       end
-      headers.has_key?('Transfer-Encoding') && headers['Transfer-Encoding'].casecmp('chunked') == 0
-      headers.has_key?('Connection') && headers['Connection'].casecmp('close') == 0
+      headers.has_key?('Transfer-Encoding') && headers['Transfer-Encoding'].casecmp?('chunked')
+      headers.has_key?('Connection') && headers['Connection'].casecmp?('close')
       headers.has_key?('Content-Length')
     end
   end
