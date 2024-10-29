@@ -17,7 +17,7 @@ module Excon
 
       def get_header(datum, header)
         _, header_value = datum[:response][:headers].detect do |key, _|
-          key.casecmp(header) == 0
+          key.casecmp?(header)
         end
         header_value
       end

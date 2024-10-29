@@ -31,25 +31,25 @@ Benchmark.bmbm do |x|
 
   x.report('casecmp1') do
     iters.times.each do
-      hello.casecmp(comp).zero?
+      hello.casecmp?(comp)
     end
   end
 
   x.report('casecmp1-1') do
     iters.times.each do
-      hello.casecmp(comp) == 0
+      hello.casecmp?(comp)
     end
   end
 
   x.report('casecmp2') do
     iters.times.each do
-      "HelLo".casecmp(comp).zero?
+      "HelLo".casecmp?(comp)
     end
   end
 
   x.report('casecmp2-1') do
     iters.times.each do
-      "HelLo".casecmp(comp) == 0
+      "HelLo".casecmp?(comp)
     end
   end
 end
