@@ -76,7 +76,7 @@ module Excon
       string.split(/[&;] */n).each do |pair|
         key, value = pair.split('=', 2).map do |x|
           # unescape, based on URI::Addressable unencode
-          x.gsub(/%[0-9a-f]{2}/i) do |sequence|
+          x.gsub!(/%[0-9a-f]{2}/i) do |sequence|
             c = sequence[1..3].to_i(16).chr
             c.force_encoding(sequence.encoding)
           end

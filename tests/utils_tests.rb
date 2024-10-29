@@ -131,7 +131,7 @@ Shindo.tests('Excon::Utils') do
     Excon::Utils.unescape_form('message=We+love+excon!')
   end
 
-  tests("#parse_query_string('a%E4o=%F6u%FC')").returns({ CGI.escape('aäo') => CGI.escape('öuü')}) do
+  tests("#parse_query_string('a%E4o=%F6u%FC')").returns({ 'aäo' => 'öuü' }) do
     Excon::Utils.parse_query_string("#{CGI.escape('aäo')}=#{CGI.escape('öuü')}")
   end
 
