@@ -91,5 +91,9 @@ Shindo.tests('Excon Connection') do
     end
   end
 
+  test('initialization') do
+    !Excon::Connection.new.nil? # This should not raise
+  end
+
   env_restore
 end
