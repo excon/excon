@@ -1,3 +1,8 @@
+1.1.1 2024-10-30
+==================
+
+- just split query params for stubs and stub matching, avoid escape/unescape
+
 1.1.0 2024-10-29
 ==================
 
