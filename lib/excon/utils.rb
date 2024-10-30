@@ -69,21 +69,15 @@ module Excon
       end
     end
 
-    # Used to normalize queries for stubs, based on Rack::Utils.parse_query
-    def parse_query_string(string)
-      params = {}
+    def split_query_string(string)
+      query = {}
 
       string.split(/[&;] */n).each do |pair|
-        key, value = pair.split('=', 2).map { |x| CGI.unescape(x) }
-
-        params[key] = if params[key]
-                        [params[key], value].flatten
-                      else
-                        value
-                      end
+        key, value = pair.split('=', 2)
+        query[key] = query[key] ? [query[key], value].flatten : value
       end
 
-      params
+      query
     end
 
     def default_port?(datum)
