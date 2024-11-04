@@ -1,4 +1,5 @@
 require 'openssl'
+require 'rackup/handler/webrick'
 require 'webrick'
 require 'webrick/https'
 
