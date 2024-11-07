@@ -1,3 +1,9 @@
+1.2.0 2024-11-07
+==================
+
+- convert query to query string for stubs and stub matching for consistency
+- fix default port handling for proxy connect requests
+
 1.1.1 2024-10-30
 ==================
 
