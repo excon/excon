@@ -80,6 +80,21 @@ Shindo.tests('Excon stubs') do
     end
   end
 
+  tests("stub({ url: 'http://example.com?a=b+c' }, { body: 'body', status: 200 })") do
+    Excon.stub({ url: 'http://example.com?a=b+c' }, { body: 'body', status: 200 })
+
+    tests('query in url matches') do
+      response = Excon.get('http://example.com?a=b+c', mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+
+    tests('hash query matches') do
+      response = Excon.get('http://example.com', query: { 'a' => 'b c' }, mock: true)
+      response.status == 200 && response.body == 'body'
+    end
+  end
+
+
   tests("stub({:path => %r{/tests/(\S+)}}, {:body => $1, :status => 200})") do
     connection = nil
     response = nil

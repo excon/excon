@@ -69,17 +69,6 @@ module Excon
       end
     end
 
-    def split_query_string(string)
-      query = {}
-
-      string.split(/[&;] */n).each do |pair|
-        key, value = pair.split('=', 2)
-        query[key] = query[key] ? [query[key], value].flatten : value
-      end
-
-      query
-    end
-
     def default_port?(datum)
       (!datum[:scheme]&.casecmp?('unix') && datum[:port].nil?) ||
         (datum[:scheme]&.casecmp?('http') && datum[:port] == 80) ||

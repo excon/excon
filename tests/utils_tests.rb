@@ -131,18 +131,6 @@ Shindo.tests('Excon::Utils') do
     Excon::Utils.unescape_form('message=We+love+excon!')
   end
 
-  tests("#split_query_string('a%C3%A4o=%C3%B6u%C3%BC')").returns({ 'a%C3%A4o' => '%C3%B6u%C3%BC' }) do
-    Excon::Utils.split_query_string("#{CGI.escape('aäo')}=#{CGI.escape('öuü')}")
-  end
-
-  tests("#split_query_string('foo=bar')").returns({ 'foo' => 'bar' }) do
-    Excon::Utils.split_query_string('foo=bar')
-  end
-
-  tests("#split_query_string('foo=bar&foo=baz')").returns({ 'foo' => %w[bar baz] }) do
-    Excon::Utils.split_query_string('foo=bar&foo=baz')
-  end
-
   tests('#split_header_value').returns(["value"]) do
     Excon::Utils.split_header_value("value")
   end

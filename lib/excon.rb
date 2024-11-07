@@ -162,9 +162,7 @@ module Excon
         end
         request_params[:headers] = headers
       end
-      if request_params.key?(:query) && request_params[:query].instance_of?(String)
-        request_params[:query] = Utils.split_query_string(request_params[:query])
-      end
+      request_params[:query] = Utils.query_string(request_params)[1...] if request_params.key?(:query)
       if block_given?
         raise(ArgumentError, 'stub requires either response_params OR a block') if response_params
 
@@ -185,9 +183,7 @@ module Excon
       if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
       end
-      if request_params.key?(:query) && request_params[:query].instance_of?(String)
-        request_params[:query] = Utils.split_query_string(request_params[:query])
-      end
+      request_params[:query] = Utils.query_string(request_params)[1...] if request_params.key?(:query)
       Excon.stubs.each do |stub, response_params|
         captures = { headers: {} }
         headers_match = !stub.key?(:headers) || stub[:headers].keys.all? do |key|
