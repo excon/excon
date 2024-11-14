@@ -194,7 +194,7 @@ module Excon
           raise(error)
         when Errno::EPIPE
           # Read whatever remains in the pipe to aid in debugging
-          response = socket.read
+          response = socket.read rescue ""
           error = Excon::Error.new(response + error.message)
           raise_socket_error(error)
         else
