@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
     'changelog_uri'     => 'https://github.com/excon/excon/blob/master/changelog.txt',
     'documentation_uri' => 'https://github.com/excon/excon/blob/master/README.md',
     'source_code_uri'   => 'https://github.com/excon/excon',
-    'wiki_uri'          => 'https://github.com/excon/excon/wiki'
+    'wiki_uri'          => 'https://github.com/excon/excon/wiki',
+    'funding_uri'       => 'https://github.com/sponsors/geemus'
   }
 end
