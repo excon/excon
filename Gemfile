@@ -8,6 +8,9 @@ gem 'unicorn', :platforms => [:mri, :rbx], :groups => [:development, :test]
 gem 'rack', '>= 2.2.3'
 gem 'rackup'
 gem 'rubocop'
+gem 'rubocop-performance'
+gem 'rubocop-rake'
+gem 'rubocop-rspec'
 
 # group :benchmark do
 #   gem 'em-http-request'
