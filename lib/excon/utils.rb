@@ -2,13 +2,13 @@
 
 module Excon
   module Utils
-    extend self
+    module_function
 
-    CONTROL   = (0x0..0x1f).map(&:chr).join + "\x7f"
+    CONTROL   = "#{(0x0..0x1f).map(&:chr).join}\u007F"
     DELIMS    = '<>#%"'
     UNWISE    = '{}|\\^[]`'
     NONASCII  = (0x80..0xff).map(&:chr).join
-    UNESCAPED = /([#{ Regexp.escape(CONTROL + ' ' + DELIMS + UNWISE + NONASCII) }])/
+    UNESCAPED = /([#{Regexp.escape("#{CONTROL} #{DELIMS}#{UNWISE}#{NONASCII}")}])/.freeze
     ESCAPED   = /%([0-9a-fA-F]{2})/.freeze
 
     def binary_encode(string)
@@ -24,9 +24,7 @@ module Excon
     end
 
     def connection_uri(datum = @data)
-      unless datum
-        raise ArgumentError, '`datum` must be given unless called on a Connection'
-      end
+      raise ArgumentError, '`datum` must be given unless called on a Connection' unless datum
 
       if datum[:scheme] == UNIX
         "#{datum[:scheme]}://#{datum[:socket]}"
@@ -42,16 +40,10 @@ module Excon
         if datum[:headers].key?('Authorization') || datum[:headers].key?('Proxy-Authorization')
           datum[:headers] = datum[:headers].dup
         end
-        if datum[:headers].key?('Authorization')
-          datum[:headers]['Authorization'] = REDACTED
-        end
-        if datum[:headers].key?('Proxy-Authorization')
-          datum[:headers]['Proxy-Authorization'] = REDACTED
-        end
+        datum[:headers]['Authorization'] = REDACTED if datum[:headers].key?('Authorization')
+        datum[:headers]['Proxy-Authorization'] = REDACTED if datum[:headers].key?('Proxy-Authorization')
       end
-      if datum.key?(:password)
-        datum[:password] = REDACTED
-      end
+      datum[:password] = REDACTED if datum.key?(:password)
       if datum.key?(:proxy) && datum[:proxy]&.key?(:password)
         datum[:proxy] = datum[:proxy].dup
         datum[:proxy][:password] = REDACTED
@@ -105,15 +97,15 @@ module Excon
 
       str = str.dup.strip
       str = binary_encode(str)
-      str.scan(%r'\G((?:"(?:\\.|[^"])+?"|[^",])+)
-                    (?:,\s*|\Z)'xn).flatten
+      str.scan(/\G((?:"(?:\\.|[^"])+?"|[^",])+)
+                    (?:,\s*|\Z)/xn).flatten
     end
 
     # Escapes HTTP reserved and unwise characters in +str+
     def escape_uri(str)
       str = str.dup
       str = binary_encode(str)
-      str.gsub(UNESCAPED) { "%%%02X" % ::Regexp.last_match(1)[0].ord }
+      str.gsub(UNESCAPED) { format('%%%02X', ::Regexp.last_match(1)[0].ord) }
     end
 
     # Unescapes HTTP reserved and unwise characters in +str+
@@ -136,13 +128,13 @@ module Excon
       headers_str = +''
       headers.each do |key, values|
         if key.to_s.match?(/[\r\n]/)
-          raise Excon::Errors::InvalidHeaderKey.new(key.to_s.inspect + ' contains forbidden "\r" or "\n"')
+          raise Excon::Errors::InvalidHeaderKey, "#{key.to_s.inspect} contains forbidden \"\\r\" or \"\\n\""
         end
 
         [values].flatten.each do |value|
           if value.to_s.match?(/[\r\n]/)
             # Don't include the potentially sensitive header value (i.e. authorization token) in the message
-            raise Excon::Errors::InvalidHeaderValue.new(key.to_s + ' header value contains forbidden "\r" or "\n"')
+            raise Excon::Errors::InvalidHeaderValue, "#{key} header value contains forbidden \"\\r\" or \"\\n\""
           end
 
           headers_str << key.to_s << ': ' << value.to_s << CR_NL
