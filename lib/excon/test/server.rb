@@ -73,7 +73,7 @@ module Excon
         while (line = lines.shift)
           case line
             when /(ERROR|Error)/
-              unless line =~ /(null cert chain|did not return a certificate|SSL_read:: internal error)/
+              unless line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error)/)
                 in_err = true
                 puts
               end

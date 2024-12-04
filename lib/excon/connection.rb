@@ -159,7 +159,7 @@ module Excon
               if chunk.length > 0
                 socket(datum).write(chunk.length.to_s(16) << CR_NL << chunk << CR_NL)
               else
-                socket(datum).write(String.new("0#{CR_NL}#{CR_NL}"))
+                socket(datum).write("0#{CR_NL}#{CR_NL}")
                 break
               end
             end
@@ -329,7 +329,7 @@ module Excon
     # @param pipeline_params [Array<Hash>] An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
       pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
-      pipeline_params.last.merge!(:persistent => @data[:persistent])
+      pipeline_params.last[:persistent] = @data[:persistent]
 
       responses = pipeline_params.map do |params|
         request(params)
@@ -511,7 +511,7 @@ module Excon
     end
 
     def raise_socket_error(error)
-      if error.message =~ /certificate verify failed/
+      if error.message.include?('certificate verify failed')
         raise(Excon::Errors::CertificateError.new(error))
       else
         raise(Excon::Errors::SocketError.new(error))

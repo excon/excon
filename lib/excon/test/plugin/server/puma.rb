@@ -7,7 +7,7 @@ module Excon
             open_process(RbConfig.ruby, '-S', 'puma', '-b', bind_uri.to_s, app_str)
             process_stderr = ""
             line = ''
-            until line =~ /Use Ctrl-C to stop/
+            until line.include?('Use Ctrl-C to stop')
               line = read.gets
               raise process_stderr if line.nil?
               process_stderr << line

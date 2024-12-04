@@ -63,7 +63,7 @@ module Excon
         unless ca_file || ca_path || cert_store
           # workaround issue #257 (JRUBY-6970)
           ca_file = DEFAULT_CA_FILE
-          ca_file = ca_file.gsub(/^jar:/, '') if ca_file =~ /^jar:file:\//
+          ca_file = ca_file.gsub(/^jar:/, '') if ca_file.match?(/^jar:file:\//)
 
           begin
             ssl_context.cert_store.add_file(ca_file)

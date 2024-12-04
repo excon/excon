@@ -12,19 +12,19 @@ module Excon
               host = bind_uri.host.gsub(/[\[\]]/, '')
               bind_str = "#{host}:#{bind_uri.port}"
             end
-            args = [ 
+            args = [
               RbConfig.ruby,
               '-S',
-              'unicorn', 
-              '--no-default-middleware', 
+              'unicorn',
+              '--no-default-middleware',
               '-l',
-              bind_str,  
+              bind_str,
               app_str
             ]
             open_process(*args)
             process_stderr = ''
             line = ''
-            until line =~ /worker\=0 ready/
+            until line.include?('worker=0 ready')
               line = error.gets
               raise process_stderr if line.nil?
               process_stderr << line

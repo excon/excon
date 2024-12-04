@@ -67,8 +67,8 @@ module Excon
               :query      => uri.query
             )
 
-            params.merge!(:user => Utils.unescape_uri(uri.user)) if uri.user
-            params.merge!(:password => Utils.unescape_uri(uri.password)) if uri.password
+            params[:user] = Utils.unescape_uri(uri.user) if uri.user
+            params[:password] = Utils.unescape_uri(uri.password) if uri.password
 
             response = Excon::Connection.new(params).request
             datum.merge!({
