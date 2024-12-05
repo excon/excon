@@ -11,7 +11,7 @@ Shindo.tests('Excon request methods') do
           :three => 3,
         }
         r = Excon.post('http://localhost:9292', :headers => headers).body
-        !r.match(/two:/).nil?
+        r.include?('two:')
       end
 
     end

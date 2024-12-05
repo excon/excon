@@ -237,7 +237,7 @@ module GoodServer
   def parse_headers
     @buffer.rewind
     # wait until buffer contains the end of the headers
-    if /\sHTTP\/\d+\.\d+\r\n.*?\r\n\r\n/m =~ @buffer.read
+    if /\sHTTP\/\d+\.\d+\r\n.*?\r\n\r\n/m.match?(@buffer.read)
       @buffer.rewind
       # For persistent connections, the buffer could start with the
       # \r\n chunked-message terminator from the previous request.
@@ -277,7 +277,7 @@ module GoodServer
       until @request_complete || @buffer.eof?
         unless @chunk_size
           # in case buffer only contains a portion of the chunk-size line
-          if (line = @buffer.readline) =~ /\r\n\z/
+          if (line = @buffer.readline).end_with?("\r\n")
             @chunk_size = line.to_i(16)
             if @chunk_size > 0
               sync_buffer

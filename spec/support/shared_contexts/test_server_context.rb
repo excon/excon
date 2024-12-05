@@ -26,7 +26,7 @@ shared_context "test server" do |plugin, file, opts = {}|
   if plugin == :unicorn && RUBY_PLATFORM == "java"
     before { skip("until unicorn supports jruby") }
   end
-  abs_file = Object.send("#{plugin}_path", file)
+  abs_file = Object.send(:"#{plugin}_path", file)
   args = { plugin => abs_file}
   args[:bind] = opts[:bind] if opts.key? :bind
 

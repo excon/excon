@@ -10,7 +10,7 @@ Shindo.tests('Request Tests') do
 
           returns(['1', '2'], 'uses a persistent connection') do
             connection = Excon.new("http://#{ip_port}", :persistent => true)
-            2.times.map do
+            Array.new(2) do
               connection.request(:method => :get, :path => '/echo/request_count').body
             end
           end
@@ -32,7 +32,7 @@ Shindo.tests('Request Tests') do
 
           returns(['1', '1'], 'does not use a persistent connection') do
             connection = Excon.new("http://#{ip_port}", :persistent => false)
-            2.times.map do
+            Array.new(2) do
               connection.request(:method => :get, :path => '/echo/request_count').body
             end
           end

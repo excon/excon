@@ -331,7 +331,7 @@ Shindo.tests('Excon basics (reusable local port)') do
     response = connection.get
 
     tests('has a local port').returns(true) do
-      response.local_port.to_s =~ /\d{4,5}/ ? true : false
+      response.local_port.to_s.match?(/\d{4,5}/)
     end
 
     tests('local port can be re-bound').returns('x' * 10) do

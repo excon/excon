@@ -143,7 +143,7 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         tests('with request_block').returns('x' * 100) do
-          data = ['x'] * 100
+          data = Array.new(100, 'x')
           request_block = lambda do
             data.shift.to_s
           end
@@ -179,7 +179,7 @@ def basic_tests(url = 'http://127.0.0.1:9292', options = {})
         end
 
         tests('request_block usage').returns('x' * 100) do
-          data = ['x'] * 100
+          data = Array.new(100, 'x')
           request_block = lambda do
             data.shift.to_s
           end
@@ -337,7 +337,7 @@ end
 def with_rackup(name, host="127.0.0.1")
   pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
   process_stderr = ""
-  until (line = e.gets) =~ /HTTPServer#start:/
+  until (line = e.gets).include?('HTTPServer#start:')
     raise process_stderr if line.nil?
     process_stderr << line
   end
@@ -350,7 +350,7 @@ ensure
   while line = lines.shift
     case line
     when /(ERROR|Error)/
-      unless line =~ /(null cert chain|did not return a certificate|SSL_read:: internal error)/
+      unless line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error)/)
         in_err = true
         puts
       end
@@ -366,7 +366,7 @@ def with_unicorn(name, listen='127.0.0.1:9292')
     unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
     pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
     process_stderr = ""
-    until (line = e.gets) =~ /worker=0 ready/
+    until (line = e.gets).include?('worker=0 ready')
       raise process_stderr if line.nil?
       process_stderr << line
     end
@@ -389,7 +389,7 @@ end
 def with_server(name)
   pid, w, r, e = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
   process_stderr = ""
-  until (line = e.gets) =~ /ready/
+  until (line = e.gets).include?('ready')
     raise process_stderr if line.nil?
     process_stderr << line
   end
@@ -416,7 +416,7 @@ def with_ssl_streaming(port, pieces, delay)
         conn = ssl.accept
       rescue IOError => e
         # we're closing the socket from another thread, which makes `accept` complain
-        break if /stream closed/ =~ e.to_s
+        break if e.to_s.include?('stream closed')
         raise
       end
 

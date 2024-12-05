@@ -86,7 +86,7 @@ Shindo.tests('socket') do
         tests('readline nonblock works sequentially') do
           returns([["one\n", "two\n"], 1, [8, 'EOF']]) do
             MockNonblockRubySocket.check_reads(["one\ntwo\n"], socket_args) do |sock|
-              2.times.map { sock.readline }
+              Array.new(2) { sock.readline }
             end
           end
         end
@@ -94,7 +94,7 @@ Shindo.tests('socket') do
         tests('readline nonblock can handle partial reads') do
           returns([["one\n", "two\n"], 2, [5, 'EAGAIN', 3, 'EOF']]) do
             MockNonblockRubySocket.check_reads(["one\nt", "wo\n"], socket_args) do |sock|
-              2.times.map { sock.readline }
+              Array.new(2) { sock.readline }
             end
           end
         end

@@ -199,7 +199,7 @@ shared_examples_for 'a basic client' do |url = 'http://127.0.0.1:9292', opts = {
               context 'when a request_block paramter is supplied' do
                 describe Excon::Response do
                   it "#body equals'x' * 100" do
-                    data = ['x'] * 100
+                    data = Array.new(100, 'x')
                     request_block = lambda do
                       data.shift.to_s
                     end

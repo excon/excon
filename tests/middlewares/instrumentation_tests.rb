@@ -107,7 +107,7 @@ Shindo.tests('Excon instrumentation') do
     subscribe(/excon/)
     stub_retries
     make_request(idempotent: true)
-    @events.count{|e| e.name =~ /retry/}
+    @events.count{|e| e.name.include?('retry')}
   end
 
   tests('notify on error').returns(true) do
@@ -117,7 +117,7 @@ Shindo.tests('Excon instrumentation') do
       make_request
     end
 
-    @events.any?{|e| e.name =~ /error/}
+    @events.any?{|e| e.name.include?('error')}
   end
 
   tests('filtering').returns(['excon.request', 'excon.error']) do
@@ -332,4 +332,3 @@ Shindo.tests('Excon instrumentation') do
     end
   end
 end
-
