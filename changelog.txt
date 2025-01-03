@@ -1,3 +1,10 @@
+1.2.2 2025-01-03
+==================
+
+- fix misc cops
+- fix performance cops
+- update bundled certs
+
 1.2.2 2024-11-17
 ==================
 
