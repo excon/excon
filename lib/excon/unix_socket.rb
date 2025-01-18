@@ -34,7 +34,7 @@ module Excon
       end
 
     rescue => error
-      @socket.close rescue nil if @socket
+      @socket&.close rescue nil
       raise error
     end
 

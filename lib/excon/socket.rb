@@ -181,7 +181,7 @@ module Excon
             socket.close rescue nil
           end
         rescue SystemCallError => exception
-          socket.close rescue nil if socket
+          socket&.close rescue nil
         end
       end
 
