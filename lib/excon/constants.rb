@@ -86,6 +86,7 @@ module Excon
     keepalive
     host
     hostname
+    ignore_unexpected_eof
     include_default_port
     omit_default_port
     nonblock

@@ -26,6 +26,7 @@ module Excon
       if defined?(OpenSSL::SSL::OP_NO_COMPRESSION)
         ssl_context_options |= OpenSSL::SSL::OP_NO_COMPRESSION
       end
+      ssl_context_options |= OpenSSL::SSL::OP_IGNORE_UNEXPECTED_EOF if @data[:ignore_unexpected_eof]
       ssl_context.options = ssl_context_options
 
       ssl_context.ciphers = @data[:ciphers]
