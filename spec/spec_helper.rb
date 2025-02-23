@@ -1,3 +1,9 @@
+TEST_SUITE_DEFAULTS = {
+  connect_timeout: 5,
+  read_timeout: 5,
+  write_timeout: 5
+}
+
 require 'excon'
 require 'excon/test/server'
 require 'json'

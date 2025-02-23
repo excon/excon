@@ -349,8 +349,8 @@ Shindo.tests('Excon stubs') do
   end
 
   tests("thread-local stubs") do
-    original_stubs_value = Excon.defaults[:stubs]
-    Excon.defaults[:stubs] = :local
+    original_defaults = Excon.defaults
+    Excon.defaults = Excon.defaults.merge(stubs: :local)
 
     connection = Excon.new('http://127.0.0.1:9292', :mock => true)
     Excon.stub({}, {:body => '1'})
@@ -366,7 +366,7 @@ Shindo.tests('Excon stubs') do
     end
     Excon.stubs.clear
 
-    Excon.defaults[:stubs] = original_stubs_value
+    Excon.defaults = original_defaults
   end
 
   env_restore
