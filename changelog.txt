@@ -1,4 +1,11 @@
-1.2.2 2025-01-03
+1.2.4 2025-01-03
+==================
+
+- fix usage of rescue in modifier form with condition
+- add pass through for option to ignore OpenSSL EOF errors
+- add rdoc as dev dep for 3.5+ where it is no longer default
+
+1.2.3 2025-01-03
 ==================
 
 - fix misc cops
