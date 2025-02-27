@@ -1,4 +1,10 @@
-1.2.4 2025-01-03
+1.2.5 2025-02-27
+==================
+
+- update bundled certs
+- add logger to dependencies for forwards compatibility
+
+1.2.4 2025-02-24
 ==================
 
 - fix usage of rescue in modifier form with condition
