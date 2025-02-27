@@ -23,6 +23,8 @@ Gem::Specification.new do |s|
   ]
   s.required_ruby_version = '>= 2.7.0'
 
+  s.add_dependency 'logger'
+
   s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
   s.add_development_dependency('eventmachine', '>= 1.0.4')
