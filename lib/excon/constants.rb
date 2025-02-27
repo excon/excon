@@ -35,9 +35,9 @@ module Excon
 
   UNIX = 'unix'
 
-  USER_AGENT = "excon/#{VERSION}"
+  USER_AGENT = "excon/#{VERSION}".freeze
 
-  VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+  VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}".freeze
 
   VALID_REQUEST_KEYS = %i[
     allow_unstubbed_requests
@@ -67,7 +67,7 @@ module Excon
     write_timeout
   ].freeze
 
-  VALID_CONNECTION_KEYS = VALID_REQUEST_KEYS + %i[
+  VALID_CONNECTION_KEYS = (VALID_REQUEST_KEYS + %i[
     ciphers
     client_key
     client_key_data
@@ -111,7 +111,7 @@ module Excon
     tcp_nodelay
     thread_safe_sockets
     uri_parser
-  ]
+  ]).freeze
 
   DEPRECATED_VALID_REQUEST_KEYS = {
     captures: 'Mock',
@@ -138,7 +138,7 @@ module Excon
   end
 
   # these come last as they rely on the above
-  DEFAULTS = {
+  base_defaults = {
     chunk_size: CHUNK_SIZE || DEFAULT_CHUNK_SIZE,
     # see https://wiki.mozilla.org/Security/Server_Side_TLS#Intermediate_compatibility_.28default.29
     # list provided then had DES related things sorted to the end
@@ -150,7 +150,7 @@ module Excon
     headers: {
       'User-Agent' => USER_AGENT,
       'Accept' => '*/*'
-    },
+    }.freeze,
     idempotent: false,
     instrumentor_name: 'excon',
     middlewares: [
@@ -160,7 +160,7 @@ module Excon
       Excon::Middleware::Idempotent,
       Excon::Middleware::Instrumentor,
       Excon::Middleware::Mock
-    ],
+    ].freeze,
     mock: false,
     include_default_port: false,
     nonblock: true,
@@ -171,7 +171,7 @@ module Excon
     retry_errors: DEFAULT_RETRY_ERRORS,
     retry_limit: DEFAULT_RETRY_LIMIT,
     ssl_verify_peer: true,
-    ssl_uri_schemes: [HTTPS],
+    ssl_uri_schemes: [HTTPS].freeze,
     stubs: :global,
     tcp_nodelay: false,
     thread_safe_sockets: true,
@@ -179,5 +179,11 @@ module Excon
     uri_parser: URI,
     versions: VERSIONS,
     write_timeout: 60
-  }
+  }.freeze
+
+  DEFAULTS = if defined? TEST_SUITE_DEFAULTS
+               base_defaults.merge(TEST_SUITE_DEFAULTS).freeze
+             else
+               base_defaults.freeze
+             end
 end

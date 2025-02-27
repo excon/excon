@@ -13,11 +13,6 @@ module Excon
 
       # Methods that must be implemented by a plugin
       INSTANCE_REQUIRES = [:start]
-      Excon.defaults.merge!(
-        connect_timeout: 5,
-        read_timeout: 5,
-        write_timeout: 5
-      )
 
       def initialize(args)
         # TODO: Validate these args
