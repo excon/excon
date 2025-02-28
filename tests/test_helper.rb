@@ -337,7 +337,7 @@ end
 
 def wait_for_message(io, msg)
   process_stderr = ""
-  until (line = io.gets).include?(msg)
+  until (line = io.gets)&.include?(msg)
     # nil means we have reached the end of stream
     raise process_stderr if line.nil?
     process_stderr << line
