@@ -335,13 +335,18 @@ def rackup_path(*parts)
   File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
 end
 
-def with_rackup(name, host="127.0.0.1")
-  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
+def wait_for_message(io, msg)
   process_stderr = ""
-  until (line = e.gets).include?('HTTPServer#start:')
+  until (line = io.gets).include?(msg)
+    # nil means we have reached the end of stream
     raise process_stderr if line.nil?
     process_stderr << line
   end
+end
+
+def with_rackup(name, host="127.0.0.1")
+  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
+  wait_for_message(e, 'HTTPServer#start:')
   yield
 ensure
   cleanup_process(pid)
@@ -366,11 +371,7 @@ def with_unicorn(name, listen='127.0.0.1:9292')
   unless RUBY_PLATFORM == 'java'
     unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
     pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
-    process_stderr = ""
-    until (line = e.gets).include?('worker=0 ready')
-      raise process_stderr if line.nil?
-      process_stderr << line
-    end
+    wait_for_message(e, 'worker=0 ready')
   else
     # need to find suitable server for jruby
   end
@@ -389,11 +390,7 @@ end
 
 def with_server(name)
   pid, w, r, e = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
-  process_stderr = ""
-  until (line = e.gets).include?('ready')
-    raise process_stderr if line.nil?
-    process_stderr << line
-  end
+  wait_for_message(e, 'ready')
   yield
 ensure
   cleanup_process(pid)
