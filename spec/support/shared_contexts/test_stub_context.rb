@@ -1,11 +1,11 @@
 shared_context "stubs" do 
   before do
-    @original_mock = Excon.defaults[:mock]
-    Excon.defaults[:mock] = true
+    @original_defaults = Excon.defaults
+    Excon.defaults = Excon.defaults.merge(mock: true)
   end
 
   after do
-    Excon.defaults[:mock] = @original_mock
+    Excon.defaults = @original_defaults
     Excon.stubs.clear
   end
 end

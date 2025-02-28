@@ -37,4 +37,15 @@ describe Excon::Connection do
     end
     include_examples 'a basic client'
   end
+
+  context 'ractors' do
+    it 'should work inside ractors' do
+      r = Ractor.new do
+        response = Excon.get('http://127.0.0.1:9292/foo')
+        response.body
+      end
+
+      expect(r.take).to eq 'foo'
+    end
+  end
 end

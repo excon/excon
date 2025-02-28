@@ -11,19 +11,19 @@ module Excon
 
     # read/write drawn from https://github.com/ruby-amqp/bunny/commit/75d9dd79551b31a5dd3d1254c537bad471f108cf
     CONNECT_RETRY_EXCEPTION_CLASSES = if defined?(IO::EINPROGRESSWaitWritable) # Ruby >= 2.1
-      [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable]
+      [Errno::EINPROGRESS, IO::EINPROGRESSWaitWritable].freeze
     else # Ruby <= 2.0
-      [Errno::EINPROGRESS]
+      [Errno::EINPROGRESS].freeze
     end
     READ_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWaitReadable) # Ruby >= 2.1
-      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable, IO::EAGAINWaitReadable, IO::EWOULDBLOCKWaitReadable]
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable, IO::EAGAINWaitReadable, IO::EWOULDBLOCKWaitReadable].freeze
     else # Ruby <= 2.0
-      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable]
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitReadable].freeze
     end
     WRITE_RETRY_EXCEPTION_CLASSES = if defined?(IO::EAGAINWaitWritable) # Ruby >= 2.1
-      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable, IO::EAGAINWaitWritable, IO::EWOULDBLOCKWaitWritable]
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable, IO::EAGAINWaitWritable, IO::EWOULDBLOCKWaitWritable].freeze
     else # Ruby <= 2.0
-      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable]
+      [Errno::EAGAIN, Errno::EWOULDBLOCK, IO::WaitWritable].freeze
     end
     # Maps a socket operation to a timeout property.
     OPERATION_TO_TIMEOUT = {
@@ -132,7 +132,7 @@ module Excon
         family = @data[:proxy][:family]
       end
 
-      resolver = @data[:resolv_resolver] || Resolv::DefaultResolver
+      resolver = @data[:resolv_resolver] || Resolv.new
 
       # Deprecated
       if @data[:dns_timeouts]

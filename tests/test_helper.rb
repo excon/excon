@@ -1,3 +1,9 @@
+TEST_SUITE_DEFAULTS = {
+  :connect_timeout  => 5,
+  :read_timeout     => 5,
+  :write_timeout    => 5
+}
+
 require 'bundler/setup'
 require 'excon'
 require 'delorean'
@@ -6,11 +12,6 @@ require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
 
-Excon.defaults.merge!(
-  :connect_timeout  => 5,
-  :read_timeout     => 5,
-  :write_timeout    => 5
-)
 Excon.set_raise_on_warnings!(true)
 
 def basic_tests(url = 'http://127.0.0.1:9292', options = {})
