@@ -40,7 +40,7 @@ def with_server(&block)
   end
   yield
 ensure
-  Process.kill(9, pid)
+  Process.kill('KILL', pid)
 end
 
 require 'tach'

@@ -50,7 +50,7 @@ module Excon
         if RUBY_PLATFORM == 'java'
           Process.kill('USR1', pid)
         else
-          Process.kill(9, pid)
+          Process.kill('KILL', pid)
           Process.wait(pid)
         end
 

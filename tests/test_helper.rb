@@ -325,7 +325,7 @@ def launch_process(*args)
 end
 
 def cleanup_process(pid)
-  Process.kill(9, pid)
+  Process.kill('KILL', pid)
   unless RUBY_PLATFORM == 'java'
     Process.wait(pid)
   end
