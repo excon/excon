@@ -512,6 +512,7 @@ Either of these should allow you to work around the socket error and continue wi
 
 ## Getting Help
 
+- We support and test-against non-EOL Ruby versions. If you need older version support, please reach out.
 - Ask specific questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/excon).
 - Report bugs and discuss potential features in [Github issues](https://github.com/excon/excon/issues).
 
