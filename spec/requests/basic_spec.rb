@@ -41,6 +41,8 @@ describe Excon::Connection do
   context 'ractors' do
     it 'should work inside ractors' do
       Excon.defaults.freeze
+      Excon::VALID_CONNECTION_KEYS.freeze
+      Excon::VALID_REQUEST_KEYS.freeze
 
       r = Ractor.new do
         response = Excon.get('http://127.0.0.1:9292/foo')

@@ -39,6 +39,7 @@ module Excon
 
   VERSIONS = "#{USER_AGENT} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}".freeze
 
+  # FIXME: should be frozen, but with a way to change them, similar to defaults
   VALID_REQUEST_KEYS = %i[
     allow_unstubbed_requests
     body
@@ -65,8 +66,9 @@ module Excon
     user
     versions
     write_timeout
-  ].freeze
+  ]
 
+  # FIXME: should be frozen, but with a way to change them, similar to defaults
   VALID_CONNECTION_KEYS = (VALID_REQUEST_KEYS + %i[
     ciphers
     client_key
@@ -111,7 +113,7 @@ module Excon
     tcp_nodelay
     thread_safe_sockets
     uri_parser
-  ]).freeze
+  ])
 
   DEPRECATED_VALID_REQUEST_KEYS = {
     captures: 'Mock',
