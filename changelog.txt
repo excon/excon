@@ -1,3 +1,15 @@
+1.2.6 2025-05-27
+==================
+
+- update bundled certs
+- add README note about ruby version expectations
+- bump ruby-version used for certs checking
+- replace magic number with signal name #883
+- test fixes
+- fix Gemfile lints
+- bump minimum ruby version
+- additional constant freezing for Ractor compat
+
 1.2.5 2025-02-27
 ==================
 
