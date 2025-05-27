@@ -48,7 +48,7 @@ module Excon
   class << self
     # @return [Hash] defaults for Excon connections
     def defaults
-      @defaults ||= DEFAULTS
+      @defaults ||= DEFAULTS.dup
     end
 
     # Change defaults for Excon connections
