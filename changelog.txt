@@ -1,3 +1,12 @@
+1.2.7 2025-05-27
+==================
+
+freezes caused inadvertent breaking changes, so partially rolling back
+
+- unfreeze defaults
+- unfreeze connection/request keys
+- unfreeze defaults/middlewares
+
 1.2.6 2025-05-27
 ==================
 
