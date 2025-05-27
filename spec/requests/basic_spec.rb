@@ -41,6 +41,7 @@ describe Excon::Connection do
   context 'ractors' do
     it 'should work inside ractors' do
       Excon.defaults.freeze
+      Excon.defaults[:middlewares].freeze
       Excon::VALID_CONNECTION_KEYS.freeze
       Excon::VALID_REQUEST_KEYS.freeze
 

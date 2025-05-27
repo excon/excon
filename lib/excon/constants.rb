@@ -162,7 +162,7 @@ module Excon
       Excon::Middleware::Idempotent,
       Excon::Middleware::Instrumentor,
       Excon::Middleware::Mock
-    ].freeze,
+    ],
     mock: false,
     include_default_port: false,
     nonblock: true,
