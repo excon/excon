@@ -111,7 +111,7 @@ module Excon
     tcp_nodelay
     thread_safe_sockets
     uri_parser
-  ]).freeze
+  ])
 
   DEPRECATED_VALID_REQUEST_KEYS = {
     captures: 'Mock',
