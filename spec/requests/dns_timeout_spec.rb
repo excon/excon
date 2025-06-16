@@ -9,7 +9,7 @@ describe Excon::Socket do
 
   it 'passes the dns_timeouts to Resolv::DNS::Config' do
     silence_warnings do
-      connection.request
+      connection.connect
 
       expect(config_timeouts).to eql([1])
     end
