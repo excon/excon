@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Excon::Socket do
   let(:dns_resolver) { Resolv::DNS.new }
   let(:config_timeouts) { dns_resolver.instance_variable_get(:@config).instance_variable_get(:@timeouts) }
-  let(:connection) { Excon.new('http://foo.com', dns_timeouts: 1) }
+  let(:connection) { Excon.new('http://google.com', dns_timeouts: 1) }
 
   before { allow(Resolv::DNS).to receive(:new).and_return(dns_resolver) }
 
