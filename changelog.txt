@@ -1,7 +1,12 @@
+1.2.8 2025-07-16
+==================
+
+- update bundled certs
+
 1.2.7 2025-05-27
 ==================
 
-freezes caused inadvertent breaking changes, so partially rolling back
+- freezes caused inadvertent breaking changes, so partially rolling back
 
 - unfreeze defaults
 - unfreeze connection/request keys
