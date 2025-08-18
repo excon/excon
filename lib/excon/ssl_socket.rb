@@ -109,8 +109,8 @@ module Excon
       end
 
       if @data[:proxy]
-        request = "CONNECT #{@data[:host]}#{port_string(@data)}#{Excon::HTTP_1_1}" \
-                  "Host: #{@data[:host]}#{port_string(@data)}#{Excon::CR_NL}"
+        request = "CONNECT #{@data[:host]}:#{@data[:port]}#{Excon::HTTP_1_1}" \
+                  "Host: #{@data[:host]}:#{@data[:port]}#{Excon::CR_NL}"
 
         if @data[:proxy].has_key?(:user) || @data[:proxy].has_key?(:password)
           user, pass = Utils.unescape_form(@data[:proxy][:user].to_s), Utils.unescape_form(@data[:proxy][:password].to_s)
