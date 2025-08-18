@@ -1,3 +1,8 @@
+1.3.0 2025-08-18
+==================
+
+- proxy connect should always include port, regardless of default
+
 1.2.9 2025-08-15
 ==================
 
