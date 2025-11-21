@@ -50,7 +50,11 @@ describe Excon::Connection do
         response.body
       end
 
-      expect(r.take).to eq 'foo'
+      if Ractor.method_defined?(:value)
+        expect(r.value).to eq 'foo'
+      else
+        expect(r.take).to eq 'foo'
+      end
     end
   end
 end
