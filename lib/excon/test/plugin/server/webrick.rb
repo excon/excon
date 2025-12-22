@@ -10,7 +10,7 @@ module Excon
             open_process(RbConfig.ruby, '-S', 'rackup', '-s', 'webrick', '--host', host, '--port', port, app_str)
             process_stderr = ""
             line = ''
-            until line.include?('HTTPServer#start')
+            until line.include?('Rackup::Handler::WEBrick::Server#start')
               line = error.gets
               raise process_stderr if line.nil?
               process_stderr << line

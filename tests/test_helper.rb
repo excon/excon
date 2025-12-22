@@ -346,7 +346,7 @@ end
 
 def with_rackup(name, host="127.0.0.1")
   pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
-  wait_for_message(e, 'HTTPServer#start:')
+  wait_for_message(e, 'Rackup::Handler::WEBrick::Server#start')
   yield
 ensure
   cleanup_process(pid)
