@@ -366,20 +366,18 @@ ensure
 end
 
 def with_unicorn(name, listen='127.0.0.1:9292')
-  unless RUBY_PLATFORM == 'java'
+  if RUBY_PLATFORM == 'java'
+    # need to find suitable server for jruby
+  else
     unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
     pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
     wait_for_message(e, 'worker=0 ready')
-  else
-    # need to find suitable server for jruby
   end
   yield
 ensure
   cleanup_process(pid)
 
-  if not unix_socket.nil? and File.exist?(unix_socket)
-    File.delete(unix_socket)
-  end
+  File.delete(unix_socket) if !unix_socket.nil? && File.exist?(unix_socket)
 end
 
 def server_path(*parts)
