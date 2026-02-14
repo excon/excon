@@ -13,7 +13,7 @@ gem 'rubocop'
 gem 'rubocop-performance'
 gem 'rubocop-rake'
 gem 'rubocop-rspec'
-gem 'unicorn', platforms: %i[mri rbx], groups: %i[development test]
+gem 'puma', groups: %i[development test]
 
 # group :benchmark do
 #   gem 'em-http-request'

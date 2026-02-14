@@ -365,14 +365,17 @@ ensure
   end
 end
 
-def with_unicorn(name, listen='127.0.0.1:9292')
-  if RUBY_PLATFORM == 'java'
-    # need to find suitable server for jruby
+def with_puma(name, listen='127.0.0.1:9292')
+  # Puma expects full URI with scheme (tcp:// or unix://)
+  if listen.start_with?('unix://')
+    bind_str = listen
+    unix_socket = listen.sub('unix://', '')
   else
-    unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
-    pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
-    wait_for_message(e, 'worker=0 ready')
+    bind_str = listen.start_with?('tcp://') ? listen : "tcp://#{listen}"
+    unix_socket = nil
   end
+  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "puma", "-b", bind_str, rackup_path(name))
+  wait_for_message(r, 'Use Ctrl-C to stop')
   yield
 ensure
   cleanup_process(pid)

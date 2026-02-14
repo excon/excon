@@ -25,8 +25,7 @@ end
 
 Shindo.tests('Excon streaming basics') do
   tests('http') do
-    pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
-    with_unicorn('streaming.ru') do
+    with_puma('streaming.ru') do
       streaming_tests('http')
     end
   end
@@ -253,10 +252,8 @@ Shindo.tests('Excon basics (ssl string)', ['focus']) do
 end
 
 Shindo.tests('Excon basics (Unix socket)') do
-  pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
-
-  file_name = '/tmp/unicorn.sock'
-  with_unicorn('basic.ru', 'unix://'+file_name) do
+  file_name = '/tmp/puma.sock'
+  with_puma('basic.ru', 'unix://'+file_name) do
     basic_tests("unix:/", :socket => file_name)
 
     tests('explicit uri passed to connection') do

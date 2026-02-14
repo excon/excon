@@ -1,7 +1,7 @@
 # TODO: Clean up this doc and dry up the conditionals
 #
 # Required params:
-#   plugin (e.g., webrick, unicorn, etc)
+#   plugin (e.g., webrick, puma, etc)
 #   file (e.g. a rackup )
 #
 # Optional params:
@@ -23,9 +23,6 @@
 
 shared_context "test server" do |plugin, file, opts = {}|
   plugin = plugin.to_sym unless plugin.is_a? Symbol
-  if plugin == :unicorn && RUBY_PLATFORM == "java"
-    before { skip("until unicorn supports jruby") }
-  end
   abs_file = Object.send(:"#{plugin}_path", file)
   args = { plugin => abs_file}
   args[:bind] = opts[:bind] if opts.key? :bind

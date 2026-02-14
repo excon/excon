@@ -311,10 +311,10 @@ s.close
 The Unix socket will work for one-off requests and multiuse connections. A Unix socket path must be provided separate from the resource path.
 
 ```ruby
-connection = Excon.new('unix:///', :socket => '/tmp/unicorn.sock')
+connection = Excon.new('unix:///', :socket => '/tmp/puma.sock')
 connection.request(:method => :get, :path => '/ping')
 
-Excon.get('unix:///ping', :socket => '/tmp/unicorn.sock')
+Excon.get('unix:///ping', :socket => '/tmp/puma.sock')
 ```
 
 NOTE: Proxies will be ignored when using a Unix socket, since a Unix socket has to be local.
