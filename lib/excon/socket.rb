@@ -252,15 +252,11 @@ module Excon
             end
           end
         end
-      rescue OpenSSL::SSL::SSLError => error
-        if error.message == 'read would block'
-          if @read_buffer.empty?
-            select_with_timeout(@socket, :read) && retry
-          end
-        else
-          raise(error)
-        end
-      rescue *READ_RETRY_EXCEPTION_CLASSES
+      rescue OpenSSL::SSL::SSLError => e
+        raise(e) unless e.message == 'read would block'
+
+        select_with_timeout(@socket, :read) && retry if @read_buffer.empty?
+      rescue *READ_RETRY_EXCEPTION_CLASSES => e
         if @read_buffer.empty?
           # if we didn't read anything, try again...
           select_with_timeout(@socket, :read) && retry
