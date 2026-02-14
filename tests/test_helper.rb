@@ -316,19 +316,16 @@ def capture_response_block
 end
 
 def launch_process(*args)
-  unless RUBY_PLATFORM == 'java'
-    pid, w, r, e = Open4.popen4(*args)
+  if RUBY_PLATFORM == 'java'
+    IO.popen4(*args)
   else
-    pid, w, r, e = IO.popen4(*args)
+    Open4.popen4(*args)
   end
-  return pid, w, r, e
 end
 
 def cleanup_process(pid)
   Process.kill('KILL', pid)
-  unless RUBY_PLATFORM == 'java'
-    Process.wait(pid)
-  end
+  Process.wait(pid) unless RUBY_PLATFORM == 'java'
 end
 
 def rackup_path(*parts)
@@ -336,10 +333,11 @@ def rackup_path(*parts)
 end
 
 def wait_for_message(io, msg)
-  process_stderr = ""
+  process_stderr = +''
   until (line = io.gets)&.include?(msg)
     # nil means we have reached the end of stream
     raise process_stderr if line.nil?
+
     process_stderr << line
   end
 end
