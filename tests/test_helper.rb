@@ -316,19 +316,16 @@ def capture_response_block
 end
 
 def launch_process(*args)
-  unless RUBY_PLATFORM == 'java'
-    pid, w, r, e = Open4.popen4(*args)
+  if RUBY_PLATFORM == 'java'
+    IO.popen4(*args)
   else
-    pid, w, r, e = IO.popen4(*args)
+    Open4.popen4(*args)
   end
-  return pid, w, r, e
 end
 
 def cleanup_process(pid)
   Process.kill('KILL', pid)
-  unless RUBY_PLATFORM == 'java'
-    Process.wait(pid)
-  end
+  Process.wait(pid) unless RUBY_PLATFORM == 'java'
 end
 
 def rackup_path(*parts)
@@ -336,10 +333,11 @@ def rackup_path(*parts)
 end
 
 def wait_for_message(io, msg)
-  process_stderr = ""
+  process_stderr = +''
   until (line = io.gets)&.include?(msg)
     # nil means we have reached the end of stream
     raise process_stderr if line.nil?
+
     process_stderr << line
   end
 end
@@ -367,21 +365,22 @@ ensure
   end
 end
 
-def with_unicorn(name, listen='127.0.0.1:9292')
-  unless RUBY_PLATFORM == 'java'
-    unix_socket = listen.sub('unix://', '') if listen.start_with? 'unix://'
-    pid, w, r, e = launch_process(RbConfig.ruby, "-S", "unicorn", "--no-default-middleware","-l", listen, rackup_path(name))
-    wait_for_message(e, 'worker=0 ready')
+def with_puma(name, listen='127.0.0.1:9292')
+  # Puma expects full URI with scheme (tcp:// or unix://)
+  if listen.start_with?('unix://')
+    bind_str = listen
+    unix_socket = listen.sub('unix://', '')
   else
-    # need to find suitable server for jruby
+    bind_str = listen.start_with?('tcp://') ? listen : "tcp://#{listen}"
+    unix_socket = nil
   end
+  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "puma", "-b", bind_str, rackup_path(name))
+  wait_for_message(r, 'Use Ctrl-C to stop')
   yield
 ensure
   cleanup_process(pid)
 
-  if not unix_socket.nil? and File.exist?(unix_socket)
-    File.delete(unix_socket)
-  end
+  File.delete(unix_socket) if !unix_socket.nil? && File.exist?(unix_socket)
 end
 
 def server_path(*parts)

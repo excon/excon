@@ -275,9 +275,7 @@ Shindo.tests('Excon proxy support') do
 
   end
 
-  with_unicorn('proxy.ru', 'unix:///tmp/myproxy.sock') do
-    pending if RUBY_PLATFORM == 'java' # need to find suitable server for jruby
-
+  with_puma('proxy.ru', 'unix:///tmp/myproxy.sock') do
     tests('http proxying over unix socket: http://foo.com:8080') do
       response = nil
 

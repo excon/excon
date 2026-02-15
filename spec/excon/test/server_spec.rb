@@ -7,20 +7,17 @@ describe Excon::Test::Server do
   end
 
 
-  context 'when the web server is unicorn' do 
+  context 'when the web server is puma (tcp)' do
     context 'bound to a tcp socket' do
-      it_should_behave_like "a excon test server", :unicorn, 'streaming.ru'
+      it_should_behave_like "a excon test server", :puma, 'streaming.ru'
     end
 
     context "bound to a unix socket" do
-      socket_uri = 'unix:///tmp/unicorn.socket'
-      it_should_behave_like "a excon test server", :unicorn, 'streaming.ru', socket_uri
+      socket_uri = 'unix:///tmp/puma.socket'
+      it_should_behave_like "a excon test server", :puma, 'streaming.ru', socket_uri
     end
   end
 
-  context 'when the web server is puma' do
-    it_should_behave_like "a excon test server", :puma, 'streaming.ru'
-  end
 
   context 'when the web server is a executable' do
     it_should_behave_like "a excon test server", :exec, 'good_ipv4.rb'

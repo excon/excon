@@ -252,15 +252,11 @@ module Excon
             end
           end
         end
-      rescue OpenSSL::SSL::SSLError => error
-        if error.message == 'read would block'
-          if @read_buffer.empty?
-            select_with_timeout(@socket, :read) && retry
-          end
-        else
-          raise(error)
-        end
-      rescue *READ_RETRY_EXCEPTION_CLASSES
+      rescue OpenSSL::SSL::SSLError => e
+        raise(e) unless e.message == 'read would block'
+
+        select_with_timeout(@socket, :read) && retry if @read_buffer.empty?
+      rescue *READ_RETRY_EXCEPTION_CLASSES => e
         if @read_buffer.empty?
           # if we didn't read anything, try again...
           select_with_timeout(@socket, :read) && retry
@@ -299,12 +295,10 @@ module Excon
 
     def read_block(max_length)
       @socket.read(max_length)
-    rescue OpenSSL::SSL::SSLError => error
-      if error.message == 'read would block'
-        select_with_timeout(@socket, :read) && retry
-      else
-        raise(error)
-      end
+    rescue OpenSSL::SSL::SSLError => e
+      select_with_timeout(@socket, :read) && retry if e.message == 'read would block'
+
+      raise(error)
     rescue *READ_RETRY_EXCEPTION_CLASSES
       select_with_timeout(@socket, :read) && retry
     rescue EOFError
@@ -327,12 +321,10 @@ module Excon
           else
             raise error
           end
-        rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
-          if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
-            raise error
-          else
-            select_with_timeout(@socket, :write) && retry
-          end
+        rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => e
+          raise e if error.is_a?(OpenSSL::SSL::SSLError) && e.message != 'write would block'
+
+          select_with_timeout(@socket, :write) && retry
         end
 
         # Fast, common case.
@@ -348,12 +340,10 @@ module Excon
 
     def write_block(data)
       @socket.write(data)
-    rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => error
-      if error.is_a?(OpenSSL::SSL::SSLError) && error.message != 'write would block'
-        raise error
-      else
-        select_with_timeout(@socket, :write) && retry
-      end
+    rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => e
+      raise e if e.is_a?(OpenSSL::SSL::SSLError) && e.message != 'write would block'
+
+      select_with_timeout(@socket, :write) && retry
     end
 
     def select_with_timeout(socket, type)
@@ -373,25 +363,19 @@ module Excon
       end
 
       select = case type
-      when :connect_read
-        IO.select([socket], nil, nil, timeout)
-      when :connect_write
-        IO.select(nil, [socket], nil, timeout)
-      when :read
-        IO.select([socket], nil, nil, timeout)
-      when :write
-        IO.select(nil, [socket], nil, timeout)
-      end
+               when :connect_read, :read
+                 IO.select([socket], nil, nil, timeout)
+               when :connect_write, :write
+                 IO.select(nil, [socket], nil, timeout)
+               end
 
-      select || raise(Excon::Errors::Timeout.new("#{timeout_kind} timeout reached"))
+      select || raise(Excon::Errors::Timeout.new, "#{timeout_kind} timeout reached")
     end
 
     def unpacked_sockaddr
       @unpacked_sockaddr ||= ::Socket.unpack_sockaddr_in(@socket.to_io.getsockname)
     rescue ArgumentError => e
-      unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
-        raise
-      end
+      raise unless e.message == 'not an AF_INET/AF_INET6 sockaddr'
     end
 
     # Returns the remaining time in seconds until we reach the deadline for the request timeout.
