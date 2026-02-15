@@ -364,9 +364,9 @@ module Excon
 
       select = case type
                when :connect_read, :read
-                 socket.wait_readable(timeout)
+                 IO.select([socket], nil, nil, timeout)
                when :connect_write, :write
-                 socket.wait_writable(timeout)
+                 IO.select(nil, [socket], nil, timeout)
                end
 
       select || raise(Excon::Errors::Timeout.new, "#{timeout_kind} timeout reached")
