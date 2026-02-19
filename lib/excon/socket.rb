@@ -132,7 +132,8 @@ module Excon
         family = @data[:proxy][:family]
       end
 
-      resolver = @data[:resolv_resolver] || Resolv.new
+      resolver = @data[:resolv_resolver]
+      resolver ||= @data[:resolver_factory].create_resolver
 
       # Deprecated
       if @data[:dns_timeouts]
