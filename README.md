@@ -213,6 +213,19 @@ dns_resolver = Resolv::DNS.new(nameserver: ['127.0.0.1'])
 dns_resolver.timeouts = 3
 resolver = Resolv.new([Resolv::Hosts.new, dns_resolver])
 connection = Excon.new('http://geemus.com', :resolv_resolver => resolver)
+
+# As an global alternative for Excon, you can configure a custom resolver
+# factory which produces new resolver instances, configured to your likings.
+# This even works with Ruby Ractors!
+class CustomResolverFactory
+  # @return [Resolv] the new resolver instance
+  def self.create_resolver
+    dns_resolver = Resolv::DNS.new(nameserver: ['127.0.0.1'])
+    dns_resolver.timeouts = 3
+    Resolv.new([Resolv::Hosts.new, dns_resolver])
+  end
+end
+Excon.defaults[:resolver_factory] = CustomResolverFactory
 ```
 
 ## Chunked Requests

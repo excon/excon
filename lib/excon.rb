@@ -27,6 +27,7 @@ require 'excon/middlewares/mock'
 require 'excon/middlewares/response_parser'
 
 require 'excon/error'
+require 'excon/resolver_factory'
 require 'excon/constants'
 require 'excon/utils'
 

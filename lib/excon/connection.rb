@@ -60,6 +60,8 @@ module Excon
     # @option params [Fixnum] :retry_interval Set how long to wait between retries. (Default 0)
     # @option params [Class] :instrumentor Responds to #instrument as in ActiveSupport::Notifications
     # @option params [String] :instrumentor_name Name prefix for #instrument events.  Defaults to 'excon'
+    # @option params [Resolv, nil] :resolv_resolver A ready to use +Resolv+ resolver instance.
+    # @option params [Class] :resolver_factory Const of the resolver factory.  Defaults to 'Excon::ResolverFactory'
     def initialize(params = {})
       @pid = Process.pid
       @data = Excon.defaults.dup

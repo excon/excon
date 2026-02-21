@@ -60,6 +60,7 @@ module Excon
     read_timeout
     request_block
     resolv_resolver
+    resolver_factory
     response_block
     stubs
     timeout
@@ -170,6 +171,7 @@ module Excon
     persistent: false,
     read_timeout: 60,
     resolv_resolver: nil,
+    resolver_factory: Excon::ResolverFactory,
     retry_errors: DEFAULT_RETRY_ERRORS,
     retry_limit: DEFAULT_RETRY_LIMIT,
     ssl_verify_peer: true,
