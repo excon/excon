@@ -65,40 +65,6 @@ module Excon
       [host, port, user, pass]
     end
 
-    # Connect to SOCKS5 proxy with optional timeout
-    def connect_to_proxy(proxy_addr)
-      if @data[:nonblock]
-        connect_nonblock_to_proxy(proxy_addr)
-      else
-        @socket.connect(proxy_addr)
-      end
-    rescue SystemCallError, IOError => e
-      @socket&.close rescue nil
-      @socket = nil
-      raise Excon::Error::Socket.new(e)
-    end
-
-    def connect_nonblock_to_proxy(proxy_addr)
-      @socket.connect_nonblock(proxy_addr)
-    rescue Errno::EINPROGRESS
-      timeout = @data[:connect_timeout]
-      unless IO.select(nil, [@socket], nil, timeout)
-        @socket.close rescue nil
-        raise Excon::Error::Timeout.new('connect timeout reached')
-      end
-
-      begin
-        @socket.connect_nonblock(proxy_addr)
-      rescue Errno::EISCONN
-        # Already connected - expected
-      rescue SystemCallError => e
-        @socket.close rescue nil
-        raise Excon::Error::Socket.new(e)
-      end
-    rescue Errno::EISCONN
-      # Already connected
-    end
-
     # Perform SOCKS5 authentication handshake
     def socks5_authenticate
       auth_methods = if @proxy_user && @proxy_pass
@@ -165,7 +131,6 @@ module Excon
 
       @socket.write(request)
 
-      # Read response
       response = socks5_read_exactly(4)
       version, reply, _, atyp = response.unpack('CCCC')
 

@@ -97,6 +97,7 @@ module Excon
     proxy
     scheme
     socket
+    socks5_proxy
     ssl_ca_file
     ssl_ca_path
     ssl_cert_store

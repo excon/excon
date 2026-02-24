@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Excon
-  # SOCKS5 socket for HTTP connections through a SOCKS5 proxy
   class SOCKS5Socket < Socket
     include SOCKS5
 
@@ -13,28 +12,25 @@ module Excon
 
     private
 
+    # Proxy-swap pattern: temporarily set @data[:proxy] to the SOCKS5 proxy
+    # so that Socket#connect routes the TCP connection there (inheriting DNS
+    # resolution, nonblock, retry, keepalive, reuseaddr, remote_ip tracking).
+    # After TCP is up, clear :proxy and run the SOCKS5 handshake.
     def connect
-      @socket = nil
+      @data[:proxy] = {
+        host:     @proxy_host,
+        hostname: @proxy_host,
+        port:     @proxy_port.to_i
+      }
 
-      # Resolve and connect to SOCKS5 proxy
       begin
-        proxy_info = ::Addrinfo.tcp(@proxy_host, @proxy_port.to_i)
-      rescue => e
-        raise Excon::Error::Socket.new(e)
+        super
+      ensure
+        @data.delete(:proxy)
       end
 
-      @socket = ::Socket.new(proxy_info.afamily, ::Socket::SOCK_STREAM, 0)
-      connect_to_proxy(proxy_info)
-
-      # SOCKS5 handshake
       socks5_authenticate
       socks5_connect(@data[:host], @data[:port])
-
-      # Apply socket options
-      @socket.setsockopt(::Socket::IPPROTO_TCP, ::Socket::TCP_NODELAY, true)
-      @socket.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_KEEPALIVE, true) if @data[:tcp_keepalive]
-
-      @socket
     end
   end
 end
