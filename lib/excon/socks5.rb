@@ -80,7 +80,7 @@ module Excon
       version, chosen_method = response.unpack('CC')
 
       if version != SOCKS5_VERSION
-        raise Excon::Error::Socket.new("SOCKS5 proxy returned invalid version: #{version}")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5 proxy returned invalid version: #{version}"))
       end
 
       case chosen_method
@@ -88,13 +88,13 @@ module Excon
         # No authentication required
       when SOCKS5_AUTH_USERNAME_PASSWORD
         unless @proxy_user && @proxy_pass
-          raise Excon::Error::Socket.new('SOCKS5 proxy requires authentication but no credentials provided')
+          raise Excon::Error::Socket.new(Exception.new('SOCKS5 proxy requires authentication but no credentials provided'))
         end
         socks5_username_password_auth
       when SOCKS5_NO_ACCEPTABLE_AUTH
-        raise Excon::Error::Socket.new('SOCKS5 proxy: no acceptable authentication methods')
+        raise Excon::Error::Socket.new(Exception.new('SOCKS5 proxy: no acceptable authentication methods'))
       else
-        raise Excon::Error::Socket.new("SOCKS5 proxy: unsupported authentication method #{chosen_method}")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5 proxy: unsupported authentication method #{chosen_method}"))
       end
     end
 
@@ -114,14 +114,14 @@ module Excon
       _, status = response.unpack('CC')
 
       unless status == 0x00
-        raise Excon::Error::Socket.new('SOCKS5 proxy authentication failed')
+        raise Excon::Error::Socket.new(Exception.new('SOCKS5 proxy authentication failed'))
       end
     end
 
     # Request connection to target through SOCKS5 proxy
     def socks5_connect(host, port)
       if host.bytesize > MAX_HOSTNAME_LENGTH
-        raise Excon::Error::Socket.new("SOCKS5: hostname exceeds maximum length of #{MAX_HOSTNAME_LENGTH} bytes")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5: hostname exceeds maximum length of #{MAX_HOSTNAME_LENGTH} bytes"))
       end
 
       # Build CONNECT request with domain name (let proxy resolve DNS)
@@ -135,12 +135,12 @@ module Excon
       version, reply, _, atyp = response.unpack('CCCC')
 
       if version != SOCKS5_VERSION
-        raise Excon::Error::Socket.new("SOCKS5 proxy returned invalid version: #{version}")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5 proxy returned invalid version: #{version}"))
       end
 
       unless reply == SOCKS5_SUCCESS
         error_msg = SOCKS5_ERRORS[reply] || "Unknown error (#{reply})"
-        raise Excon::Error::Socket.new("SOCKS5 proxy connect failed: #{error_msg}")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5 proxy connect failed: #{error_msg}"))
       end
 
       # Read and discard bound address (not needed for CONNECT)
@@ -157,7 +157,7 @@ module Excon
       when SOCKS5_ATYP_IPV6
         socks5_read_exactly(16 + 2) # 16 bytes IP + 2 bytes port
       else
-        raise Excon::Error::Socket.new("SOCKS5 proxy returned unknown address type: #{atyp}")
+        raise Excon::Error::Socket.new(Exception.new("SOCKS5 proxy returned unknown address type: #{atyp}"))
       end
     end
 
@@ -183,7 +183,7 @@ module Excon
         when :wait_readable
           IO.select([@socket], nil, nil, deadline ? [deadline - Time.now, 0].max : nil)
         when nil, ''
-          raise Excon::Error::Socket.new('SOCKS5 proxy connection closed unexpectedly')
+          raise Excon::Error::Socket.new(Exception.new('SOCKS5 proxy connection closed unexpectedly'))
         else
           data << chunk
         end
