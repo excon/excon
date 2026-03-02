@@ -485,6 +485,13 @@ module Excon
       unix_proxy = datum[:proxy] ? datum[:proxy][:scheme] == UNIX : false
       sockets[@socket_key] ||= if datum[:scheme] == UNIX || unix_proxy
         Excon::UnixSocket.new(datum)
+      elsif datum[:socks5_proxy]
+        # SOCKS5 proxy - use appropriate socket based on target scheme
+        if datum[:ssl_uri_schemes].include?(datum[:scheme])
+          Excon::SOCKS5SSLSocket.new(datum)
+        else
+          Excon::SOCKS5Socket.new(datum)
+        end
       elsif datum[:ssl_uri_schemes].include?(datum[:scheme])
         Excon::SSLSocket.new(datum)
       else
