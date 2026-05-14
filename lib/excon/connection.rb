@@ -102,6 +102,10 @@ module Excon
           @socket_key = "#{@data[:scheme]}://#{@data[:socket]}"
         end
       else
+        if @data.key?(:host) && @data[:host].nil?
+          raise Excon::Error::InvalidParameter, "host is required for non-Unix connections; " \
+                                                "the URL may be malformed (e.g. missing \"//\" after the scheme)"
+        end
         @socket_key = "#{@data[:scheme]}://#{@data[:host]}#{port_string(@data)}"
       end
       reset
@@ -256,6 +260,10 @@ module Excon
       if datum[:scheme] == UNIX
         datum[:headers][host_key] ||= ''
       else
+        if datum[:host].nil?
+          raise Excon::Error::InvalidParameter, "host is required for non-Unix connections; " \
+                                                "the URL may be malformed (e.g. missing \"//\" after the scheme)"
+        end
         datum[:headers][host_key] ||= datum[:host] + port_string(datum)
       end
 
