@@ -48,6 +48,7 @@ or:
 
     class InvalidHeaderKey < Error; end
     class InvalidHeaderValue < Error; end
+    class InvalidParameter < Error; end
     class Timeout < Error; end
     class ResponseParse < Error; end
 

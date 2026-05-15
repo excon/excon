@@ -39,6 +39,33 @@ Shindo.tests('HTTPStatusError request/response debugging') do
     end
   end
 
+  tests('new raises Excon::Error::InvalidParameter for URL with nil host (missing //)').returns(true) do
+    begin
+      Excon.new('https:/registry.example.com/package')
+      false
+    rescue Excon::Error::InvalidParameter => e
+      e.message.include?('host is required')
+    end
+  end
+
+  tests('new raises Excon::Error::InvalidParameter when host: nil overrides a valid URL').returns(true) do
+    begin
+      Excon.new('https://registry.example.com/package', host: nil)
+      false
+    rescue Excon::Error::InvalidParameter => e
+      e.message.include?('host is required')
+    end
+  end
+
+  tests('new raises Excon::Error::InvalidParameter for Connection.new without host').returns(true) do
+    begin
+      Excon::Connection.new(scheme: 'https', path: '/package', port: 443).get
+      false
+    rescue Excon::Error::InvalidParameter => e
+      e.message.include?('host is required')
+    end
+  end
+
   tests('can raise standard error and catch standard error').returns(true) do
     begin 
       raise Excon::Error::Client.new('foo')
