@@ -2,6 +2,19 @@
 module Excon
   module Middleware
     class RedirectFollower < Excon::Middleware::Base
+      REDACTION_HEADERS = %w[
+        Authorization
+        Cookie
+        Cookie2
+        Host
+        Proxy-Connection
+        Proxy-Authorization
+        X-API-Key
+        X-Auth-Token
+        X-CSRF-Token
+        X-Session-ID
+      ]
+
       def self.valid_parameter_keys
         [
           :redirects_remaining,
@@ -54,10 +67,9 @@ module Excon
               params[:headers].delete('Content-Length')
             end
             params[:headers] = datum[:headers].dup
-            params[:headers].delete('Authorization')
-            params[:headers].delete('Proxy-Connection')
-            params[:headers].delete('Proxy-Authorization')
-            params[:headers].delete('Host')
+            REDACTION_HEADERS.each do |header|
+              params[:headers].delete(header)
+            end
             params.merge!(
               :scheme     => uri.scheme || datum[:scheme],
               :host       => uri.host   || datum[:host],
