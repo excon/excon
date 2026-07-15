@@ -322,7 +322,7 @@ module Excon
             raise error
           end
         rescue OpenSSL::SSL::SSLError, *WRITE_RETRY_EXCEPTION_CLASSES => e
-          raise e if error.is_a?(OpenSSL::SSL::SSLError) && e.message != 'write would block'
+          raise e if e.is_a?(OpenSSL::SSL::SSLError) && e.message != 'write would block'
 
           select_with_timeout(@socket, :write) && retry
         end
