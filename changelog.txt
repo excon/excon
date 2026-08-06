@@ -1,3 +1,9 @@
+1.7.0 2026-09-06
+==================
+
+- update bundled certs
+- use weak keys for socket cache to improve memory usage
+
 1.6.0 2026-07-16
 ==================
 
