@@ -242,7 +242,11 @@ module Excon
         datum[:deadline] = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datum[:timeout]
       end
 
-      datum[:headers] = @data[:headers].merge(datum[:headers] || {})
+      # header names are case-insensitive, so request headers replace defaults regardless of casing
+      request_headers = datum[:headers] || {}
+      datum[:headers] = @data[:headers].reject do |key, _|
+        request_headers.keys.any? { |k| k.to_s.casecmp?(key.to_s) }
+      end.merge(request_headers)
 
       validate_params(:request, params, datum[:middlewares])
       # If the user passed in new middleware, we want to validate that the original connection parameters
