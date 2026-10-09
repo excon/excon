@@ -24,6 +24,15 @@ Shindo.tests('Excon request methods') do
       end
     end
 
+    tests('default headers') do
+      tests('are overridden regardless of casing').returns(['accept: application/json']) do
+        connection = Excon.new('http://127.0.0.1:9292')
+        response = connection.post(headers: { 'accept' => 'application/json' })
+
+        response.body.lines.map(&:chomp).grep(/\Aaccept:/)
+      end
+    end
+
   end
 
 end
