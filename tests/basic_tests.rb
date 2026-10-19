@@ -141,6 +141,10 @@ Shindo.tests('Excon ssl verify peer (ssl)') do
     end
 
     tests('response.status').returns(200) do
+      # jruby-openssl servers never call servername_cb, so the vhost cert is
+      # never served (and Java clients don't send SNI for dotless names)
+      pending if RUBY_PLATFORM == 'java'
+
       response = connection.request(:method => :get, :path => '/content-length/100')
 
       response.status

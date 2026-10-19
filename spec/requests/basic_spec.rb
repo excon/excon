@@ -40,6 +40,8 @@ describe Excon::Connection do
 
   context 'ractors' do
     it 'should work inside ractors' do
+      skip 'Ractor is not available on this Ruby (e.g. JRuby)' unless defined?(Ractor)
+
       Excon.defaults.freeze
       Excon.defaults[:middlewares].freeze
       Excon::VALID_CONNECTION_KEYS.freeze

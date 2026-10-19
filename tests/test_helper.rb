@@ -257,14 +257,23 @@ def streaming_tests(protocol)
     ret = []
     timing = 'response times ok'
     start = Time.now
+    first = nil
     conn.request(:method => :get, :path => path, :response_block => lambda do |c,r,t|
       # add the response
       ret.push(c)
-      # check if the timing is ok
-      # each response arrives after timeout and before timeout + 1
-      cur_time = Time.now - start
-      if cur_time < ret.length * timeout or cur_time > (ret.length+1) * timeout
-        timing = 'response time not ok!'
+      now = Time.now
+      if first.nil?
+        # connection setup (e.g. a slow TLS handshake on JRuby) delays the
+        # first piece by an unknown amount, so it only gets a lower bound
+        first = now
+        timing = 'response time not ok!' if now - start < timeout
+      else
+        # later pieces arrive about timeout apart, measured from the first
+        expected = (ret.length - 1) * timeout
+        cur_time = now - first
+        if cur_time < expected - timeout / 2 or cur_time > expected + timeout / 2
+          timing = 'response time not ok!'
+        end
       end
     end)
     # validate the final timing
