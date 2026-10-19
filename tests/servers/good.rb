@@ -1,9 +1,23 @@
-require 'eventmachine'
 require 'stringio'
 require 'uri'
 require 'zlib'
 
-module GoodServer
+class GoodServer
+  def initialize(socket)
+    @socket = socket
+  end
+
+  # Serves requests from the socket until the client goes away or either
+  # side asks for the connection to be closed.
+  def run
+    while (request = read_request)
+      @response = +''
+      send_response(request)
+      @socket.write(@response)
+      break unless @persistent
+    end
+  end
+
   # This method will be called with each request received.
   #
   #     request = {
@@ -24,17 +38,17 @@ module GoodServer
       when 'request'
         data = Marshal.dump(request)
         start_response
-        send_data "Content-Length: #{ data.size }\r\n"
-        send_data "\r\n"
-        send_data data
+        write "Content-Length: #{ data.size }\r\n"
+        write "\r\n"
+        write data
 
       when 'request_count'
         (@request_count ||= '0').next!
         start_response
-        send_data "Content-Length: #{ @request_count.size }\r\n"
-        send_data "Connection: Keep-Alive\r\n"
-        send_data "\r\n"
-        send_data @request_count
+        write "Content-Length: #{ @request_count.size }\r\n"
+        write "Connection: Keep-Alive\r\n"
+        write "\r\n"
+        write @request_count
 
       when /(content|transfer)-encoded\/?(.*)/
         if (encoding_type = $1) == 'content'
@@ -88,19 +102,19 @@ module GoodServer
 
         start_response
         # let the test know what the server sent
-        send_data "#{ encoding_header }-Sent: #{ encodings }\r\n"
-        send_data "#{ encoding_header }: #{ encodings }\r\n" unless encodings.empty?
+        write "#{ encoding_header }-Sent: #{ encodings }\r\n"
+        write "#{ encoding_header }: #{ encodings }\r\n" unless encodings.empty?
         if chunked
           if encoding_type == 'content'
-            send_data "Transfer-Encoding: chunked\r\n"
+            write "Transfer-Encoding: chunked\r\n"
           end
-          send_data "\r\n"
-          send_data chunks_for(body)
-          send_data "\r\n"
+          write "\r\n"
+          write chunks_for(body)
+          write "\r\n"
         else
-          send_data "Content-Length: #{ body.size }\r\n"
-          send_data "\r\n"
-          send_data body
+          write "Content-Length: #{ body.size }\r\n"
+          write "\r\n"
+          write body
         end
       end
 
@@ -108,59 +122,59 @@ module GoodServer
       case path
       when 'simple'
         start_response
-        send_data "Transfer-Encoding: chunked\r\n"
-        send_data "\r\n"
+        write "Transfer-Encoding: chunked\r\n"
+        write "\r\n"
         # chunk-extension is currently ignored.
         # this works because "6; chunk-extension".to_i => "6"
-        send_data "6; chunk-extension\r\n"
-        send_data "hello \r\n"
-        send_data "5; chunk-extension\r\n"
-        send_data "world\r\n"
-        send_data "0; chunk-extension\r\n" # last-chunk
-        send_data "\r\n"
+        write "6; chunk-extension\r\n"
+        write "hello \r\n"
+        write "5; chunk-extension\r\n"
+        write "world\r\n"
+        write "0; chunk-extension\r\n" # last-chunk
+        write "\r\n"
 
       # merged trailers also support continuations
       when 'trailers'
         start_response
-        send_data "Transfer-Encoding: chunked\r\n"
-        send_data "Test-Header: one, two\r\n"
-        send_data "\r\n"
-        send_data chunks_for('hello world')
-        send_data "Test-Header: three, four,\r\n"
-        send_data "\tfive, six\r\n"
-        send_data "\r\n"
+        write "Transfer-Encoding: chunked\r\n"
+        write "Test-Header: one, two\r\n"
+        write "\r\n"
+        write chunks_for('hello world')
+        write "Test-Header: three, four,\r\n"
+        write "\tfive, six\r\n"
+        write "\r\n"
       end
 
     when 'content-length'
       case path
       when 'simple'
         start_response
-        send_data "Content-Length: 11\r\n"
-        send_data "\r\n"
-        send_data "hello world"
+        write "Content-Length: 11\r\n"
+        write "\r\n"
+        write "hello world"
       end
 
     when 'unknown'
       case path
       when 'cookies'
         start_response(:persistent => false)
-        send_data "Set-Cookie: one, two\r\n"
-        send_data "Set-Cookie: three, four\r\n"
-        send_data "\r\n"
-        send_data "hello world"
+        write "Set-Cookie: one, two\r\n"
+        write "Set-Cookie: three, four\r\n"
+        write "\r\n"
+        write "hello world"
 
       when 'simple'
         start_response(:persistent => false)
-        send_data "\r\n"
-        send_data "hello world"
+        write "\r\n"
+        write "hello world"
 
       when 'header_continuation'
         start_response(:persistent => false)
-        send_data "Test-Header: one, two\r\n"
-        send_data "Test-Header: three, four,\r\n"
-        send_data "  five, six\r\n"
-        send_data "\r\n"
-        send_data "hello world"
+        write "Test-Header: one, two\r\n"
+        write "Test-Header: three, four,\r\n"
+        write "  five, six\r\n"
+        write "\r\n"
+        write "hello world"
       end
 
     when 'bad'
@@ -168,22 +182,22 @@ module GoodServer
       case path
       when 'malformed_header'
         start_response
-        send_data "Bad-Header\r\n"  # no ':'
-        send_data "\r\n"
-        send_data "hello world"
+        write "Bad-Header\r\n"  # no ':'
+        write "\r\n"
+        write "hello world"
 
       when 'malformed_header_continuation'
-        send_data "HTTP/1.1 200 OK\r\n"
-        send_data " Bad-Header: one, two\r\n"  # no previous header
-        send_data "\r\n"
-        send_data "hello world"
+        write "HTTP/1.1 200 OK\r\n"
+        write " Bad-Header: one, two\r\n"  # no previous header
+        write "\r\n"
+        write "hello world"
       end
 
     when 'not-found'
       start_response(:status => "404 Not Found")
-      send_data "Content-Length: 11\r\n"
-      send_data "\r\n"
-      send_data "hello world"
+      write "Content-Length: 11\r\n"
+      write "\r\n"
+      write "hello world"
     end
   end
 
@@ -195,123 +209,61 @@ module GoodServer
     }.merge!(opts)
 
     @persistent = opts[:persistent]
-    send_data "HTTP/1.1 #{ opts[:status] }\r\n"
-    send_data "Connection: close\r\n" unless @persistent
+    write "HTTP/1.1 #{ opts[:status] }\r\n"
+    write "Connection: close\r\n" unless @persistent
   end
 
-  def post_init
-    @buffer = StringIO.new
-    @buffer.set_encoding('BINARY') if @buffer.respond_to?(:set_encoding)
+  # Buffers +data+ to be written once the response is complete.
+  def write(data)
+    @response << data
   end
 
-  # Receives a String of +data+ sent from the client.
-  # +data+ may only be a portion of what the client sent.
-  # The data is buffered, then processed and removed from the buffer
-  # as data becomes available until the @request is complete.
-  def receive_data(data)
-    @buffer.seek(0, IO::SEEK_END)
-    @buffer.write(data)
+  # Reads the next request from the socket, returning nil once the client has
+  # closed the connection.
+  def read_request
+    # skip any blank lines preceding the request-line
+    until (line = @socket.gets("\r\n")) != "\r\n"; end
+    return if line.nil?
 
-    parse_headers unless @request
-    parse_body if @request
+    method, uri = /^(\w+)\s(.*)\sHTTP\/\d+\.\d+$/.match(line.chomp)[1, 2]
 
-    if @request_complete
-      send_response(@request)
-      if @persistent
-        @request = nil
-        @request_complete = false
-        # process remaining buffer for next request
-        receive_data('') unless @buffer.eof?
+    headers = {}
+    last_key = nil
+    until (line = @socket.readline("\r\n").chomp).empty?
+      if !line.lstrip!.nil?
+        headers[last_key] << ' ' << line.rstrip
       else
-        close_connection(true)
+        key, value = line.split(':', 2)
+        headers[key] = ([headers[key]] << value.strip).compact.join(', ')
+        last_key = key
       end
     end
-  end
 
-  # Removes the processed portion of the buffer
-  # by replacing the buffer with it's contents from the current pos.
-  def sync_buffer
-    @buffer.string = @buffer.read
-  end
+    @persistent = headers['Connection'] !~ /close/i
 
-  def parse_headers
-    @buffer.rewind
-    # wait until buffer contains the end of the headers
-    if /\sHTTP\/\d+\.\d+\r\n.*?\r\n\r\n/m.match?(@buffer.read)
-      @buffer.rewind
-      # For persistent connections, the buffer could start with the
-      # \r\n chunked-message terminator from the previous request.
-      # This will discard anything up to the request-line.
-      until m = /^(\w+)\s(.*)\sHTTP\/\d+\.\d+$/.match(@buffer.readline.chop!); end
-      method, uri = m[1, 2]
-
-      headers = {}
-      last_key = nil
-      until (line = @buffer.readline.chop!).empty?
-        if !line.lstrip!.nil?
-          headers[last_key] << ' ' << line.rstrip
-        else
-          key, value = line.split(':', 2)
-          headers[key] = ([headers[key]] << value.strip).compact.join(', ')
-          last_key = key
-        end
-      end
-
-      sync_buffer
-
-      @chunked = headers['Transfer-Encoding'] =~ /chunked/i
-      @content_length = headers['Content-Length'].to_i
-      @persistent = headers['Connection'] !~ /close/i
-      @request = {
-        :method   => method,
-        :uri      => URI.parse(uri),
-        :headers  => headers,
-        :body     => ''
-      }
-    end
-  end
-
-  def parse_body
-    if @chunked
-      @buffer.rewind
-      until @request_complete || @buffer.eof?
-        unless @chunk_size
-          # in case buffer only contains a portion of the chunk-size line
-          if (line = @buffer.readline).end_with?("\r\n")
-            @chunk_size = line.to_i(16)
-            if @chunk_size > 0
-              sync_buffer
-            else # last-chunk
-              @buffer.read(2)  # the final \r\n may or may not be in the buffer
-              sync_buffer
-              @chunk_size = nil
-              @request_complete = true
-            end
-          end
-        end
-        if @chunk_size
-          if @buffer.size >= @chunk_size + 2
-            @request[:body] << @buffer.read(@chunk_size + 2).chop!
-            @chunk_size = nil
-            sync_buffer
-          else
-            break # wait for more data
-          end
-        end
-      end
-    elsif @content_length > 0
-      @buffer.rewind
-      unless @buffer.eof?  # buffer only contained the headers
-        @request[:body] << @buffer.read(@content_length - @request[:body].size)
-        sync_buffer
-        if @request[:body].size == @content_length
-          @request_complete = true
-        end
-      end
+    body = if headers['Transfer-Encoding'] =~ /chunked/i
+      read_chunked_body
     else
-      # no body
-      @request_complete = true
+      @socket.read(headers['Content-Length'].to_i)
     end
+
+    {
+      :method   => method,
+      :uri      => URI.parse(uri),
+      :headers  => headers,
+      :body     => body
+    }
+  end
+
+  def read_chunked_body
+    body = +''
+    until (chunk_size = @socket.readline("\r\n").to_i(16)).zero?
+      body << @socket.read(chunk_size)
+      @socket.read(2) # \r\n
+    end
+    # discard trailers, up to and including the final \r\n
+    until @socket.readline("\r\n") == "\r\n"; end
+    body
   end
 
   def chunks_for(str)

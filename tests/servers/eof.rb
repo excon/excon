@@ -1,17 +1,8 @@
 #!/usr/bin/env ruby
 
-require "eventmachine"
+require File.join(File.expand_path(File.dirname(__FILE__)), 'server')
 
-module EOFServer
-  def receive_data(data)
-    case data
-    when %r{^GET /eof\s}
-      close_connection(true)
-    end
-  end
-end
-
-EM.run do
-  EM.start_server("127.0.0.1", 9292, EOFServer)
-  $stderr.puts "ready"
+# closes every connection without responding
+serve("127.0.0.1", 9292) do |socket|
+  read_request_head(socket)
 end
