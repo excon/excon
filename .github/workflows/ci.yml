@@ -27,7 +27,8 @@ jobs:
       fail-fast: false
       matrix:
         ruby-version: ['3.3', '3.4', '4.0', 'head', 'jruby']
-    timeout-minutes: 5
+    # JRuby runs the suite several times slower than CRuby
+    timeout-minutes: ${{ matrix.ruby-version == 'jruby' && 15 || 5 }}
 
     steps:
     - uses: actions/checkout@v7

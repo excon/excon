@@ -13,7 +13,6 @@ gem 'rubocop'
 gem 'rubocop-performance'
 gem 'rubocop-rake'
 gem 'rubocop-rspec'
-gem 'puma', groups: %i[development test]
 
 # group :benchmark do
 #   gem 'em-http-request'
