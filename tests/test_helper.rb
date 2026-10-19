@@ -7,7 +7,7 @@ TEST_SUITE_DEFAULTS = {
 require 'bundler/setup'
 require 'excon'
 require 'delorean'
-require 'open4'
+require 'open3'
 require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
@@ -316,16 +316,18 @@ def capture_response_block
 end
 
 def launch_process(*args)
-  if RUBY_PLATFORM == 'java'
-    IO.popen4(*args)
-  else
-    Open4.popen4(*args)
-  end
+  Open3.popen3(*args)
 end
 
-def cleanup_process(pid)
-  Process.kill('KILL', pid)
-  Process.wait(pid) unless RUBY_PLATFORM == 'java'
+def cleanup_process(wait_thr)
+  return if wait_thr.nil?
+
+  begin
+    Process.kill('KILL', wait_thr.pid)
+  rescue Errno::ESRCH
+    # already exited and reaped by the wait thread
+  end
+  wait_thr.join
 end
 
 def rackup_path(*parts)
@@ -343,11 +345,11 @@ def wait_for_message(io, msg)
 end
 
 def with_rackup(name, host="127.0.0.1")
-  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
+  w, r, e, wait_thr = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
   wait_for_message(e, 'Rackup::Handler::WEBrick::Server#start')
   yield
 ensure
-  cleanup_process(pid)
+  cleanup_process(wait_thr)
 
   # dump server errors
   lines = e.read.split($/)
@@ -376,11 +378,11 @@ def with_puma(name, listen='127.0.0.1:9292')
   end
   args = ["-b", bind_str]
   args += ["-C", File.join(File.dirname(__FILE__), 'data', 'puma_unix.rb')] if unix_socket
-  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "puma", *args, rackup_path(name))
+  w, r, e, wait_thr = launch_process(RbConfig.ruby, "-S", "puma", *args, rackup_path(name))
   wait_for_message(r, 'Use Ctrl-C to stop')
   yield
 ensure
-  cleanup_process(pid)
+  cleanup_process(wait_thr)
 
   File.delete(unix_socket) if !unix_socket.nil? && File.exist?(unix_socket)
 end
@@ -390,11 +392,11 @@ def server_path(*parts)
 end
 
 def with_server(name)
-  pid, w, r, e = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
+  w, r, e, wait_thr = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
   wait_for_message(e, 'ready')
   yield
 ensure
-  cleanup_process(pid)
+  cleanup_process(wait_thr)
 end
 
 # A tiny fake SSL streaming server
