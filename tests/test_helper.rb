@@ -374,7 +374,9 @@ def with_puma(name, listen='127.0.0.1:9292')
     bind_str = listen.start_with?('tcp://') ? listen : "tcp://#{listen}"
     unix_socket = nil
   end
-  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "puma", "-b", bind_str, rackup_path(name))
+  args = ["-b", bind_str]
+  args += ["-C", File.join(File.dirname(__FILE__), 'data', 'puma_unix.rb')] if unix_socket
+  pid, w, r, e = launch_process(RbConfig.ruby, "-S", "puma", *args, rackup_path(name))
   wait_for_message(r, 'Use Ctrl-C to stop')
   yield
 ensure
