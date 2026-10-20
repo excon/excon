@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tmpdir'
 
 describe Excon::Test::Server do
 
@@ -13,7 +14,7 @@ describe Excon::Test::Server do
     end
 
     context "bound to a unix socket" do
-      socket_uri = 'unix:///tmp/puma.socket'
+      socket_uri = "unix://#{File.join(Dir.tmpdir, 'excon-puma.socket')}"
       it_should_behave_like "a excon test server", :puma, 'streaming.ru', socket_uri
     end
   end

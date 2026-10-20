@@ -5,7 +5,7 @@ TEST_SUITE_DEFAULTS = {
 }
 
 require 'excon'
-require 'excon/test/server'
+require_relative 'support/excon/test/server'
 require 'json'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration

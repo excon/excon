@@ -13,8 +13,6 @@ end
 
 def webrick_path(*parts) rackup_path(*parts); end
 
-def unicorn_path(*parts) rackup_path(*parts); end
-
 def puma_path(*parts) rackup_path(*parts); end
 
 def exec_path(*parts)

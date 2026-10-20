@@ -1,9 +1,8 @@
 require 'open3'
 require 'excon'
-require 'excon/test/plugin/server/webrick'
-require 'excon/test/plugin/server/unicorn'
-require 'excon/test/plugin/server/puma'
-require 'excon/test/plugin/server/exec'
+require_relative 'plugin/server/webrick'
+require_relative 'plugin/server/puma'
+require_relative 'plugin/server/exec'
 
 
 module Excon
