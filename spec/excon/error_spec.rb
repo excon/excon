@@ -8,7 +8,8 @@ describe Excon::Error do
         100,
         101,
         (200..206).to_a,
-        (300..307).to_a,
+        (300..305).to_a,
+        307, # 306 is unused (RFC 9110 15.4.8)
         (400..417).to_a,
         422,
         429,
@@ -16,7 +17,7 @@ describe Excon::Error do
       ].flatten
 
       it('returns the pertinent HTTP error numbers') do
-        expected.flatten == Excon::Error.status_errors.keys
+        expect(Excon::Error.status_errors.keys).to eq(expected)
       end
     end
   end
