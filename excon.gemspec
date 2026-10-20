@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
-  s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('webrick')
 
   s.metadata = {
