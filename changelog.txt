@@ -1,3 +1,8 @@
+Unreleased
+==========
+
+- move internal test servers out of the gem; `excon/test/server` is no longer shipped
+
 1.7.3 2026-10-13
 ==================
 
