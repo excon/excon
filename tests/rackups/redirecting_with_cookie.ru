@@ -1,19 +1,17 @@
 require 'sinatra'
-require 'sinatra/cookies'
 require 'json'
 
 class App < Sinatra::Base
-  helpers Sinatra::Cookies
   set :environment, :production
   enable :dump_errors
 
   get('/sets_cookie') do
-    cookies[:chocolatechip] = "chunky"
+    response.set_cookie("chocolatechip", value: "chunky", path: "/")
     redirect "/requires_cookie"
   end
 
   get('/requires_cookie') do
-    cookie = cookies[:chocolatechip]
+    cookie = request.cookies['chocolatechip']
     unless cookie.nil? || cookie != "chunky"
       "ok"
     else
@@ -22,13 +20,13 @@ class App < Sinatra::Base
   end
   
   get('/sets_multi_cookie') do
-    cookies[:chocolatechip] = "chunky"
-    cookies[:thinmints] = "minty"
+    response.set_cookie("chocolatechip", value: "chunky", path: "/")
+    response.set_cookie("thinmints", value: "minty", path: "/")
     redirect "/requires_cookie"
   end
 
   get('/requires_cookie') do
-    if cookies[:chocolatechip] == "chunky" && cookies[:thinmints] == "minty" 
+    if request.cookies['chocolatechip'] == "chunky" && request.cookies['thinmints'] == "minty" 
       "ok"
     else
       JSON.pretty_generate(headers)
