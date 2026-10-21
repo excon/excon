@@ -37,6 +37,10 @@ Tests are being migrated, gradually, to **minitest** in `test/`. Shindo
 
 - Add new tests to `test/` (files named `*_test.rb`), never to `tests/` or
   `spec/`.
+- `test/` follows the shindo layout: `tests/middlewares/foo_tests.rb` becomes
+  `test/middlewares/foo_test.rb`. Tests without a shindo counterpart go in
+  the matching subdirectory (`middlewares/`, `instrumentors/`) or at the top
+  level, e.g. `spec/requests/timeout_spec.rb` becomes `test/timeout_test.rb`.
 - For tests that need a server, `include TestServer` and declare
   `test_server :webrick, 'basic.ru'` (see `test/support/test_server.rb`).
 - Don't move or rewrite existing tests as a side effect of an unrelated
@@ -50,7 +54,7 @@ bundle exec rake                        # everything (what CI runs)
 bundle exec rake test                   # minitest only
 bundle exec rake tests                  # shindo only
 bundle exec rake spec                   # rspec only
-bundle exec ruby -Itest test/excon/utils_test.rb # one minitest file
+bundle exec ruby -Itest test/utils_test.rb # one minitest file
 bundle exec shindo tests/header_tests.rb # one shindo file
 bundle exec rspec spec/requests/basic_spec.rb   # one rspec file
 ```
