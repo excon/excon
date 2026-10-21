@@ -6,10 +6,8 @@ Guidance for AI coding agents (and humans) working in this repository.
 
 excon is a pure-Ruby HTTP(S) client library.
 
-- The only runtime dependency is `logger` (a default gem through Ruby 3.4,
-  no longer one from 4.0, hence the explicit dependency). Don't add runtime
-  gems; test/dev tooling goes in the gemspec's development dependencies or
-  the `Gemfile`.
+- There are no runtime dependencies. Keep it that way: test/dev tooling goes
+  in the gemspec's development dependencies or the `Gemfile`.
 - Supports Ruby >= 3.3 and JRuby; CI runs 3.3, 3.4, 4.0, head and jruby.
 - Backwards compatibility matters: keep public APIs and legacy aliases (e.g.
   `Excon::Errors::*` alongside `Excon::Error::*`) working.

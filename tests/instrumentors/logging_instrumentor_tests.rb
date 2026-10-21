@@ -1,5 +1,15 @@
-require 'logger'
-require 'tempfile'
+# any object responding to #info works as a logger
+class TestLogger
+  attr_reader :messages
+
+  def initialize
+    @messages = []
+  end
+
+  def info(message)
+    @messages << message
+  end
+end
 
 Shindo.tests('logging instrumentor') do
   env_init
@@ -7,12 +17,7 @@ Shindo.tests('logging instrumentor') do
   tests("connection logger").returns(true) do
     Excon.stub({:method => :get}, {body: 'body', status: 200})
 
-    log_path = Tempfile.create.path
-    logger = Logger.new(log_path)
-    # omit datetime to simplify test matcher
-    logger.formatter = proc do |severity, datetime, progname, msg|
-      "#{msg}\n"
-    end
+    logger = TestLogger.new
 
     connection = Excon.new(
       'http://127.0.0.1:9292',
@@ -23,21 +28,16 @@ Shindo.tests('logging instrumentor') do
 
     response = connection.request(method: :get, path: '/logger')
 
-    File.readlines(log_path) == [
-      "request: http://127.0.0.1/logger\n",
-      "response: body\n"
+    logger.messages == [
+      "request: http://127.0.0.1/logger",
+      "response: body"
     ]
   end
 
   tests("connection logger with query as hash").returns(true) do
     Excon.stub({:method => :get}, {body: 'body', status: 200})
 
-    log_path = Tempfile.create.path
-    logger = Logger.new(log_path)
-    # omit datetime to simplify test matcher
-    logger.formatter = proc do |severity, datetime, progname, msg|
-      "#{msg}\n"
-    end
+    logger = TestLogger.new
 
     connection = Excon.new(
       'http://127.0.0.1:9292',
@@ -50,9 +50,9 @@ Shindo.tests('logging instrumentor') do
       path: '/logger',
       query: {test: 'test'}
     )
-    File.readlines(log_path) == [
-      "request: http://127.0.0.1/logger?test=test\n",
-      "response: body\n"
+    logger.messages == [
+      "request: http://127.0.0.1/logger?test=test",
+      "response: body"
     ]
   end
 
