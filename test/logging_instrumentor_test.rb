@@ -25,7 +25,7 @@ class LoggingInstrumentorTest < Minitest::Test
 
     lines = err.lines
     assert_equal 2, lines.length
-    assert_match(%r{\A#{PREFIX}request: http://127\.0\.0\.1/logger\n\z}, lines[0])
-    assert_match(/\A#{PREFIX}response: body\n\z/, lines[1])
+    assert_match(%r{\A#{PREFIX}request: http://127\.0\.0\.1/logger\n\z}o, lines[0])
+    assert_match(/\A#{PREFIX}response: body\n\z/o, lines[1])
   end
 end
