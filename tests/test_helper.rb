@@ -6,10 +6,10 @@ TEST_SUITE_DEFAULTS = {
 
 require 'bundler/setup'
 require 'excon'
-require 'open3'
 require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
+require './test/support/in_process_server.rb'
 
 Excon.set_raise_on_warnings!(true)
 
@@ -323,88 +323,29 @@ def capture_response_block
   captures
 end
 
-def launch_process(*args)
-  Open3.popen3(*args)
-end
-
-def cleanup_process(wait_thr)
-  return if wait_thr.nil?
-
-  begin
-    Process.kill('KILL', wait_thr.pid)
-  rescue Errno::ESRCH
-    # already exited and reaped by the wait thread
-  end
-  wait_thr.join
-end
-
-def rackup_path(*parts)
-  File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
-end
-
-def wait_for_message(io, msg)
-  process_stderr = +''
-  until (line = io.gets)&.include?(msg)
-    # nil means we have reached the end of stream
-    raise process_stderr if line.nil?
-
-    process_stderr << line
-  end
-end
-
 def with_rackup(name, host="127.0.0.1")
-  w, r, e, wait_thr = launch_process(RbConfig.ruby, "-S", "rackup", "-s", "webrick", "--host", host, rackup_path(name))
-  wait_for_message(e, 'Rackup::Handler::WEBrick::Server#start')
+  server = InProcessServer.new(:webrick, name, bind: "tcp://#{host}:9292")
+  server.start
   yield
 ensure
-  cleanup_process(wait_thr)
-
-  # dump server errors
-  lines = e.read.split($/)
-  while line = lines.shift
-    case line
-    when /(ERROR|Error)/
-      unless line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error)/)
-        in_err = true
-        puts
-      end
-    when /^(127|localhost)/
-      in_err = false
-    end
-    puts line if in_err
-  end
+  server&.stop
 end
 
 def with_puma(name, listen='127.0.0.1:9292')
-  # Puma expects full URI with scheme (tcp:// or unix://)
-  if listen.start_with?('unix://')
-    bind_str = listen
-    unix_socket = listen.sub('unix://', '')
-  else
-    bind_str = listen.start_with?('tcp://') ? listen : "tcp://#{listen}"
-    unix_socket = nil
-  end
-  args = ["-b", bind_str]
-  args += ["-C", File.join(File.dirname(__FILE__), 'data', 'puma_unix.rb')] if unix_socket
-  w, r, e, wait_thr = launch_process(RbConfig.ruby, "-S", "puma", *args, rackup_path(name))
-  wait_for_message(r, 'Use Ctrl-C to stop')
+  listen = "tcp://#{listen}" unless listen.include?('://')
+  server = InProcessServer.new(:puma, name, bind: listen)
+  server.start
   yield
 ensure
-  cleanup_process(wait_thr)
-
-  File.delete(unix_socket) if !unix_socket.nil? && File.exist?(unix_socket)
-end
-
-def server_path(*parts)
-  File.expand_path(File.join(File.dirname(__FILE__), 'servers', *parts))
+  server&.stop
 end
 
 def with_server(name)
-  w, r, e, wait_thr = launch_process(RbConfig.ruby, server_path("#{name}.rb"))
-  wait_for_message(e, 'ready')
+  server = InProcessServer.new(:exec, "#{name}.rb")
+  server.start
   yield
 ensure
-  cleanup_process(wait_thr)
+  server&.stop
 end
 
 # A tiny fake SSL streaming server

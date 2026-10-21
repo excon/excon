@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-# Runs an Excon::Test::Server around each test class that declares one.
+require_relative 'in_process_server'
+
+# Runs an in-process test server (see in_process_server.rb) around each test
+# class that declares one.
 #
 #   class FooTest < Minitest::Test
 #     include TestServer
@@ -21,19 +24,18 @@ module TestServer
   module ClassMethods
     attr_reader :server
 
-    # plugin: :webrick, :puma or :exec
-    # file: a rackup (webrick, puma) or script (exec), relative to tests/
-    def test_server(plugin, file, bind: nil)
-      @test_server_args = { plugin => send(:"#{plugin}_path", file) }
-      @test_server_args[:bind] = bind if bind
+    # kind: :webrick or :puma (file is in tests/rackups), or :exec (file is
+    # in tests/servers)
+    def test_server(kind, file, bind: nil)
+      @test_server_args = [kind, file, { bind: bind }]
     end
 
     # Minitest (>= 6) runs each class's tests via run_suite.
     def run_suite(reporter, options = {})
       return super if @test_server_args.nil? || filter_runnable_methods(options).empty?
 
-      @server = Excon::Test::Server.new(@test_server_args)
-      @server.start
+      kind, file, server_options = @test_server_args
+      @server = InProcessServer.new(kind, file, **server_options).start
       begin
         super
       ensure
