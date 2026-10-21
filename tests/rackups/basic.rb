@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sinatra'
+require 'sinatra/base'
 require 'json'
 
 # Basic server defines requests/responses for testing
