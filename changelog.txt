@@ -3,6 +3,7 @@ Unreleased
 
 - remove activesupport and delorean dev dependencies, migrate instrumentation tests to minitest
 - remove sinatra-contrib dev dependency (use rack cookie helpers in test rackup)
+- escape hostnames in `no_proxy` patterns while preserving the `*` wildcard
 
 1.8.0 2026-10-21
 ==========

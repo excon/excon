@@ -545,8 +545,10 @@ module Excon
                        rescue IPAddr::Error
                          false
                        end
+                     elsif host == '*'
+                       true
                      else
-                       /(^|\.)#{host}$/.match(@data[:host])
+                       /(^|\.)#{Regexp.escape(host)}$/.match(@data[:host])
                      end
         host_match && (port.nil? || port.to_i == @data[:port])
     end
