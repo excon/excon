@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- remove activesupport and delorean dev dependencies, migrate instrumentation tests to minitest
+
 1.8.0 2026-10-21
 ==========
 
