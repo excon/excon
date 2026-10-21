@@ -50,9 +50,9 @@ bundle exec rake                        # everything (what CI runs)
 bundle exec rake test                   # minitest only
 bundle exec rake tests                  # shindo only
 bundle exec rake spec                   # rspec only
-bundle exec ruby -Itest test/test_server_test.rb  # one minitest file
-bundle exec shindo tests/utils_tests.rb # one shindo file
-bundle exec rspec spec/excon/error_spec.rb
+bundle exec ruby -Itest test/excon/utils_test.rb # one minitest file
+bundle exec shindo tests/header_tests.rb # one shindo file
+bundle exec rspec spec/requests/basic_spec.rb   # one rspec file
 ```
 
 Notes:
