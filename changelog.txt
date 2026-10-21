@@ -1,6 +1,7 @@
 Unreleased
 ==========
 
+- updated bundled certs (removes emSign ECC Root CA - G3, emSign Root CA - C1, emSign ECC Root CA - C3)
 - move internal test servers out of the gem; `excon/test/server` is no longer shipped
 
 1.7.3 2026-10-13
