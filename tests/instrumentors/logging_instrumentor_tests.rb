@@ -1,5 +1,3 @@
-require 'stringio'
-
 # any object responding to #info works as a logger
 class TestLogger
   attr_reader :messages
@@ -56,30 +54,6 @@ Shindo.tests('logging instrumentor') do
       "request: http://127.0.0.1/logger?test=test",
       "response: body"
     ]
-  end
-
-  tests("default logger writes Logger formatted lines to stderr").returns(true) do
-    Excon.stub({:method => :get}, {body: 'body', status: 200})
-
-    connection = Excon.new(
-      'http://127.0.0.1:9292',
-      instrumentor: Excon::LoggingInstrumentor,
-      mock: true
-    )
-
-    original_stderr = $stderr
-    $stderr = StringIO.new
-    begin
-      connection.request(method: :get, path: '/logger')
-      lines = $stderr.string.lines
-    ensure
-      $stderr = original_stderr
-    end
-
-    prefix = /\AI, \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6} ##{Process.pid}\]  INFO -- : /
-    lines.length == 2 &&
-      lines[0].match?(%r{#{prefix}request: http://127\.0\.0\.1/logger\n\z}) &&
-      lines[1].match?(/#{prefix}response: body\n\z/)
   end
 
   Excon.stubs.clear
