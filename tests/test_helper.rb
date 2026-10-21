@@ -6,7 +6,6 @@ TEST_SUITE_DEFAULTS = {
 
 require 'bundler/setup'
 require 'excon'
-require 'delorean'
 require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
