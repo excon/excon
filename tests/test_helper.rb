@@ -6,7 +6,6 @@ TEST_SUITE_DEFAULTS = {
 
 require 'bundler/setup'
 require 'excon'
-require 'delorean'
 require 'open3'
 require 'webrick'
 
