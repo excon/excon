@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- remove sinatra-contrib dev dependency (use rack cookie helpers in test rackup)
+
 1.8.0 2026-10-21
 ==========
 
