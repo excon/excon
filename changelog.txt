@@ -1,7 +1,20 @@
 Unreleased
 ==========
 
+- remove sinatra-contrib dev dependency (use rack cookie helpers in test rackup)
+
+1.8.0 2026-10-21
+==========
+
+- remove json gem dev dependency (should be available via stdlib)
+- replace eventmahcine test usage with stdlib sockets and remove dev dep
+- drop duplicate puma entry from Gemfile
+- fix jruby ci timeout on unix sockets
+- replace open4 with open3 and remove dev dep
+- fix remaining jruby in ci
 - move internal test servers out of the gem; `excon/test/server` is no longer shipped
+- remove duplicate timeout test and fix status_errors spec
+- updated bundled certs (removes emSign ECC Root CA - G3, emSign Root CA - C1, emSign ECC Root CA - C3)
 
 1.7.3 2026-10-13
 ==================

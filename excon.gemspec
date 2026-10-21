@@ -27,13 +27,13 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency('activesupport')
   s.add_development_dependency('delorean')
+  s.add_development_dependency('minitest', '>= 6')
   s.add_development_dependency('puma')
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('rspec', '>= 3.5.0')
   s.add_development_dependency('shindo')
   s.add_development_dependency('sinatra')
-  s.add_development_dependency('sinatra-contrib')
   s.add_development_dependency('webrick')
 
   s.metadata = {

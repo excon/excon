@@ -7,13 +7,10 @@ TEST_SUITE_DEFAULTS = {
 require 'bundler/setup'
 require 'excon'
 require 'delorean'
-require 'puma'
-require 'rack/builder'
-require 'rackup/handler/webrick'
-require 'stringio'
 require 'webrick'
 
 require './spec/helpers/warning_helpers.rb'
+require './test/support/in_process_server.rb'
 
 Excon.set_raise_on_warnings!(true)
 
@@ -327,111 +324,29 @@ def capture_response_block
   captures
 end
 
-def rackup_path(*parts)
-  File.expand_path(File.join(File.dirname(__FILE__), 'rackups', *parts))
-end
-
-# Test servers run in a thread of the test process rather than in a child
-# process, as booting a new interpreter for each one is very slow on JRuby.
-
-# Evaluates a rackup, returning the app it runs (or nil for the ssl rackups,
-# which start their own server). instance_eval scopes the classes a rackup
-# defines to its builder, so rackups reusing a class name (App) don't reopen
-# each other's classes.
-def rackup_app(name)
-  builder = Rack::Builder.new
-  builder.instance_eval(File.read(rackup_path(name)), rackup_path(name))
-  builder.to_app unless Thread.current[:server_started]
-end
-
-module InProcessWEBrick
-  # Logs to a buffer instead of stderr and hands the server to with_rackup
-  # once it is listening.
-  def run(app, **options)
-    options = { :Logger => WEBrick::Log.new(Thread.current[:server_log]), :AccessLog => [] }.merge(options)
-    super(app, **options) do |server|
-      yield server if block_given?
-      Thread.current[:server_started] = true
-      Thread.current[:server_queue] << server
-    end
-  end
-end
-Rackup::Handler::WEBrick.singleton_class.prepend(InProcessWEBrick)
-
 def with_rackup(name, host="127.0.0.1")
-  log = StringIO.new
-  queue = Queue.new
-  thread = Thread.new do
-    Thread.current[:server_log] = log
-    Thread.current[:server_queue] = queue
-    # ssl rackups start their own server while being evaluated
-    app = rackup_app(name)
-    Rackup::Handler::WEBrick.run(app, :Host => host, :Port => 9292) unless Thread.current[:server_started]
-  rescue Exception => error
-    queue << error
-  end
-  server = queue.pop
-  raise server if server.is_a?(Exception)
+  server = InProcessServer.new(:webrick, name, bind: "tcp://#{host}:9292")
+  server.start
   yield
 ensure
-  server.shutdown if server.is_a?(WEBrick::GenericServer)
-  thread.kill unless thread.nil? || thread.join(5)
-
-  # dump server errors
-  lines = log.string.split($/)
-  while line = lines.shift
-    case line
-    when /(ERROR|Error)/
-      unless line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error)/)
-        in_err = true
-        puts
-      end
-    when /^(127|localhost)/
-      in_err = false
-    end
-    puts line if in_err
-  end
+  server&.stop
 end
 
 def with_puma(name, listen='127.0.0.1:9292')
-  if listen.start_with?('unix://')
-    unix_socket = listen.sub('unix://', '')
-    # On JRuby, puma's reactor intermittently misses requests arriving on unix
-    # sockets, leaving them unanswered until the client times out. Hand each
-    # connection straight to a worker thread instead.
-    server = Puma::Server.new(rackup_app(name), nil, :queue_requests => false)
-    server.add_unix_listener(unix_socket)
-  else
-    host, port = listen.sub('tcp://', '').split(':')
-    server = Puma::Server.new(rackup_app(name))
-    server.add_tcp_listener(host, port.to_i)
-  end
-  server.run
+  listen = "tcp://#{listen}" unless listen.include?('://')
+  server = InProcessServer.new(:puma, name, bind: listen)
+  server.start
   yield
 ensure
-  server&.stop(true)
-
-  File.delete(unix_socket) if !unix_socket.nil? && File.exist?(unix_socket)
-end
-
-def server_path(*parts)
-  File.expand_path(File.join(File.dirname(__FILE__), 'servers', *parts))
+  server&.stop
 end
 
 def with_server(name)
-  thread = Thread.new do
-    Thread.current.report_on_exception = false # raised by thread.join below
-    load server_path("#{name}.rb")
-  end
-  sleep(0.01) until thread[:tcp_server] || !thread.alive?
-  thread.join unless thread.alive? # raises if the server failed to start
+  server = InProcessServer.new(:exec, "#{name}.rb")
+  server.start
   yield
 ensure
-  if thread
-    thread.kill.join
-    thread[:tcp_server]&.close
-    thread[:clients]&.each(&:close)
-  end
+  server&.stop
 end
 
 # A tiny fake SSL streaming server
