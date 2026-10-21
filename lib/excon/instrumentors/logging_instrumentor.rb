@@ -1,12 +1,19 @@
-require 'logger'
-
 module Excon
   class LoggingInstrumentor
+
+    # Stand-in for Logger.new($stderr), matching Logger's default format, so
+    # excon does not need to depend on the logger gem.
+    module StderrLogger
+      def self.info(message)
+        timestamp = Time.now.strftime('%Y-%m-%dT%H:%M:%S.%6N')
+        $stderr.write("I, [#{timestamp} ##{Process.pid}]  INFO -- : #{message}\n")
+      end
+    end
 
     def self.instrument(name, params = {})
       params = params.dup
 
-      logger = params[:logger] || Logger.new($stderr)
+      logger = params[:logger] || StderrLogger
 
       # reduce duplication/noise of output
       params.delete(:connection)

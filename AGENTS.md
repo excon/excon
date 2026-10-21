@@ -6,10 +6,8 @@ Guidance for AI coding agents (and humans) working in this repository.
 
 excon is a pure-Ruby HTTP(S) client library.
 
-- The only runtime dependency is `logger` (a default gem through Ruby 3.4,
-  no longer one from 4.0, hence the explicit dependency). Don't add runtime
-  gems; test/dev tooling goes in the gemspec's development dependencies or
-  the `Gemfile`.
+- There are no runtime dependencies. Keep it that way: test/dev tooling goes
+  in the gemspec's development dependencies or the `Gemfile`.
 - Supports Ruby >= 3.3 and JRuby; CI runs 3.3, 3.4, 4.0, head and jruby.
 - Backwards compatibility matters: keep public APIs and legacy aliases (e.g.
   `Excon::Errors::*` alongside `Excon::Error::*`) working.
@@ -22,13 +20,15 @@ excon is a pure-Ruby HTTP(S) client library.
 - `data/cacert.pem` — bundled CA certs. Don't edit by hand; use
   `rake update_certs` (which also regenerates the test certs in `tests/data/`).
 - `test/` — minitest tests (the target for all tests; see below).
-  `test/support/test_server.rb` runs a test server around a test class.
+  `test/support/test_server.rb` runs a test server around a test class,
+  using `test/support/in_process_server.rb`, which runs the fixture servers
+  in a thread of the test process (also used by the shindo helpers).
 - `tests/` — shindo tests (legacy), plus shared fixtures used by all suites:
   `tests/rackups/` (rack apps), `tests/servers/` (raw socket servers),
   `tests/data/` (certs, files).
-- `spec/` — rspec tests (legacy); `spec/support/` holds the test server
-  harness (`Excon::Test::Server`, also used by `test/`) and shared
-  examples/contexts.
+- `spec/` — rspec tests (legacy); `spec/support/` holds the rspec test server
+  harness (`Excon::Test::Server`, which runs each server in a child process)
+  and shared examples/contexts.
 
 ## Tests
 

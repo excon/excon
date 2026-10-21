@@ -4,6 +4,7 @@ Unreleased
 - remove activesupport and delorean dev dependencies, migrate instrumentation tests to minitest
 - remove sinatra-contrib dev dependency (use rack cookie helpers in test rackup)
 - escape hostnames in `no_proxy` patterns while preserving the `*` wildcard
+- remove logger gem runtime dependency; excon now has no runtime dependencies. The default LoggingInstrumentor output to $stderr keeps Logger's format. Requiring excon no longer loads Logger, so code relying on that should require 'logger' itself (minor version bump)
 
 1.8.0 2026-10-21
 ==========
