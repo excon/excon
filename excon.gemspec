@@ -23,8 +23,6 @@ Gem::Specification.new do |s|
   ]
   s.required_ruby_version = '>= 3.3.0'
 
-  s.add_development_dependency('activesupport')
-  s.add_development_dependency('delorean')
   s.add_development_dependency('minitest', '>= 6')
   s.add_development_dependency('puma')
   s.add_development_dependency('rake')
