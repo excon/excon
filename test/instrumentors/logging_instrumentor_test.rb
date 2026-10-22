@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'test_helper'
+require_relative '../test_helper'
 
 class LoggingInstrumentorTest < Minitest::Test
   # Logger's default format, e.g. "I, [2026-10-21T13:03:07.183517 #496]  INFO -- : "
