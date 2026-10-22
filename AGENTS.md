@@ -46,6 +46,7 @@ Tests are being migrated, gradually, to **minitest** in `test/`. Shindo
 - Don't move or rewrite existing tests as a side effect of an unrelated
   change; migration happens in dedicated PRs, and a migrated test is deleted
   from its old suite in the same PR.
+- To port a file, follow `.claude/skills/port-tests/SKILL.md`.
 
 Running tests:
 
