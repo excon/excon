@@ -2,33 +2,45 @@
 
 require_relative 'test_helper'
 
-# Run against both good_ipv4.rb and good_ipv6.rb. The server's
-# /echo/request_count counts requests per connection, so it shows whether a
-# connection was reused.
+# Whether a connection is kept open between requests (:persistent), both as a
+# connection default and overridden per request.
+#
+# The server's /echo/request_count returns how many requests it has received
+# on the current TCP connection, so '1' means the request opened a new
+# connection and anything higher means it reused one.
+#
+# Included below once per server, to cover both IPv4 and IPv6.
 module PersistentConnectionTests
-  def test_persistent_true_reuses_the_connection
+  def test_persistent_connection_reuses_the_connection
     connection = Excon.new(url, persistent: true)
-    assert_equal %w[1 2], [request_count(connection), request_count(connection)]
 
-    # persistent: false on a request closes the connection after it
-    assert_equal %w[3 1 2], [
-      request_count(connection, persistent: false),
-      request_count(connection),
-      request_count(connection)
-    ]
+    assert_equal '1', request_count(connection)
+    assert_equal '2', request_count(connection) # same connection
   end
 
-  def test_persistent_false_opens_a_connection_per_request
-    connection = Excon.new(url, persistent: false)
-    assert_equal %w[1 1], [request_count(connection), request_count(connection)]
+  def test_persistent_false_on_a_request_closes_the_connection_after_it
+    connection = Excon.new(url, persistent: true)
+    request_count(connection)
 
-    # persistent: true on a request keeps the connection open after it
-    assert_equal %w[1 2 3 1], [
-      request_count(connection, persistent: true),
-      request_count(connection, persistent: true),
-      request_count(connection),
-      request_count(connection)
-    ]
+    assert_equal '2', request_count(connection, persistent: false) # same connection, then closed
+    assert_equal '1', request_count(connection) # new connection
+    assert_equal '2', request_count(connection) # reused again
+  end
+
+  def test_non_persistent_connection_opens_a_connection_per_request
+    connection = Excon.new(url, persistent: false)
+
+    assert_equal '1', request_count(connection)
+    assert_equal '1', request_count(connection) # new connection
+  end
+
+  def test_persistent_true_on_a_request_keeps_the_connection_open_after_it
+    connection = Excon.new(url, persistent: false)
+
+    assert_equal '1', request_count(connection, persistent: true)
+    assert_equal '2', request_count(connection, persistent: true) # same connection
+    assert_equal '3', request_count(connection) # same connection, then closed
+    assert_equal '1', request_count(connection) # new connection
   end
 
   private
@@ -53,23 +65,24 @@ class RequestIPv6Test < Minitest::Test
   include TestServer
   include PersistentConnectionTests
 
-  UNSUPPORTED =
-    if RUBY_PLATFORM == 'java'
-      'good_ipv6.rb does not listen on JRuby'
-    else
-      begin
-        TCPServer.new('::1', 0).close
-        nil
-      rescue SystemCallError => e
-        "IPv6 loopback (::1) is unavailable: #{e.message}"
-      end
-    end
+  # Why these tests can't run here, or nil if they can.
+  def self.unsupported_reason
+    return 'good_ipv6.rb does not listen on JRuby' if RUBY_PLATFORM == 'java'
 
-  # Only start the server where it can run; otherwise every test skips.
-  test_server :exec, 'good_ipv6.rb' unless UNSUPPORTED
+    TCPServer.new('::1', 0).close
+    nil
+  rescue SystemCallError => e
+    "IPv6 loopback (::1) is unavailable: #{e.message}"
+  end
+
+  UNSUPPORTED_REASON = unsupported_reason
+
+  # Starting a server that can't listen would fail the whole class, so only
+  # declare it where it can run, and skip the tests everywhere else.
+  test_server :exec, 'good_ipv6.rb' unless UNSUPPORTED_REASON
 
   def setup
-    skip UNSUPPORTED if UNSUPPORTED
+    skip UNSUPPORTED_REASON if UNSUPPORTED_REASON
     super
   end
 
