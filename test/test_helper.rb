@@ -15,5 +15,6 @@ require_relative '../spec/helpers/warning_helpers'
 require_relative '../spec/support/excon/test/server'
 
 require_relative 'support/test_server'
+require_relative 'support/without_proxy_env'
 
 Excon.set_raise_on_warnings!(true)
