@@ -2,7 +2,7 @@
 
 require_relative 'test_helper'
 
-# timeout.ru answers /no-timeout straight away and sleeps 2 seconds before
+# timeout.ru answers /no-timeout straight away and sleeps 0.1 seconds before
 # answering /timeout. :timeout is the deadline for the whole request;
 # :read_timeout bounds each read.
 class TimeoutTest < Minitest::Test

@@ -9,7 +9,7 @@ class App < Sinatra::Base
   end
 
   get('/timeout') do
-    sleep(2)
+    sleep(0.1)
     ''
   end
 end
