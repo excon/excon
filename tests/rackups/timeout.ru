@@ -1,17 +1,13 @@
-require 'sinatra/base'
-
-class App < Sinatra::Base
-  set :environment, :production
-  enable :dump_errors
-
-  get('/no-timeout') do
-    ''
-  end
-
-  get('/timeout') do
+app = lambda do |env|
+  case [env['REQUEST_METHOD'], env['PATH_INFO']]
+  in ['GET' | 'HEAD', '/no-timeout']
+    [200, { 'content-type' => 'text/plain' }, ['']]
+  in ['GET' | 'HEAD', '/timeout']
     sleep(0.1)
-    ''
+    [200, { 'content-type' => 'text/plain' }, ['']]
+  else
+    [404, { 'content-type' => 'text/plain' }, ['Not Found']]
   end
 end
 
-run App
+run app

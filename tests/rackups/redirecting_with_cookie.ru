@@ -1,37 +1,28 @@
-require 'sinatra/base'
 require 'json'
 
-class App < Sinatra::Base
-  set :environment, :production
-  enable :dump_errors
+app = lambda do |env|
+  request = Rack::Request.new(env)
+  response = Rack::Response.new([], 200, 'content-type' => 'text/plain')
 
-  get('/sets_cookie') do
-    response.set_cookie("chocolatechip", value: "chunky", path: "/")
-    redirect "/requires_cookie"
-  end
-
-  get('/requires_cookie') do
-    cookie = request.cookies['chocolatechip']
-    unless cookie.nil? || cookie != "chunky"
-      "ok"
+  case [request.request_method, request.path_info]
+  in ['GET' | 'HEAD', '/sets_cookie']
+    response.set_cookie('chocolatechip', value: 'chunky', path: '/')
+    response.redirect("#{request.base_url}/requires_cookie")
+  in ['GET' | 'HEAD', '/sets_multi_cookie']
+    response.set_cookie('chocolatechip', value: 'chunky', path: '/')
+    response.set_cookie('thinmints', value: 'minty', path: '/')
+    response.redirect("#{request.base_url}/requires_cookie")
+  in ['GET' | 'HEAD', '/requires_cookie']
+    if request.cookies['chocolatechip'] == 'chunky'
+      response.write('ok')
     else
-      JSON.pretty_generate(headers)
+      response.write(JSON.pretty_generate(request.cookies))
     end
+  else
+    response.status = 404
+    response.write('Not Found')
   end
-  
-  get('/sets_multi_cookie') do
-    response.set_cookie("chocolatechip", value: "chunky", path: "/")
-    response.set_cookie("thinmints", value: "minty", path: "/")
-    redirect "/requires_cookie"
-  end
-
-  get('/requires_cookie') do
-    if request.cookies['chocolatechip'] == "chunky" && request.cookies['thinmints'] == "minty" 
-      "ok"
-    else
-      JSON.pretty_generate(headers)
-    end
-  end
+  response.finish
 end
 
-run App
+run app
