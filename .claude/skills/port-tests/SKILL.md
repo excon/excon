@@ -35,6 +35,7 @@ is done, moving anything still useful into `AGENTS.md`.
 | Shindo / rspec | Minitest |
 |---|---|
 | `returns(x) { ... }` | `assert_equal x, ...` (also for `true`/`false`; `refute` passes on `nil`) |
+| `returns([a, b, ...])` over a sequence of results | one `assert_equal` per element, each commented with what it shows (see `test/request_test.rb`) |
 | `raises(E) { ... }`, `begin ... rescue E` | `error = assert_raises(E) { ... }`, then assert on `error` |
 | `test('...') { bool }` | `assert ...` |
 | `pending` | `skip 'reason'` |
