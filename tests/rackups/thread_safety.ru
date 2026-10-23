@@ -1,16 +1,12 @@
-require 'sinatra/base'
-
-class App < Sinatra::Base
-  set :environment, :production
-  enable :dump_errors
-
-  get('/id/:id/wait/:wait') do |id, wait|
+app = lambda do |env|
+  if %w[GET HEAD].include?(env['REQUEST_METHOD']) && env['PATH_INFO'] =~ %r{\A/id/([^/]+)/wait/([^/]+)\z}
+    id = Regexp.last_match(1)
+    wait = Regexp.last_match(2)
     sleep(wait.to_i)
-    id.to_s
+    [200, { 'content-type' => 'text/plain' }, [id]]
+  else
+    [404, { 'content-type' => 'text/plain' }, ['Not Found']]
   end
 end
 
-# get everything autoloaded, mainly for rbx
-App.new
-
-run App
+run app

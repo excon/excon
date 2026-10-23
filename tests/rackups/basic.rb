@@ -1,55 +1,44 @@
 # frozen_string_literal: true
 
-require 'sinatra/base'
 require 'json'
+require 'rack'
 
 # Basic server defines requests/responses for testing
-class Basic < Sinatra::Base
-  set :environment, :production
-  enable :dump_errors
+class Basic
+  CONTENT_TYPE = { 'content-type' => 'text/html;charset=utf-8' }.freeze
 
-  get('/') do
-    'GET /'
+  def self.call(env)
+    new.call(env)
   end
 
-  get('/content-length/:value') do |value|
-    headers('Custom' => 'Foo: bar')
-    'x' * value.to_i
-  end
+  def call(env)
+    request = Rack::Request.new(env)
+    # GET routes also answer HEAD; the server drops the body
+    method = request.head? ? 'GET' : request.request_method
 
-  get('/headers') do
-    content_type :json
-    request.env.select { |key, _| key.start_with? 'HTTP_' }.to_json
-  end
-
-  post('/body-sink') do
-    request.body.read.size.to_s
-  end
-
-  post('/echo') do
-    echo
-  end
-
-  put('/echo') do
-    echo
-  end
-
-  get('/echo dirty') do
-    echo
-  end
-
-  get('/foo') do
-    'foo'
-  end
-
-  get('/bar') do
-    'bar'
+    case [method, Rack::Utils.unescape_path(request.path_info)]
+    in ['GET', '/']
+      ok('GET /')
+    in ['GET', %r{\A/content-length/([^/]+)\z}]
+      ok('x' * Regexp.last_match(1).to_i, 'custom' => 'Foo: bar')
+    in ['GET', '/headers']
+      ok(env.select { |key, _| key.start_with?('HTTP_') }.to_json, 'content-type' => 'application/json')
+    in ['POST', '/body-sink']
+      ok(request.body.read.size.to_s)
+    in ['POST' | 'PUT', '/echo'] | ['GET', '/echo dirty']
+      ok(request.body.read)
+    in ['GET', '/foo']
+      ok('foo')
+    in ['GET', '/bar']
+      ok('bar')
+    else
+      [404, { 'content-type' => 'text/plain' }, ['Not Found']]
+    end
   end
 
   private
 
-  def echo
-    request.body.read
+  def ok(body, headers = {})
+    [200, CONTENT_TYPE.merge(headers), [body]]
   end
-
 end

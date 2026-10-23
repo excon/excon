@@ -10,7 +10,7 @@ require 'webrick'
 # Runs a test server (a rackup in tests/rackups or a socket server in
 # tests/servers) in a thread of the test process. Starting each one in its
 # own process instead is slow, especially on JRuby, where every server boots
-# a JVM and reloads bundler, rack and sinatra.
+# a JVM and reloads bundler and rack.
 #
 #   server = InProcessServer.new(:webrick, 'basic.ru').start
 #   Excon.get('http://127.0.0.1:9292/')
