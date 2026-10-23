@@ -1,6 +1,7 @@
 Unreleased
 ==========
 
+- remove unused rdoc dev dependency and stale .document file
 - remove activesupport and delorean dev dependencies, migrate instrumentation tests to minitest
 - remove sinatra-contrib dev dependency (use rack cookie helpers in test rackup)
 - remove sinatra dev dependency (test rackups are now plain rack apps)

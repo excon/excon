@@ -1,7 +1,6 @@
 require 'shindo/rake'
 require 'rspec/core/rake_task'
 require 'bundler/gem_tasks'
-require 'rdoc/task'
 require 'rake/testtask'
 
 Shindo::Rake.new
