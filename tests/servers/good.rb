@@ -112,7 +112,7 @@ class GoodServer
           write chunks_for(body)
           write "\r\n"
         else
-          write "Content-Length: #{ body.size }\r\n"
+          write "Content-Length: #{ body.bytesize }\r\n"
           write "\r\n"
           write body
         end
