@@ -26,21 +26,17 @@ excon is a pure-Ruby HTTP(S) client library.
 - `tests/` — shindo tests (legacy), plus shared fixtures used by all suites:
   `tests/rackups/` (rack apps), `tests/servers/` (raw socket servers),
   `tests/data/` (certs, files).
-- `spec/` — rspec tests (legacy); `spec/support/` holds the rspec test server
-  harness (`Excon::Test::Server`, which runs each server in a child process)
-  and shared examples/contexts.
 
 ## Tests
 
 Tests are being migrated, gradually, to **minitest** in `test/`. Shindo
-(`tests/`) and rspec (`spec/`) are legacy and frozen.
+(`tests/`) is legacy and frozen.
 
-- Add new tests to `test/` (files named `*_test.rb`), never to `tests/` or
-  `spec/`.
+- Add new tests to `test/` (files named `*_test.rb`), never to `tests/`.
 - `test/` follows the shindo layout: `tests/middlewares/foo_tests.rb` becomes
   `test/middlewares/foo_test.rb`. Tests without a shindo counterpart go in
   the matching subdirectory (`middlewares/`, `instrumentors/`) or at the top
-  level, e.g. `spec/requests/timeout_spec.rb` becomes `test/timeout_test.rb`.
+  level, e.g. `test/timeout_test.rb`.
 - For tests that need a server, `include TestServer` and declare
   `test_server :webrick, 'basic.ru'` (see `test/support/test_server.rb`).
 - Don't move or rewrite existing tests as a side effect of an unrelated
@@ -54,18 +50,15 @@ Running tests:
 bundle exec rake                        # everything (what CI runs)
 bundle exec rake test                   # minitest only
 bundle exec rake tests                  # shindo only
-bundle exec rake spec                   # rspec only
 bundle exec ruby -Itest test/utils_test.rb # one minitest file
 bundle exec shindo tests/header_tests.rb # one shindo file
-bundle exec rspec spec/requests/basic_spec.rb   # one rspec file
 ```
 
 Notes:
 
 - Test servers bind fixed ports (9292, 9443, 8443, 1080), so run suites
   serially, not in parallel.
-- Some tests need outbound DNS (the resolver specs look up `google.com`) or
-  IPv6 loopback (`::1`). In sandboxes without those they fail for
+- Some tests need IPv6 loopback (`::1`). In sandboxes without it they fail for
   environmental reasons, not because of your change; check whether they
   also fail without it.
 

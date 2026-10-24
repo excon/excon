@@ -3,32 +3,6 @@
 require_relative 'test_helper'
 require 'tmpdir'
 
-class TestServerLifecycleTest < Minitest::Test
-  SERVERS = {
-    webrick: [:webrick, 'basic.ru'],
-    puma_tcp: [:puma, 'streaming.ru'],
-    puma_unix: [:puma, 'streaming.ru', "unix://#{File.join(Dir.tmpdir, 'excon-puma.socket')}"],
-    exec: [:exec, 'good_ipv4.rb']
-  }.freeze
-
-  SERVERS.each do |name, (plugin, file, bind)|
-    define_method(:"test_#{name}_starts_and_stops") do
-      args = { plugin => send(:"#{plugin}_path", file) }
-      args[:bind] = bind if bind
-      server = Excon::Test::Server.new(args)
-      unix = server.bind.scheme == 'unix'
-
-      assert_instance_of Excon::Test::Server, server
-
-      assert server.start
-      assert File.socket?(server.bind.path) if unix
-
-      assert server.stop
-      refute File.exist?(server.bind.path) if unix
-    end
-  end
-end
-
 class InProcessServerLifecycleTest < Minitest::Test
   SERVERS = {
     webrick: [:webrick, 'basic.ru'],

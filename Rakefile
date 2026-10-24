@@ -1,15 +1,8 @@
 require 'shindo/rake'
-require 'rspec/core/rake_task'
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 
 Shindo::Rake.new
-
-RSpec::Core::RakeTask.new(:spec, :format) do |t, args|
-  format = args[:format] || 'doc'
-  t.rspec_opts = ["-c", "-f #{format}", "-r ./spec/spec_helper.rb"]
-  t.pattern = 'spec/**/*_spec.rb'
-end
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
@@ -17,7 +10,7 @@ Rake::TestTask.new(:test) do |t|
   t.warning = false
 end
 
-task :default => [:tests, :spec, :test]
+task :default => [:tests, :test]
 
 desc "test if bundled certs are up to date"
 task :test_certs do

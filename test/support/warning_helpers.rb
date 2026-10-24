@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Runs the block with Ruby warnings and Excon's raise-on-warnings both off.
 def silence_warnings
   orig_verbose = $VERBOSE
   $VERBOSE = nil

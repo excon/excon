@@ -12,7 +12,6 @@ gem 'rackup'
 gem 'rubocop'
 gem 'rubocop-performance'
 gem 'rubocop-rake'
-gem 'rubocop-rspec'
 
 # group :benchmark do
 #   gem 'em-http-request'

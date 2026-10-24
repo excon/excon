@@ -9,12 +9,9 @@ TEST_SUITE_DEFAULTS = {
 require 'excon'
 require 'minitest/autorun'
 
-# Shared with the rspec suite until it has been migrated.
-require_relative '../spec/helpers/file_path_helpers'
-require_relative '../spec/helpers/warning_helpers'
-require_relative '../spec/support/excon/test/server'
-
+require_relative 'support/file_path_helpers'
 require_relative 'support/test_server'
+require_relative 'support/warning_helpers'
 require_relative 'support/without_proxy_env'
 
 Excon.set_raise_on_warnings!(true)
