@@ -9,7 +9,7 @@ New contributors are always welcome, when it doubt please ask questions. We stri
   * Review open [issues](https://github.com/excon/excon/issues) for things to help on.
   * [Create an issue](https://github.com/excon/excon/issues/new) to start a discussion on additions or features.
 * Fork the project, add your changes and tests to cover them in a topic branch.
-  * New tests go in `test/` (minitest), not `tests/` (shindo) or `spec/` (rspec), which are being migrated; see [AGENTS.md](AGENTS.md#tests).
+  * New tests go in `test/` (minitest), not `tests/` (shindo), which is being migrated; see [AGENTS.md](AGENTS.md#tests).
 * Commit your changes and rebase against `excon/excon` to ensure everything is up to date.
 * [Submit a pull request](https://github.com/excon/excon/compare/).
 

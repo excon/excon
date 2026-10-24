@@ -8,7 +8,7 @@ require 'bundler/setup'
 require 'excon'
 require 'webrick'
 
-require './spec/helpers/warning_helpers.rb'
+require './test/support/warning_helpers.rb'
 require './test/support/in_process_server.rb'
 
 Excon.set_raise_on_warnings!(true)

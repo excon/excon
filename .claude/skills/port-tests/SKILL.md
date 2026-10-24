@@ -1,12 +1,12 @@
 ---
 name: port-tests
-description: Port a shindo (tests/) or rspec (spec/) test file to minitest (test/). Use when asked to migrate, port or convert existing tests.
+description: Port a shindo (tests/) test file to minitest (test/). Use when asked to migrate, port or convert existing tests.
 ---
 
 # Porting tests to minitest
 
-Goal: move every test from `tests/` (shindo) and `spec/` (rspec) into `test/`
-(minitest), one file per PR, deleting the originals, until both are empty.
+Goal: move every test from `tests/` (shindo) into `test/` (minitest), one
+file per PR, deleting the originals, until only fixtures remain.
 
 Keep this guide to about one screen. Add to it only when a pattern shows up
 in a second file or a port went wrong in review because something was
