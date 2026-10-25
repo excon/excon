@@ -1,6 +1,7 @@
 Unreleased
 ==========
 
+- RedirectFollower returns a 301, 302, 303, 307 or 308 response without a Location header instead of raising ArgumentError
 - move test fixtures from tests/ to test/fixtures/
 - remove shindo dev dependency; all tests now run on minitest
 - remove unused rdoc dev dependency and stale .document file

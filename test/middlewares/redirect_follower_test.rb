@@ -57,6 +57,15 @@ class RedirectFollowerTest < Minitest::Test
 
     assert_raises(Excon::Errors::TooManyRedirects) { get('/old') }
   end
+
+  def test_returns_redirect_without_location
+    Excon.stub({ path: '/old' }, { body: 'no location', status: 302 })
+
+    response = get('/old')
+
+    assert_equal 302, response.status
+    assert_equal 'no location', response.body
+  end
 end
 
 # redirecting.ru answers POST /first with a 303 to /second, and GET /second
