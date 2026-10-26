@@ -22,15 +22,15 @@ excon is a pure-Ruby HTTP(S) client library.
 - `test/` — minitest tests (the target for all tests; see below).
   `test/support/test_server.rb` runs a test server around a test class,
   using `test/support/in_process_server.rb`, which runs the fixture servers
-  in a thread of the test process (also used by the shindo helpers).
-- `tests/` — shindo tests (legacy), plus shared fixtures used by all suites:
+  in a thread of the test process.
+- `tests/` — test fixtures, left over from the shindo suite:
   `tests/rackups/` (rack apps), `tests/servers/` (raw socket servers),
   `tests/data/` (certs, files).
 
 ## Tests
 
-Tests are being migrated, gradually, to **minitest** in `test/`. Shindo
-(`tests/`) is legacy and frozen.
+Tests are in **minitest**, in `test/`. The shindo suite that used to live in
+`tests/` has been ported and removed; only its fixtures remain there.
 
 - Add new tests to `test/` (files named `*_test.rb`), never to `tests/`.
 - `test/` follows the shindo layout: `tests/middlewares/foo_tests.rb` becomes
@@ -47,11 +47,8 @@ Tests are being migrated, gradually, to **minitest** in `test/`. Shindo
 Running tests:
 
 ```sh
-bundle exec rake                        # everything (what CI runs)
-bundle exec rake test                   # minitest only
-bundle exec rake tests                  # shindo only
-bundle exec ruby -Itest test/utils_test.rb # one minitest file
-bundle exec shindo tests/header_tests.rb # one shindo file
+bundle exec rake                           # everything (what CI runs)
+bundle exec ruby -Itest test/utils_test.rb # one file
 ```
 
 Notes:
