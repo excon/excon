@@ -327,11 +327,15 @@ class BasicSslClientChainDataTest < Minitest::Test
   end
 end
 
-# basic.ru served by puma on a unix socket.
+# basic.ru served by puma on a unix socket. Leaves out ServerDetails:
+# puma sends no Date or Server header, and a unix socket has no remote IP.
 class BasicUnixSocketTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
-  include BasicClientTests
+  include BasicClientTests::Helpers
+  include BasicClientTests::MethodAndPathDefaults
+  include BasicClientTests::Responses
+  include BasicClientTests::RequestBodies
 
   SOCKET = File.join(Dir.tmpdir, 'excon-basic-test.sock')
 

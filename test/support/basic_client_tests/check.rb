@@ -44,10 +44,6 @@ module BasicClientTests
       connection
     end
 
-    def unix?(connection)
-      connection.data[:scheme] == Excon::UNIX
-    end
-
     def get_content(options)
       connection(options).request(method: :get, path: '/content-length/100')
     end

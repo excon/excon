@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'time'
 require_relative 'check'
 
 module BasicClientTests
@@ -23,36 +22,8 @@ module BasicClientTests
       assert_equal 'text/html;charset=utf-8', response.headers['Content-Type']
     end
 
-    check 'get_returns_a_date_header' do |options|
-      connection = connection(options)
-      # the unix socket tests run on puma, which sends no Date header
-      skip 'until puma responds with a date header' if unix?(connection)
-
-      response = connection.request(method: :get, path: '/content-length/100')
-
-      assert_instance_of Time, Time.parse(response.headers['Date'])
-    end
-
-    check 'get_returns_a_webrick_server_header' do |options|
-      connection = connection(options)
-      skip 'until unix_socket response has server header' if unix?(connection)
-
-      response = connection.request(method: :get, path: '/content-length/100')
-
-      assert_match(/^WEBrick/, response.headers['Server'])
-    end
-
     check 'get_returns_the_custom_header' do |options|
       assert_equal 'Foo: bar', get_content(options).headers['Custom']
-    end
-
-    check 'get_returns_the_remote_ip' do |options|
-      connection = connection(options)
-      skip 'unix sockets have no remote ip' if unix?(connection)
-
-      response = connection.request(method: :get, path: '/content-length/100')
-
-      assert_equal '127.0.0.1', response.remote_ip
     end
 
     check 'get_returns_the_body' do |options|
