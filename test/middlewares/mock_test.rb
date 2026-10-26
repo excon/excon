@@ -287,9 +287,34 @@ class MockStubRegistryTest < Minitest::Test
     request_params = { path: %r{/path} }
     Excon.stub(request_params, {})
 
-    # Excon.stub keeps request_params itself, and stub_for adds :captures to
-    # the params it's given (here the same hash), so it shows up in the result
-    assert_equal [{ path: %r{/path}, captures: { headers: {} } }, {}], Excon.unstub(request_params)
+    assert_equal [{ path: %r{/path} }, {}], Excon.unstub(request_params)
+  end
+
+  # stub_for adds :captures to the params it's given; Excon.stub keeps a copy,
+  # so that doesn't add a :captures key the stub would then have to match
+
+  def test_stub_for_with_stubbed_params_leaves_stub_matching
+    request_params = { path: '/x' }
+    Excon.stub(request_params, { body: 'x' })
+    Excon.stub_for(request_params)
+
+    assert_equal 'x', Excon.get('http://127.0.0.1:9292/x', mock: true).body
+  end
+
+  def test_unstub_removing_newer_stub_leaves_older_stub_matching
+    request_params = { path: '/x' }
+    Excon.stub(request_params, { body: 'x' })
+    Excon.stub({}, { body: 'any' })
+
+    assert_equal [{}, { body: 'any' }], Excon.unstub(request_params)
+    assert_equal 'x', Excon.get('http://127.0.0.1:9292/x', mock: true).body
+  end
+
+  def test_stub_leaves_callers_params_unchanged
+    request_params = { method: 'GET', path: '/x' }
+    Excon.stub(request_params, {})
+
+    assert_equal({ method: 'GET', path: '/x' }, request_params)
   end
 
   def test_unstub_without_matching_stub_returns_nil
