@@ -3,7 +3,7 @@
 
 # This is a benchmark for HTTPS traffic.
 # To run against a local server:
-# docker run --rm --detach --name httpbin -v /tmp:/tmp -v $PWD/tests/data:/data -e HTTPS_CERT_FILE='/data/127.0.0.1.cert.crt' -e HTTPS_KEY_FILE='/data/127.0.0.1.cert.key' -e PORT='8443' -p 8443:8443 mccutchen/go-httpbin
+# docker run --rm --detach --name httpbin -v /tmp:/tmp -v $PWD/test/fixtures/data:/data -e HTTPS_CERT_FILE='/data/127.0.0.1.cert.crt' -e HTTPS_KEY_FILE='/data/127.0.0.1.cert.key' -e PORT='8443' -p 8443:8443 mccutchen/go-httpbin
 # Then, run the benchmark:
 # benchmarks/httpbin.rb --uri='https://localhost:8443/stream-bytes/102400?chunk_size=1024'
 # Finally, stop the server with:

@@ -18,21 +18,22 @@ excon is a pure-Ruby HTTP(S) client library.
   `middlewares/`, `instrumentors/`). Only `lib/`, `data/` and top-level docs
   ship in the gem.
 - `data/cacert.pem` — bundled CA certs. Don't edit by hand; use
-  `rake update_certs` (which also regenerates the test certs in `tests/data/`).
-- `test/` — minitest tests (the target for all tests; see below).
+  `rake update_certs` (which also regenerates the test certs in
+  `test/fixtures/data/`).
+- `test/` — minitest tests (see below).
   `test/support/test_server.rb` runs a test server around a test class,
   using `test/support/in_process_server.rb`, which runs the fixture servers
   in a thread of the test process.
-- `tests/` — test fixtures, left over from the shindo suite:
-  `tests/rackups/` (rack apps), `tests/servers/` (raw socket servers),
-  `tests/data/` (certs, files).
+- `test/fixtures/` — test fixtures: `rackups/` (rack apps), `servers/` (raw
+  socket servers), `data/` (certs, files).
 
 ## Tests
 
 Tests are in **minitest**, in `test/`. The shindo suite that used to live in
-`tests/` has been ported and removed; only its fixtures remain there.
+`tests/` has been ported and removed, and its fixtures moved to
+`test/fixtures/`.
 
-- Add new tests to `test/` (files named `*_test.rb`), never to `tests/`.
+- Add new tests to `test/` (files named `*_test.rb`).
 - `test/` follows the shindo layout: `tests/middlewares/foo_tests.rb` becomes
   `test/middlewares/foo_test.rb`. Tests without a shindo counterpart go in
   the matching subdirectory (`middlewares/`, `instrumentors/`) or at the top

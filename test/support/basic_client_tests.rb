@@ -7,8 +7,8 @@ require_relative 'basic_client_tests/responses'
 require_relative 'basic_client_tests/server_details'
 
 # Requests every client configuration should handle, run against
-# tests/rackups/basic.ru. Each check becomes one test per combination of
-# :nonblock and :persistent.
+# test/fixtures/rackups/basic.ru. Each check becomes one test per combination
+# of :nonblock and :persistent.
 #
 #   class FooTest < Minitest::Test
 #     include TestServer

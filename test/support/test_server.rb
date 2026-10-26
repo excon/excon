@@ -24,8 +24,8 @@ module TestServer
   module ClassMethods
     attr_reader :server
 
-    # kind: :webrick or :puma (file is in tests/rackups), or :exec (file is
-    # in tests/servers)
+    # kind: :webrick or :puma (file is in test/fixtures/rackups), or :exec
+    # (file is in test/fixtures/servers)
     def test_server(kind, file, bind: nil)
       @test_server_args = [kind, file, { bind: bind }]
     end
