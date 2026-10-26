@@ -29,21 +29,21 @@ excon is a pure-Ruby HTTP(S) client library.
 
 ## Tests
 
-Tests are in **minitest**, in `test/`. The shindo suite that used to live in
-`tests/` has been ported and removed, and its fixtures moved to
-`test/fixtures/`.
+Tests are in **minitest**, in `test/`, with fixtures in `test/fixtures/`.
 
-- Add new tests to `test/` (files named `*_test.rb`).
-- `test/` follows the shindo layout: `tests/middlewares/foo_tests.rb` becomes
-  `test/middlewares/foo_test.rb`. Tests without a shindo counterpart go in
-  the matching subdirectory (`middlewares/`, `instrumentors/`) or at the top
-  level, e.g. `test/timeout_test.rb`.
+- Add new tests to `test/` (files named `*_test.rb`), in the subdirectory
+  matching the code under test (`middlewares/`, `instrumentors/`) or at the
+  top level, e.g. `test/timeout_test.rb`.
 - For tests that need a server, `include TestServer` and declare
   `test_server :webrick, 'basic.ru'` (see `test/support/test_server.rb`).
-- Don't move or rewrite existing tests as a side effect of an unrelated
-  change; migration happens in dedicated PRs, and a migrated test is deleted
-  from its old suite in the same PR.
-- To port a file, follow `.claude/skills/port-tests/SKILL.md`.
+  Shared helpers go in `test/support/`.
+- Minitest shuffles test order, so each test sets up what it needs rather
+  than relying on state from another.
+- One behavior per test, named for it. Assert step by step, with a short
+  comment where a value needs explaining, and explain at the top of the file
+  what a fixture endpoint reports if that isn't obvious.
+- Check a new test can fail: break the code under test (e.g. `-r` a file
+  that monkeypatches it) and make sure the right tests fail.
 
 Running tests:
 
