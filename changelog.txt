@@ -7,6 +7,7 @@ Unreleased
 - remove sinatra dev dependency (test rackups are now plain rack apps)
 - escape hostnames in `no_proxy` patterns while preserving the `*` wildcard
 - remove logger gem runtime dependency; excon now has no runtime dependencies. The default LoggingInstrumentor output to $stderr keeps Logger's format. Requiring excon no longer loads Logger, so code relying on that should require 'logger' itself (minor version bump)
+- `Excon.stub` copies its request params, so looking up or unstubbing with the same hash (`stub_for`, `unstub`) no longer stops the stub from matching
 
 1.8.0 2026-10-21
 ==========

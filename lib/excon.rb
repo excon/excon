@@ -139,6 +139,9 @@ module Excon
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
     # @param response_params [Hash<Symbol, >] response params to return or block to call with matched params
     def stub(request_params = {}, response_params = nil, &block)
+      # copy, so later changes to the caller's hash (e.g. stub_for adding
+      # :captures) don't change the stored stub
+      request_params = request_params.dup
       if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
       end
