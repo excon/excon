@@ -8,7 +8,7 @@ require 'open3'
 require 'rbconfig'
 require 'tmpdir'
 
-# Plain HTTP requests against tests/rackups/basic.ru.
+# Plain HTTP requests against test/fixtures/rackups/basic.ru.
 class BasicTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -64,7 +64,7 @@ class BasicTest < Minitest::Test
   end
 end
 
-# Plain HTTP streaming, against tests/rackups/streaming.ru.
+# Plain HTTP streaming, against test/fixtures/rackups/streaming.ru.
 class BasicStreamingTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -77,7 +77,7 @@ class BasicStreamingTest < Minitest::Test
   end
 end
 
-# HTTPS streaming, against tests/servers/ssl_streaming.rb.
+# HTTPS streaming, against test/fixtures/servers/ssl_streaming.rb.
 class BasicSslStreamingTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -90,8 +90,8 @@ class BasicSslStreamingTest < Minitest::Test
   end
 end
 
-# tests/rackups/basic_auth.ru wraps basic.ru in basic auth, accepting only
-# test_user / test_password.
+# test/fixtures/rackups/basic_auth.ru wraps basic.ru in basic auth, accepting
+# only test_user / test_password.
 class BasicAuthTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -140,7 +140,7 @@ class BasicAuthTest < Minitest::Test
   end
 end
 
-# tests/rackups/ssl.ru serves basic.ru over HTTPS on port 9443, with a
+# test/fixtures/rackups/ssl.ru serves basic.ru over HTTPS on port 9443, with a
 # certificate for 127.0.0.1.
 class BasicSslTest < Minitest::Test
   include TestServer
@@ -175,8 +175,8 @@ class BasicSslTest < Minitest::Test
   end
 end
 
-# tests/rackups/ssl_mismatched_cn.ru serves a certificate for 'excon' on
-# 127.0.0.1:9443.
+# test/fixtures/rackups/ssl_mismatched_cn.ru serves a certificate for 'excon'
+# on 127.0.0.1:9443.
 class BasicSslMismatchedCnTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -192,8 +192,8 @@ class BasicSslMismatchedCnTest < Minitest::Test
   end
 end
 
-# tests/rackups/ssl_sni_verify_host.ru serves the 'excon' certificate on
-# 127.0.0.1:9443 only to clients that send 'excon' as the SNI name.
+# test/fixtures/rackups/ssl_sni_verify_host.ru serves the 'excon' certificate
+# on 127.0.0.1:9443 only to clients that send 'excon' as the SNI name.
 class BasicSslSniTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv
@@ -213,8 +213,8 @@ class BasicSslSniTest < Minitest::Test
   end
 end
 
-# tests/rackups/ssl_verify_peer.ru serves basic.ru over HTTPS on port 8443,
-# and only to clients presenting the excon certificate.
+# test/fixtures/rackups/ssl_verify_peer.ru serves basic.ru over HTTPS on port
+# 8443, and only to clients presenting the excon certificate.
 module SslClientCertificateTests
   def test_request_without_a_client_certificate_fails
     connection = Excon::Connection.new(host: '127.0.0.1', hostname: '127.0.0.1', nonblock: false,
@@ -283,9 +283,9 @@ class BasicSslPrivateKeyAndCertificateTest < Minitest::Test
   end
 end
 
-# tests/rackups/ssl_verify_peer_with_chain.ru is ssl_verify_peer.ru, but
-# only trusts the excon certificate, which signed excon_intermediate, which
-# signed excon_client. So the client has to send the intermediate too.
+# test/fixtures/rackups/ssl_verify_peer_with_chain.ru is ssl_verify_peer.ru,
+# but only trusts the excon certificate, which signed excon_intermediate,
+# which signed excon_client. So the client has to send the intermediate too.
 class BasicSslClientChainFileTest < Minitest::Test
   include TestServer
   include WithoutProxyEnv

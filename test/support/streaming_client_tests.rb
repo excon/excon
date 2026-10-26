@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # Reading a response that the server sends in pieces, run against
-# tests/rackups/streaming.ru or tests/servers/ssl_streaming.rb.
+# test/fixtures/rackups/streaming.ru or
+# test/fixtures/servers/ssl_streaming.rb.
 #
 #   class FooTest < Minitest::Test
 #     include TestServer

@@ -31,7 +31,7 @@ task :test_certs do
   end
 
   # test expiry of self-signed certs
-  expiring = Dir.glob(File.join(File.dirname(__FILE__), 'tests', 'data', '*.crt')).select do |path|
+  expiring = Dir.glob(File.join(File.dirname(__FILE__), 'test', 'fixtures', 'data', '*.crt')).select do |path|
     OpenSSL::X509::Certificate.new(File.read(path)).not_after < Time.now + (365 * 24 * 60 * 60)
   end
   if expiring.empty?
@@ -59,9 +59,9 @@ end
 desc "regenerate self-signed certs for tests"
 task :update_test_certs do
   require 'openssl'
-  dir = File.join(File.dirname(__FILE__), 'tests', 'data')
+  dir = File.join(File.dirname(__FILE__), 'test', 'fixtures', 'data')
 
-  # writes tests/data/<name>.cert.{key,crt}, self-signed unless issuer is given
+  # writes test/fixtures/data/<name>.cert.{key,crt}, self-signed unless issuer is given
   generate = lambda do |name, subject, extensions, issuer = nil|
     key = OpenSSL::PKey::RSA.new(2048)
     cert = OpenSSL::X509::Certificate.new

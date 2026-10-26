@@ -1,6 +1,7 @@
 Unreleased
 ==========
 
+- move test fixtures from tests/ to test/fixtures/
 - remove shindo dev dependency; all tests now run on minitest
 - remove unused rdoc dev dependency and stale .document file
 - remove activesupport and delorean dev dependencies, migrate instrumentation tests to minitest

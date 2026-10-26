@@ -4,8 +4,8 @@
 require 'openssl'
 require File.join(__dir__, 'server')
 
-# tests/rackups/streaming.ru over TLS: sends 'Hello', 'streamy' and 'world',
-# sleeping 0.1s before each, then closes the connection.
+# test/fixtures/rackups/streaming.ru over TLS: sends 'Hello', 'streamy' and
+# 'world', sleeping 0.1s before each, then closes the connection.
 # /streamed/fixed_length also sends a Content-Length.
 data = File.join(__dir__, '..', 'data')
 context = OpenSSL::SSL::SSLContext.new

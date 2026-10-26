@@ -7,16 +7,16 @@ require 'stringio'
 require 'uri'
 require 'webrick'
 
-# Runs a test server (a rackup in tests/rackups or a socket server in
-# tests/servers) in a thread of the test process. Starting each one in its
-# own process instead is slow, especially on JRuby, where every server boots
-# a JVM and reloads bundler and rack.
+# Runs a test server (a rackup in test/fixtures/rackups or a socket server
+# in test/fixtures/servers) in a thread of the test process. Starting each
+# one in its own process instead is slow, especially on JRuby, where every
+# server boots a JVM and reloads bundler and rack.
 #
 #   server = InProcessServer.new(:webrick, 'basic.ru').start
 #   Excon.get('http://127.0.0.1:9292/')
 #   server.stop
 class InProcessServer
-  FIXTURES = File.expand_path('../../tests', __dir__)
+  FIXTURES = File.expand_path('../fixtures', __dir__)
   DEFAULT_BIND = 'tcp://127.0.0.1:9292'
   START_TIMEOUT = 10
 
@@ -129,8 +129,9 @@ class InProcessServer
     File.delete(@bind.path) if unix? && File.exist?(@bind.path)
   end
 
-  # Socket servers call serve (tests/servers/server.rb), which exposes the
-  # listening socket and client sockets as thread variables once listening.
+  # Socket servers call serve (test/fixtures/servers/server.rb), which
+  # exposes the listening socket and client sockets as thread variables once
+  # listening.
   def start_exec
     @thread = Thread.new do
       Thread.current.report_on_exception = false # raised by join below
