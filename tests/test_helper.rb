@@ -315,14 +315,6 @@ def env_stack
   @env_stack ||= []
 end
 
-def capture_response_block
-  captures = []
-  yield lambda {|chunk, remaining_bytes, total_bytes|
-    captures << [chunk, remaining_bytes, total_bytes]
-  }
-  captures
-end
-
 def with_rackup(name, host="127.0.0.1")
   server = InProcessServer.new(:webrick, name, bind: "tcp://#{host}:9292")
   server.start
