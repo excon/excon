@@ -15,8 +15,6 @@ require 'webrick'
 #   server = InProcessServer.new(:webrick, 'basic.ru').start
 #   Excon.get('http://127.0.0.1:9292/')
 #   server.stop
-#
-# Used by both the minitest (test/) and shindo (tests/) suites.
 class InProcessServer
   FIXTURES = File.expand_path('../../tests', __dir__)
   DEFAULT_BIND = 'tcp://127.0.0.1:9292'

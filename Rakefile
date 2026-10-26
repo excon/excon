@@ -1,8 +1,5 @@
-require 'shindo/rake'
 require 'bundler/gem_tasks'
 require 'rake/testtask'
-
-Shindo::Rake.new
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
@@ -10,7 +7,7 @@ Rake::TestTask.new(:test) do |t|
   t.warning = false
 end
 
-task :default => [:tests, :test]
+task :default => :test
 
 desc "test if bundled certs are up to date"
 task :test_certs do
