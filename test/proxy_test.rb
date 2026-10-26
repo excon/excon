@@ -132,6 +132,30 @@ class ProxyFromPartialEnvironmentTest < Minitest::Test
   end
 end
 
+# How no_proxy entries are matched against the host.
+class NoProxyEnvironmentTest < Minitest::Test
+  include WithoutProxyEnv
+
+  def setup
+    super
+    ENV['http_proxy'] = 'http://proxy.example:8080'
+  end
+
+  def test_no_proxy_escapes_hostname_regex_metacharacters
+    ENV['no_proxy'] = 'sub.example.com'
+
+    assert_nil Excon.new('http://sub.example.com').data[:proxy]
+    # the dot in sub.example.com matches only a dot
+    assert Excon.new('http://subxexample.com').data[:proxy]
+  end
+
+  def test_no_proxy_asterisk_matches_all_hosts
+    ENV['no_proxy'] = '*'
+
+    assert_nil Excon.new('http://example.com').data[:proxy]
+  end
+end
+
 # proxy.ru answers any GET with 'proxied content', reporting the request URI,
 # Host and Proxy-Connection it received as the Sent-Request-Uri, Sent-Host
 # and Sent-Proxy-Connection headers.
@@ -184,6 +208,8 @@ class ProxyUnixSocketRequestTest < Minitest::Test
     response = request_through('unix:///tmp/myproxy.sock')
 
     assert_equal 200, response.status
+    # absolute form, as over TCP
+    assert_equal 'http://foo.com:8080/bar?alpha=kappa', response.headers['Sent-Request-Uri']
     assert_equal 'foo.com:8080', response.headers['Sent-Host']
     assert_equal 'Keep-Alive', response.headers['Sent-Proxy-Connection']
     assert_equal 'proxied content', response.body
