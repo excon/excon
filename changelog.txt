@@ -12,6 +12,7 @@ Unreleased
 - remove logger gem runtime dependency; excon now has no runtime dependencies. The default LoggingInstrumentor output to $stderr keeps Logger's format. Requiring excon no longer loads Logger, so code relying on that should require 'logger' itself (minor version bump)
 - `Excon.stub` copies its request params, so looking up or unstubbing with the same hash (`stub_for`, `unstub`) no longer stops the stub from matching
 - RedirectFollower drops Content-Type and the other content headers when a 301, 302 or 303 turns the request into a GET
+- guard a connection's per-thread socket cache with a mutex, so threads sharing a connection on JRuby can't lose each other's sockets mid-request (#801)
 
 1.8.0 2026-10-21
 ==========

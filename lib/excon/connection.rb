@@ -64,6 +64,7 @@ module Excon
     # @option params [Class] :resolver_factory Const of the resolver factory.  Defaults to 'Excon::ResolverFactory'
     def initialize(params = {})
       @pid = Process.pid
+      @sockets_mutex = Mutex.new
       @data = Excon.defaults.dup
       # merge does not deep-dup, so make sure headers is not the original
       @data[:headers] = @data[:headers].dup
@@ -512,21 +513,26 @@ module Excon
     end
 
     def sockets
-      if @pid != Process.pid
-        @_excon_sockets&.clear # GC will take care of closing sockets
-        @pid = Process.pid
-      end
+      # Threads sharing this connection all read and write @_excon_sockets.
+      # On a Ruby without a GVL (JRuby) concurrent updates can lose another
+      # thread's entry, so that thread opens a new socket mid-request.
+      @sockets_mutex.synchronize do
+        if @pid != Process.pid
+          @_excon_sockets&.clear # GC will take care of closing sockets
+          @pid = Process.pid
+        end
 
-      if @data[:thread_safe_sockets]
-        @_excon_sockets ||= ObjectSpace::WeakKeyMap.new
+        if @data[:thread_safe_sockets]
+          @_excon_sockets ||= ObjectSpace::WeakKeyMap.new
 
-        # In a multi-threaded world, if the same connection is used by multiple
-        # threads at the same time to connect to the same destination, they may
-        # stomp on each other's sockets.  This ensures every thread gets their
-        # own socket cache, within the context of a single connection.
-        @_excon_sockets[Thread.current] ||= {}
-      else
-        @_excon_sockets ||= {}.compare_by_identity
+          # In a multi-threaded world, if the same connection is used by multiple
+          # threads at the same time to connect to the same destination, they may
+          # stomp on each other's sockets.  This ensures every thread gets their
+          # own socket cache, within the context of a single connection.
+          @_excon_sockets[Thread.current] ||= {}
+        else
+          @_excon_sockets ||= {}.compare_by_identity
+        end
       end
     end
 
