@@ -37,3 +37,54 @@ class ThreadSafetyTest < Minitest::Test
     assert_equal '2', short_thread.value
   end
 end
+
+# Threads sharing a connection all go through its one socket-cache map. On
+# JRuby that map (a java.util.WeakHashMap) is not safe to update from several
+# threads at once, so Connection#sockets must never let two threads in at once.
+class SocketCacheLockingTest < Minitest::Test
+  # Stands in for the connection's map: each read or write pauses so threads
+  # overlap if nothing stops them, and the most threads seen inside at once
+  # is kept in max_concurrent.
+  class OverlapDetectingMap
+    attr_reader :max_concurrent
+
+    def initialize
+      @entries = {}.compare_by_identity
+      @inside = 0
+      @max_concurrent = 0
+      @counter = Mutex.new
+    end
+
+    def [](key)
+      track { @entries[key] }
+    end
+
+    def []=(key, value)
+      track { @entries[key] = value }
+    end
+
+    private
+
+    def track
+      @counter.synchronize do
+        @inside += 1
+        @max_concurrent = [@max_concurrent, @inside].max
+      end
+      sleep 0.01
+      yield
+    ensure
+      @counter.synchronize { @inside -= 1 }
+    end
+  end
+
+  def test_threads_never_use_the_socket_cache_map_at_the_same_time
+    connection = Excon.new('http://127.0.0.1:9292')
+    map = OverlapDetectingMap.new
+    connection.instance_variable_set(:@_excon_sockets, map)
+
+    threads = Array.new(5) { Thread.new { connection.send(:sockets) } }
+    threads.each(&:join)
+
+    assert_equal 1, map.max_concurrent
+  end
+end
