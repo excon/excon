@@ -8,6 +8,12 @@ module Excon
         []
       end
 
+      # Checks the params passed to `Connection#request` (`params`) against
+      # the full request (`datum`, with connection defaults merged in), and
+      # warns with `Excon.display_warning` about combinations that won't work.
+      def self.validate_request_params(params, datum)
+      end
+
       def initialize(stack)
         @stack = stack
       end

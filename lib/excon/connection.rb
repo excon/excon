@@ -254,7 +254,7 @@ module Excon
       if params[:middlewares]
         validate_params(:connection, @data, datum[:middlewares])
       end
-      validate_retry_params(params, datum)
+      validate_middleware_params(params, datum)
 
       if datum[:user] || datum[:password]
         user, pass = Utils.unescape_uri(datum[:user].to_s), Utils.unescape_uri(datum[:password].to_s)
@@ -483,20 +483,12 @@ module Excon
       end
     end
 
-    # Retry options only take effect on :idempotent requests, so warn when a
-    # request sets them without being :idempotent. Only the request's own
-    # params are checked, as a connection may set retry options for the
-    # requests on it that are :idempotent.
-    def validate_retry_params(params, datum)
-      return if datum[:idempotent]
-      return unless datum[:middlewares].include?(Excon::Middleware::Idempotent)
-
-      retry_keys = params.keys & %i[retry_errors retry_interval retry_limit]
-      return if retry_keys.empty?
-
-      Excon.display_warning(
-        "Excon request keys #{retry_keys.map(&:inspect).join(', ')} have no effect unless the request is :idempotent"
-      )
+    # Lets each middleware check the request's params against the rest of the
+    # request, e.g. for options that only take effect alongside others.
+    def validate_middleware_params(params, datum)
+      datum[:middlewares].each do |middleware|
+        middleware.validate_request_params(params, datum) if middleware.respond_to?(:validate_request_params)
+      end
     end
 
     def response(datum={})
