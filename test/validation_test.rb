@@ -15,17 +15,6 @@ class ValidationTest < Minitest::Test
     end
   end
 
-  # A middleware that warns when :foo is passed to a request without :bar.
-  class FooNeedsBarMiddleware < Excon::Middleware::Base
-    def self.valid_parameter_keys
-      %i[foo bar]
-    end
-
-    def self.validate_request_params(params, datum)
-      Excon.display_warning(':foo needs :bar') if params.key?(:foo) && !datum[:bar]
-    end
-  end
-
   def teardown
     Excon.stubs.clear
   end
@@ -102,30 +91,7 @@ class ValidationTest < Minitest::Test
     end
   end
 
-  # Middleware can also check a request's params against the rest of it.
-
-  def test_request_warns_from_middleware_validation
-    connection = Excon.new('http://foo', middlewares: foo_needs_bar_stack)
-
-    error = assert_raises(Excon::Error::Warning) do
-      connection.request(foo: 1)
-    end
-    assert_equal ':foo needs :bar', error.message
-  end
-
-  # :bar set on the connection counts, as validation sees the full request.
-  def test_request_passes_middleware_validation_with_connection_params
-    Excon.stub({}, {})
-    connection = Excon.new('http://foo', bar: 1, middlewares: foo_needs_bar_stack, mock: true)
-
-    assert_equal 200, connection.request(foo: 1).status
-  end
-
   private
-
-  def foo_needs_bar_stack
-    Excon.defaults[:middlewares] + [FooNeedsBarMiddleware]
-  end
 
   def foo_stack
     Excon.defaults[:middlewares] + [FooMiddleware]

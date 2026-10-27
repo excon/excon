@@ -14,20 +14,6 @@ module Excon
         ]
       end
 
-      # Retry options only take effect on :idempotent requests. Only the
-      # request's own params are checked, as a connection may set retry
-      # options for the requests on it that are :idempotent.
-      def self.validate_request_params(params, datum)
-        return if datum[:idempotent]
-
-        retry_keys = params.keys & %i[retry_errors retry_interval retry_limit]
-        return if retry_keys.empty?
-
-        Excon.display_warning(
-          "Excon request keys #{retry_keys.map(&:inspect).join(', ')} have no effect unless the request is :idempotent"
-        )
-      end
-
       def request_call(datum)
         datum[:retries_remaining] ||= datum[:retry_limit]
         @stack.request_call(datum)
