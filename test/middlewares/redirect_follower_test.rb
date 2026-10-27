@@ -52,10 +52,42 @@ class RedirectFollowerTest < Minitest::Test
     assert_equal '/foo/bar/', get('/foo/baz/').body
   end
 
+  def test_drops_content_headers_when_redirect_changes_method_to_get
+    redirected = nil
+    Excon.stub({ path: '/old' }, { headers: { 'Location' => '/new' }, status: 303 })
+    Excon.stub({ path: '/new' }) do |params|
+      redirected = params
+      { body: 'new', status: 200 }
+    end
+
+    response = Excon.post(
+      'http://127.0.0.1:9292',
+      path: '/old',
+      body: '{"a":1}',
+      headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' },
+      middlewares: Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+      mock: true
+    )
+
+    assert_equal 'new', response.body
+    assert_equal :get, redirected[:method]
+    assert_nil redirected[:headers]['Content-Type']
+    assert_equal 'application/json', redirected[:headers]['Accept']
+  end
+
   def test_raises_on_redirect_loop
     stub_redirect('/old', 'http://127.0.0.1:9292/old')
 
     assert_raises(Excon::Errors::TooManyRedirects) { get('/old') }
+  end
+
+  def test_returns_redirect_without_location
+    Excon.stub({ path: '/old' }, { body: 'no location', status: 302 })
+
+    response = get('/old')
+
+    assert_equal 302, response.status
+    assert_equal 'no location', response.body
   end
 end
 

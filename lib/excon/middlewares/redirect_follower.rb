@@ -2,6 +2,14 @@
 module Excon
   module Middleware
     class RedirectFollower < Excon::Middleware::Base
+      CONTENT_HEADERS = %w[
+        Content-Encoding
+        Content-Language
+        Content-Length
+        Content-Location
+        Content-Type
+      ].freeze
+
       REDACTION_HEADERS = %w[
         Authorization
         Cookie
@@ -39,6 +47,10 @@ module Excon
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
+            location = get_header(datum, 'Location')
+            # Without a Location there is nowhere to go, so return the response as is
+            return @stack.response_call(datum) unless location
+
             if datum[:redirects_remaining] <= 0
               raise Excon::Errors::TooManyRedirects
             end
@@ -47,7 +59,6 @@ module Excon
 
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
 
-            location = get_header(datum, 'Location')
             base_uri = Excon::Utils.request_uri(datum)
             uri = uri_parser.join(base_uri, location)
 
@@ -61,12 +72,15 @@ module Excon
             params.delete(:stack)
             params.delete(:user)
 
+            params[:headers] = datum[:headers].dup
             if [301, 302, 303].include?(response[:status])
               params[:method] = :get
               params.delete(:body)
-              params[:headers].delete('Content-Length')
+              # The body is not sent again, so neither are the header fields describing it
+              params[:headers].delete_if do |key, _|
+                CONTENT_HEADERS.any? { |header| key.to_s.casecmp?(header) }
+              end
             end
-            params[:headers] = datum[:headers].dup
             REDACTION_HEADERS.each do |header|
               params[:headers].delete(header)
             end
