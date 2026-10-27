@@ -158,6 +158,8 @@ connection = Excon.new('https://...')
 
 You can modify timeouts and define whether and how many (blocking) retries Excon should attempt if errors occur.
 
+Excon only retries requests marked `:idempotent`. Otherwise `:retry_limit`, `:retry_interval` and `:retry_errors` have no effect, whether they are set on the request, the connection or `Excon.defaults`.
+
 ```ruby
 # this request can be repeated safely, so retry on errors up to 4 times
 connection.request(:idempotent => true)
