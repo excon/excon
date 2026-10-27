@@ -39,6 +39,10 @@ module Excon
         if datum.has_key?(:response)
           case datum[:response][:status]
           when 301, 302, 303, 307, 308
+            location = get_header(datum, 'Location')
+            # Without a Location there is nowhere to go, so return the response as is
+            return @stack.response_call(datum) unless location
+
             if datum[:redirects_remaining] <= 0
               raise Excon::Errors::TooManyRedirects
             end
@@ -47,7 +51,6 @@ module Excon
 
             uri_parser = datum[:uri_parser] || Excon.defaults[:uri_parser]
 
-            location = get_header(datum, 'Location')
             base_uri = Excon::Utils.request_uri(datum)
             uri = uri_parser.join(base_uri, location)
 
