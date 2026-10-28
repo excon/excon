@@ -75,6 +75,46 @@ class RedirectFollowerTest < Minitest::Test
     assert_equal 'application/json', redirected[:headers]['Accept']
   end
 
+  def redirected_headers(headers)
+    redirected = nil
+    stub_redirect('/old', '/new')
+    Excon.stub({ path: '/new' }) do |params|
+      redirected = params
+      { body: 'new', status: 200 }
+    end
+
+    Excon.get(
+      'http://127.0.0.1:9292',
+      path: '/old',
+      headers: headers,
+      middlewares: Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower],
+      mock: true
+    )
+
+    redirected[:headers]
+  end
+
+  def test_drops_sensitive_headers_when_following_redirect
+    headers = redirected_headers(
+      'Authorization' => 'Bearer secret', 'Cookie' => 'session=secret', 'Accept' => 'text/plain'
+    )
+
+    assert_nil headers['Authorization']
+    assert_nil headers['Cookie']
+    assert_equal 'text/plain', headers['Accept']
+  end
+
+  def test_drops_sensitive_headers_regardless_of_case_when_following_redirect
+    headers = redirected_headers(
+      'authorization' => 'Bearer secret', 'COOKIE' => 'session=secret', 'x-api-key' => 'secret'
+    )
+
+    # header names are case-insensitive, so any casing of a sensitive header must be dropped
+    assert_nil headers['authorization']
+    assert_nil headers['COOKIE']
+    assert_nil headers['x-api-key']
+  end
+
   def test_raises_on_redirect_loop
     stub_redirect('/old', 'http://127.0.0.1:9292/old')
 

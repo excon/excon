@@ -13,6 +13,7 @@ Unreleased
 - `Excon.stub` copies its request params, so looking up or unstubbing with the same hash (`stub_for`, `unstub`) no longer stops the stub from matching
 - RedirectFollower drops Content-Type and the other content headers when a 301, 302 or 303 turns the request into a GET
 - guard a connection's per-thread socket cache with a mutex, so threads sharing a connection on JRuby can't lose each other's sockets mid-request (#801)
+- RedirectFollower drops headers when following a redirect regardless of casing; previously only the exact REDACTION_HEADERS casing was dropped, so e.g. `authorization` was forwarded
 
 1.8.0 2026-10-21
 ==========
