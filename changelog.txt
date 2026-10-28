@@ -1,6 +1,9 @@
 Unreleased
 ==========
 
+v1.9.0 2026-10-28
+=================
+
 - RedirectFollower returns a 301, 302, 303, 307 or 308 response without a Location header instead of raising ArgumentError
 - move test fixtures from tests/ to test/fixtures/
 - remove shindo dev dependency; all tests now run on minitest
@@ -16,7 +19,7 @@ Unreleased
 - RedirectFollower drops headers when following a redirect regardless of casing; previously only the exact REDACTION_HEADERS casing was dropped, so e.g. `authorization` was forwarded
 
 1.8.0 2026-10-21
-==========
+================
 
 - remove json gem dev dependency (should be available via stdlib)
 - replace eventmahcine test usage with stdlib sockets and remove dev dep
