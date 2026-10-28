@@ -81,7 +81,7 @@ module Excon
                 CONTENT_HEADERS.any? { |header| key.to_s.casecmp?(header) }
               end
             end
-            # Header names are case-insensitive, so drop sensitive headers in any casing
+            # drop sensitive headers in any casing
             params[:headers].delete_if do |key, _|
               REDACTION_HEADERS.any? { |header| key.to_s.casecmp?(header) }
             end
