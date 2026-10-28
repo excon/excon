@@ -81,8 +81,9 @@ module Excon
                 CONTENT_HEADERS.any? { |header| key.to_s.casecmp?(header) }
               end
             end
-            REDACTION_HEADERS.each do |header|
-              params[:headers].delete(header)
+            # Header names are case-insensitive, so drop sensitive headers in any casing
+            params[:headers].delete_if do |key, _|
+              REDACTION_HEADERS.any? { |header| key.to_s.casecmp?(header) }
             end
             params.merge!(
               :scheme     => uri.scheme || datum[:scheme],
