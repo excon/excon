@@ -43,7 +43,7 @@ class GoodServer
         write data
 
       when 'request_count'
-        (@request_count ||= '0').next!
+        (@request_count ||= +'0').next!
         start_response
         write "Content-Length: #{ @request_count.size }\r\n"
         write "Connection: Keep-Alive\r\n"
