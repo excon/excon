@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- read a nonblocking connect's result from SO_ERROR, so a refused connect on macOS 27 tries the host's next address instead of failing later with "Broken pipe" (#982)
+
 v1.9.0 2026-10-28
 =================
 

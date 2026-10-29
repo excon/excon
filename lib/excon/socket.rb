@@ -174,6 +174,10 @@ module Excon
         rescue *CONNECT_RETRY_EXCEPTION_CLASSES
           select_with_timeout(socket, :connect_write)
           begin
+            # macOS 27 raises EISCONN below even when the connect failed, so check SO_ERROR first
+            errno = socket.getsockopt(::Socket::SOL_SOCKET, ::Socket::SO_ERROR).int
+            raise(SystemCallError.new("connect(2) for #{addrinfo.inspect_sockaddr}", errno)) unless errno.zero?
+
             socket.connect_nonblock(sockaddr)
             @socket = socket
           rescue Errno::EISCONN
