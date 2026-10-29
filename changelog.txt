@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- don't reuse a socket left partway through a request or response by an interrupt (e.g. Timeout.timeout or Thread#raise), which could give a later request the earlier request's response; previously this happened on non-persistent connections, on persistent connections shared between threads, and when pipelining
+
 v1.9.1 2026-10-29
 =================
 

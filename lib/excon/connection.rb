@@ -234,6 +234,12 @@ module Excon
     # @option params [String] :path appears after 'scheme://host:port/'
     # @option params [Hash]   :query appended to the 'scheme://host:port/path/' in the form of '?key=value'
     def request(params={}, &block)
+      # Set once the socket is left fit for the next request. Leaving early
+      # without passing through the rescue below (Timeout.timeout,
+      # Thread#raise, Thread#kill, Interrupt, throw) can leave a request
+      # half-written or a response unread on it, so ensure then resets it.
+      socket_reusable = false
+
       # @data has defaults, merge in new params to override
       datum = @data.merge(params)
 
@@ -295,11 +301,6 @@ module Excon
 
       datum[:connection] = self
 
-      # cleanup data left behind on persistent connection after interrupt
-      if datum[:persistent] && !@persistent_socket_reusable
-        reset
-      end
-
       datum[:stack] = datum[:middlewares].map do |middleware|
         lambda {|stack| middleware.new(stack)}
       end.reverse.inject(self) do |middlewares, middleware|
@@ -308,9 +309,7 @@ module Excon
       datum = datum[:stack].request_call(datum)
 
       unless datum[:pipeline]
-        @persistent_socket_reusable = false
         datum = response(datum)
-        @persistent_socket_reusable = true
 
         if datum[:persistent]
           if (key = datum[:response][:headers].keys.detect {|k| k.casecmp?('Connection') })
@@ -322,12 +321,16 @@ module Excon
           reset
         end
 
+        socket_reusable = true
         Excon::Response.new(datum[:response])
       else
+        # the response is read later, by #requests
+        socket_reusable = true
         datum
       end
     rescue => error
       reset
+      socket_reusable = true
 
       # If we didn't get far enough to initialize datum and the middleware stack, just raise
       raise error if !datum
@@ -338,11 +341,16 @@ module Excon
       else
         raise error
       end
+    ensure
+      reset unless socket_reusable
     end
 
     # Sends the supplied requests to the destination host using pipelining.
     # @param pipeline_params [Array<Hash>] An array of one or more optional params, override defaults set in Connection.new, see #request for details
     def requests(pipeline_params)
+      # as in #request: reset unless every response was read
+      socket_reusable = false
+
       pipeline_params.each {|params| params.merge!(:pipeline => true, :persistent => true) }
       pipeline_params.last[:persistent] = @data[:persistent]
 
@@ -362,7 +370,10 @@ module Excon
         reset
       end
 
+      socket_reusable = true
       responses
+    ensure
+      reset unless socket_reusable
     end
 
     # Sends the supplied requests to the destination host using pipelining in
@@ -384,7 +395,6 @@ module Excon
       if (old_socket = sockets.delete(@socket_key))
         old_socket.close rescue nil
       end
-      @persistent_socket_reusable = true
     end
 
     # Generate HTTP request verb methods
