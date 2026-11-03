@@ -126,32 +126,20 @@ module Excon
           end
         end
 
+        # without a :response_block (or when :expects would fail), buffer the body
+        response_block ||= lambda { |chunk, _remaining, _total| datum[:response][:body] << chunk }
+
         if transfer_encoding_chunked
-          if response_block
-            while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
-              while chunk_size > 0
-                chunk = socket.read(chunk_size) || raise(EOFError)
-                chunk_size -= chunk.bytesize
-                response_block.call(chunk, nil, nil)
-              end
-              new_line_size = 2 # 2 == "\r\n".length
-              while new_line_size > 0
-                chunk = socket.read(new_line_size) || raise(EOFError)
-                new_line_size -= chunk.length
-              end
+          while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
+            while chunk_size > 0
+              chunk = socket.read(chunk_size) || raise(EOFError)
+              chunk_size -= chunk.bytesize
+              response_block.call(chunk, nil, nil)
             end
-          else
-            while (chunk_size = socket.readline.chomp!.to_i(16)) > 0
-              while chunk_size > 0
-                chunk = socket.read(chunk_size) || raise(EOFError)
-                chunk_size -= chunk.bytesize
-                datum[:response][:body] << chunk
-              end
-              new_line_size = 2 # 2 == "\r\n".length
-              while new_line_size > 0
-                chunk = socket.read(new_line_size) || raise(EOFError)
-                new_line_size -= chunk.length
-              end
+            new_line_size = 2 # 2 == "\r\n".length
+            while new_line_size > 0
+              chunk = socket.read(new_line_size) || raise(EOFError)
+              new_line_size -= chunk.length
             end
           end
           parse_headers(socket, datum) # merge trailers into headers
@@ -161,28 +149,14 @@ module Excon
           end
 
           if (remaining = content_length)
-            if response_block
-              while remaining > 0
-                chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
-                response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
-                remaining -= chunk.bytesize
-              end
-            else
-              while remaining > 0
-                chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
-                datum[:response][:body] << chunk
-                remaining -= chunk.bytesize
-              end
+            while remaining > 0
+              chunk = socket.read([datum[:chunk_size], remaining].min) || raise(EOFError)
+              response_block.call(chunk, [remaining - chunk.bytesize, 0].max, content_length)
+              remaining -= chunk.bytesize
             end
           else
-            if response_block
-              while (chunk = socket.read(datum[:chunk_size]))
-                response_block.call(chunk, nil, nil)
-              end
-            else
-              while (chunk = socket.read(datum[:chunk_size]))
-                datum[:response][:body] << chunk
-              end
+            while (chunk = socket.read(datum[:chunk_size]))
+              response_block.call(chunk, nil, nil)
             end
           end
         end
