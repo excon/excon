@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- remove dead fallback to OpenSSL::PKey::RSA.new for client keys; OpenSSL::PKey.read is always available on supported Rubies (CRuby and JRuby)
+
 v1.10.0 2026-10-29
 ==================
 
