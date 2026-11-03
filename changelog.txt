@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- parse a String `:proxy` (including one from the proxy environment variables) with the connection's `:uri_parser` instead of always using URI (#412)
+
 v1.10.0 2026-10-29
 ==================
 
