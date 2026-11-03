@@ -86,11 +86,8 @@ module Excon
 
       if client_cert_data && client_key_data
         ssl_context.cert = OpenSSL::X509::Certificate.new client_cert_data
-        if OpenSSL::PKey.respond_to? :read
-          ssl_context.key = OpenSSL::PKey.read(client_key_data, client_key_pass)
-        else
-          ssl_context.key = OpenSSL::PKey::RSA.new(client_key_data, client_key_pass)
-        end
+        ssl_context.key = OpenSSL::PKey.read(client_key_data, client_key_pass)
+        # jruby-openssl 0.16.x (bundled with JRuby 10.0) lacks Certificate.load
         if client_chain_data && OpenSSL::X509::Certificate.respond_to?(:load)
           ssl_context.extra_chain_cert = OpenSSL::X509::Certificate.load(client_chain_data)
         elsif client_chain_data
@@ -101,11 +98,7 @@ module Excon
         end
       elsif @data.key?(:certificate) && @data.key?(:private_key)
         ssl_context.cert = OpenSSL::X509::Certificate.new(@data[:certificate])
-        if OpenSSL::PKey.respond_to? :read
-          ssl_context.key = OpenSSL::PKey.read(@data[:private_key], client_key_pass)
-        else
-          ssl_context.key = OpenSSL::PKey::RSA.new(@data[:private_key], client_key_pass)
-        end
+        ssl_context.key = OpenSSL::PKey.read(@data[:private_key], client_key_pass)
       end
 
       if @data[:proxy]
