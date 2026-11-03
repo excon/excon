@@ -30,6 +30,27 @@ class ProxyConfigTest < Minitest::Test
     assert_equal 'unix', proxy[:scheme]
     assert_equal '/tmp/myproxy.sock', proxy[:path]
   end
+
+  def test_proxy_is_parsed_with_uri_parser
+    # delegates to URI, recording each string it is asked to parse
+    parser = Class.new do
+      attr_reader :parsed
+
+      def initialize
+        @parsed = []
+      end
+
+      def parse(uri)
+        @parsed << uri
+        URI.parse(uri)
+      end
+    end.new
+
+    Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080', uri_parser: parser)
+
+    # Excon.new also parses the connection's own URL with it
+    assert_includes parser.parsed, 'http://myproxy.net:8080'
+  end
 end
 
 # How Excon.new reads the proxy environment variables. Each class including

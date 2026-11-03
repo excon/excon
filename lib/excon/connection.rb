@@ -617,7 +617,12 @@ module Excon
       when Hash
         # no processing needed
       when String, URI
-        uri = @data[:proxy].is_a?(String) ? URI.parse(@data[:proxy]) : @data[:proxy]
+        uri = if @data[:proxy].is_a?(String)
+          uri_parser = @data[:uri_parser] || Excon.defaults[:uri_parser]
+          uri_parser.parse(@data[:proxy])
+        else
+          @data[:proxy]
+        end
         @data[:proxy] = {
           :host       => uri.host,
           :hostname   => uri.hostname,
