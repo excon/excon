@@ -258,6 +258,8 @@ module Excon
     end
 
     # number of requests a stub has answered
+    # counts are only kept for stubs still in Excon.stubs; don't rely on the
+    # count of a stub after removing it
     # @param stub [Array] a stub, as returned by Excon.stub or Excon.stub_for
     # @return [Integer] how many times the stub has answered a request
     def stub_call_count(stub)

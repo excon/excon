@@ -432,7 +432,7 @@ ensure
 end
 ```
 
-A stub's count is kept with the stub object `Excon.stub` returns (or `Excon.stub_for` finds), so two identical stubs are counted separately. Counts follow `Excon.defaults[:stubs]`, so `:local` stubs are counted per thread.
+A stub's count is kept with the stub object `Excon.stub` returns (or `Excon.stub_for` finds), so two identical stubs are counted separately. Counts are only kept for stubs still in `Excon.stubs`, so don't rely on the count of a stub after removing it. Counts follow `Excon.defaults[:stubs]`, so `:local` stubs are counted per thread.
 
 ## Instrumentation
 
