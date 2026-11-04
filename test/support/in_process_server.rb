@@ -102,7 +102,7 @@ class InProcessServer
     in_err = false
     @log&.string&.each_line do |line|
       if line.match?(/(ERROR|Error)/)
-        in_err = !line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error)/)
+        in_err = !line.match?(/(null cert chain|did not return a certificate|SSL_read:: internal error|alert unknown ca)/)
         puts if in_err
       end
       puts line if in_err
