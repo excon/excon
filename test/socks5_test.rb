@@ -139,6 +139,26 @@ class SOCKS5HTTPTest < Minitest::Test
     assert_match(/SOCKS5 proxy authentication failed/, error.message)
   end
 
+  def test_failed_handshake_raises_socks5_error
+    proxy = start_proxy(username: 'testuser', password: 'testpass')
+    conn = connection(socks5_proxy: "wrong:creds@127.0.0.1:#{proxy.port}")
+
+    error = assert_raises(Excon::Error::SOCKS5Error) { conn.request(method: :get, path: '/') }
+    # not wrapped in another Socket error, which would append the classes
+    assert_equal 'SOCKS5 proxy authentication failed', error.message
+    assert_same error, error.socket_error
+  end
+
+  # it was previously raised as Excon::Error::Socket, so code may rescue it
+  # as one; and Socket errors are in the default retry_errors
+  def test_socks5_error_is_a_socket_error
+    proxy = start_proxy(reject_connect: true)
+    conn = connection(socks5_proxy: "127.0.0.1:#{proxy.port}")
+
+    error = assert_raises(Excon::Error::Socket) { conn.request(method: :get, path: '/') }
+    assert_kind_of Excon::Error::SOCKS5Error, error
+  end
+
   def test_rejected_connect_raises
     proxy = start_proxy(reject_connect: true)
     conn = connection(socks5_proxy: "127.0.0.1:#{proxy.port}")

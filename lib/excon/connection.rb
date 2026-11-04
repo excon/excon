@@ -197,8 +197,7 @@ module Excon
         end
       rescue => error
         case error
-        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout,
-             Excon::Errors::ProxyConnectionError
+        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
         when Errno::EPIPE
           # Read whatever remains in the pipe to aid in debugging
@@ -548,7 +547,11 @@ module Excon
     end
 
     def raise_socket_error(error)
-      if error.message.include?('certificate verify failed')
+      # already a Socket error (e.g. from a proxy handshake): wrapping it
+      # again would add nothing but its class name to the message
+      if error.is_a?(Excon::Error::Socket)
+        raise(error)
+      elsif error.message.include?('certificate verify failed')
         raise(Excon::Errors::CertificateError.new(error))
       else
         raise(Excon::Errors::SocketError.new(error))
