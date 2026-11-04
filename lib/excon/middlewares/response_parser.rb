@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 module Excon
   module Middleware
+    # Does nothing: excon now reads the response before any middleware's
+    # response_call. Kept in the default middlewares because existing code
+    # finds its place in the stack (e.g. VCR inserts its middleware after it).
     class ResponseParser < Excon::Middleware::Base
-      def response_call(datum)
-        unless datum.has_key?(:response)
-          datum = Excon::Response.parse(datum[:connection].send(:socket), datum)
-        end
-        if datum.has_key?(:logger)
-          datum[:response][:logger] = datum[:logger]
-        end
-        @stack.response_call(datum)
-      end
     end
   end
 end

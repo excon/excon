@@ -494,6 +494,12 @@ module Excon
     end
 
     def response(datum={})
+      # read the response before the middlewares' response_call, so every
+      # middleware sees it wherever it is in the stack, unless one already
+      # supplied it in request_call (e.g. Mock)
+      unless datum.key?(:response)
+        datum = Excon::Response.parse(socket, datum)
+      end
       datum[:stack].response_call(datum)
     rescue => error
       case error
