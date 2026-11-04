@@ -126,7 +126,11 @@ module Excon
         # open (RFC 9110, section 9.3.6)
         response = Excon::Response.parse(self, method: 'CONNECT')
         unless (200..299).cover?(response[:response][:status])
-          raise(Excon::Errors::ProxyConnectionError.new("proxy connection could not be established", request, response))
+          # the error keeps the request, which may be logged, so leave out
+          # the proxy credentials (which :ssl_proxy_headers may also carry)
+          redacted_request = request.gsub(/^(Proxy-Authorization:)[^\r\n]*/i, "\\1 #{Excon::REDACTED}")
+          raise(Excon::Errors::ProxyConnectionError.new('proxy connection could not be established',
+                                                        redacted_request, response))
         end
       end
 
