@@ -31,6 +31,99 @@ class ProxyConfigTest < Minitest::Test
     assert_equal '/tmp/myproxy.sock', proxy[:path]
   end
 
+  def test_hash_proxy_is_used_as_given
+    proxy = { host: 'myproxy.net', hostname: 'myproxy.net', port: 8080, scheme: 'http' }
+
+    assert_equal proxy, Excon.new('http://foo.com', proxy: proxy).data[:proxy]
+  end
+
+  def test_uri_proxy
+    proxy = Excon.new('http://foo.com', proxy: URI.parse('http://myproxy.net:8080')).data[:proxy]
+
+    assert_equal 'myproxy.net', proxy[:host]
+    assert_equal 8080, proxy[:port]
+    assert_equal 'http', proxy[:scheme]
+  end
+
+  def test_proxy_credentials
+    proxy = Excon.new('http://foo.com', proxy: 'http://user:pass@myproxy.net:8080').data[:proxy]
+
+    assert_equal 'user', proxy[:user]
+    assert_equal 'pass', proxy[:password]
+  end
+
+  def test_http_connection_sends_proxy_connection_header
+    connection = Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080')
+
+    assert_equal 'Keep-Alive', connection.data[:headers]['Proxy-Connection']
+    assert_nil connection.data[:headers]['Proxy-Authorization']
+  end
+
+  def test_http_connection_sends_proxy_credentials_as_header
+    connection = Excon.new('http://foo.com', proxy: 'http://user:pass@myproxy.net:8080')
+
+    # base64 of 'user:pass'
+    assert_equal 'Basic dXNlcjpwYXNz', connection.data[:headers]['Proxy-Authorization']
+  end
+
+  def test_proxy_credentials_are_unescaped_for_header
+    connection = Excon.new('http://foo.com', proxy: 'http://us%40er:p%3Ass@myproxy.net:8080')
+
+    # base64 of 'us@er:p:ss'
+    assert_equal 'Basic dXNAZXI6cDpzcw==', connection.data[:headers]['Proxy-Authorization']
+  end
+
+  def test_hash_proxy_credentials_are_sent_as_header
+    proxy = { host: 'myproxy.net', port: 8080, scheme: 'http', user: 'user', password: 'pass' }
+    connection = Excon.new('http://foo.com', proxy: proxy)
+
+    assert_equal 'Basic dXNlcjpwYXNz', connection.data[:headers]['Proxy-Authorization']
+  end
+
+  # HTTPS sends these in the CONNECT request instead (see ssl_socket.rb)
+  def test_https_connection_does_not_set_proxy_headers
+    connection = Excon.new('https://foo.com', proxy: 'http://user:pass@myproxy.net:8080')
+
+    assert_nil connection.data[:headers]['Proxy-Connection']
+    assert_nil connection.data[:headers]['Proxy-Authorization']
+  end
+
+  def test_proxy_without_host_is_invalid
+    assert_raises(Excon::Error::ProxyParse) { Excon.new('http://foo.com', proxy: 'myproxy') }
+  end
+
+  def test_proxy_of_unsupported_type_is_invalid
+    assert_raises(Excon::Error::ProxyParse) { Excon.new('http://foo.com', proxy: 8080) }
+  end
+
+  def test_disable_proxy_with_proxy_raises
+    assert_raises(ArgumentError) do
+      Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080', disable_proxy: true)
+    end
+  end
+
+  def test_unix_socket_proxy_with_host_raises
+    assert_raises(ArgumentError) { Excon.new('http://foo.com', proxy: 'unix://myhost/tmp/myproxy.sock') }
+  end
+
+  def test_ssl_proxy_headers_with_http_connection_raises
+    assert_raises(ArgumentError) do
+      Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080', ssl_proxy_headers: { 'X-Foo' => 'bar' })
+    end
+  end
+
+  def test_ssl_proxy_headers_with_https_connection
+    connection = Excon.new('https://foo.com', proxy: 'http://myproxy.net:8080', ssl_proxy_headers: { 'X-Foo' => 'bar' })
+
+    assert_equal({ 'X-Foo' => 'bar' }, connection.data[:ssl_proxy_headers])
+  end
+
+  def test_unix_connection_ignores_proxy_environment
+    ENV['http_proxy'] = 'http://myproxy.net:8080'
+
+    assert_nil Excon.new('unix:///', socket: '/tmp/foo.sock').data[:proxy]
+  end
+
   def test_proxy_is_parsed_with_uri_parser
     # delegates to URI, recording each string it is asked to parse
     parser = Class.new do
@@ -175,11 +268,91 @@ class NoProxyEnvironmentTest < Minitest::Test
 
     assert_nil Excon.new('http://example.com').data[:proxy]
   end
+
+  def test_no_proxy_leading_dot_matches_domain_and_subdomains
+    ENV['no_proxy'] = '.example.com'
+
+    assert_nil Excon.new('http://example.com').data[:proxy]
+    assert_nil Excon.new('http://sub.example.com').data[:proxy]
+  end
+
+  def test_no_proxy_domain_does_not_match_suffix_of_another_name
+    ENV['no_proxy'] = 'example.com'
+
+    assert Excon.new('http://notexample.com').data[:proxy]
+  end
+
+  def test_no_proxy_ipv4_address
+    ENV['no_proxy'] = '10.0.0.1'
+
+    assert_nil Excon.new('http://10.0.0.1').data[:proxy]
+    assert Excon.new('http://10.0.0.2').data[:proxy]
+  end
+
+  def test_no_proxy_ipv4_cidr
+    ENV['no_proxy'] = '192.168.0.0/16'
+
+    assert_nil Excon.new('http://192.168.3.4').data[:proxy]
+    assert Excon.new('http://192.169.0.1').data[:proxy]
+  end
+
+  def test_no_proxy_ipv6_address
+    ENV['no_proxy'] = '[fc00::1]'
+
+    assert_nil Excon.new('http://[fc00::1]').data[:proxy]
+    assert Excon.new('http://[fc00::2]').data[:proxy]
+  end
+
+  def test_no_proxy_ipv6_cidr
+    ENV['no_proxy'] = '[fc00::/7]'
+
+    assert_nil Excon.new('http://[fd12::1]').data[:proxy]
+    assert Excon.new('http://[2001:db8::1]').data[:proxy]
+  end
+
+  def test_no_proxy_ip_does_not_match_hostname
+    ENV['no_proxy'] = '10.0.0.0/8'
+
+    assert Excon.new('http://example.com').data[:proxy]
+  end
+
+  def test_no_proxy_with_port_matches_only_that_port
+    ENV['no_proxy'] = 'example.com:8080'
+
+    assert_nil Excon.new('http://example.com:8080').data[:proxy]
+    assert Excon.new('http://example.com').data[:proxy]
+  end
+
+  def test_no_proxy_with_port_matches_default_port
+    ENV['no_proxy'] = 'example.com:443'
+
+    assert_nil Excon.new('https://example.com').data[:proxy]
+  end
+
+  def test_no_proxy_ip_with_port
+    ENV['no_proxy'] = '10.0.0.1:8080'
+
+    assert_nil Excon.new('http://10.0.0.1:8080').data[:proxy]
+    assert Excon.new('http://10.0.0.1').data[:proxy]
+  end
+
+  def test_uppercase_no_proxy
+    ENV['NO_PROXY'] = 'example.com'
+
+    assert_nil Excon.new('http://example.com').data[:proxy]
+  end
+
+  def test_no_proxy_entries_may_be_separated_without_spaces
+    ENV['no_proxy'] = 'foo.com,example.com'
+
+    assert_nil Excon.new('http://example.com').data[:proxy]
+  end
 end
 
 # proxy.ru answers any GET with 'proxied content', reporting the request URI,
-# Host and Proxy-Connection it received as the Sent-Request-Uri, Sent-Host
-# and Sent-Proxy-Connection headers.
+# Host, Proxy-Connection and Proxy-Authorization it received as the
+# Sent-Request-Uri, Sent-Host, Sent-Proxy-Connection and
+# Sent-Proxy-Authorization headers (empty when not received).
 module ProxyRequestHelpers
   private
 
@@ -204,6 +377,7 @@ class ProxyRequestTest < Minitest::Test
     assert_equal 'http://foo.com:8080/bar?alpha=kappa', response.headers['Sent-Request-Uri']
     assert_equal 'foo.com:8080', response.headers['Sent-Host']
     assert_equal 'Keep-Alive', response.headers['Sent-Proxy-Connection']
+    assert_equal '', response.headers['Sent-Proxy-Authorization']
     assert_equal 'proxied content', response.body
   end
 
@@ -214,6 +388,8 @@ class ProxyRequestTest < Minitest::Test
     assert_equal 'http://foo.com:8080/bar?alpha=kappa', response.headers['Sent-Request-Uri']
     assert_equal 'foo.com:8080', response.headers['Sent-Host']
     assert_equal 'Keep-Alive', response.headers['Sent-Proxy-Connection']
+    # base64 of 'user:pass'
+    assert_equal 'Basic dXNlcjpwYXNz', response.headers['Sent-Proxy-Authorization']
     assert_equal 'proxied content', response.body
   end
 end
