@@ -12,10 +12,14 @@ module Excon
     class Socket < Error
       attr_reader :socket_error
 
+      # socket_error is the error to wrap, or a message for an error that
+      # wraps none (whose socket_error is then itself)
       def initialize(socket_error = Excon::Error.new)
-        # these build their own message rather than wrapping another error
-        if is_a?(Certificate) || is_a?(Excon::Errors::CertificateError) || is_a?(ProxyConnectionError)
+        if is_a?(Certificate) || is_a?(Excon::Errors::CertificateError)
           super
+        elsif socket_error.is_a?(String)
+          super
+          @socket_error = self
         else
           super("#{socket_error.message} (#{socket_error.class})")
           set_backtrace(socket_error.backtrace)
@@ -60,11 +64,14 @@ or:
 
       def initialize(msg, request = nil, response = nil)
         super(msg)
-        @socket_error = self
         @request = request
         @response = response
       end
     end
+
+    # Raised when a SOCKS5 proxy handshake fails. A Socket error, so it is
+    # retried and rescued as one; socket_error returns the error itself.
+    class SOCKS5Error < Socket; end
 
     class ProxyParse < Error; end
     class TooManyRedirects < Error; end

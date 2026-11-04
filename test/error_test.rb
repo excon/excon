@@ -91,6 +91,35 @@ class ErrorTest < Minitest::Test
   end
 end
 
+class SocketErrorTest < Minitest::Test
+  def test_wraps_an_error
+    cause = RuntimeError.new('boom')
+    error = Excon::Error::Socket.new(cause)
+
+    assert_equal 'boom (RuntimeError)', error.message
+    assert_same cause, error.socket_error
+  end
+
+  def test_built_from_a_message_wraps_nothing
+    error = Excon::Error::Socket.new('boom')
+
+    assert_equal 'boom', error.message
+    assert_same error, error.socket_error
+  end
+
+  def test_socks5_error_is_a_socket_error
+    error = Excon::Error::SOCKS5Error.new('boom')
+
+    assert_kind_of Excon::Error::Socket, error
+    assert_equal 'boom', error.message
+    assert_same error, error.socket_error
+  end
+
+  def test_socks5_error_has_legacy_name
+    assert_same Excon::Error::SOCKS5Error, Excon::Errors::SOCKS5Error
+  end
+end
+
 class ErrorMessageTest < Minitest::Test
   include TestServer
 
