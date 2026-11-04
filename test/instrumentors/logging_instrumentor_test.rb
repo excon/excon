@@ -45,6 +45,20 @@ class LoggingInstrumentorTest < Minitest::Test
     assert_equal ['request: http://127.0.0.1/logger', 'response: body'], logger.messages
   end
 
+  def test_response_data_does_not_include_logger
+    connection = Excon.new(
+      'http://127.0.0.1:9292',
+      instrumentor: Excon::LoggingInstrumentor,
+      logger: TestLogger.new,
+      mock: true
+    )
+
+    response = connection.request(method: :get, path: '/logger')
+
+    # the logger is passed to the response event, not stored in the response
+    refute response.data.key?(:logger)
+  end
+
   def test_logs_query_hash_as_query_string
     logger = TestLogger.new
     connection = Excon.new(

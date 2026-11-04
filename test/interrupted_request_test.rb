@@ -8,8 +8,8 @@ require_relative 'test_helper'
 # the next request would read the earlier request's response instead of its
 # own.
 #
-# InterruptResponse is put before the default middlewares, so it raises before
-# ResponseParser reads anything, leaving the whole response on the socket. The
+# InterruptResponse raises once the request is sent, before excon reads
+# anything of the response, leaving the whole response on the socket. The
 # server's /foo responds 'foo' and /bar responds 'bar', so a '/bar' request
 # reading 'foo' means it reused the dirty socket.
 class InterruptedRequestTest < Minitest::Test
@@ -23,7 +23,8 @@ class InterruptedRequestTest < Minitest::Test
   class SimulatedInterrupt < Exception; end # rubocop:disable Lint/InheritException
 
   class InterruptResponse < Excon::Middleware::Base
-    def response_call(_datum)
+    def request_call(datum)
+      super
       raise SimulatedInterrupt
     end
   end

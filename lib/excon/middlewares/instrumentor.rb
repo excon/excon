@@ -37,7 +37,9 @@ module Excon
 
       def response_call(datum)
         if datum.has_key?(:instrumentor)
-          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", datum[:response]) do
+          # pass the logger with the response, for LoggingInstrumentor
+          params = datum.key?(:logger) ? datum[:response].merge(logger: datum[:logger]) : datum[:response]
+          datum[:instrumentor].instrument("#{datum[:instrumentor_name]}.response", params) do
             @stack.response_call(datum)
           end
         else
