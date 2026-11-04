@@ -119,6 +119,15 @@ class ProxyConnectTest < Minitest::Test
     refute_includes headers, 'HTTP_X_PROXY_TOKEN'
   end
 
+  # any 2xx answer to CONNECT opens the tunnel (RFC 9110, section 9.3.6)
+  def test_connect_answered_with_any_2xx_is_tunneled
+    proxy = start_fake_proxy(status: '201 Created')
+    response = connection("http://127.0.0.1:#{proxy.port}").request(method: :get, path: '/foo')
+
+    assert_equal 200, response.status
+    assert_equal 'foo', response.body
+  end
+
   # the proxy can't read requests in the tunnel, so they name only the path,
   # as when not proxied
   def test_tunneled_request_uses_relative_uri

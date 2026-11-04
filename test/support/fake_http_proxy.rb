@@ -16,11 +16,11 @@ require_relative 'file_path_helpers'
 # By default it answers 200 and tunnels to the requested host and port.
 # Otherwise:
 #
-#   status: '407 Proxy Authentication Required' answers with that status (and
-#     no body) and closes, without tunneling
+#   status: '201 Created' answers with that status; for a 2xx it then tunnels
+#     as for 200, for any other status it sends no body and closes
 #   reply: "..." writes exactly that instead of a response, and closes
 #   silent: true never answers, leaving the client waiting
-#   terminate_tls: true answers 200, then, instead of tunneling, acts as the
+#   terminate_tls: true answers 2xx, then, instead of tunneling, acts as the
 #     target itself: it does the TLS handshake (with the 127.0.0.1
 #     certificate in test/fixtures/data), records the request sent through
 #     the tunnel in #requests after the CONNECT, and answers it with an
@@ -72,7 +72,7 @@ class FakeHTTPProxy
     return sleep if @silent
     return client.write(@reply) if @reply
 
-    return client.write("HTTP/1.1 #{@status}\r\nContent-Length: 0\r\n\r\n") unless @status.start_with?('200')
+    return client.write("HTTP/1.1 #{@status}\r\nContent-Length: 0\r\n\r\n") unless @status.start_with?('2')
 
     client.write("HTTP/1.1 #{@status}\r\n\r\n")
     @terminate_tls ? answer_as_target(client) : tunnel(client, request)
