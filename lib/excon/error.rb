@@ -13,7 +13,8 @@ module Excon
       attr_reader :socket_error
 
       def initialize(socket_error = Excon::Error.new)
-        if is_a?(Certificate) || is_a?(Excon::Errors::CertificateError)
+        # these build their own message rather than wrapping another error
+        if is_a?(Certificate) || is_a?(Excon::Errors::CertificateError) || is_a?(ProxyConnectionError)
           super
         else
           super("#{socket_error.message} (#{socket_error.class})")
@@ -52,11 +53,14 @@ or:
     class Timeout < Error; end
     class ResponseParse < Error; end
 
-    class ProxyConnectionError < Error
+    # Raised when a proxy refuses to open a CONNECT tunnel. A Socket error, so
+    # it is retried and rescued as one; socket_error returns the error itself.
+    class ProxyConnectionError < Socket
       attr_reader :request, :response
 
       def initialize(msg, request = nil, response = nil)
         super(msg)
+        @socket_error = self
         @request = request
         @response = response
       end

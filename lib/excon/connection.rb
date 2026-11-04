@@ -197,7 +197,8 @@ module Excon
         end
       rescue => error
         case error
-        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
+        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout,
+             Excon::Errors::ProxyConnectionError
           raise(error)
         when Errno::EPIPE
           # Read whatever remains in the pipe to aid in debugging

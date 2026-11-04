@@ -9,6 +9,7 @@ TEST_SUITE_DEFAULTS = {
 require 'excon'
 require 'minitest/autorun'
 
+require_relative 'support/fake_http_proxy'
 require_relative 'support/file_path_helpers'
 require_relative 'support/test_server'
 require_relative 'support/warning_helpers'
