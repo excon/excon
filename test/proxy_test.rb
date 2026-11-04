@@ -236,3 +236,62 @@ class ProxyUnixSocketRequestTest < Minitest::Test
     assert_equal 'proxied content', response.body
   end
 end
+
+# An HTTPS connection through a proxy first asks it to open a tunnel with
+# CONNECT; FakeHTTPProxy refuses every CONNECT with a 407.
+class ProxyConnectRefusedTest < Minitest::Test
+  include WithoutProxyEnv
+
+  def setup
+    super
+    @proxy = FakeHTTPProxy.new(status: '407 Proxy Authentication Required').start
+  end
+
+  def teardown
+    @proxy.stop
+    super
+  end
+
+  def test_refused_connect_raises_proxy_connection_error
+    error = assert_raises(Excon::Error::ProxyConnectionError) { request }
+
+    assert_equal 'proxy connection could not be established', error.message
+  end
+
+  def test_proxy_connection_error_has_proxy_response
+    error = assert_raises(Excon::Error::ProxyConnectionError) { request }
+
+    assert_equal 407, error.response[:response][:status]
+  end
+
+  def test_proxy_connection_error_has_connect_request
+    error = assert_raises(Excon::Error::ProxyConnectionError) { request }
+
+    assert error.request.start_with?("CONNECT foo.com:443 HTTP/1.1\r\n")
+  end
+
+  # it was previously raised wrapped in a Socket error, so code may rescue it
+  # as one and reach it through socket_error
+  def test_proxy_connection_error_is_a_socket_error
+    error = assert_raises(Excon::Error::Socket) { request }
+
+    assert_kind_of Excon::Errors::SocketError, error
+    assert_same error, error.socket_error
+    assert_equal 407, error.socket_error.response[:response][:status]
+  end
+
+  # Socket errors are in the default retry_errors
+  def test_refused_connect_is_retried_for_idempotent_requests
+    assert_raises(Excon::Error::ProxyConnectionError) do
+      request(idempotent: true, retry_limit: 2, retry_interval: 0)
+    end
+
+    assert_equal 2, @proxy.requests.length
+  end
+
+  private
+
+  def request(**params)
+    Excon.get('https://foo.com/', proxy: "http://127.0.0.1:#{@proxy.port}", **params)
+  end
+end
