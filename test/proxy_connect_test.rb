@@ -198,6 +198,38 @@ class ProxyConnectFailureTest < Minitest::Test
     end
   end
 
+  # the error keeps the CONNECT request, which may be logged
+  def test_proxy_connection_error_request_redacts_proxy_credentials
+    proxy = start_fake_proxy(status: '407 Proxy Authentication Required')
+    error = assert_raises(Excon::Error::ProxyConnectionError) do
+      connection("http://user:pass@127.0.0.1:#{proxy.port}").request(method: :get, path: '/')
+    end
+
+    # base64 of 'user:pass', which the proxy itself was sent
+    assert_includes proxy.requests.first, 'Proxy-Authorization: Basic dXNlcjpwYXNz'
+    assert_includes error.request, "Proxy-Authorization: REDACTED\r\n"
+    refute_includes error.request, 'dXNlcjpwYXNz'
+  end
+
+  def test_proxy_connection_error_request_redacts_credentials_in_ssl_proxy_headers
+    proxy = start_fake_proxy(status: '407 Proxy Authentication Required')
+    conn = connection("http://127.0.0.1:#{proxy.port}", ssl_proxy_headers: { 'proxy-authorization' => 'Bearer secret' })
+    error = assert_raises(Excon::Error::ProxyConnectionError) { conn.request(method: :get, path: '/') }
+
+    assert_includes error.request, "proxy-authorization: REDACTED\r\n"
+    refute_includes error.request, 'secret'
+  end
+
+  def test_proxy_connection_error_request_keeps_other_headers
+    proxy = start_fake_proxy(status: '407 Proxy Authentication Required')
+    error = assert_raises(Excon::Error::ProxyConnectionError) do
+      connection("http://user:pass@127.0.0.1:#{proxy.port}").request(method: :get, path: '/')
+    end
+
+    assert error.request.start_with?("CONNECT 127.0.0.1:9443 HTTP/1.1\r\nHost: 127.0.0.1:9443\r\n")
+    assert_includes error.request, "Proxy-Connection: Keep-Alive\r\n"
+  end
+
   def test_proxy_refusing_connect_raises_proxy_connection_error
     proxy = start_fake_proxy(status: '403 Forbidden')
     error = assert_raises(Excon::Error::ProxyConnectionError) do
