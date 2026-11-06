@@ -2,6 +2,10 @@ Unreleased
 ==========
 
 - add Excon.stub_call_count(stub), the number of requests a stub has answered, and Excon.verify_stubs(*stubs), which raises Excon::Error::StubNotCalled for stubs that answered none (#434)
+- redact Proxy-Authorization in the CONNECT request kept by Excon::Error::ProxyConnectionError#request, which previously held the proxy credentials
+- treat any 2xx answer to an HTTPS proxy's CONNECT as the tunnel being open, as RFC 9110 specifies, instead of raising ProxyConnectionError for anything but 200
+- raise Excon::Error::SOCKS5Error, a subclass of Excon::Error::Socket, when a SOCKS5 proxy handshake fails, instead of an Excon::Error::Socket wrapped in another one (whose message ended "(Exception) (Excon::Error::Socket)"); Excon::Error::Socket errors are no longer wrapped again, and Excon::Error::Socket.new accepts a message
+- raise Excon::Error::ProxyConnectionError when a proxy refuses a CONNECT, instead of wrapping it in an Excon::Error::Socket; it is now a subclass of Excon::Error::Socket, so it is still rescued and retried as one, and its socket_error returns itself
 - remove dead fallback to OpenSSL::PKey::RSA.new for client keys; OpenSSL::PKey.read is always available on supported Rubies (CRuby and JRuby)
 - parse a String `:proxy` (including one from the proxy environment variables) with the connection's `:uri_parser` instead of always using URI (#412)
 

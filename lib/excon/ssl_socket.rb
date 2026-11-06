@@ -122,10 +122,15 @@ module Excon
         # write out the proxy setup request
         @socket.write(request)
 
-        # eat the proxy's connection response
-        response = Excon::Response.parse(self,  :expects => 200, :method => 'CONNECT')
-        if response[:response][:status] != 200
-          raise(Excon::Errors::ProxyConnectionError.new("proxy connection could not be established", request, response))
+        # eat the proxy's connection response; any 2xx means the tunnel is
+        # open (RFC 9110, section 9.3.6)
+        response = Excon::Response.parse(self, method: 'CONNECT')
+        unless (200..299).cover?(response[:response][:status])
+          # the error keeps the request, which may be logged, so leave out
+          # the proxy credentials (which :ssl_proxy_headers may also carry)
+          redacted_request = request.gsub(/^(Proxy-Authorization:)[^\r\n]*/i, "\\1 #{Excon::REDACTED}")
+          raise(Excon::Errors::ProxyConnectionError.new('proxy connection could not be established',
+                                                        redacted_request, response))
         end
       end
 

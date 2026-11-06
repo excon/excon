@@ -547,7 +547,11 @@ module Excon
     end
 
     def raise_socket_error(error)
-      if error.message.include?('certificate verify failed')
+      # already a Socket error (e.g. from a proxy handshake): wrapping it
+      # again would add nothing but its class name to the message
+      if error.is_a?(Excon::Error::Socket)
+        raise(error)
+      elsif error.message.include?('certificate verify failed')
         raise(Excon::Errors::CertificateError.new(error))
       else
         raise(Excon::Errors::SocketError.new(error))
