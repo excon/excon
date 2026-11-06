@@ -48,6 +48,9 @@ require 'excon/unix_socket'
 
 # Define defaults first so they will be available to other files
 module Excon
+  # guards the stub call counts, which threads share when stubs are :global
+  STUB_CALL_COUNTS_MUTEX = Mutex.new
+
   class << self
     # @return [Hash] defaults for Excon connections
     def defaults
@@ -178,19 +181,21 @@ module Excon
       else
         raise(ArgumentError, 'stub requires either response_params OR a block')
       end
+      prune_stub_call_counts
       stubs.unshift(stub)
       stub
     end
 
     # get a stub matching params or nil
     # @param request_params [Hash<Symbol, >] request params to match against, omitted params match all
-    # @return [Hash<Symbol, >] response params to return from matched request or block to call with params
+    # @return [Array] the matching stub from Excon.stubs, a [request_params, response_params] pair
     def stub_for(request_params={})
       if (method = request_params.delete(:method))
         request_params[:method] = method.to_s.downcase.to_sym
       end
       request_params[:query] = Utils.query_string(request_params)[1...] if request_params.key?(:query)
-      Excon.stubs.each do |stub, response_params|
+      Excon.stubs.each do |entry|
+        stub, = entry
         captures = { headers: {} }
         headers_match = !stub.key?(:headers) || stub[:headers].keys.all? do |key|
           case value = stub[:headers][key]
@@ -226,7 +231,7 @@ module Excon
         end
         if headers_match && non_headers_match
           request_params[:captures] = captures
-          return [stub, response_params]
+          return entry
         end
       end
       nil
@@ -248,7 +253,44 @@ module Excon
     def unstub(request_params = {})
       return unless (stub = stub_for(request_params))
 
-      Excon.stubs.delete_at(Excon.stubs.index(stub))
+      STUB_CALL_COUNTS_MUTEX.synchronize { stub_call_counts.delete(stub) }
+      Excon.stubs.delete_at(Excon.stubs.index { |entry| entry.equal?(stub) })
+    end
+
+    # number of requests a stub has answered
+    # counts are only kept for stubs still in Excon.stubs; don't rely on the
+    # count of a stub after removing it
+    # @param stub [Array] a stub, as returned by Excon.stub or Excon.stub_for
+    # @return [Integer] how many times the stub has answered a request
+    def stub_call_count(stub)
+      STUB_CALL_COUNTS_MUTEX.synchronize { stub_call_counts.fetch(stub, 0) }
+    end
+
+    # raise if any of the given stubs, or of all stubs, has not answered a request
+    # @param stubs [Array<Array>] stubs to check, as returned by Excon.stub; omit to check every stub in Excon.stubs
+    # @raise [Excon::Error::StubNotCalled] listing the request params of each stub that was never called
+    # @return [true] if every stub checked has been called
+    def verify_stubs(*stubs)
+      stubs = Excon.stubs.dup if stubs.empty?
+      uncalled = stubs.select { |stub| stub_call_count(stub).zero? }
+      return true if uncalled.empty?
+
+      message = StringIO.new
+      message.puts("#{uncalled.length} of #{stubs.length} stubs not called")
+      uncalled.each do |request_params, _|
+        message.puts('{')
+        Excon::PrettyPrinter.pp(message, request_params)
+        message.puts('}')
+      end
+      raise(Excon::Error::StubNotCalled.new(message.string))
+    end
+
+    # record that a stub answered a request, used by Excon::Middleware::Mock
+    # @param stub [Array] the stub, as returned by Excon.stub_for
+    def record_stub_call(stub)
+      STUB_CALL_COUNTS_MUTEX.synchronize do
+        stub_call_counts[stub] = stub_call_counts.fetch(stub, 0) + 1
+      end
     end
 
     # Generic non-persistent HTTP methods
@@ -258,6 +300,31 @@ module Excon
           new(url, params).request(:method => :#{method}, &block)
         end
       DEF
+    end
+
+    private
+
+    # call counts for stubs, keyed by the stub object itself (not by equality,
+    # so two identical stubs are counted apart); kept alongside Excon.stubs
+    def stub_call_counts
+      case Excon.defaults[:stubs]
+      when :global
+        @stub_call_counts ||= {}.compare_by_identity
+      when :local
+        Thread.current[:_excon_stub_call_counts] ||= {}.compare_by_identity
+      end
+    end
+
+    # drop counts for stubs no longer in Excon.stubs (e.g. after Excon.stubs.clear),
+    # so they don't hold on to removed stubs
+    def prune_stub_call_counts
+      STUB_CALL_COUNTS_MUTEX.synchronize do
+        counts = stub_call_counts
+        next if counts.empty?
+
+        live = Excon.stubs.each_with_object({}.compare_by_identity) { |stub, set| set[stub] = true }
+        counts.delete_if { |stub, _| !live.key?(stub) }
+      end
     end
   end
 end

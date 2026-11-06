@@ -26,6 +26,8 @@ module Excon
           end
 
           if (stub = Excon.stub_for(datum))
+            # count before calling a block stub, so one that raises still counts
+            Excon.record_stub_call(stub)
             datum[:remote_ip] ||= '127.0.0.1'
             datum[:response] = {
               :body       => '',

@@ -403,6 +403,37 @@ end
 
 By default stubs are shared globally, to make stubs unique to each thread, use `Excon.defaults[:stubs] = :local`.
 
+### Checking that stubs were called
+
+Excon counts the requests each stub answers, so a test can check that the stubs it set up were actually used, instead of passing silently when the request is never made.
+
+```ruby
+stub = Excon.stub({ :method => :get, :path => '/users' }, { :body => '[]', :status => 200 })
+
+Excon.stub_call_count(stub) # => 0
+Excon.get('http://example.com/users', :mock => true)
+Excon.stub_call_count(stub) # => 1
+```
+
+`Excon.verify_stubs` raises `Excon::Error::StubNotCalled`, listing the request params of each stub that answered no requests. With no arguments it checks every stub in `Excon.stubs`; pass stubs to check only those, for instance to leave out a catch-all fallback stub that some tests never use.
+
+```ruby
+Excon.verify_stubs       # check every stub
+Excon.verify_stubs(stub) # check only this stub
+```
+
+For example, with RSpec:
+
+```ruby
+config.after(:each) do
+  Excon.verify_stubs
+ensure
+  Excon.stubs.clear
+end
+```
+
+A stub's count is kept with the stub object `Excon.stub` returns (or `Excon.stub_for` finds), so two identical stubs are counted separately. Counts are only kept for stubs still in `Excon.stubs`, so don't rely on the count of a stub after removing it. Counts follow `Excon.defaults[:stubs]`, so `:local` stubs are counted per thread.
+
 ## Instrumentation
 
 Excon calls can be timed using the [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) API.

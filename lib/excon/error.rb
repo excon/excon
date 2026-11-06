@@ -5,6 +5,7 @@ module Excon
     @default_status_error = :HTTPStatus
 
     class StubNotFound < Error; end
+    class StubNotCalled < Error; end
     class InvalidStub < Error; end
     class Warning < Error; end
 
