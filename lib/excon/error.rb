@@ -52,9 +52,15 @@ or:
       end
     end
 
-    class InvalidHeaderKey < Error; end
-    class InvalidHeaderValue < Error; end
     class InvalidParameter < Error; end
+
+    class InvalidHeaderKey < InvalidParameter; end
+    class InvalidHeaderValue < InvalidParameter; end
+    class InvalidHost < InvalidParameter; end
+    class InvalidMethod < InvalidParameter; end
+    class InvalidPath < InvalidParameter; end
+    class InvalidQuery < InvalidParameter; end
+
     class Timeout < Error; end
     class ResponseParse < Error; end
 

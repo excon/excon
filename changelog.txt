@@ -2,6 +2,7 @@ Unreleased
 ==========
 
 - add NUL to unsafe chars check for header keys and values as per RFC 9110
+- raise on unsafe chars in host, method, path, or query to prevent injection
 
 v1.11.0 2026-11-06
 ==================

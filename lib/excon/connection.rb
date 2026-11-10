@@ -104,7 +104,7 @@ module Excon
         end
       else
         if @data.key?(:host) && @data[:host].nil?
-          raise Excon::Error::InvalidParameter, "host is required for non-Unix connections; " \
+          raise Excon::Error::InvalidHost, "host is required for non-Unix connections; " \
                                                 "the URL may be malformed (e.g. missing \"//\" after the scheme)"
         end
         @socket_key = "#{@data[:scheme]}://#{@data[:host]}#{port_string(@data)}"
@@ -124,16 +124,31 @@ module Excon
           # we already have data from a middleware, so bail
           return datum
         else
+          if include_unsafe_chars?(datum[:host].to_s)
+            raise Excon::Errors::InvalidHost, "host #{datum[:host].inspect} contains unsafe \"\\0\", \"\\n\" or \"\\r\""
+          end
+          if include_unsafe_chars?(datum[:method].to_s)
+            raise Excon::Errors::InvalidMethod, "method #{datum[:method].inspect} contains unsafe \"\\0\", \"\\n\" or \"\\r\""
+          end
+          if include_unsafe_chars?(datum[:path])
+            raise Excon::Errors::InvalidPath, "path #{datum[:path].inspect} contains unsafe \"\\0\", \"\\n\" or \"\\r\""
+          end
+          query = query_string(datum)
+          if include_unsafe_chars?(query)
+            raise Excon::Errors::InvalidQuery, "query contains unsafe \"\\0\", \"\\n\" or \"\\r\""
+          end
+
           socket(datum).data = datum
           # start with "METHOD /path"
           request = datum[:method].to_s.upcase + ' '
           if datum[:proxy] && datum[:scheme] != HTTPS
             request << datum[:scheme] << '://' << datum[:host] << port_string(datum)
           end
+
           request << datum[:path]
 
           # add query to path, if there is one
-          request << query_string(datum)
+          request << query
 
           # finish first line with "HTTP/1.1\r\n"
           request << HTTP_1_1
@@ -197,7 +212,7 @@ module Excon
         end
       rescue => error
         case error
-        when Excon::Errors::InvalidHeaderKey, Excon::Errors::InvalidHeaderValue, Excon::Errors::StubNotFound, Excon::Errors::Timeout
+        when Excon::Errors::InvalidParameter, Excon::Errors::StubNotFound, Excon::Errors::Timeout
           raise(error)
         when Errno::EPIPE
           # Read whatever remains in the pipe to aid in debugging
@@ -272,7 +287,7 @@ module Excon
         datum[:headers][host_key] ||= ''
       else
         if datum[:host].nil?
-          raise Excon::Error::InvalidParameter, "host is required for non-Unix connections; " \
+          raise Excon::Error::InvalidHost, "host is required for non-Unix connections; " \
                                                 "the URL may be malformed (e.g. missing \"//\" after the scheme)"
         end
         datum[:headers][host_key] ||= datum[:host] + port_string(datum)
