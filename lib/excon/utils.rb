@@ -123,18 +123,23 @@ module Excon
       str.gsub(ESCAPED) { ::Regexp.last_match(1).hex.chr }
     end
 
+    # Detects NUL CR and/or LF as these are unsafe to include without escaping
+    def include_unsafe_chars?(str)
+      str.include?("\0") || str.include?("\n") || str.include?("\r")
+    end
+
     # Performs validation on the passed header hash and returns a string representation of the headers
     def headers_hash_to_s(headers)
       headers_str = +''
       headers.each do |key, values|
-        if key.to_s.match?(/[\r\n]/)
-          raise Excon::Errors::InvalidHeaderKey, "#{key.to_s.inspect} contains forbidden \"\\r\" or \"\\n\""
+        if include_unsafe_chars?(key.to_s)
+          raise Excon::Errors::InvalidHeaderKey, "header key #{key.to_s.inspect} contains unsafe \"\\0\", \"\\n\" or \"\\r\""
         end
 
         [values].flatten.each do |value|
-          if value.to_s.match?(/[\r\n]/)
+          if include_unsafe_chars?(value.to_s)
             # Don't include the potentially sensitive header value (i.e. authorization token) in the message
-            raise Excon::Errors::InvalidHeaderValue, "#{key} header value contains forbidden \"\\r\" or \"\\n\""
+            raise Excon::Errors::InvalidHeaderValue, "header #{key.to_s.inspect} value contains unsafe \"\\0\", \"\\n\" or \"\\r\""
           end
 
           headers_str << key.to_s << ': ' << value.to_s << CR_NL

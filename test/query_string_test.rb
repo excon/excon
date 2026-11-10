@@ -49,6 +49,13 @@ class QueryStringTest < Minitest::Test
     assert_equal 'foo%25%3D%23', query_sent('foo%=#' => nil)
   end
 
+  # A Hash holds values, which Excon escapes, so a value may contain anything
+  # (e.g. multi-line text). A String query is sent as it is, so one with these
+  # chars raises Excon::Error::InvalidQuery instead.
+  def test_escapes_unsafe_chars_rather_than_raising
+    assert_equal 'foo%00%0D%0A=bar%00%0D%0A', query_sent("foo\0\r\n" => "bar\0\r\n")
+  end
+
   private
 
   def query_sent(query)

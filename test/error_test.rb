@@ -38,29 +38,44 @@ class ErrorTest < Minitest::Test
     assert_includes error.message, 'foo\r\nbar: baz'
   end
 
-  def test_new_raises_invalid_parameter_for_url_with_nil_host
+  def test_new_raises_invalid_host_for_url_with_nil_host
     # missing // after the scheme
-    error = assert_raises(Excon::Error::InvalidParameter) do
+    error = assert_raises(Excon::Error::InvalidHost) do
       Excon.new('https:/registry.example.com/package')
     end
     assert_includes error.message, 'host is required'
   end
 
-  def test_new_raises_invalid_parameter_when_host_nil_overrides_url
-    error = assert_raises(Excon::Error::InvalidParameter) do
+  def test_new_raises_invalid_host_when_host_nil_overrides_url
+    error = assert_raises(Excon::Error::InvalidHost) do
       Excon.new('https://registry.example.com/package', host: nil)
     end
     assert_includes error.message, 'host is required'
   end
 
-  def test_connection_new_without_host_raises_invalid_parameter
-    error = assert_raises(Excon::Error::InvalidParameter) do
+  def test_connection_new_without_host_raises_invalid_host
+    error = assert_raises(Excon::Error::InvalidHost) do
       Excon::Connection.new(scheme: 'https', path: '/package', port: 443).get
     end
     assert_includes error.message, 'host is required'
   end
 
   # backwards compatibility between Excon::Error and legacy Excon::Errors
+
+  # rescuing InvalidParameter (raised for a missing host before InvalidHost
+  # existed) still catches each of the more specific validation errors
+  def test_validation_errors_are_invalid_parameters
+    [
+      Excon::Error::InvalidHeaderKey,
+      Excon::Error::InvalidHeaderValue,
+      Excon::Error::InvalidHost,
+      Excon::Error::InvalidMethod,
+      Excon::Error::InvalidPath,
+      Excon::Error::InvalidQuery
+    ].each do |klass|
+      assert_operator klass, :<, Excon::Error::InvalidParameter
+    end
+  end
 
   def test_raise_standard_error_catch_standard_error
     assert_raises(Excon::Error) { raise Excon::Error::Client, 'foo' }
