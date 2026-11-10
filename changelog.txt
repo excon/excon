@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- add NUL to unsafe chars check for header keys and values as per RFC 9110
+
 v1.11.0 2026-11-06
 ==================
 
