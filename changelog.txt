@@ -1,6 +1,9 @@
 Unreleased
 ==========
 
+v1.12.0 2026-11-10
+==================
+
 - add NUL to unsafe chars check for header keys and values as per RFC 9110
 - raise on unsafe chars in host, method, path, or query to prevent injection
 - add Excon::Error::InvalidHost, InvalidMethod, InvalidPath and InvalidQuery; these and the InvalidHeaderKey/InvalidHeaderValue errors are now subclasses of Excon::Error::InvalidParameter, so rescuing it catches every request validation error
