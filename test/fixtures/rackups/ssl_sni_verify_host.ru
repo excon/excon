@@ -22,7 +22,9 @@ Rackup::Handler::WEBrick.run(Basic,
     :SSLCertificate   => OpenSSL::X509::Certificate.new(File.open(cert_file).read),
     :SSLCACertificateFile => cert_file,
     :SSLVerifyClient  => OpenSSL::SSL::VERIFY_NONE,
-    :DoNotListen         => true
+    :DoNotListen         => true,
+    :Logger           => server.logger,
+    :AccessLog        => []
   )
   server.virtual_host excon_vhost
 end

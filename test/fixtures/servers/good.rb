@@ -267,8 +267,8 @@ class GoodServer
   end
 
   def chunks_for(str)
-    chunks = ''
-    str.force_encoding('BINARY') if str.respond_to?(:force_encoding)
+    chunks = +''
+    str = str.b # binary copy, so slice! below doesn't mutate the caller's string
     chunk_size = str.size / 2
     until (chunk = str.slice!(0, chunk_size)).empty?
       chunks << chunk.size.to_s(16) << "\r\n"
