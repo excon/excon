@@ -14,7 +14,7 @@ module Excon
         begin
           @socket.connect_nonblock(sockaddr)
         rescue Errno::EINPROGRESS
-          unless IO.select(nil, [@socket], nil, @data[:connect_timeout])
+          unless @socket.wait_writable(@data[:connect_timeout])
             raise(Excon::Errors::Timeout.new("connect timeout reached"))
           end
           begin

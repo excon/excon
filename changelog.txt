@@ -1,6 +1,8 @@
 Unreleased
 ==========
 
+- wait on sockets with IO#wait_readable and #wait_writable instead of IO.select, so a fiber scheduler handles the wait in its event loop (io_wait) instead of on a new thread (Async's io_select) or with a select that blocks every fiber
+
 v1.12.0 2026-11-10
 ==================
 
