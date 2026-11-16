@@ -106,6 +106,12 @@ class ProxyConfigTest < Minitest::Test
     assert_raises(ArgumentError) { Excon.new('http://foo.com', proxy: 'unix://myhost/tmp/myproxy.sock') }
   end
 
+  # Excon has no TLS over a Unix socket, so without this the request went to the
+  # socket in plain text: no TLS, no CONNECT, and the target in the request line.
+  def test_unix_socket_proxy_with_https_connection_raises
+    assert_raises(ArgumentError) { Excon.new('https://foo.com', proxy: 'unix:///tmp/myproxy.sock') }
+  end
+
   def test_ssl_proxy_headers_with_http_connection_raises
     assert_raises(ArgumentError) do
       Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080', ssl_proxy_headers: { 'X-Foo' => 'bar' })
