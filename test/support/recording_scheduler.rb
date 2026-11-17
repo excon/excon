@@ -53,6 +53,12 @@ class RecordingScheduler
 
   def unblock(_blocker, _fiber); end
 
+  # Ruby 4.0+ calls this to interrupt a blocked fiber (as when another thread
+  # closes an IO it waits on), which these tests don't do; 4.1 requires it.
+  def fiber_interrupt(_fiber, exception)
+    raise NotImplementedError, "RecordingScheduler can't interrupt a fiber with #{exception.inspect}"
+  end
+
   def fiber(&)
     Fiber.new(blocking: false, &).tap(&:resume)
   end
