@@ -666,6 +666,10 @@ module Excon
             raise ArgumentError, "The `:host` parameter should not be set for `unix://` proxies.\n" +
                                  "When supplying a `unix://` URI, it should start with `unix:/` or `unix:///`."
           end
+          if @data[:ssl_uri_schemes].include?(@data[:scheme])
+            Excon.display_warning("A `unix://` proxy cannot carry an `#{@data[:scheme]}://` request. " +
+                                  "Excon has no TLS support over a Unix socket, so the request is sent to the proxy in plain text.")
+          end
         else
           unless uri.host && uri.port && uri.scheme
             raise Excon::Errors::ProxyParse, "Proxy is invalid"

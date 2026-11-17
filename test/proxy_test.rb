@@ -106,6 +106,16 @@ class ProxyConfigTest < Minitest::Test
     assert_raises(ArgumentError) { Excon.new('http://foo.com', proxy: 'unix://myhost/tmp/myproxy.sock') }
   end
 
+  # Excon has no TLS over a Unix socket, so without this the request went to the
+  # socket in plain text: no TLS, no CONNECT, and the target in the request line.
+  def test_unix_socket_proxy_with_https_connection_warns
+    error = assert_raises(Excon::Error::Warning) do
+      Excon.new('https://foo.com', proxy: 'unix:///tmp/myproxy.sock')
+    end
+
+    assert_includes error.message, 'sent to the proxy in plain text'
+  end
+
   def test_ssl_proxy_headers_with_http_connection_raises
     assert_raises(ArgumentError) do
       Excon.new('http://foo.com', proxy: 'http://myproxy.net:8080', ssl_proxy_headers: { 'X-Foo' => 'bar' })
@@ -237,7 +247,9 @@ class ProxyFromPartialEnvironmentTest < Minitest::Test
 
   def test_unix_socket_proxy_from_environment
     ENV['http_proxy'] = 'unix:///tmp/myproxy.sock'
-    proxy = Excon.new('https://secret.com').data[:proxy]
+    # An https request falling back to a unix:// http_proxy is the case the
+    # warning is about, so it would be raised here by the test helper.
+    proxy = silence_warnings { Excon.new('https://secret.com') }.data[:proxy]
 
     assert_nil proxy[:host]
     assert_nil proxy[:port]
