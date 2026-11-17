@@ -1,7 +1,7 @@
 Unreleased
 ==========
 
-- raise ArgumentError for an https:// request through a unix:// proxy, which excon sent to the socket in plain text with no TLS and no CONNECT (#996)
+- warn about an https:// request through a unix:// proxy, which excon sends to the socket in plain text with no TLS and no CONNECT (#996)
 
 v1.12.0 2026-11-10
 ==================
