@@ -210,8 +210,8 @@ class RefusedConnectEisconnTest < Minitest::Test
     socket = Socket.new(:INET, :STREAM)
 
     assert_raises(IO::WaitWritable) { socket.connect_nonblock(sockaddr) }
-    # Excon::Socket waits with IO.select, so this does too
-    writable = IO.select(nil, [socket], nil, 5) # rubocop:disable Lint/IncompatibleIoSelectWithFiberScheduler
+    # Excon::Socket waits with IO#wait_writable, so this does too
+    writable = socket.wait_writable(5)
     assert writable, 'the connect is still in progress'
     assert_raises(Errno::EISCONN) { socket.connect_nonblock(sockaddr) }
     assert_equal Errno::ECONNREFUSED::Errno, socket.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR).int

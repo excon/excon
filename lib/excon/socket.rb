@@ -367,14 +367,17 @@ module Excon
         end
       end
 
-      select = case type
-               when :connect_read, :read
-                 IO.select([socket], nil, nil, timeout)
-               when :connect_write, :write
-                 IO.select(nil, [socket], nil, timeout)
-               end
+      # IO#wait_readable and #wait_writable, unlike IO.select, go through a
+      # fiber scheduler's io_wait hook, which it handles in its event loop.
+      io = socket.to_io
+      ready = case type
+              when :connect_read, :read
+                io.wait_readable(timeout)
+              when :connect_write, :write
+                io.wait_writable(timeout)
+              end
 
-      select || raise(Excon::Errors::Timeout.new, "#{timeout_kind} timeout reached")
+      ready || raise(Excon::Errors::Timeout.new, "#{timeout_kind} timeout reached")
     end
 
     def unpacked_sockaddr

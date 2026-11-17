@@ -172,7 +172,7 @@ module Excon
           if remaining <= 0
             raise Excon::Error::Timeout.new('SOCKS5 read timeout')
           end
-          ready = IO.select([@socket], nil, nil, remaining)
+          ready = @socket.wait_readable(remaining)
           unless ready
             raise Excon::Error::Timeout.new('SOCKS5 read timeout')
           end
@@ -181,7 +181,7 @@ module Excon
         chunk = @socket.read_nonblock(nbytes - data.bytesize, exception: false)
         case chunk
         when :wait_readable
-          IO.select([@socket], nil, nil, deadline ? [deadline - Time.now, 0].max : nil)
+          @socket.wait_readable(deadline ? [deadline - Time.now, 0].max : nil)
         when nil, ''
           raise Excon::Error::SOCKS5Error, 'SOCKS5 proxy connection closed unexpectedly'
         else
