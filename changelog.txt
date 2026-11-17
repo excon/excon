@@ -2,6 +2,7 @@ Unreleased
 ==========
 
 - wait on sockets with IO#wait_readable and #wait_writable instead of IO.select, so a fiber scheduler handles the wait in its event loop (io_wait) instead of on a new thread (Async's io_select) or with a select that blocks every fiber
+- warn about an https:// request through a unix:// proxy, which excon sends to the socket in plain text with no TLS and no CONNECT (#996)
 
 v1.12.0 2026-11-10
 ==================
