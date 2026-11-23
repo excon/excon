@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('minitest', '>= 6')
   # Puma 8.1.0 rejects the empty Host header excon sends over unix sockets
   # (puma/puma#3957); remove the cap once puma/puma#4152 is released.
-  s.add_development_dependency('puma', '< 8.1')
+  s.add_development_dependency('puma', '< 8.2')
   s.add_development_dependency('rake')
   s.add_development_dependency('webrick')
 
