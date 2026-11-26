@@ -15,7 +15,8 @@ class ProxyConfigTest < Minitest::Test
   end
 
   def test_fully_specified_proxy
-    proxy = Excon.new('http://foo.com', proxy: 'https://myproxy.net:8080').data[:proxy]
+    # An https:// proxy URL is dialed in plain TCP, which warns.
+    proxy = silence_warnings { Excon.new('http://foo.com', proxy: 'https://myproxy.net:8080') }.data[:proxy]
 
     assert_equal 'myproxy.net', proxy[:host]
     assert_equal 8080, proxy[:port]
@@ -114,6 +115,16 @@ class ProxyConfigTest < Minitest::Test
     end
 
     assert_includes error.message, 'sent to the proxy in plain text'
+  end
+
+  # Excon has no TLS-to-proxy support: an https:// proxy URL is dialed in plain
+  # TCP, so the CONNECT request and any proxy credentials go out unencrypted.
+  def test_https_proxy_url_warns
+    error = assert_raises(Excon::Error::Warning) do
+      Excon.new('https://foo.com', proxy: 'https://user:pass@myproxy.net:8443')
+    end
+
+    assert_includes error.message, 'plain TCP'
   end
 
   def test_ssl_proxy_headers_with_http_connection_raises

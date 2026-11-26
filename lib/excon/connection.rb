@@ -679,6 +679,11 @@ module Excon
         raise Excon::Errors::ProxyParse, "Proxy is invalid"
       end
 
+      if @data[:proxy].is_a?(Hash) && @data[:proxy][:scheme] == 'https'
+        Excon.display_warning("An `https://` proxy is not supported: Excon connects to the proxy over plain TCP, " +
+                              "so the CONNECT request and any proxy credentials are sent unencrypted.")
+      end
+
       if @data.has_key?(:proxy) && @data[:scheme] == 'http'
         @data[:headers]['Proxy-Connection'] ||= 'Keep-Alive'
         # https credentials happen in handshake
